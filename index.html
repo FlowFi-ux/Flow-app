@@ -703,10 +703,6 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .note-editor-body{flex:1;resize:none;border:none;background:transparent;color:var(--text);font-family:inherit;font-size:13px;line-height:1.7;padding:16px 18px;outline:none;overflow-y:auto}
 
 
-/* ══ PDF MONTHLY REPORT BUTTON ══════════════════════════════ */
-.btn-report-pdf{background:var(--surplus);color:#fff;border:none;padding:8px 18px;border-radius:var(--r);font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:6px}
-.btn-report-pdf:hover{opacity:.88}
-.btn-report-pdf:disabled{opacity:.5;cursor:not-allowed}
 
 /* ══ RESPONSIVE NEW FEATURES ════════════════════════════════ */
 @media(max-width:900px){
@@ -1789,7 +1785,6 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       </div>
     </div>
     <div class="info-tip" id="tip-report"><div class="info-tip-hd">Monthly Report Card</div>Auto-generates a financial health summary for any month. Grades are based on your <strong>savings rate</strong> (net income ÷ total income): <strong>A</strong> = above 30%, <strong>B</strong> = 20-30%, <strong>C</strong> = 10-20%, <strong>D</strong> = below 10%.<br><br>Also shows income vs expenses, month-over-month changes, and your top 3 expense categories.<button class="info-tip-close" onclick="toggleInfo('tip-report')">×</button></div>
-    <div style="margin-bottom:10px"><button class="btn-report-pdf" id="reportPdfBtn" onclick="exportMonthlyReport()">📄 Download PDF Report</button></div>
     <div id="reportBody"><div class="empty-msg">Select a month to generate the report.</div></div>
   </div>
   <!-- EMERGENCY FUND -->
@@ -2568,27 +2563,6 @@ function exportPDF(){
   const safe=function(s,n){return String(s||'').replace(/[^\x00-\x7E]/g,'-').substring(0,n||120);};
   const INR=function(n){const s=Math.abs(Math.round(n||0)).toString();if(s.length<=3)return'Rs.'+s;const l=s.slice(-3),r=s.slice(0,-3);return'Rs.'+r.replace(/\B(?=(\d{2})+(?!\d))/g,',')+','+l;};
   const {jsPDF}=window.jspdf;const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  // ── Universal text sanitiser ──────────────────────────
-  // Patches pdf.text so EVERY call strips non-ASCII characters.
-  // This prevents jsPDF.f3 errors from any user-entered Unicode.
-  (function(){
-    var _pt = pdf.text.bind(pdf);
-    pdf.text = function(s,x,y,opts){
-      return _pt(String(s==null?'':s).replace(/[^\x00-\x7E]/g,'-'),x,y,opts||{});
-    };
-  })();
-    // ── Sanitise ALL text going into jsPDF ──────────────────
-    // jsPDF standard fonts only support Windows-1252 (ASCII+Latin-1).
-    // Any char above U+007E causes "Invalid argument passed to jsPDF.f3".
-    // Monkey-patch pdf.text so every call is safe, no exceptions.
-    (function(){
-      var _origText = pdf.text.bind(pdf);
-      pdf.text = function(s, x, y, opts){
-        var clean = String(s == null ? '' : s).replace(/[^\x00-\x7E]/g, '-');
-        return _origText(clean, x, y, opts || {});
-      };
-    })();
-
   const W=210,M=14,CW=W-M*2;
   const tc=(...c)=>pdf.setTextColor(...c),dc=(...c)=>pdf.setDrawColor(...c),fc=(...c)=>pdf.setFillColor(...c);
   const lw=w=>pdf.setLineWidth(w),ft=f=>pdf.setFont('courier',f||'normal'),fs=s=>pdf.setFontSize(s);
@@ -2615,7 +2589,7 @@ function exportPDF(){
       if(y>245){pdf.addPage();y=14;}
       if(i%2===0){fc(...C.bg);pdf.rect(M,y,CW,rowH,'F')}
       ft('normal');fs(7.5);tc(...C.second);pdf.text(safe(r.cat||'-',20),M+5,y+4.5);tc(...C.muted);pdf.text(safe(r.desc||'',24),M+55,y+4.5);
-      if(r.tag){tc(130,130,130);pdf.text(safe(r.tag,10),M+105,y+4.5)}
+      if(r.tag){tc(130,130,130);pdf.text(r.tag.substring(0,10),M+105,y+4.5)}
       ft('bold');tc(...aclr);pdf.text(INR(parseFloat(r.amt)||0),W-M-1,y+4.5,{align:'right'});
       dc(...C.border2);lw(.1);pdf.line(M,y+rowH,W-M,y+rowH);y+=rowH;
     });
@@ -4035,214 +4009,6 @@ function renderNotes(){
 // ══ FAMILY / HOUSEHOLD MODE ══════════════════════════════
 
 // ══ PDF MONTHLY REPORT ═══════════════════════════════════
-async function exportMonthlyReport(){
-  const btn=document.getElementById('reportPdfBtn');
-  if(btn){btn.textContent='Generating...';btn.disabled=true;}
-  try{
-    // ── Safe helpers ─────────────────────────────────────
-    // Strip every char > U+007E so jsPDF standard fonts never choke
-    const safe=function(s,n){return String(s||'').replace(/[^\x00-\x7E]/g,'-').substring(0,n||120);};
-    // Indian-grouping number formatter — never calls toLocaleString
-    const INR=function(n){
-      const s=Math.abs(Math.round(n||0)).toString();
-      if(s.length<=3)return'Rs.'+s;
-      const last3=s.slice(-3);
-      const rest=s.slice(0,-3);
-      const grouped=rest.replace(/\B(?=(\d{2})+(?!\d))/g,',');
-      return'Rs.'+grouped+','+last3;
-    };
-    // Safe ASCII date — no locale dependence
-    const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
-    const now=new Date();
-    const todayStr=now.getDate()+' '+MN[now.getMonth()]+' '+now.getFullYear();
-
-    const monthIdx=parseInt(selM()),yearVal=selY();
-    const month=MONTHS[monthIdx],year=yearVal;
-    const d=mdata();
-    const inc=d.income.reduce(function(s,x){return s+(parseFloat(x.amt)||0);},0);
-    const exp=d.expense.reduce(function(s,x){return s+(parseFloat(x.amt)||0);},0);
-    const net=inc-exp;
-    const sr=inc>0?Math.round(net/inc*100):0;
-    const grade=sr>=30?'A':sr>=20?'B':sr>=10?'C':'D';
-
-    // Category breakdown
-    const cats={};
-    d.expense.forEach(function(x){const k=safe(x.cat||'Other',40);cats[k]=(cats[k]||0)+(parseFloat(x.amt)||0);});
-    const topCats=Object.entries(cats).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
-
-    const {jsPDF}=window.jspdf;
-    if(!jsPDF){throw new Error('jsPDF library not loaded. Check your internet connection and reload.');}
-    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-    // ── Sanitise ALL text going into jsPDF ──────────────────
-    // jsPDF standard fonts only support Windows-1252 (ASCII+Latin-1).
-    // Any char above U+007E causes "Invalid argument passed to jsPDF.f3".
-    // Monkey-patch pdf.text so every call is safe, no exceptions.
-    (function(){
-      var _origText = pdf.text.bind(pdf);
-      pdf.text = function(s, x, y, opts){
-        var clean = String(s == null ? '' : s).replace(/[^\x00-\x7E]/g, '-');
-        return _origText(clean, x, y, opts || {});
-      };
-    })();
-
-    const W=210,M=14,CW=W-M*2;
-
-    // Colour helpers
-    const tc=function(){pdf.setTextColor.apply(pdf,arguments);};
-    const fc=function(){pdf.setFillColor.apply(pdf,arguments);};
-    const dc=function(){pdf.setDrawColor.apply(pdf,arguments);};
-    const lw=function(w){pdf.setLineWidth(w);};
-    const ft=function(f){pdf.setFont('courier',f||'normal');};
-    const fs=function(s){pdf.setFontSize(s);};
-    const txt=function(s,x,y,opts){pdf.text(String(s==null?'':s).replace(/[^\x00-\x7E]/g,'-'),x,y,opts||{});};
-
-    const C={
-      black:[8,8,8],muted:[80,80,80],label:[105,105,105],
-      border:[185,185,185],bg:[246,246,244],
-      surplus:[18,78,44],deficit:[118,22,30],amber:[96,68,0]
-    };
-
-    let y=0;
-
-    // ── Page 1 Header ─────────────────────────────────────
-    fc(18,18,18);pdf.rect(0,0,W,24,'F');
-    ft('bold');fs(20);tc(240,240,240);
-    txt('Flow',M,16);
-    ft('normal');fs(9);tc(155,155,155);
-    txt('MONTHLY FINANCIAL REPORT',M+34,16);
-    ft('bold');fs(11);tc(240,240,240);
-    txt(month+' '+year,W-M,16,{align:'right'});
-    y=32;
-
-    // ── Grade + Savings rate badge ────────────────────────
-    const gColors={A:[18,78,44],B:[18,78,100],C:[96,68,0],D:[118,22,30]};
-    const gBgs={A:[224,242,230],B:[216,238,250],C:[252,238,188],D:[250,230,232]};
-    fc(...gBgs[grade]);dc(...gColors[grade]);lw(0.4);
-    pdf.roundedRect(M,y,22,22,3,3,'FD');
-    ft('bold');fs(22);tc(...gColors[grade]);
-    txt(grade,M+11,y+15,{align:'center'});
-    ft('normal');fs(8);tc(...C.label);
-    txt('Grade',M+27,y+8);
-    txt('Savings: '+sr+'%',M+27,y+14);
-
-    // ── 4 Summary Cards ───────────────────────────────────
-    const cards=[
-      {lbl:'INCOME',   val:INR(inc), clr:C.surplus},
-      {lbl:'EXPENSES', val:INR(exp), clr:C.deficit},
-      {lbl:'NET FLOW', val:(net<0?'- ':'')+INR(Math.abs(net)), clr:net>=0?C.surplus:C.deficit},
-      {lbl:'ENTRIES',  val:String(d.income.length+d.expense.length), clr:C.label}
-    ];
-    const cW=CW/4;
-    cards.forEach(function(card,i){
-      const cx=M+i*cW;
-      fc(...C.bg);dc(...C.border);lw(0.2);
-      pdf.rect(cx+2,y+2,cW-4,20,'FD');
-      ft('normal');fs(6.5);tc(...C.label);
-      txt(card.lbl,cx+cW/2,y+11,{align:'center'});
-      ft('bold');fs(9);tc(...card.clr);
-      txt(card.val,cx+cW/2,y+18,{align:'center'});
-    });
-    y+=30;dc(...C.border);lw(0.3);pdf.line(M,y,W-M,y);y+=7;
-
-    // ── Income Entries ────────────────────────────────────
-    ft('bold');fs(7.5);tc(...C.label);txt('INCOME ENTRIES ('+d.income.length+')',M,y);y+=5;
-    if(!d.income.length){
-      ft('normal');fs(7);tc(...C.muted);txt('No income recorded for this month.',M+2,y);y+=6;
-    }else{
-      d.income.slice(0,15).forEach(function(r,i){
-        if(y>258){pdf.addPage();y=16;}
-        if(i%2===0){fc(...C.bg);pdf.rect(M,y,CW,6.5,'F');}
-        ft('normal');fs(7.5);tc(...C.black);
-        txt(safe(r.cat||'Other',24),M+2,y+4.8);
-        tc(...C.muted);
-        txt(safe(r.desc||'',28),M+55,y+4.8);
-        ft('bold');tc(...C.surplus);
-        txt(INR(parseFloat(r.amt)||0),W-M-2,y+4.8,{align:'right'});
-        y+=6.5;
-      });
-      if(d.income.length>15){
-        ft('normal');fs(7);tc(...C.muted);
-        txt('... and '+(d.income.length-15)+' more entries',M+2,y+4);y+=7;
-      }
-    }
-    ft('bold');fs(7.5);tc(...C.surplus);
-    txt('Total Income: '+INR(inc),W-M-2,y+5,{align:'right'});y+=10;
-    dc(...C.border);lw(0.2);pdf.line(M,y,W-M,y);y+=7;
-
-    // ── Expense Entries ───────────────────────────────────
-    ft('bold');fs(7.5);tc(...C.label);txt('EXPENSE ENTRIES ('+d.expense.length+')',M,y);y+=5;
-    if(!d.expense.length){
-      ft('normal');fs(7);tc(...C.muted);txt('No expenses recorded for this month.',M+2,y);y+=6;
-    }else{
-      d.expense.slice(0,20).forEach(function(r,i){
-        if(y>258){pdf.addPage();y=16;}
-        if(i%2===0){fc(...C.bg);pdf.rect(M,y,CW,6.5,'F');}
-        ft('normal');fs(7.5);tc(...C.black);
-        txt(safe(r.cat||'Other',24),M+2,y+4.8);
-        tc(...C.muted);
-        txt(safe(r.desc||'',28),M+55,y+4.8);
-        ft('bold');tc(...C.deficit);
-        txt(INR(parseFloat(r.amt)||0),W-M-2,y+4.8,{align:'right'});
-        y+=6.5;
-      });
-      if(d.expense.length>20){
-        ft('normal');fs(7);tc(...C.muted);
-        txt('... and '+(d.expense.length-20)+' more entries',M+2,y+4);y+=7;
-      }
-    }
-    ft('bold');fs(7.5);tc(...C.deficit);
-    txt('Total Expenses: '+INR(exp),W-M-2,y+5,{align:'right'});y+=10;
-
-    if(y>228){pdf.addPage();y=16;}
-    dc(...C.border);lw(0.2);pdf.line(M,y,W-M,y);y+=7;
-
-    // ── Top Expense Categories ────────────────────────────
-    ft('bold');fs(7.5);tc(...C.label);txt('TOP EXPENSE CATEGORIES',M,y);y+=6;
-    if(!topCats.length){
-      ft('normal');fs(7);tc(...C.muted);txt('No expense categories to show.',M+2,y);y+=6;
-    }else{
-      topCats.forEach(function(pair){
-        const cat=pair[0], amt=pair[1];
-        if(y>268){pdf.addPage();y=16;}
-        const barW=exp>0?Math.max(1,Math.round((amt/exp)*80)):0;
-        ft('normal');fs(7.5);tc(...C.black);
-        txt(safe(cat,26),M+2,y+4.5);
-        fc(...C.surplus);
-        pdf.rect(M+72,y+1.5,barW,3.5,'F');
-        ft('bold');tc(...C.deficit);
-        txt(INR(amt),W-M-2,y+4.5,{align:'right'});
-        y+=7.5;
-      });
-    }
-    y+=4;
-
-    // ── Net Summary Block ─────────────────────────────────
-    if(y>252){pdf.addPage();y=16;}
-    fc(18,18,18);pdf.rect(M,y,CW,18,'F');
-    ft('bold');fs(8.5);tc(240,240,240);
-    txt('NET FLOW FOR '+month.toUpperCase()+' '+year,M+4,y+8);
-    txt('Income: '+INR(inc)+'   Expenses: '+INR(exp),M+4,y+14);
-    fs(14);tc(net>=0?[74,222,128]:[248,113,113]);
-    txt((net<0?'- ':'')+INR(Math.abs(net)),W-M-4,y+13,{align:'right'});
-    y+=26;
-
-    // ── Footer ────────────────────────────────────────────
-    const footerY=286;
-    dc(...C.border);lw(0.3);pdf.line(M,footerY,W-M,footerY);
-    ft('normal');fs(6.5);tc(...C.label);
-    txt('Flow  Personal Finance',M,footerY+4.5);
-    txt(month+' '+year+'  Generated '+todayStr,W-M,footerY+4.5,{align:'right'});
-
-    // ── Save ──────────────────────────────────────────────
-    pdf.save('Flow_Report_'+month+'_'+year+'.pdf');
-
-  }catch(err){
-    console.error('[Flow PDF]',err);
-    alert('PDF generation failed: '+err.message);
-  }finally{
-    if(btn){btn.textContent='Download PDF Report';btn.disabled=false;}
-  }
-}
 
 
 // ══ PWA INSTALL HANDLER ════════════════════════════════
