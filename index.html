@@ -747,6 +747,35 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   .budget-cat-name{flex:0 0 80px;font-size:10.5px}
   .budget-limit-inp{width:64px}
 }
+
+/* ══ WHAT'S NEW TAB ══════════════════════════════════════ */
+.wn-version-block{margin-bottom:28px}
+.wn-version-header{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--border)}
+.wn-version-num{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.3px}
+.wn-version-date{font-size:10px;color:var(--faint);letter-spacing:.5px;text-transform:uppercase}
+.wn-version-label{font-size:9px;padding:2px 8px;border-radius:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-left:auto}
+.wn-label-major{background:var(--surplus-bg);color:var(--surplus);border:1px solid var(--surplus)}
+.wn-label-minor{background:#e8edf8;color:#3a5a9a;border:1px solid #b8cce8}
+[data-theme="dark"] .wn-label-minor{background:#0d1a2e;color:#7aaae8;border-color:#1a3050}
+.wn-entry{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--border)}
+.wn-entry:last-child{border-bottom:none}
+.wn-badge{flex-shrink:0;font-size:8.5px;font-weight:700;letter-spacing:.6px;padding:2px 7px;border-radius:4px;margin-top:2px;text-transform:uppercase;height:fit-content}
+.wn-badge-new{background:var(--surplus-bg);color:var(--surplus);border:1px solid var(--surplus)}
+.wn-badge-fix{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber)}
+.wn-badge-impr{background:#e8edf8;color:#3a5a9a;border:1px solid #b8cce8}
+[data-theme="dark"] .wn-badge-impr{background:#0d1a2e;color:#7aaae8;border-color:#1a3050}
+.wn-badge-rem{background:var(--deficit-bg);color:var(--deficit);border:1px solid var(--deficit)}
+.wn-entry-body{flex:1}
+.wn-entry-title{font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px;line-height:1.4}
+.wn-entry-desc{font-size:11px;color:var(--muted);line-height:1.5}
+.wn-hero{text-align:center;padding:24px 0 20px;border-bottom:1px solid var(--border);margin-bottom:24px}
+.wn-hero-icon{font-size:28px;color:var(--text);margin-bottom:8px;font-weight:300}
+.wn-hero-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.wn-hero-sub{font-size:11px;color:var(--muted)}
+
+/* ── What's New header button ────────────────────────────── */
+.btn-whats-new{display:flex;align-items:center;gap:4px;padding:5px 10px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;color:var(--text);background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--r);cursor:pointer;white-space:nowrap;transition:background .12s,border-color .12s}
+.btn-whats-new:hover{background:var(--surface);border-color:var(--muted)}
 </style>
 </head>
 <body>
@@ -979,6 +1008,9 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <button class="btn-pdf" id="pdfBtn" onclick="exportPDF()">
       <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5.5l3 3 3-3M1 9.5v1a.5.5 0 00.5.5h9a.5.5 0 00.5-.5v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>PDF
     </button>
+    <button class="btn-whats-new" onclick="switchTab('new',document.querySelector('.tab-btn:last-child'))" title="What's New">
+      <span style="font-size:11px">&#x2726;</span> What's New
+    </button>
   </div>
   <div class="hdr-controls" id="otherControls" style="display:none">
     <button class="btn-ghost" onclick="openInstallModal()" title="Install App" style="padding:5px 9px;font-size:11px">&#x2B07; Install</button>
@@ -986,6 +1018,9 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <button class="toggle-wrap" onclick="toggleDark()">
       <div class="track" id="track2"><div class="knob"></div></div>
       <span id="darkLbl2">Dark</span>
+    </button>
+    <button class="btn-whats-new" onclick="switchTab('new',document.querySelector('.tab-btn:last-child'))" title="What's New">
+      <span style="font-size:11px">&#x2726;</span> What's New
     </button>
   </div>
 </header>
@@ -1912,6 +1947,117 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   <div class="info-tip" id="tip-notes"><div class="info-tip-hd">Notes</div>Capture financial notes, reminders, and observations. Pin important notes to keep them at the top. Tap any note to edit. Use the search to filter by title or content.<button class="info-tip-close" onclick="toggleInfo('tip-notes')">×</button></div>
 
   <div id="notesList"><div class="empty-msg">No notes yet. Click + New Note to create one.</div></div>
+</div>
+</div>
+
+<!-- ══ WHAT'S NEW TAB ════════════════════════════════════════ -->
+<div id="tab-new" class="tab-pane">
+<div class="main">
+  <div class="wn-hero">
+    <div class="wn-hero-icon">&#x2726;</div>
+    <div class="wn-hero-title">Flow &mdash; Release Notes</div>
+    <div class="wn-hero-sub">Every feature, fix and improvement &mdash; from the beginning.</div>
+  </div>
+
+  <div class="wn-version-block">
+    <div class="wn-version-header">
+      <span class="wn-version-num">v1.7</span>
+      <span class="wn-version-date">May 2026</span>
+      <span class="wn-version-label wn-label-minor">Update</span>
+    </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Budget Manager</div><div class="wn-entry-desc">Set monthly spending limits per category. Progress bars turn amber at 80% and red when over budget. Over-budget badge shows in the header even when the section is collapsed.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">What's New Tab</div><div class="wn-entry-desc">Full version changelog accessible from the &#x2726; button next to the dark mode toggle. Lists every feature, fix, and improvement from v1.0 to current.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-fix">Fix</span><div class="wn-entry-body"><div class="wn-entry-title">HTML Structure Fix</div><div class="wn-entry-desc">Removed a stray extra closing tag between the Portfolio and Planner tabs that was silently breaking the entire page layout across all browsers.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-impr">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">App Icon</div><div class="wn-entry-desc">Icon updated to a clean circular design with the F. logo fully filling the circle. Transparent corners ensure a perfect circle on all platforms.</div></div></div>
+  </div>
+
+  <div class="wn-version-block">
+    <div class="wn-version-header">
+      <span class="wn-version-num">v1.6</span>
+      <span class="wn-version-date">May 2026</span>
+      <span class="wn-version-label wn-label-minor">Update</span>
+    </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">MF Holdings Edit Button</div><div class="wn-entry-desc">A pencil edit button on every mutual fund row. Update total units and average NAV after each SIP instalment without deleting and re-adding the holding.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Subscription Mark as Paid</div><div class="wn-entry-desc">Mark any subscription as paid for the current month. Shows a green Paid badge. Resets automatically next month. Undo option included.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Edit Buttons for Bills &amp; Subscriptions</div><div class="wn-entry-desc">Pencil edit icon on every bill and subscription card. Edit any field in place without deleting and re-creating entries.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Subscriptions in Financial Calendar</div><div class="wn-entry-desc">Active subscriptions now appear as purple events on the Financial Calendar based on renewal date and billing cycle.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-fix">Fix</span><div class="wn-entry-body"><div class="wn-entry-title">Track Tab Month Switch Not Refreshing</div><div class="wn-entry-desc">Switching months was silently crashing before calling render() due to a const reassignment and two null element references. Both fixed.</div></div></div>
+  </div>
+
+  <div class="wn-version-block">
+    <div class="wn-version-header">
+      <span class="wn-version-num">v1.5</span>
+      <span class="wn-version-date">May 2026</span>
+      <span class="wn-version-label wn-label-minor">Update</span>
+    </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-fix">Fix</span><div class="wn-entry-body"><div class="wn-entry-title">PDF Generation Error Resolved</div><div class="wn-entry-desc">Fixed the jsPDF.f3 error caused by toLocaleString returning non-ASCII numerals and Unicode text passing into PDF functions. All text now passes through a strict ASCII sanitiser.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-rem">Removed</span><div class="wn-entry-body"><div class="wn-entry-title">Monthly Report PDF Button Removed</div><div class="wn-entry-desc">Removed due to persistent jsPDF failures with Indian-language text. The on-screen Monthly Report Card remains fully functional.</div></div></div>
+  </div>
+
+  <div class="wn-version-block">
+    <div class="wn-version-header">
+      <span class="wn-version-num">v1.4</span>
+      <span class="wn-version-date">April 2026</span>
+      <span class="wn-version-label wn-label-minor">Update</span>
+    </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Subscription Tracker</div><div class="wn-entry-desc">Track all recurring subscriptions. Monitor monthly and annual cost. Pause or cancel subscriptions without deleting them.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Loan Tracker with EMI Calculator</div><div class="wn-entry-desc">Add home, car, personal, or education loans. Auto-calculates EMI using the reducing-balance formula. Tracks outstanding balance, months remaining, and interest paid.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Bill Split Tracker</div><div class="wn-entry-desc">Track shared expenses with friends or family. Split a bill among any number of people and mark each person as settled.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-impr">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">Financial Calendar Enhanced</div><div class="wn-entry-desc">Calendar now shows bill due dates, EMI dates, FD maturity dates, savings goal deadlines, and MF SIP dates — all colour-coded by type.</div></div></div>
+  </div>
+
+  <div class="wn-version-block">
+    <div class="wn-version-header">
+      <span class="wn-version-num">v1.3</span>
+      <span class="wn-version-date">March 2026</span>
+      <span class="wn-version-label wn-label-minor">Update</span>
+    </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Mutual Funds &mdash; Live NAV &amp; XIRR</div><div class="wn-entry-desc">Search 16,000+ AMFI-registered schemes. Fetches today's NAV from mfapi.in. XIRR calculated per fund using Newton-Raphson for accurate annualised returns.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">FD Tracker</div><div class="wn-entry-desc">Track all fixed deposits. Auto-calculates maturity date and maturity amount using compound interest formula with quarterly, monthly, half-yearly, or yearly compounding.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Financial Calculators</div><div class="wn-entry-desc">Six calculators &mdash; SIP with step-up and inflation adjustment, EMI reducing-balance, FD maturity, Loan Prepayment savings, Retirement corpus, and Goal Planner.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Savings Goals with 3-Way Projection</div><div class="wn-entry-desc">Set a target with a deadline. See three routes to reach it &mdash; Regular SIP, Step-Up SIP, or a Lumpsum today.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Net Worth Timeline Chart</div><div class="wn-entry-desc">Log net worth monthly and plot it as a line chart over time. Track portfolio growth at a glance.</div></div></div>
+  </div>
+
+  <div class="wn-version-block">
+    <div class="wn-version-header">
+      <span class="wn-version-num">v1.2</span>
+      <span class="wn-version-date">February 2026</span>
+      <span class="wn-version-label wn-label-minor">Update</span>
+    </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Planner Tab</div><div class="wn-entry-desc">Monthly Report Card with savings rate grade, Emergency Fund tracker with auto-calculated monthly expenses, and Debt Payoff Planner with Snowball and Avalanche methods.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Portfolio Tab &mdash; All Holdings</div><div class="wn-entry-desc">Track Equity, Gold, PPF, NPS, Crypto, Real Estate, and Other assets. Portfolio Allocation doughnut chart shows asset distribution by current value.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Bill Reminders</div><div class="wn-entry-desc">Add recurring bills with due dates. Auto-classified as Overdue, Due Soon, or Upcoming. Mark as Paid each month &mdash; bills reset automatically the following month.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Dividend &amp; Interest Log</div><div class="wn-entry-desc">Record passive income from investments. Running total shows cumulative investment income.</div></div></div>
+  </div>
+
+  <div class="wn-version-block">
+    <div class="wn-version-header">
+      <span class="wn-version-num">v1.1</span>
+      <span class="wn-version-date">January 2026</span>
+      <span class="wn-version-label wn-label-minor">Update</span>
+    </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Annual Summary Table</div><div class="wn-entry-desc">View all 12 months of any year in one table with income, expenses, net flow, and savings rate. Yearly totals in the footer row.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Recurring Entry Templates</div><div class="wn-entry-desc">Save any month's entries as a named template. Apply it next month in one tap to pre-fill fixed salary, rent, EMI, and regular expenses.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">CSV &amp; PDF Export</div><div class="wn-entry-desc">Export any month's entries as CSV for Excel. PDF export generates a formatted report with category breakdown.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-impr">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">Copy Last Month</div><div class="wn-entry-desc">One-tap copy of all last month's entries into the current month. Useful for months where most entries repeat.</div></div></div>
+  </div>
+
+  <div class="wn-version-block">
+    <div class="wn-version-header">
+      <span class="wn-version-num">v1.0</span>
+      <span class="wn-version-date">December 2025</span>
+      <span class="wn-version-label wn-label-major">Launch</span>
+    </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Track Tab &mdash; Income &amp; Expense Ledger</div><div class="wn-entry-desc">Monthly income and expense tracker with category, description, tag, and amount fields. Drag to reorder. Income vs Expense ratio bar. Bar chart and doughnut chart.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">PIN Lock</div><div class="wn-entry-desc">Set a 4-digit PIN to lock the app. Hardware numpad supported. 3 wrong attempts shows Forgot PIN option that removes the lock without deleting data.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Dark &amp; Light Mode</div><div class="wn-entry-desc">Full dark and light theme. Preference saved across sessions. Charts and all UI elements switch cleanly.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">PWA &mdash; Install on Home Screen</div><div class="wn-entry-desc">Installable as a Progressive Web App on Android, iOS, and desktop. Works fully offline. All data stored locally on your device.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Notes Tab</div><div class="wn-entry-desc">Plain-text notes for financial observations and reminders. Pin important notes. Full-text search. Create, edit, and delete with one tap.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Backup &amp; Restore</div><div class="wn-entry-desc">Export all data as a single JSON backup file. Restore on any device. Covers all tabs and settings.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Global Search</div><div class="wn-entry-desc">Search across all months and years instantly. Finds any entry by category, description, or tag.</div></div></div>
+  </div>
+
 </div>
 </div>
 
