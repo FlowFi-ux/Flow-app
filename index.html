@@ -2564,8 +2564,9 @@ function exportPDF(){
   const btn=document.getElementById('pdfBtn');btn.innerHTML='…';btn.disabled=true;
   const month=MONTHS[parseInt(selM())],year=selY(),d=mdata();
   const inc=d.income.reduce((s,x)=>s+(parseFloat(x.amt)||0),0),exp=d.expense.reduce((s,x)=>s+(parseFloat(x.amt)||0),0),net=inc-exp;
-  const today=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
-  const INR=n=>'Rs.'+Math.abs(n).toLocaleString('en-IN');
+  const _nd=new Date();const MN2=['January','February','March','April','May','June','July','August','September','October','November','December'];const today=_nd.getDate()+' '+MN2[_nd.getMonth()]+' '+_nd.getFullYear();
+  const safe=function(s,n){return String(s||'').replace(/[^\x00-\x7E]/g,'-').substring(0,n||120);};
+  const INR=function(n){const s=Math.abs(Math.round(n||0)).toString();if(s.length<=3)return'Rs.'+s;const l=s.slice(-3),r=s.slice(0,-3);return'Rs.'+r.replace(/\B(?=(\d{2})+(?!\d))/g,',')+','+l;};
   const {jsPDF}=window.jspdf;const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const W=210,M=14,CW=W-M*2;
   const tc=(...c)=>pdf.setTextColor(...c),dc=(...c)=>pdf.setDrawColor(...c),fc=(...c)=>pdf.setFillColor(...c);
@@ -2575,7 +2576,7 @@ function exportPDF(){
   ft('bold');fs(18);tc(...C.black);pdf.text('Flow',M,16);
   dc(195,195,195);lw(.3);pdf.line(M+22,10.5,M+22,17.5);
   ft('normal');fs(9);tc(...C.muted);pdf.text(`${month} ${year}`,M+25,16);
-  ft('normal');fs(7);tc(...C.label);pdf.text(`PERSONAL FINANCE  ·  ${today.toUpperCase()}`,W-M,16,{align:'right'});
+  ft('normal');fs(7);tc(...C.label);pdf.text('PERSONAL FINANCE  |  '+safe(safe(today).toUpperCase()),W-M,16,{align:'right'});
   y=20;dc(...C.black);lw(.9);pdf.line(M,y,W-M,y);dc(...C.border2);lw(.3);pdf.line(M,y+1.4,W-M,y+1.4);
   y=21;const colW=CW/3;
   [{lbl:'INCOME',val:INR(inc),clr:C.primary},{lbl:'EXPENSES',val:INR(exp),clr:C.primary},{lbl:'NET FLOW',val:(net<0?'- ':'')+INR(net),sub:net>=0?'Surplus':'Deficit',clr:net>=0?C.surplus:C.deficit}].forEach((item,i)=>{
@@ -2592,7 +2593,7 @@ function exportPDF(){
     items.forEach((r,i)=>{
       if(y>245){pdf.addPage();y=14;}
       if(i%2===0){fc(...C.bg);pdf.rect(M,y,CW,rowH,'F')}
-      ft('normal');fs(7.5);tc(...C.second);pdf.text((r.cat||'—').substring(0,18),M+5,y+4.5);tc(...C.muted);pdf.text((r.desc||'').substring(0,18),M+55,y+4.5);
+      ft('normal');fs(7.5);tc(...C.second);pdf.text(safe(r.cat||'-',20),M+5,y+4.5);tc(...C.muted);pdf.text(safe(r.desc||'',24),M+55,y+4.5);
       if(r.tag){tc(130,130,130);pdf.text(r.tag.substring(0,10),M+105,y+4.5)}
       ft('bold');tc(...aclr);pdf.text(INR(parseFloat(r.amt)||0),W-M-1,y+4.5,{align:'right'});
       dc(...C.border2);lw(.1);pdf.line(M,y+rowH,W-M,y+rowH);y+=rowH;
@@ -2632,8 +2633,8 @@ function exportPDF(){
   const footerY = pdf.internal.getCurrentPageInfo ? Math.min(fy, 285) : 285;
   dc(...C.border); lw(.3); pdf.line(M, footerY, W-M, footerY);
   ft('normal'); fs(6.5); tc(155,155,155);
-  pdf.text('Flow  ·  Personal Finance', M, footerY+4.5);
-  pdf.text(`${month} ${year}  ·  Generated ${today}`, W-M, footerY+4.5, {align:'right'});
+  pdf.text('Flow | Personal Finance', M, footerY+4.5);
+  pdf.text(month+' '+year+' | Generated '+safe(today), W-M, footerY+4.5, {align:'right'});
 
   try{pdf.save(`Flow_${month}_${year}.pdf`)}catch(e){alert('Export failed.')}
   finally{btn.innerHTML=`<svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5.5l3 3 3-3M1 9.5v1a.5.5 0 00.5.5h9a.5.5 0 00.5-.5v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>PDF`;btn.disabled=false}
@@ -4014,104 +4015,200 @@ function renderNotes(){
 
 // ══ PDF MONTHLY REPORT ═══════════════════════════════════
 async function exportMonthlyReport(){
-  const btn=document.getElementById('reportPdfBtn');if(btn){btn.textContent='Generating…';btn.disabled=true;}
+  const btn=document.getElementById('reportPdfBtn');
+  if(btn){btn.textContent='Generating...';btn.disabled=true;}
   try{
-    const month=MONTHS[parseInt(selM())],year=selY();
+    // ── Safe helpers ─────────────────────────────────────
+    // Strip every char > U+007E so jsPDF standard fonts never choke
+    const safe=function(s,n){return String(s||'').replace(/[^\x00-\x7E]/g,'-').substring(0,n||120);};
+    // Indian-grouping number formatter — never calls toLocaleString
+    const INR=function(n){
+      const s=Math.abs(Math.round(n||0)).toString();
+      if(s.length<=3)return'Rs.'+s;
+      const last3=s.slice(-3);
+      const rest=s.slice(0,-3);
+      const grouped=rest.replace(/\B(?=(\d{2})+(?!\d))/g,',');
+      return'Rs.'+grouped+','+last3;
+    };
+    // Safe ASCII date — no locale dependence
+    const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const now=new Date();
+    const todayStr=now.getDate()+' '+MN[now.getMonth()]+' '+now.getFullYear();
+
+    const monthIdx=parseInt(selM()),yearVal=selY();
+    const month=MONTHS[monthIdx],year=yearVal;
     const d=mdata();
-    const inc=d.income.reduce((s,x)=>s+(parseFloat(x.amt)||0),0);
-    const exp=d.expense.reduce((s,x)=>s+(parseFloat(x.amt)||0),0);
+    const inc=d.income.reduce(function(s,x){return s+(parseFloat(x.amt)||0);},0);
+    const exp=d.expense.reduce(function(s,x){return s+(parseFloat(x.amt)||0);},0);
     const net=inc-exp;
     const sr=inc>0?Math.round(net/inc*100):0;
     const grade=sr>=30?'A':sr>=20?'B':sr>=10?'C':'D';
-    const today=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+
     // Category breakdown
-    const cats={};d.expense.forEach(x=>{const k=(x.cat||'Other').trim();cats[k]=(cats[k]||0)+(parseFloat(x.amt)||0)});
-    const topCats=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const cats={};
+    d.expense.forEach(function(x){const k=safe(x.cat||'Other',40);cats[k]=(cats[k]||0)+(parseFloat(x.amt)||0);});
+    const topCats=Object.entries(cats).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
+
     const {jsPDF}=window.jspdf;
+    if(!jsPDF){throw new Error('jsPDF library not loaded. Check your internet connection and reload.');}
     const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
     const W=210,M=14,CW=W-M*2;
-    const INR=n=>'Rs.'+Math.abs(n).toLocaleString('en-IN');
-    const tc=(...cc)=>pdf.setTextColor(...cc);
-    const fc=(...cc)=>pdf.setFillColor(...cc);
-    const dc=(...cc)=>pdf.setDrawColor(...cc);
-    const lw=w=>pdf.setLineWidth(w);
-    const ft=f=>pdf.setFont('courier',f||'normal');
-    const fs=s=>pdf.setFontSize(s);
-    const C={black:[8,8,8],muted:[85,85,85],label:[110,110,110],border:[190,190,190],bg:[247,247,246],surplus:[18,80,46],deficit:[120,22,32],amber:[100,70,0]};
+
+    // Colour helpers
+    const tc=function(){pdf.setTextColor.apply(pdf,arguments);};
+    const fc=function(){pdf.setFillColor.apply(pdf,arguments);};
+    const dc=function(){pdf.setDrawColor.apply(pdf,arguments);};
+    const lw=function(w){pdf.setLineWidth(w);};
+    const ft=function(f){pdf.setFont('courier',f||'normal');};
+    const fs=function(s){pdf.setFontSize(s);};
+    const txt=function(s,x,y,opts){pdf.text(String(s),x,y,opts||{});};
+
+    const C={
+      black:[8,8,8],muted:[80,80,80],label:[105,105,105],
+      border:[185,185,185],bg:[246,246,244],
+      surplus:[18,78,44],deficit:[118,22,30],amber:[96,68,0]
+    };
+
     let y=0;
-    // ── Header ──────────────────────────────────────────
-    fc(20,20,20);pdf.rect(0,0,W,22,'F');
-    ft('bold');fs(18);tc(240,240,240);pdf.text('Flow',M,15);
-    ft('normal');fs(9);tc(160,160,160);pdf.text('MONTHLY REPORT',M+30,15);
-    ft('bold');fs(10);tc(240,240,240);pdf.text(`${month} ${year}`,W-M,15,{align:'right'});
-    y=30;
-    // ── Grade badge ──────────────────────────────────────
-    const gColors={A:[18,80,46],B:[20,80,100],C:[100,70,0],D:[120,22,32]};
-    const gBgs={A:[228,242,234],B:[220,240,250],C:[254,240,192],D:[252,232,234]};
-    fc(...gBgs[grade]);dc(...gColors[grade]);lw(.3);pdf.roundedRect(M,y,20,20,2,2,'FD');
-    ft('bold');fs(20);tc(...gColors[grade]);pdf.text(grade,M+10,y+14,{align:'center'});
-    ft('normal');fs(7.5);tc(...C.muted);pdf.text('SAVINGS',M+24,y+7);pdf.text('RATE: '+sr+'%',M+24,y+12);
-    // ── Summary cards ────────────────────────────────────
-    const cards=[{lbl:'INCOME',val:INR(inc),clr:C.surplus},{lbl:'EXPENSES',val:INR(exp),clr:C.deficit},{lbl:'NET FLOW',val:(net<0?'- ':'')+INR(net),clr:net>=0?C.surplus:C.deficit},{lbl:'GRADE',val:grade+' ('+sr+'%)',clr:C.label}];
+
+    // ── Page 1 Header ─────────────────────────────────────
+    fc(18,18,18);pdf.rect(0,0,W,24,'F');
+    ft('bold');fs(20);tc(240,240,240);
+    txt('Flow',M,16);
+    ft('normal');fs(9);tc(155,155,155);
+    txt('MONTHLY FINANCIAL REPORT',M+34,16);
+    ft('bold');fs(11);tc(240,240,240);
+    txt(month+' '+year,W-M,16,{align:'right'});
+    y=32;
+
+    // ── Grade + Savings rate badge ────────────────────────
+    const gColors={A:[18,78,44],B:[18,78,100],C:[96,68,0],D:[118,22,30]};
+    const gBgs={A:[224,242,230],B:[216,238,250],C:[252,238,188],D:[250,230,232]};
+    fc(...gBgs[grade]);dc(...gColors[grade]);lw(0.4);
+    pdf.roundedRect(M,y,22,22,3,3,'FD');
+    ft('bold');fs(22);tc(...gColors[grade]);
+    txt(grade,M+11,y+15,{align:'center'});
+    ft('normal');fs(8);tc(...C.label);
+    txt('Grade',M+27,y+8);
+    txt('Savings: '+sr+'%',M+27,y+14);
+
+    // ── 4 Summary Cards ───────────────────────────────────
+    const cards=[
+      {lbl:'INCOME',   val:INR(inc), clr:C.surplus},
+      {lbl:'EXPENSES', val:INR(exp), clr:C.deficit},
+      {lbl:'NET FLOW', val:(net<0?'- ':'')+INR(Math.abs(net)), clr:net>=0?C.surplus:C.deficit},
+      {lbl:'ENTRIES',  val:String(d.income.length+d.expense.length), clr:C.label}
+    ];
     const cW=CW/4;
-    cards.forEach((card,i)=>{
-      const x=M+i*cW;
-      fc(...C.bg);dc(...C.border);lw(.2);pdf.rect(x+2,y+2,cW-4,18,'FD');
-      ft('normal');fs(6.5);tc(...C.label);pdf.text(card.lbl,x+cW/2,y+9,{align:'center'});
-      ft('bold');fs(9);tc(...card.clr);pdf.text(card.val,x+cW/2,y+16,{align:'center'});
+    cards.forEach(function(card,i){
+      const cx=M+i*cW;
+      fc(...C.bg);dc(...C.border);lw(0.2);
+      pdf.rect(cx+2,y+2,cW-4,20,'FD');
+      ft('normal');fs(6.5);tc(...C.label);
+      txt(card.lbl,cx+cW/2,y+11,{align:'center'});
+      ft('bold');fs(9);tc(...card.clr);
+      txt(card.val,cx+cW/2,y+18,{align:'center'});
     });
-    y+=28;dc(...C.border);lw(.25);pdf.line(M,y,W-M,y);y+=6;
-    // ── Income section ────────────────────────────────────
-    ft('normal');fs(7);tc(...C.label);pdf.text('INCOME ENTRIES',M,y);y+=4;
-    d.income.slice(0,15).forEach((r,i)=>{
-      if(y>255){pdf.addPage();y=14;}
-      if(i%2===0){fc(...C.bg);pdf.rect(M,y,CW,6,'F')}
-      ft('normal');fs(7.5);tc(...C.black);pdf.text((r.cat||'-').substring(0,22).replace(/[\u2014\u2013\u20b9]/g,'-'),M+2,y+4.5);
-      tc(...C.muted);pdf.text((r.desc||'').substring(0,22).replace(/[\u2014\u2013\u20b9]/g,'-'),M+56,y+4.5);
-      ft('bold');tc(...C.surplus);pdf.text(INR(parseFloat(r.amt)||0),W-M-1,y+4.5,{align:'right'});
-      y+=6;
-    });
-    ft('bold');fs(7.5);tc(...C.surplus);pdf.text('Total: '+INR(inc),W-M-1,y+5,{align:'right'});y+=10;
-    dc(...C.border);lw(.2);pdf.line(M,y,W-M,y);y+=6;
-    // ── Expense section ─────────────────────────────────
-    ft('normal');fs(7);tc(...C.label);pdf.text('EXPENSE ENTRIES',M,y);y+=4;
-    d.expense.slice(0,20).forEach((r,i)=>{
-      if(y>255){pdf.addPage();y=14;}
-      if(i%2===0){fc(...C.bg);pdf.rect(M,y,CW,6,'F')}
-      ft('normal');fs(7.5);tc(...C.black);pdf.text((r.cat||'-').substring(0,22).replace(/[\u2014\u2013\u20b9]/g,'-'),M+2,y+4.5);
-      tc(...C.muted);pdf.text((r.desc||'').substring(0,22).replace(/[\u2014\u2013\u20b9]/g,'-'),M+56,y+4.5);
-      ft('bold');tc(...C.deficit);pdf.text(INR(parseFloat(r.amt)||0),W-M-1,y+4.5,{align:'right'});
-      y+=6;
-    });
-    ft('bold');fs(7.5);tc(...C.deficit);pdf.text('Total: '+INR(exp),W-M-1,y+5,{align:'right'});y+=10;
-    if(y>220){pdf.addPage();y=14;}
-    dc(...C.border);lw(.2);pdf.line(M,y,W-M,y);y+=6;
-    // ── Category breakdown ───────────────────────────────
-    ft('normal');fs(7);tc(...C.label);pdf.text('TOP EXPENSE CATEGORIES',M,y);y+=5;
-    topCats.forEach(([ cat,amt])=>{
-      if(y>265){pdf.addPage();y=14;}
-      const barW=exp>0?Math.round((amt/exp)*100):0;
-      ft('normal');fs(7.5);tc(...C.black);pdf.text(cat.substring(0,24).replace(/[\u0080-\uFFFF]/g,'?'),M+2,y+4);
-      fc(...C.surplus);pdf.rect(M+70,y+1,barW*0.8,4,'F');
-      ft('bold');tc(...C.deficit);pdf.text(INR(amt),W-M-1,y+4,{align:'right'});
-      y+=7;
-    });
+    y+=30;dc(...C.border);lw(0.3);pdf.line(M,y,W-M,y);y+=7;
+
+    // ── Income Entries ────────────────────────────────────
+    ft('bold');fs(7.5);tc(...C.label);txt('INCOME ENTRIES ('+d.income.length+')',M,y);y+=5;
+    if(!d.income.length){
+      ft('normal');fs(7);tc(...C.muted);txt('No income recorded for this month.',M+2,y);y+=6;
+    }else{
+      d.income.slice(0,15).forEach(function(r,i){
+        if(y>258){pdf.addPage();y=16;}
+        if(i%2===0){fc(...C.bg);pdf.rect(M,y,CW,6.5,'F');}
+        ft('normal');fs(7.5);tc(...C.black);
+        txt(safe(r.cat||'Other',24),M+2,y+4.8);
+        tc(...C.muted);
+        txt(safe(r.desc||'',28),M+55,y+4.8);
+        ft('bold');tc(...C.surplus);
+        txt(INR(parseFloat(r.amt)||0),W-M-2,y+4.8,{align:'right'});
+        y+=6.5;
+      });
+      if(d.income.length>15){
+        ft('normal');fs(7);tc(...C.muted);
+        txt('... and '+(d.income.length-15)+' more entries',M+2,y+4);y+=7;
+      }
+    }
+    ft('bold');fs(7.5);tc(...C.surplus);
+    txt('Total Income: '+INR(inc),W-M-2,y+5,{align:'right'});y+=10;
+    dc(...C.border);lw(0.2);pdf.line(M,y,W-M,y);y+=7;
+
+    // ── Expense Entries ───────────────────────────────────
+    ft('bold');fs(7.5);tc(...C.label);txt('EXPENSE ENTRIES ('+d.expense.length+')',M,y);y+=5;
+    if(!d.expense.length){
+      ft('normal');fs(7);tc(...C.muted);txt('No expenses recorded for this month.',M+2,y);y+=6;
+    }else{
+      d.expense.slice(0,20).forEach(function(r,i){
+        if(y>258){pdf.addPage();y=16;}
+        if(i%2===0){fc(...C.bg);pdf.rect(M,y,CW,6.5,'F');}
+        ft('normal');fs(7.5);tc(...C.black);
+        txt(safe(r.cat||'Other',24),M+2,y+4.8);
+        tc(...C.muted);
+        txt(safe(r.desc||'',28),M+55,y+4.8);
+        ft('bold');tc(...C.deficit);
+        txt(INR(parseFloat(r.amt)||0),W-M-2,y+4.8,{align:'right'});
+        y+=6.5;
+      });
+      if(d.expense.length>20){
+        ft('normal');fs(7);tc(...C.muted);
+        txt('... and '+(d.expense.length-20)+' more entries',M+2,y+4);y+=7;
+      }
+    }
+    ft('bold');fs(7.5);tc(...C.deficit);
+    txt('Total Expenses: '+INR(exp),W-M-2,y+5,{align:'right'});y+=10;
+
+    if(y>228){pdf.addPage();y=16;}
+    dc(...C.border);lw(0.2);pdf.line(M,y,W-M,y);y+=7;
+
+    // ── Top Expense Categories ────────────────────────────
+    ft('bold');fs(7.5);tc(...C.label);txt('TOP EXPENSE CATEGORIES',M,y);y+=6;
+    if(!topCats.length){
+      ft('normal');fs(7);tc(...C.muted);txt('No expense categories to show.',M+2,y);y+=6;
+    }else{
+      topCats.forEach(function(pair){
+        const cat=pair[0], amt=pair[1];
+        if(y>268){pdf.addPage();y=16;}
+        const barW=exp>0?Math.max(1,Math.round((amt/exp)*80)):0;
+        ft('normal');fs(7.5);tc(...C.black);
+        txt(safe(cat,26),M+2,y+4.5);
+        fc(...C.surplus);
+        pdf.rect(M+72,y+1.5,barW,3.5,'F');
+        ft('bold');tc(...C.deficit);
+        txt(INR(amt),W-M-2,y+4.5,{align:'right'});
+        y+=7.5;
+      });
+    }
     y+=4;
-    // ── Net summary ──────────────────────────────────────
-    if(y>250){pdf.addPage();y=14;}
-    fc(20,20,20);pdf.rect(M,y,CW,16,'F');
-    ft('bold');fs(8);tc(240,240,240);pdf.text('NET FLOW',M+4,y+7);
-    pdf.text('Income: '+INR(inc),M+4,y+13);
-    fs(13);tc(net>=0?[74,222,128]:[248,113,113]);pdf.text((net<0?'- ':'')+INR(net),W-M-3,y+11,{align:'right'});
-    y+=24;
-    // ── Footer ───────────────────────────────────────────
-    dc(...C.border);lw(.25);pdf.line(M,283,W-M,283);
+
+    // ── Net Summary Block ─────────────────────────────────
+    if(y>252){pdf.addPage();y=16;}
+    fc(18,18,18);pdf.rect(M,y,CW,18,'F');
+    ft('bold');fs(8.5);tc(240,240,240);
+    txt('NET FLOW FOR '+month.toUpperCase()+' '+year,M+4,y+8);
+    txt('Income: '+INR(inc)+'   Expenses: '+INR(exp),M+4,y+14);
+    fs(14);tc(net>=0?[74,222,128]:[248,113,113]);
+    txt((net<0?'- ':'')+INR(Math.abs(net)),W-M-4,y+13,{align:'right'});
+    y+=26;
+
+    // ── Footer ────────────────────────────────────────────
+    const footerY=286;
+    dc(...C.border);lw(0.3);pdf.line(M,footerY,W-M,footerY);
     ft('normal');fs(6.5);tc(...C.label);
-    pdf.text('Flow | Personal Finance Report',M,288);
-    pdf.text(month+' '+year+' | Generated '+today,W-M,288,{align:'right'});
-    pdf.save(`Flow_Report_${month}_${year}.pdf`);
-  }catch(err){console.error(err);alert('PDF generation failed: '+err.message);}
-  finally{if(btn){btn.textContent='📄 Download PDF Report';btn.disabled=false;}}
+    txt('Flow  Personal Finance',M,footerY+4.5);
+    txt(month+' '+year+'  Generated '+todayStr,W-M,footerY+4.5,{align:'right'});
+
+    // ── Save ──────────────────────────────────────────────
+    pdf.save('Flow_Report_'+month+'_'+year+'.pdf');
+
+  }catch(err){
+    console.error('[Flow PDF]',err);
+    alert('PDF generation failed: '+err.message);
+  }finally{
+    if(btn){btn.textContent='Download PDF Report';btn.disabled=false;}
+  }
 }
 
 
