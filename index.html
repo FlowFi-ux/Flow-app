@@ -2568,6 +2568,27 @@ function exportPDF(){
   const safe=function(s,n){return String(s||'').replace(/[^\x00-\x7E]/g,'-').substring(0,n||120);};
   const INR=function(n){const s=Math.abs(Math.round(n||0)).toString();if(s.length<=3)return'Rs.'+s;const l=s.slice(-3),r=s.slice(0,-3);return'Rs.'+r.replace(/\B(?=(\d{2})+(?!\d))/g,',')+','+l;};
   const {jsPDF}=window.jspdf;const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  // ── Universal text sanitiser ──────────────────────────
+  // Patches pdf.text so EVERY call strips non-ASCII characters.
+  // This prevents jsPDF.f3 errors from any user-entered Unicode.
+  (function(){
+    var _pt = pdf.text.bind(pdf);
+    pdf.text = function(s,x,y,opts){
+      return _pt(String(s==null?'':s).replace(/[^\x00-\x7E]/g,'-'),x,y,opts||{});
+    };
+  })();
+    // ── Sanitise ALL text going into jsPDF ──────────────────
+    // jsPDF standard fonts only support Windows-1252 (ASCII+Latin-1).
+    // Any char above U+007E causes "Invalid argument passed to jsPDF.f3".
+    // Monkey-patch pdf.text so every call is safe, no exceptions.
+    (function(){
+      var _origText = pdf.text.bind(pdf);
+      pdf.text = function(s, x, y, opts){
+        var clean = String(s == null ? '' : s).replace(/[^\x00-\x7E]/g, '-');
+        return _origText(clean, x, y, opts || {});
+      };
+    })();
+
   const W=210,M=14,CW=W-M*2;
   const tc=(...c)=>pdf.setTextColor(...c),dc=(...c)=>pdf.setDrawColor(...c),fc=(...c)=>pdf.setFillColor(...c);
   const lw=w=>pdf.setLineWidth(w),ft=f=>pdf.setFont('courier',f||'normal'),fs=s=>pdf.setFontSize(s);
@@ -2594,7 +2615,7 @@ function exportPDF(){
       if(y>245){pdf.addPage();y=14;}
       if(i%2===0){fc(...C.bg);pdf.rect(M,y,CW,rowH,'F')}
       ft('normal');fs(7.5);tc(...C.second);pdf.text(safe(r.cat||'-',20),M+5,y+4.5);tc(...C.muted);pdf.text(safe(r.desc||'',24),M+55,y+4.5);
-      if(r.tag){tc(130,130,130);pdf.text(r.tag.substring(0,10),M+105,y+4.5)}
+      if(r.tag){tc(130,130,130);pdf.text(safe(r.tag,10),M+105,y+4.5)}
       ft('bold');tc(...aclr);pdf.text(INR(parseFloat(r.amt)||0),W-M-1,y+4.5,{align:'right'});
       dc(...C.border2);lw(.1);pdf.line(M,y+rowH,W-M,y+rowH);y+=rowH;
     });
@@ -4052,6 +4073,18 @@ async function exportMonthlyReport(){
     const {jsPDF}=window.jspdf;
     if(!jsPDF){throw new Error('jsPDF library not loaded. Check your internet connection and reload.');}
     const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    // ── Sanitise ALL text going into jsPDF ──────────────────
+    // jsPDF standard fonts only support Windows-1252 (ASCII+Latin-1).
+    // Any char above U+007E causes "Invalid argument passed to jsPDF.f3".
+    // Monkey-patch pdf.text so every call is safe, no exceptions.
+    (function(){
+      var _origText = pdf.text.bind(pdf);
+      pdf.text = function(s, x, y, opts){
+        var clean = String(s == null ? '' : s).replace(/[^\x00-\x7E]/g, '-');
+        return _origText(clean, x, y, opts || {});
+      };
+    })();
+
     const W=210,M=14,CW=W-M*2;
 
     // Colour helpers
@@ -4061,7 +4094,7 @@ async function exportMonthlyReport(){
     const lw=function(w){pdf.setLineWidth(w);};
     const ft=function(f){pdf.setFont('courier',f||'normal');};
     const fs=function(s){pdf.setFontSize(s);};
-    const txt=function(s,x,y,opts){pdf.text(String(s),x,y,opts||{});};
+    const txt=function(s,x,y,opts){pdf.text(String(s==null?'':s).replace(/[^\x00-\x7E]/g,'-'),x,y,opts||{});};
 
     const C={
       black:[8,8,8],muted:[80,80,80],label:[105,105,105],
