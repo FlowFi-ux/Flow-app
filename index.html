@@ -2,8 +2,31 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
-<title>Flow</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Flow — Personal Finance</title>
+
+<!-- ── PWA Install & App Meta ─────────────────────────── -->
+<link rel="manifest" href="manifest.json">
+
+<!-- Android / Chrome -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0e0e0e">
+
+<!-- iOS Safari -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flow">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<!-- Icons / Favicon -->
+<link rel="icon" type="image/jpeg" sizes="192x192" href="icon-192.png">
+<link rel="shortcut icon" href="favicon.png">
+
+<!-- Open Graph (for link sharing) -->
+<meta property="og:title" content="Flow — Personal Finance">
+<meta property="og:description" content="Personal finance tracker — offline, private, on your device.">
+<meta property="og:type" content="website">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -702,6 +725,15 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 </style>
 </head>
 <body>
+
+<!-- ── Update notification banner ────────────────────── -->
+<div id="updateBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1a1a1a;color:#eee;padding:12px 16px;font-family:monospace;font-size:12px;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid #333">
+  <span>🔄 A new version of Flow is ready.</span>
+  <div style="display:flex;gap:8px">
+    <button onclick="(function(){var sw=navigator.serviceWorker;sw.ready.then(function(reg){if(reg.waiting){reg.waiting.postMessage({action:'skipWaiting'})}});document.getElementById('updateBanner').style.display='none'})()" style="background:#4ade80;color:#000;border:none;padding:6px 14px;border-radius:4px;font-family:monospace;font-size:12px;cursor:pointer;font-weight:600">Reload</button>
+    <button onclick="document.getElementById('updateBanner').style.display='none'" style="background:transparent;color:#888;border:1px solid #444;padding:6px 12px;border-radius:4px;font-family:monospace;font-size:12px;cursor:pointer">Later</button>
+  </div>
+</div>
 
 <!-- ══ HOME SCREEN — Professional ════════════════════════════ -->
 <div id="homeScreen" class="home-screen">
@@ -4036,6 +4068,40 @@ applyDark();render();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calc
 
 // Pre-load MF schemes silently in background after 2s
 setTimeout(loadAllSchemes, 2000);
+</script>
+
+<!-- ── Service Worker Registration ───────────────────── -->
+<script>
+(function(){
+  if(!('serviceWorker' in navigator)) return;
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('./sw.js', {scope: './'})
+      .then(function(reg){
+        console.log('[Flow] SW registered, scope:', reg.scope);
+
+        // Detect new version available
+        reg.addEventListener('updatefound', function(){
+          var newSW = reg.installing;
+          newSW.addEventListener('statechange', function(){
+            if(newSW.state === 'installed' && navigator.serviceWorker.controller){
+              // New version ready — prompt user
+              var banner = document.getElementById('updateBanner');
+              if(banner) banner.style.display = 'flex';
+            }
+          });
+        });
+      })
+      .catch(function(err){
+        console.log('[Flow] SW registration failed:', err);
+      });
+
+    // When SW takes control after skipWaiting, reload once
+    var refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function(){
+      if(!refreshing){ refreshing = true; window.location.reload(); }
+    });
+  });
+})();
 </script>
 </body>
 </html>
