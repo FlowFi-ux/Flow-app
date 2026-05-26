@@ -774,6 +774,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         </div>
       </div>
       <button class="hs-cta" onclick="enterApp()">Enter Flow &rarr;</button>
+      <button id="installPWABtn" onclick="installPWA()" style="display:none;margin-top:10px;background:transparent;border:1px solid var(--border);color:var(--muted);padding:9px 20px;border-radius:var(--r);font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;letter-spacing:.3px">&#x2B07; Install Flow App</button>
       <div class="hs-trust">
         <span>All data on your device</span>
         <span class="hs-trust-sep">&middot;</span>
@@ -881,6 +882,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <button class="btn-primary btn-sm" onclick="setupPinKey('enter')" style="width:100%;margin-bottom:8px">Confirm ↵</button>
     <div class="pin-error" id="setupPinError" style="text-align:center"></div>
     <button class="btn-danger btn-sm" id="removePinBtn" onclick="removePIN()" style="width:100%;margin-top:8px;display:none">Remove PIN Lock</button>
+    <button class="btn-ghost btn-sm" id="skipPinBtn" onclick="skipPinFirstTime()" style="width:100%;margin-top:8px;display:none;color:var(--faint);font-size:11px">Skip for now &rarr;</button>
   </div>
 </div>
 
@@ -1882,7 +1884,10 @@ function saveEmfund(){
 function enterApp(){
   document.getElementById('homeScreen').classList.add('hidden');
   localStorage.setItem('flow_visited','1');
-  if(!localStorage.getItem('flow_onboarded'))setTimeout(startOnboarding,400);
+  if(!localStorage.getItem('flow_onboarded')){
+    // First time: PIN setup first, then walkthrough
+    setTimeout(function(){ openPinSetup(true); }, 350);
+  }
 }
 (function(){
   if(localStorage.getItem('flow_visited'))
@@ -3501,22 +3506,41 @@ function forgotPin(){
 }
 
 /* ─── PIN setup modal ───────────────────────────────────── */
-function openPinSetup(){
+let _pinAfterCallback=null;
+function openPinSetup(firstTime){
   const modal=document.getElementById('pinSetupModal');
-  if(!modal) return;
+  if(!modal)return;
   const hasPIN=!!localStorage.getItem('flow_pin');
-  document.getElementById('pinSetupTitle').textContent=hasPIN?'Change / Remove PIN':'Set PIN Lock';
-  document.getElementById('pinSetupDesc').textContent=hasPIN?'Enter a new 4–6 digit PIN (or remove).':'Choose a 4–6 digit PIN to protect your data.';
-  document.getElementById('removePinBtn').style.display=hasPIN?'block':'none';
-  setupPinEntry=''; setupStage=0; firstPin='';
+  if(firstTime){
+    _pinAfterCallback=startOnboarding;
+    document.getElementById('pinSetupTitle').textContent='Secure Your App';
+    document.getElementById('pinSetupDesc').textContent='Set a 4-digit PIN to lock the app. You can skip this and set it later from the Lock button in the header.';
+    document.getElementById('removePinBtn').style.display='none';
+    document.getElementById('skipPinBtn').style.display='block';
+  }else{
+    _pinAfterCallback=null;
+    document.getElementById('pinSetupTitle').textContent=hasPIN?'Change / Remove PIN':'Set PIN Lock';
+    document.getElementById('pinSetupDesc').textContent=hasPIN?'Enter a new 4-digit PIN (or remove).':'Choose a 4-digit PIN to protect your data.';
+    document.getElementById('removePinBtn').style.display=hasPIN?'block':'none';
+    document.getElementById('skipPinBtn').style.display='none';
+  }
+  setupPinEntry='';setupStage=0;firstPin='';
   updatePinDots('','spd');
   document.getElementById('setupPinError').textContent='';
   modal.style.display='flex';
 }
 function closePinSetup(){
   const modal=document.getElementById('pinSetupModal');
-  if(modal) modal.style.display='none';
-  setupPinEntry=''; setupStage=0; firstPin='';
+  if(modal)modal.style.display='none';
+  setupPinEntry='';setupStage=0;firstPin='';
+  if(_pinAfterCallback){
+    const cb=_pinAfterCallback;
+    _pinAfterCallback=null;
+    setTimeout(cb,350);
+  }
+}
+function skipPinFirstTime(){
+  closePinSetup();
 }
 function setupPinKey(k){
   const err=document.getElementById('setupPinError');
@@ -3538,7 +3562,7 @@ function setupPinKey(k){
       if(setupPinEntry===firstPin){
         localStorage.setItem('flow_pin',setupPinEntry);
         const el=document.getElementById('setupPinError');
-        if(el){el.textContent='PIN set!';el.style.color='var(--surplus)';}
+        if(el){el.textContent='PIN set! ✓';el.style.color='var(--surplus)';}
         setTimeout(closePinSetup,800);
       } else {
         if(err)err.textContent='PINs do not match. Try again.';
@@ -4060,6 +4084,32 @@ async function exportMonthlyReport(){
     pdf.save(`Flow_Report_${month}_${year}.pdf`);
   }catch(err){console.error(err);alert('PDF generation failed: '+err.message);}
   finally{if(btn){btn.textContent='📄 Download PDF Report';btn.disabled=false;}}
+}
+
+
+// ══ PWA INSTALL HANDLER ════════════════════════════════
+let _deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  _deferredInstallPrompt = e;
+  const btn = document.getElementById('installPWABtn');
+  if(btn) btn.style.display = 'block';
+});
+window.addEventListener('appinstalled', function(){
+  _deferredInstallPrompt = null;
+  const btn = document.getElementById('installPWABtn');
+  if(btn) btn.style.display = 'none';
+});
+function installPWA(){
+  if(!_deferredInstallPrompt){
+    alert('Install on desktop: Look for the install icon in Chrome's address bar (right side), or open Chrome menu and choose "Install Flow".\n\nOn iPhone: Safari > Share button > Add to Home Screen.');
+    return;
+  }
+  _deferredInstallPrompt.prompt();
+  _deferredInstallPrompt.userChoice.then(function(r){
+    if(r.outcome==='accepted'){ const b=document.getElementById('installPWABtn'); if(b)b.style.display='none'; }
+    _deferredInstallPrompt=null;
+  });
 }
 
 // ══ INIT ═══════════════════════════════════════════════════
