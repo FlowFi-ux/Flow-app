@@ -1876,7 +1876,7 @@ let BILLS = JSON.parse(localStorage.getItem('flow_bills')||'[]');
 let INVEST= JSON.parse(localStorage.getItem('flow_invest')||'{"goals":[],"mf":[],"holdings":[],"dividends":[],"fds":[]}');
 let dark  = localStorage.getItem('flow_dark')==='true';
 // Search bars removed — filters always empty
-const incFilter='', expFilter='';
+let incFilter='', expFilter='';
 let dragSrcIdx=null, dragSrcType=null;
 let mfSelectedCode=null, mfSelectedName='';
 let sipMode='regular';
@@ -1978,7 +1978,7 @@ function toggleDark(){dark=!dark;applyDark()}
   const cy=new Date().getFullYear();
   for(let y=cy-3;y<=cy+2;y++){const o=document.createElement('option');o.value=y;o.textContent=y;ys.appendChild(o)}
   ms.value=new Date().getMonth();ys.value=cy;
-  const reset=()=>{incFilter='';expFilter='';document.getElementById('incSearch').value='';document.getElementById('expSearch').value='';render()};
+  const reset=()=>{incFilter='';expFilter='';render();};
   ms.addEventListener('change',reset);ys.addEventListener('change',reset);
   document.getElementById('fDate').textContent=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
 })();
@@ -2368,7 +2368,8 @@ function renderMFTable(){
       <td class="right">${fmt(cv)}</td>
       <td class="right ${pnl>=0?'green':'red'}">${pnl>=0?'+':''}${fmt(pnl)} (${pp||'0.00'}%)</td>
       <td style="white-space:nowrap">
-        <button class="btn-ghost" onclick="setSIPForMF('${h.id}')" style="font-size:10px;padding:3px 7px;margin-right:2px" title="Set up SIP for this fund">SIP</button>
+        <button class="btn-ghost" onclick="editMF('${h.id}')" style="font-size:10px;padding:3px 7px;margin-right:2px" title="Edit units / NAV">&#x270F;</button>
+        <button class="btn-ghost" onclick="setSIPForMF('${h.id}')" style="font-size:10px;padding:3px 7px;margin-right:2px" title="Set SIP">SIP</button>
         <button class="btn-del" onclick="deleteMF('${h.id}')">&#215;</button>
       </td></tr>`;
   }).join('');
@@ -4169,6 +4170,41 @@ function doInstall(){
 }
 
 function installPWA(){ openInstallModal(); }
+
+// ══ MF EDIT ═══════════════════════════════════════════════
+let _mfEditId=null;
+function editMF(id){
+  const h=(INVEST.mf||[]).find(x=>x.id===id);if(!h)return;
+  _mfEditId=id;
+  document.getElementById('mfEditName').textContent=h.schemeName;
+  document.getElementById('mfEditUnits').value=h.units;
+  document.getElementById('mfEditNav').value=h.navBuy;
+  document.getElementById('mfEditDate').value=h.date||'';
+  document.getElementById('mfEditModal').style.display='flex';
+  setTimeout(()=>document.getElementById('mfEditUnits').select(),80);
+}
+function closeMFEdit(){
+  document.getElementById('mfEditModal').style.display='none';
+  _mfEditId=null;
+}
+function saveMFEdit(){
+  if(!_mfEditId)return;
+  const h=(INVEST.mf||[]).find(x=>x.id===_mfEditId);
+  if(!h){closeMFEdit();return;}
+  const units=parseFloat(document.getElementById('mfEditUnits').value);
+  const nav=parseFloat(document.getElementById('mfEditNav').value);
+  const date=document.getElementById('mfEditDate').value;
+  if(isNaN(units)||units<=0){alert('Units must be greater than 0.');return;}
+  if(isNaN(nav)||nav<=0){alert('NAV must be greater than 0.');return;}
+  h.units=units;h.navBuy=nav;
+  if(date)h.date=date;
+  saveInvest();renderMFTable();updateInvestSummary();closeMFEdit();
+}
+document.addEventListener('click',function(e){
+  const m=document.getElementById('mfEditModal');
+  if(m&&e.target===m)closeMFEdit();
+});
+
 // ══ INIT ═══════════════════════════════════════════════════
 function render(){renderList('income');renderList('expense');updateSummary();updateCharts()}
 applyDark();render();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();
@@ -4210,5 +4246,35 @@ setTimeout(loadAllSchemes, 2000);
   });
 })();
 </script>
+
+<!-- MF EDIT MODAL -->
+<div id="mfEditModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--surface);border-radius:10px;padding:24px;max-width:420px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.22)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <span style="font-size:14px;font-weight:500">Edit MF Holding</span>
+      <button class="btn-del" onclick="closeMFEdit()" style="font-size:16px">&#215;</button>
+    </div>
+    <div id="mfEditName" style="font-size:11px;color:var(--muted);margin-bottom:16px;line-height:1.4;font-weight:500"></div>
+    <div style="background:var(--surface-alt);border-radius:var(--r);padding:10px 12px;margin-bottom:16px;font-size:11px;color:var(--muted);line-height:1.5"><strong style="color:var(--text)">Monthly SIP update:</strong> After your SIP instalment hits each month, open your broker app, check your latest total units, and enter the updated total here. The app will recalculate your P&amp;L and XIRR automatically.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div class="form-field" style="grid-column:1/-1">
+        <span class="form-label">Total Units Held</span>
+        <input type="number" id="mfEditUnits" placeholder="e.g. 182.493" step="0.001" style="font-size:15px;font-weight:500">
+      </div>
+      <div class="form-field">
+        <span class="form-label">Avg Buy NAV (&#8377;)</span>
+        <input type="number" id="mfEditNav" placeholder="e.g. 82.5000" step="0.0001">
+      </div>
+      <div class="form-field">
+        <span class="form-label">First Purchase Date</span>
+        <input type="date" id="mfEditDate">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-primary" onclick="saveMFEdit()" style="flex:1;padding:10px;font-size:13px">Save Changes</button>
+      <button class="btn-ghost" onclick="closeMFEdit()" style="padding:10px 16px;font-size:13px">Cancel</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
