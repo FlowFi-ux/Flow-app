@@ -542,8 +542,6 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .cal-ev-goal{background:var(--amber-bg);color:var(--amber)}
 .cal-ev-sip{background:#e6edf8;color:#2a5080}
 [data-theme="dark"] .cal-ev-sip{background:#0a1828;color:#6090c8}
-.cal-ev-sub{background:#f0e6f8;color:#5a2080}
-[data-theme="dark"] .cal-ev-sub{background:#1a0828;color:#c090e8}
 .cal-legend{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap}
 .cal-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)}
 .cal-legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
@@ -721,6 +719,13 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   .sub-summary{grid-template-columns:1fr}
   .profile-modal-inner{padding:16px}
 }
+
+/* ── Subscription calendar event ────────────────────────── */
+.cal-ev-sub{background:#ede9f5;color:#5b3fa6;font-size:9px;padding:1px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5}
+[data-theme="dark"] .cal-ev-sub{background:#1a1030;color:#9b7de8}
+/* ── Edit (pencil) button ───────────────────────────────── */
+.btn-edit{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:var(--r);padding:3px 7px;font-size:11px;cursor:pointer;transition:all .12s;font-family:'IBM Plex Mono',monospace}
+.btn-edit:hover{border-color:var(--muted);color:var(--text)}
 </style>
 </head>
 <body>
@@ -1085,7 +1090,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="card"><div class="card-lbl">Annual Cost</div><div class="card-val" id="bAnnual">₹0</div></div>
   </div>
   <div class="bill-form" id="billForm" style="display:none">
-    <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:12px">New Bill Reminder</div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:12px" id="billFormTitle">New Bill Reminder</div>
     <div class="bill-form-grid">
       <div class="form-field"><span class="form-label">Bill Name</span><input type="text" id="bName" placeholder="e.g. HDFC Credit Card"></div>
       <div class="form-field"><span class="form-label">Amount (₹)</span><input type="number" id="bAmt" placeholder="0"></div>
@@ -1105,7 +1110,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     </div>
     <div style="display:flex;gap:8px">
       <button class="btn-primary btn-sm" onclick="saveBill()">Save Bill</button>
-      <button class="btn-ghost btn-sm" onclick="document.getElementById('billForm').style.display='none'">Cancel</button>
+      <button class="btn-ghost btn-sm" onclick="_editBillId=null;const ft=document.getElementById('billFormTitle');if(ft)ft.textContent='New Bill Reminder';document.getElementById('billForm').style.display='none'">Cancel</button>
     </div>
   </div>
   <div class="sec-hdr">
@@ -1115,7 +1120,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     </div>
     <button class="btn-ghost btn-sm" onclick="toggleBillForm()">+ Add Bill</button>
   </div>
-  <div class="info-tip" id="tip-bills"><div class="info-tip-hd">About Bills — How it works</div><strong>Add a bill just once.</strong> It automatically reappears every month — you never need to re-add it.<br><br>Each month, click <strong>Mark Paid</strong> when you pay it. Flow records the payment for that month, and the bill resets automatically on the 1st of the next month.<br><br>Bills show as <span style="color:var(--deficit)">Overdue</span> if past due day, <span style="color:var(--amber)">Due Soon</span> if within 7 days, or Upcoming. Quarterly, Half-Yearly, and Annual bills also appear on the Financial Calendar in their due months.<button class="info-tip-close" onclick="toggleInfo('tip-bills')">×</button></div>
+  <div class="info-tip" id="tip-bills"><div class="info-tip-hd">About Bills</div>Track recurring bills — credit cards, EMIs, utilities, subscriptions. Bills auto-classify as <strong>Overdue</strong>, <strong>Due Soon</strong> (within 7 days), or <strong>Upcoming</strong>. Mark as Paid each month. Annual cost shows total yearly bill outgo.<button class="info-tip-close" onclick="toggleInfo('tip-bills')">×</button></div>
   <div id="billsOverdue"></div>
   <div id="billsSoon"></div>
   <div id="billsUpcoming"></div>
@@ -1191,7 +1196,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="info-tip" id="tip-subs"><div class="info-tip-hd">Subscription Tracker</div>Track all recurring subscriptions — streaming, SaaS, fitness, news, etc. Monitor monthly and annual costs. Active, Paused, and Cancelled statuses help you spot forgotten subscriptions draining your account.<button class="info-tip-close" onclick="toggleInfo('tip-subs')">×</button></div>
     <div class="sub-summary" id="subSummaryBar"></div>
     <div class="hold-form" id="subForm" style="display:none;margin-bottom:14px">
-      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:12px">Add Subscription</div>
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:12px" id="subFormTitle">Add Subscription</div>
       <div style="display:grid;grid-template-columns:1.5fr 0.8fr 0.8fr 0.8fr 0.8fr;gap:10px;margin-bottom:10px;align-items:end">
         <div class="form-field"><span class="form-label">Service Name</span><input type="text" id="subName" placeholder="e.g. Netflix, Spotify"></div>
         <div class="form-field"><span class="form-label">Cost (&#8377;)</span><input type="number" id="subCost" placeholder="0" step="0.01"></div>
@@ -1768,11 +1773,11 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     </div>
     <div class="cal-grid" id="calBody" style="gap:3px"></div>
     <div class="cal-legend">
-      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--deficit-bg);border:1px solid var(--deficit)"></div>Bills due</div>
+      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--deficit-bg);border:1px solid var(--deficit)"></div>Bills / EMI</div>
       <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--surplus-bg);border:1px solid var(--surplus)"></div>FD maturity</div>
       <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--amber-bg);border:1px solid var(--amber)"></div>Goal deadline</div>
       <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#e6edf8;border:1px solid #b8d0e8"></div>SIP date</div>
-      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#f0e6f8;border:1px solid #c8a0e0"></div>Subscription</div>
+      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#ede9f5;border:1px solid #9b7de8"></div>Subscription</div>
     </div>
   </div>
   <!-- MONTHLY REPORT CARD -->
@@ -2089,11 +2094,48 @@ function updateCharts(){
 
 // ══ BILLS ══════════════════════════════════════════════════
 function toggleBillForm(){const f=document.getElementById('billForm');f.style.display=f.style.display==='none'?'block':'none';if(f.style.display==='block')document.getElementById('bName').focus()}
+let _editBillId=null; // null=add mode, id=edit mode
+
 function saveBill(){
-  const name=document.getElementById('bName').value.trim(),amt=parseFloat(document.getElementById('bAmt').value)||0,day=parseInt(document.getElementById('bDay').value)||1;
+  const name=document.getElementById('bName').value.trim();
+  const amt=parseFloat(document.getElementById('bAmt').value)||0;
+  const day=parseInt(document.getElementById('bDay').value)||1;
   if(!name||!amt){alert('Name and Amount required.');return}
-  BILLS.push({id:uid(),name,amt,dueDay:day,category:document.getElementById('bCat').value,frequency:document.getElementById('bFreq').value,autopay:document.getElementById('bAutopay').value==='1',notes:document.getElementById('bNotes').value.trim(),paidMonths:[]});
-  saveBills();['bName','bAmt','bDay','bNotes'].forEach(id=>document.getElementById(id).value='');document.getElementById('billForm').style.display='none';renderBills();
+  const data={
+    name,amt,dueDay:day,
+    category:document.getElementById('bCat').value,
+    frequency:document.getElementById('bFreq').value,
+    autopay:document.getElementById('bAutopay').value==='1',
+    notes:document.getElementById('bNotes').value.trim()
+  };
+  if(_editBillId){
+    const b=BILLS.find(x=>x.id===_editBillId);
+    if(b){Object.assign(b,data);}
+    _editBillId=null;
+  }else{
+    BILLS.push({id:uid(),...data,paidMonths:[]});
+  }
+  saveBills();
+  ['bName','bAmt','bDay','bNotes'].forEach(id=>document.getElementById(id).value='');
+  const ft=document.getElementById('billFormTitle');if(ft)ft.textContent='New Bill Reminder';
+  document.getElementById('billForm').style.display='none';
+  renderBills();
+  if(document.getElementById('tsub-calendar')?.classList.contains('active'))renderCalendar();
+}
+
+function editBill(id){
+  const b=BILLS.find(x=>x.id===id);if(!b)return;
+  _editBillId=id;
+  document.getElementById('bName').value=b.name;
+  document.getElementById('bAmt').value=b.amt;
+  document.getElementById('bDay').value=b.dueDay;
+  document.getElementById('bCat').value=b.category;
+  document.getElementById('bFreq').value=b.frequency;
+  document.getElementById('bAutopay').value=b.autopay?'1':'0';
+  document.getElementById('bNotes').value=b.notes||'';
+  const ft=document.getElementById('billFormTitle');if(ft)ft.textContent='Edit Bill Reminder';
+  document.getElementById('billForm').style.display='block';
+  document.getElementById('billForm').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 function billStatus(bill){
   const now=new Date(),m=now.getMonth(),y=now.getFullYear(),mk=`${m}_${y}`;
@@ -2129,7 +2171,8 @@ function renderBills(){
       <div><div class="bill-amt">${fmt(b.amt)}</div>
       <div class="bill-actions">
         ${!paid?`<button class="btn-paid btn-sm" onclick="markBillPaid('${b.id}')">Mark Paid</button>`:''}
-        <button class="btn-del" onclick="deleteBill('${b.id}')">×</button>
+        <button class="btn-edit" onclick="editBill('${b.id}')" title="Edit bill">&#x270F;</button>
+        <button class="btn-del" onclick="deleteBill('${b.id}')">&#x00D7;</button>
       </div></div></div>`;
   }
   function renderGroup(cid,items,label){const c=document.getElementById(cid);if(!items.length){c.innerHTML='';return}c.innerHTML=`<div class="bill-section-lbl">${label} (${items.length})</div><div class="bill-list">${items.map(bCard).join('')}</div>`}
@@ -2988,38 +3031,10 @@ function renderCalendar(){
   // Build events map: day → [{label,cls}]
   const evts={};
   function addEv(day,label,cls){if(day<1||day>days)return;if(!evts[day])evts[day]=[];evts[day].push({label,cls})}
-  // Bills — show by frequency correctly
+  // Bills
   BILLS.forEach(b=>{
-    const nm=b.name.substring(0,12);
-    if(b.frequency==='Monthly'){addEv(b.dueDay,nm,'cal-ev-bill');}
-    else if(b.frequency==='Quarterly'){
-      // Show every 3rd calendar month (Jan/Apr/Jul/Oct base)
-      if(calMonth%3===0){addEv(b.dueDay,nm,'cal-ev-bill');}
-    }
-    else if(b.frequency==='Half-Yearly'){
-      if(calMonth%6===0){addEv(b.dueDay,nm,'cal-ev-bill');}
-    }
-    else if(b.frequency==='Annual'){
-      if(calMonth===0){addEv(b.dueDay,nm,'cal-ev-bill');}
-    }
-    // One-Time: not shown on calendar (no month context stored)
-  });
-  // Subscriptions — show renewal dates based on cycle
-  (SUBS||[]).forEach(function(s){
-    if(s.status==='Cancelled'||!s.renewal)return;
-    var rd=new Date(s.renewal);
-    if(isNaN(rd.getTime()))return;
-    var rDay=rd.getDate(), rMon=rd.getMonth(), rYr=rd.getFullYear();
-    var calDate=new Date(calYear,calMonth,1);
-    var renewStart=new Date(rYr,rMon,1);
-    if(calDate<renewStart)return; // renewal hasn't started yet
-    var monthsDiff=(calYear-rYr)*12+(calMonth-rMon);
-    var show=false;
-    if(s.cycle==='Monthly')show=true;
-    else if(s.cycle==='Quarterly')show=(monthsDiff%3===0);
-    else if(s.cycle==='Half-Yearly')show=(monthsDiff%6===0);
-    else if(s.cycle==='Annual')show=(monthsDiff%12===0);
-    if(show)addEv(rDay,'Sub: '+s.name.substring(0,9),'cal-ev-sub');
+    if(b.frequency==='Monthly'||b.frequency==='One-Time'){addEv(b.dueDay,b.name.substring(0,12),'cal-ev-bill')}
+    else if(b.frequency==='Quarterly'){if(calMonth%3===0||true){addEv(b.dueDay,b.name.substring(0,12),'cal-ev-bill')}}
   });
   // FD Maturities
   (INVEST.fds||[]).forEach(f=>{
@@ -3040,6 +3055,21 @@ function renderCalendar(){
   // Loan EMI dates
   LOANS.forEach(l=>{
     if(l.emiDay){addEv(l.emiDay,'EMI: '+l.name.substring(0,10),'cal-ev-bill')}
+  });
+  // Subscriptions — show renewal date if it falls in the calendar month
+  (SUBS||[]).filter(s=>s.status!=='Cancelled').forEach(s=>{
+    if(!s.renewal)return;
+    const rd=new Date(s.renewal);
+    if(isNaN(rd.getTime()))return;
+    const rDay=rd.getDate(),rMon=rd.getMonth(),rYear=rd.getFullYear();
+    // Determine if this subscription falls in the current calendar month
+    const diffMonths=(calYear-rYear)*12+(calMonth-rMon);
+    let showThis=false;
+    if(s.cycle==='Monthly'&&diffMonths>=0){showThis=true;}
+    else if(s.cycle==='Quarterly'&&diffMonths>=0&&diffMonths%3===0){showThis=true;}
+    else if(s.cycle==='Half-Yearly'&&diffMonths>=0&&diffMonths%6===0){showThis=true;}
+    else if(s.cycle==='Annual'&&diffMonths>=0&&diffMonths%12===0){showThis=true;}
+    if(showThis){addEv(rDay,s.name.substring(0,12),'cal-ev-sub');}
   });
   const body=document.getElementById('calBody');
   let html='';
@@ -3706,22 +3736,65 @@ function skipOnboard(){
 
 
 // ══ SUBSCRIPTION TRACKER ═══════════════════════════════════
+let _editSubId=null; // null=add mode, id=edit mode
+
 function saveSub(){
   const name=document.getElementById('subName').value.trim();
   const cost=parseFloat(document.getElementById('subCost').value)||0;
   if(!name||!cost){alert('Name and cost required.');return}
-  SUBS.push({
-    id:uid(),name,cost,
+  const data={
+    name,cost,
     cycle:document.getElementById('subCycle').value,
     cat:document.getElementById('subCat').value,
     status:document.getElementById('subStatus').value,
     renewal:document.getElementById('subRenewal').value,
     notes:document.getElementById('subNotes').value.trim()
-  });
+  };
+  if(_editSubId){
+    const s=SUBS.find(x=>x.id===_editSubId);
+    if(s){Object.assign(s,data);}
+    _editSubId=null;
+  }else{
+    SUBS.push({id:uid(),...data,paidMonths:[]});
+  }
   saveSubs();
   ['subName','subCost','subRenewal','subNotes'].forEach(id=>document.getElementById(id).value='');
+  const formTitle=document.getElementById('subFormTitle');
+  if(formTitle)formTitle.textContent='Add Subscription';
   toggleForm('subForm');
   renderSubs();
+  if(document.getElementById('tsub-calendar')?.classList.contains('active'))renderCalendar();
+}
+
+function editSub(id){
+  const s=SUBS.find(x=>x.id===id);if(!s)return;
+  _editSubId=id;
+  document.getElementById('subName').value=s.name;
+  document.getElementById('subCost').value=s.cost;
+  document.getElementById('subCycle').value=s.cycle;
+  document.getElementById('subCat').value=s.cat;
+  document.getElementById('subStatus').value=s.status;
+  document.getElementById('subRenewal').value=s.renewal||'';
+  document.getElementById('subNotes').value=s.notes||'';
+  const formTitle=document.getElementById('subFormTitle');
+  if(formTitle)formTitle.textContent='Edit Subscription';
+  document.getElementById('subForm').style.display='block';
+  document.getElementById('subForm').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function markSubPaid(id){
+  const s=SUBS.find(x=>x.id===id);if(!s)return;
+  if(!s.paidMonths)s.paidMonths=[];
+  const now=new Date(),mk=`${now.getMonth()}_${now.getFullYear()}`;
+  if(!s.paidMonths.includes(mk))s.paidMonths.push(mk);
+  saveSubs();renderSubs();
+}
+
+function unmarkSubPaid(id){
+  const s=SUBS.find(x=>x.id===id);if(!s)return;
+  const now=new Date(),mk=`${now.getMonth()}_${now.getFullYear()}`;
+  s.paidMonths=(s.paidMonths||[]).filter(m=>m!==mk);
+  saveSubs();renderSubs();
 }
 function deleteSub(id){if(!confirm('Delete subscription?'))return;SUBS=SUBS.filter(s=>s.id!==id);saveSubs();renderSubs()}
 function updateSubStatus(id,status){const s=SUBS.find(x=>x.id===id);if(s){s.status=status;saveSubs();renderSubs();}}
@@ -3741,18 +3814,27 @@ function renderSubs(){
   el.innerHTML=SUBS.map(s=>{
     const mAmt=s.cost*(mults[s.cycle]||1);
     const statCls=s.status==='Active'?'':'paused cancelled'.split(' ').find(x=>x===s.status.toLowerCase())||'';
+    const now=new Date(),mk=`${now.getMonth()}_${now.getFullYear()}`;
+    const paidThisMonth=(s.paidMonths||[]).includes(mk);
     const daysToRenewal=s.renewal?Math.ceil((new Date(s.renewal)-new Date())/86400000):null;
-    const renewLbl=daysToRenewal!=null?(daysToRenewal<0?`<span style="color:var(--deficit)">Overdue</span>`:daysToRenewal<=7?`<span style="color:var(--amber)">Renews in ${daysToRenewal}d</span>`:`Renews ${new Date(s.renewal).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}`):'';
-    return`<div class="sub-card">
+    const renewDate=s.renewal?new Date(s.renewal).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'';
+    const renewLbl=daysToRenewal!=null?(daysToRenewal<0?`<span style="color:var(--deficit)">Renewal Overdue</span>`:daysToRenewal<=7?`<span style="color:var(--amber)">Renews in ${daysToRenewal}d</span>`:`Renews ${renewDate}`):'';
+    return`<div class="sub-card${paidThisMonth?' paid-sub':''}">
       <div class="sub-card-info">
-        <div class="sub-name">${esc(s.name)} ${s.status!=='Active'?`<span class="sub-badge ${statCls}">${s.status}</span>`:''}</div>
+        <div class="sub-name">${esc(s.name)}
+          ${s.status!=='Active'?`<span class="sub-badge ${statCls}">${s.status}</span>`:''}
+          ${paidThisMonth?`<span class="sub-badge" style="background:var(--surplus-bg);color:var(--surplus);border-color:var(--surplus)">✓ Paid</span>`:''}
+        </div>
         <div class="sub-meta">${s.cat} &nbsp;·&nbsp; ${s.cycle} &nbsp;·&nbsp; ${fmt(mAmt)}/mo ${renewLbl?'&nbsp;·&nbsp; '+renewLbl:''} ${s.notes?'&nbsp;·&nbsp; '+esc(s.notes):''}</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
         <div class="sub-cost">${fmt(s.cost)}</div>
-        <div style="display:flex;gap:4px">
+        <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
+          ${!paidThisMonth&&s.status==='Active'?`<button class="btn-primary btn-sm" onclick="markSubPaid('${s.id}')" style="font-size:10px">Mark Paid</button>`:''}
+          ${paidThisMonth?`<button class="btn-ghost btn-sm" onclick="unmarkSubPaid('${s.id}')" style="font-size:10px;color:var(--faint)">Undo Paid</button>`:''}
           ${s.status!=='Active'?`<button class="btn-ghost btn-sm" onclick="updateSubStatus('${s.id}','Active')" style="font-size:10px">Activate</button>`:''}
           ${s.status==='Active'?`<button class="btn-ghost btn-sm" onclick="updateSubStatus('${s.id}','Paused')" style="font-size:10px">Pause</button>`:''}
+          <button class="btn-edit" onclick="editSub('${s.id}')" title="Edit subscription">✏</button>
           <button class="btn-del" onclick="deleteSub('${s.id}')">×</button>
         </div>
       </div>
