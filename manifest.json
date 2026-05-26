@@ -1,16 +1,21 @@
 {
   "name": "Flow — Personal Finance",
   "short_name": "Flow",
-  "description": "Offline personal finance tracker. Income, expenses, bills, portfolio, calculators.",
-  "start_url": "./index.html",
+  "description": "Personal finance tracker — offline, private, stored entirely on your device.",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#eeecea",
-  "theme_color": "#111111",
-  "orientation": "any",
+  "orientation": "portrait",
+  "background_color": "#0e0e0e",
+  "theme_color": "#0e0e0e",
   "categories": ["finance", "productivity"],
-  "lang": "en-IN",
   "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "icon-192.png",
       "sizes": "192x192",
@@ -30,24 +35,6 @@
       "purpose": "any"
     }
   ],
-  "shortcuts": [
-    {
-      "name": "Track",
-      "short_name": "Track",
-      "description": "Log income & expenses",
-      "url": "./index.html"
-    },
-    {
-      "name": "Bills",
-      "short_name": "Bills",
-      "description": "Manage recurring bills",
-      "url": "./index.html"
-    },
-    {
-      "name": "Portfolio",
-      "short_name": "Portfolio",
-      "description": "View investments",
-      "url": "./index.html"
-    }
-  ]
+  "screenshots": [],
+  "prefer_related_applications": false
 }

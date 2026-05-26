@@ -1,115 +1,137 @@
-/* ══════════════════════════════════════════════════════════
-   Flow PWA — Service Worker
-   Strategy: Cache-first for app shell; network-first for CDN
-   ══════════════════════════════════════════════════════════ */
+/**
+ * Flow — Service Worker
+ * ─────────────────────────────────────────────────────────
+ * HOW UPDATES WORK:
+ * Every time you push a new version of the app to GitHub,
+ * bump the CACHE_VERSION string below (e.g. v2 → v3).
+ * The browser will detect the changed sw.js, install the new
+ * worker, clear the old cache, and prompt the user to reload.
+ *
+ * If you forget to bump the version, the user gets the cached
+ * old version. So — bump it on every deploy.
+ * ─────────────────────────────────────────────────────────
+ */
 
-const CACHE_NAME = 'flow-v1.0';
+const CACHE_VERSION = 'flow-v3';          // ← BUMP ON EVERY DEPLOY
+const CACHE_NAME    = `flow-${CACHE_VERSION}`;
 
-const APP_SHELL = [
+// Files to cache for full offline support
+const STATIC_ASSETS = [
+  './',
   './index.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
+  './apple-touch-icon.png',
+  './favicon.png',
+  './sw.js',
 ];
 
-const CDN_RESOURCES = [
-  'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&display=swap',
+// CDN assets — cached on first fetch, served offline after
+const CDN_ASSETS = [
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+  'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&display=swap',
 ];
 
-// ── INSTALL — pre-cache app shell ──────────────────────────
-self.addEventListener('install', event => {
-  console.log('[Flow SW] Installing...');
+// ── INSTALL — cache static assets immediately ─────────────
+self.addEventListener('install', function(event){
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      // Cache app shell (must succeed)
-      return cache.addAll(APP_SHELL).then(() => {
-        // Cache CDN resources (best effort — don't block install)
-        return Promise.allSettled(
-          CDN_RESOURCES.map(url =>
-            fetch(url, { mode: 'cors' })
-              .then(res => res.ok ? cache.put(url, res) : null)
-              .catch(() => null)
-          )
+    caches.open(CACHE_NAME)
+      .then(function(cache){
+        return cache.addAll(STATIC_ASSETS);
+      })
+      .then(function(){
+        // Take control immediately (don't wait for page reload)
+        return self.skipWaiting();
+      })
+  );
+});
+
+// ── ACTIVATE — delete old caches ─────────────────────────
+self.addEventListener('activate', function(event){
+  event.waitUntil(
+    caches.keys()
+      .then(function(cacheNames){
+        return Promise.all(
+          cacheNames
+            .filter(function(name){ return name !== CACHE_NAME; })
+            .map(function(name){
+              console.log('[SW] Deleting old cache:', name);
+              return caches.delete(name);
+            })
         );
+      })
+      .then(function(){
+        // Claim all open tabs immediately
+        return self.clients.claim();
+      })
+  );
+});
+
+// ── FETCH — cache-first for static, network-first for API ─
+self.addEventListener('fetch', function(event){
+  const url = new URL(event.request.url);
+
+  // Skip non-GET requests
+  if(event.request.method !== 'GET') return;
+
+  // Skip chrome-extension and dev-tool requests
+  if(url.protocol !== 'http:' && url.protocol !== 'https:') return;
+
+  // NAV API (mfapi.in) — always network, never cache
+  if(url.hostname === 'api.mfapi.in'){
+    event.respondWith(fetch(event.request).catch(function(){
+      return new Response(JSON.stringify({error:'offline'}),{
+        headers:{'Content-Type':'application/json'}
       });
-    })
-  );
-  self.skipWaiting();
-});
-
-// ── ACTIVATE — clean up old caches ─────────────────────────
-self.addEventListener('activate', event => {
-  console.log('[Flow SW] Activating...');
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => {
-            console.log('[Flow SW] Deleting old cache:', key);
-            return caches.delete(key);
-          })
-      )
-    )
-  );
-  self.clients.claim();
-});
-
-// ── FETCH — serve from cache, update in background ─────────
-self.addEventListener('fetch', event => {
-  const { request } = event;
-  const url = new URL(request.url);
-
-  // Only handle GET requests
-  if (request.method !== 'GET') return;
-
-  // Skip chrome-extension and non-http
-  if (!url.protocol.startsWith('http')) return;
-
-  // For the main HTML — network-first with cache fallback
-  if (url.pathname.endsWith('index.html') || url.pathname.endsWith('/')) {
-    event.respondWith(
-      fetch(request)
-        .then(response => {
-          if (response && response.status === 200) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
-          }
-          return response;
-        })
-        .catch(() => caches.match(request))
-    );
+    }));
     return;
   }
 
-  // For everything else — cache-first with network fallback
+  // Everything else: cache-first with network fallback
   event.respondWith(
-    caches.match(request).then(cached => {
-      if (cached) return cached;
+    caches.match(event.request)
+      .then(function(cached){
+        if(cached){
+          // Return from cache, and update cache in background
+          var networkFetch = fetch(event.request)
+            .then(function(response){
+              if(response && response.status === 200){
+                var clone = response.clone();
+                caches.open(CACHE_NAME)
+                  .then(function(cache){ cache.put(event.request, clone); });
+              }
+              return response;
+            })
+            .catch(function(){ /* offline, use cache */ });
+          return cached; // Return cache immediately
+        }
 
-      return fetch(request)
-        .then(response => {
-          if (!response || response.status !== 200 || response.type === 'error') {
+        // Not in cache — fetch from network and cache it
+        return fetch(event.request)
+          .then(function(response){
+            if(!response || response.status !== 200 || response.type === 'opaque'){
+              return response;
+            }
+            var clone = response.clone();
+            caches.open(CACHE_NAME)
+              .then(function(cache){ cache.put(event.request, clone); });
             return response;
-          }
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
-          return response;
-        })
-        .catch(err => {
-          console.warn('[Flow SW] Fetch failed:', err);
-          // Return offline page or cached content
-          return caches.match('./index.html');
-        });
-    })
+          })
+          .catch(function(){
+            // Offline and not cached — return a fallback for navigation
+            if(event.request.destination === 'document'){
+              return caches.match('./index.html');
+            }
+          });
+      })
   );
 });
 
-// ── BACKGROUND SYNC — push data when back online ───────────
-self.addEventListener('sync', event => {
-  if (event.tag === 'flow-sync') {
-    console.log('[Flow SW] Background sync triggered');
+// ── MESSAGE — handle skipWaiting from page ────────────────
+self.addEventListener('message', function(event){
+  if(event.data && event.data.action === 'skipWaiting'){
+    self.skipWaiting();
   }
 });
