@@ -542,6 +542,8 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .cal-ev-goal{background:var(--amber-bg);color:var(--amber)}
 .cal-ev-sip{background:#e6edf8;color:#2a5080}
 [data-theme="dark"] .cal-ev-sip{background:#0a1828;color:#6090c8}
+.cal-ev-sub{background:#f0e6f8;color:#5a2080}
+[data-theme="dark"] .cal-ev-sub{background:#1a0828;color:#c090e8}
 .cal-legend{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap}
 .cal-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)}
 .cal-legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
@@ -1113,7 +1115,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     </div>
     <button class="btn-ghost btn-sm" onclick="toggleBillForm()">+ Add Bill</button>
   </div>
-  <div class="info-tip" id="tip-bills"><div class="info-tip-hd">About Bills</div>Track recurring bills — credit cards, EMIs, utilities, subscriptions. Bills auto-classify as <strong>Overdue</strong>, <strong>Due Soon</strong> (within 7 days), or <strong>Upcoming</strong>. Mark as Paid each month. Annual cost shows total yearly bill outgo.<button class="info-tip-close" onclick="toggleInfo('tip-bills')">×</button></div>
+  <div class="info-tip" id="tip-bills"><div class="info-tip-hd">About Bills — How it works</div><strong>Add a bill just once.</strong> It automatically reappears every month — you never need to re-add it.<br><br>Each month, click <strong>Mark Paid</strong> when you pay it. Flow records the payment for that month, and the bill resets automatically on the 1st of the next month.<br><br>Bills show as <span style="color:var(--deficit)">Overdue</span> if past due day, <span style="color:var(--amber)">Due Soon</span> if within 7 days, or Upcoming. Quarterly, Half-Yearly, and Annual bills also appear on the Financial Calendar in their due months.<button class="info-tip-close" onclick="toggleInfo('tip-bills')">×</button></div>
   <div id="billsOverdue"></div>
   <div id="billsSoon"></div>
   <div id="billsUpcoming"></div>
@@ -1770,6 +1772,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--surplus-bg);border:1px solid var(--surplus)"></div>FD maturity</div>
       <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--amber-bg);border:1px solid var(--amber)"></div>Goal deadline</div>
       <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#e6edf8;border:1px solid #b8d0e8"></div>SIP date</div>
+      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#f0e6f8;border:1px solid #c8a0e0"></div>Subscription</div>
     </div>
   </div>
   <!-- MONTHLY REPORT CARD -->
@@ -2985,10 +2988,38 @@ function renderCalendar(){
   // Build events map: day → [{label,cls}]
   const evts={};
   function addEv(day,label,cls){if(day<1||day>days)return;if(!evts[day])evts[day]=[];evts[day].push({label,cls})}
-  // Bills
+  // Bills — show by frequency correctly
   BILLS.forEach(b=>{
-    if(b.frequency==='Monthly'||b.frequency==='One-Time'){addEv(b.dueDay,b.name.substring(0,12),'cal-ev-bill')}
-    else if(b.frequency==='Quarterly'){if(calMonth%3===0||true){addEv(b.dueDay,b.name.substring(0,12),'cal-ev-bill')}}
+    const nm=b.name.substring(0,12);
+    if(b.frequency==='Monthly'){addEv(b.dueDay,nm,'cal-ev-bill');}
+    else if(b.frequency==='Quarterly'){
+      // Show every 3rd calendar month (Jan/Apr/Jul/Oct base)
+      if(calMonth%3===0){addEv(b.dueDay,nm,'cal-ev-bill');}
+    }
+    else if(b.frequency==='Half-Yearly'){
+      if(calMonth%6===0){addEv(b.dueDay,nm,'cal-ev-bill');}
+    }
+    else if(b.frequency==='Annual'){
+      if(calMonth===0){addEv(b.dueDay,nm,'cal-ev-bill');}
+    }
+    // One-Time: not shown on calendar (no month context stored)
+  });
+  // Subscriptions — show renewal dates based on cycle
+  (SUBS||[]).forEach(function(s){
+    if(s.status==='Cancelled'||!s.renewal)return;
+    var rd=new Date(s.renewal);
+    if(isNaN(rd.getTime()))return;
+    var rDay=rd.getDate(), rMon=rd.getMonth(), rYr=rd.getFullYear();
+    var calDate=new Date(calYear,calMonth,1);
+    var renewStart=new Date(rYr,rMon,1);
+    if(calDate<renewStart)return; // renewal hasn't started yet
+    var monthsDiff=(calYear-rYr)*12+(calMonth-rMon);
+    var show=false;
+    if(s.cycle==='Monthly')show=true;
+    else if(s.cycle==='Quarterly')show=(monthsDiff%3===0);
+    else if(s.cycle==='Half-Yearly')show=(monthsDiff%6===0);
+    else if(s.cycle==='Annual')show=(monthsDiff%12===0);
+    if(show)addEv(rDay,'Sub: '+s.name.substring(0,9),'cal-ev-sub');
   });
   // FD Maturities
   (INVEST.fds||[]).forEach(f=>{
