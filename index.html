@@ -726,6 +726,27 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 /* ── Edit (pencil) button ───────────────────────────────── */
 .btn-edit{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:var(--r);padding:3px 7px;font-size:11px;cursor:pointer;transition:all .12s;font-family:'IBM Plex Mono',monospace}
 .btn-edit:hover{border-color:var(--muted);color:var(--text)}
+
+/* ══ BUDGET MANAGER ═══════════════════════════════════════ */
+.budget-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.budget-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--border)}
+.budget-row:last-child{border-bottom:none}
+.budget-cat-name{flex:0 0 110px;font-size:11.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.budget-progress-wrap{flex:1;min-width:0}
+.budget-bar-track{height:6px;background:var(--surface-alt);border-radius:3px;overflow:hidden;margin-bottom:3px}
+.budget-bar-fill{height:100%;border-radius:3px;transition:width .35s ease}
+.budget-bar-ok{background:var(--surplus)}
+.budget-bar-warn{background:var(--amber)}
+.budget-bar-over{background:var(--deficit)}
+.budget-amounts{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.budget-pct{flex:0 0 38px;font-size:11px;font-weight:600;text-align:right;white-space:nowrap}
+.budget-limit-inp{width:80px;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:3px 6px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);color:var(--text);text-align:right}
+.budget-limit-inp:focus{outline:none;border-color:var(--muted)}
+@media(max-width:640px){
+  .budget-summary-grid{grid-template-columns:1fr 1fr}
+  .budget-cat-name{flex:0 0 80px;font-size:10.5px}
+  .budget-limit-inp{width:64px}
+}
 </style>
 </head>
 <body>
@@ -1032,6 +1053,49 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="chart-card"><div class="chart-lbl">Monthly Overview — Income vs Expense</div><div class="chart-wrap"><canvas id="barChart"></canvas></div></div>
     <div class="chart-card"><div class="chart-lbl">Expense Breakdown</div><div class="chart-wrap"><canvas id="pieChart"></canvas></div></div>
   </div>
+
+  <!-- ══ BUDGET MANAGER ═════════════════════════════════════ -->
+  <div class="card" style="margin-bottom:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0">
+      <div style="display:flex;align-items:center;gap:7px">
+        <span class="card-lbl" style="margin:0">Budget Manager</span>
+        <button class="info-btn" onclick="toggleInfo('tip-budget')" title="About Budget Manager">i</button>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span id="budgetOverBadge" style="display:none;font-size:9px;padding:2px 8px;border-radius:10px;background:var(--deficit-bg);color:var(--deficit);font-weight:500"></span>
+        <button class="btn-ghost btn-sm" onclick="toggleForm('budgetAddForm')">+ Set Budget</button>
+        <button class="btn-ghost btn-sm" id="budgetToggleBtn" onclick="toggleBudgetSection()">Show ▾</button>
+      </div>
+    </div>
+    <div class="info-tip" id="tip-budget"><div class="info-tip-hd">Budget Manager</div>Set a monthly spending limit for each expense category. The progress bar shows how much of the budget you have used. <strong>Green</strong> = under 80% · <strong>Amber</strong> = 80–99% · <strong>Red</strong> = over budget.<br><br>Budgets are permanent — they apply every month automatically. Only your spending resets each month. You can set a budget for any category, even ones with no spending yet this month.<button class="info-tip-close" onclick="toggleInfo('tip-budget')">×</button></div>
+
+    <div id="budgetSection" style="display:none;margin-top:12px">
+      <!-- Add budget form -->
+      <div class="hold-form" id="budgetAddForm" style="display:none;margin-bottom:14px">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:10px">Set Category Budget</div>
+        <div style="display:grid;grid-template-columns:1.5fr 1fr auto;gap:8px;align-items:end">
+          <div class="form-field">
+            <span class="form-label">Category Name</span>
+            <input type="text" id="budgetCatInp" placeholder="e.g. Food, Rent" list="budgetCatList" autocomplete="off">
+            <datalist id="budgetCatList"></datalist>
+          </div>
+          <div class="form-field">
+            <span class="form-label">Monthly Limit (&#8377;)</span>
+            <input type="number" id="budgetAmtInp" placeholder="0" min="0">
+          </div>
+          <button class="btn-primary btn-sm" onclick="addBudgetEntry()" style="margin-bottom:1px">Set</button>
+        </div>
+        <button class="btn-ghost btn-sm" onclick="toggleForm('budgetAddForm')" style="margin-top:8px">Cancel</button>
+      </div>
+
+      <!-- Summary cards -->
+      <div class="budget-summary-grid" id="budgetSummaryCards"></div>
+
+      <!-- Budget rows -->
+      <div id="budgetManagerBody"></div>
+    </div>
+  </div>
+
   <!-- RECURRING TEMPLATES -->
   <div class="card" style="margin-bottom:14px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0">
@@ -1875,6 +1939,7 @@ let NW_HISTORY=JSON.parse(localStorage.getItem('flow_nw_history')||'[]');
 let BILLS = JSON.parse(localStorage.getItem('flow_bills')||'[]');
 let INVEST= JSON.parse(localStorage.getItem('flow_invest')||'{"goals":[],"mf":[],"holdings":[],"dividends":[],"fds":[]}');
 let dark  = localStorage.getItem('flow_dark')==='true';
+let BUDGETS= JSON.parse(localStorage.getItem('flow_budgets')||'{}');
 // Search bars removed — filters always empty
 let incFilter='', expFilter='';
 let dragSrcIdx=null, dragSrcType=null;
@@ -1903,6 +1968,7 @@ function saveSplits(){localStorage.setItem('flow_splits',JSON.stringify(SPLITS))
 function saveTemplates(){localStorage.setItem('flow_templates',JSON.stringify(TEMPLATES))}
 function saveSubs(){localStorage.setItem('flow_subs',JSON.stringify(SUBS))}
 function saveNotes(){localStorage.setItem('flow_notes',JSON.stringify(NOTES))}
+function saveBudgets(){localStorage.setItem('flow_budgets',JSON.stringify(BUDGETS))}
 function saveNWHistory(){localStorage.setItem('flow_nw_history',JSON.stringify(NW_HISTORY))}
 function saveEmfund(){
   EMFUND.amount=parseFloat(document.getElementById('efundAmt').value)||0;
@@ -2077,7 +2143,8 @@ function exportCSV(){
 
 // ══ CHARTS ═════════════════════════════════════════════════
 let barInst=null,pieInst=null,chartTimer=null;
-function scheduleCharts(){clearTimeout(chartTimer);chartTimer=setTimeout(updateCharts,220)}
+let budgetTimer=null;
+function scheduleCharts(){clearTimeout(chartTimer);chartTimer=setTimeout(updateCharts,220);clearTimeout(budgetTimer);budgetTimer=setTimeout(renderBudgetManager,300);}
 function chartColors(){return{text:dark?'#666':'#555',grid:dark?'#252525':'#ddd',income:dark?'rgba(74,222,128,.62)':'rgba(26,92,58,.52)',expense:dark?'rgba(248,113,113,.62)':'rgba(139,29,42,.52)',pie:dark?['rgba(248,113,113,.75)','rgba(251,191,36,.75)','rgba(167,139,250,.75)','rgba(96,165,250,.75)','rgba(52,211,153,.75)','rgba(251,146,60,.75)']:['rgba(139,29,42,.65)','rgba(160,110,20,.65)','rgba(90,80,140,.65)','rgba(40,75,140,.65)','rgba(25,95,65,.65)','rgba(140,70,25,.65)']}}
 function updateCharts(){
   const c=chartColors(),yr=selY();
@@ -2595,8 +2662,8 @@ function clearAllData(){
   if(!confirm('Delete ALL data — tracker, bills, investments?\nThis cannot be undone.'))return;
   if(!confirm('Are you absolutely sure?'))return;
   ['flow_v3','flow_bills','flow_invest','flow_visited'].forEach(k=>localStorage.removeItem(k));
-  DB={};BILLS=[];INVEST={goals:[],mf:[],holdings:[],dividends:[],fds:[]};LOANS=[];SPLITS=[];TEMPLATES=[];EMFUND={amount:0,targetMonths:6,expOverride:0};SUBS=[];NOTES=[];NW_HISTORY=[];allMFSchemes=null;
-  ['flow_loans','flow_splits','flow_templates','flow_emfund','flow_subs','flow_notes','flow_nw_history'].forEach(k=>localStorage.removeItem(k));
+  DB={};BILLS=[];INVEST={goals:[],mf:[],holdings:[],dividends:[],fds:[]};LOANS=[];SPLITS=[];TEMPLATES=[];EMFUND={amount:0,targetMonths:6,expOverride:0};SUBS=[];NOTES=[];NW_HISTORY=[];BUDGETS={};allMFSchemes=null;
+  ['flow_loans','flow_splits','flow_templates','flow_emfund','flow_subs','flow_notes','flow_nw_history','flow_budgets'].forEach(k=>localStorage.removeItem(k));
   render();renderBills();renderGoals();renderMFTable();renderHoldingsTable();renderDividendTable();renderFDTable();renderSplits();renderTemplates();renderLoans();renderSubs();renderNotes();updateInvestSummary();
   alert('All data cleared.');
 }
@@ -3488,7 +3555,7 @@ function renderTemplates(){
 
 // ══ BACKUP & RESTORE ══════════════════════════════════════
 function backupData(){
-  const data={v:'flow_backup_v1',timestamp:new Date().toISOString(),db:DB,bills:BILLS,invest:INVEST,loans:LOANS,splits:SPLITS,templates:TEMPLATES,emfund:EMFUND,subs:SUBS,notes:NOTES,nwHistory:NW_HISTORY,dark};
+  const data={v:'flow_backup_v1',timestamp:new Date().toISOString(),db:DB,bills:BILLS,invest:INVEST,loans:LOANS,splits:SPLITS,templates:TEMPLATES,emfund:EMFUND,subs:SUBS,notes:NOTES,nwHistory:NW_HISTORY,budgets:BUDGETS,dark};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Flow_Backup_${new Date().toISOString().split('T')[0]}.json`;a.click();
 }
@@ -3500,11 +3567,11 @@ function restoreData(input){
     try{
       const data=JSON.parse(e.target.result);
       if(data.v!=='flow_backup_v1'){alert('Invalid backup file.');return}
-      DB=data.db||{};BILLS=data.bills||[];INVEST=data.invest||{goals:[],mf:[],holdings:[],dividends:[],fds:[]};SUBS=data.subs||[];NOTES=data.notes||[];NW_HISTORY=data.nwHistory||[];
+      DB=data.db||{};BILLS=data.bills||[];INVEST=data.invest||{goals:[],mf:[],holdings:[],dividends:[],fds:[]};SUBS=data.subs||[];NOTES=data.notes||[];NW_HISTORY=data.nwHistory||[];BUDGETS=data.budgets||{};
       LOANS=data.loans||[];SPLITS=data.splits||[];TEMPLATES=data.templates||[];EMFUND=data.emfund||{amount:0,targetMonths:6,expOverride:0};
       dark=data.dark||false;
       localStorage.setItem('flow_v3',JSON.stringify(DB));localStorage.setItem('flow_bills',JSON.stringify(BILLS));localStorage.setItem('flow_invest',JSON.stringify(INVEST));
-      localStorage.setItem('flow_loans',JSON.stringify(LOANS));localStorage.setItem('flow_splits',JSON.stringify(SPLITS));localStorage.setItem('flow_templates',JSON.stringify(TEMPLATES));localStorage.setItem('flow_emfund',JSON.stringify(EMFUND));localStorage.setItem('flow_subs',JSON.stringify(SUBS));localStorage.setItem('flow_notes',JSON.stringify(NOTES));localStorage.setItem('flow_nw_history',JSON.stringify(NW_HISTORY));
+      localStorage.setItem('flow_loans',JSON.stringify(LOANS));localStorage.setItem('flow_splits',JSON.stringify(SPLITS));localStorage.setItem('flow_templates',JSON.stringify(TEMPLATES));localStorage.setItem('flow_emfund',JSON.stringify(EMFUND));localStorage.setItem('flow_subs',JSON.stringify(SUBS));localStorage.setItem('flow_notes',JSON.stringify(NOTES));localStorage.setItem('flow_nw_history',JSON.stringify(NW_HISTORY));localStorage.setItem('flow_budgets',JSON.stringify(BUDGETS));
       applyDark();render();renderBills();renderHoldingsTable();renderMFTable();renderGoals();renderFDTable();renderSplits();renderTemplates();updateInvestSummary();
       alert('Backup restored successfully!');
     }catch(err){alert('Failed to restore: '+err.message)}
@@ -4205,8 +4272,85 @@ document.addEventListener('click',function(e){
   if(m&&e.target===m)closeMFEdit();
 });
 
+
+// Budget Manager
+var _budgetOpen=false;
+function toggleBudgetSection(){
+  _budgetOpen=!_budgetOpen;
+  var s=document.getElementById('budgetSection');
+  var b=document.getElementById('budgetToggleBtn');
+  if(s)s.style.display=_budgetOpen?'block':'none';
+  if(b)b.textContent=_budgetOpen?'Hide ▴':'Show ▾';
+  if(_budgetOpen)renderBudgetManager();
+}
+function addBudgetEntry(){
+  var cat=(document.getElementById('budgetCatInp').value||'').trim();
+  var amt=parseFloat(document.getElementById('budgetAmtInp').value)||0;
+  if(!cat){alert('Category name required.');return;}
+  if(!amt||amt<0){alert('Enter a valid amount.');return;}
+  BUDGETS[cat]=amt;saveBudgets();
+  document.getElementById('budgetCatInp').value='';
+  document.getElementById('budgetAmtInp').value='';
+  document.getElementById('budgetAddForm').style.display='none';
+  renderBudgetManager();
+}
+function setBudget(cat,val){
+  var amt=parseFloat(val)||0;
+  if(amt>0){BUDGETS[cat]=amt;}else{delete BUDGETS[cat];}
+  saveBudgets();renderBudgetManager();
+}
+function removeBudget(cat){delete BUDGETS[cat];saveBudgets();renderBudgetManager();}
+function renderBudgetManager(){
+  var body=document.getElementById('budgetManagerBody');
+  if(!body||!_budgetOpen)return;
+  var d=mdata(),spent={};
+  d.expense.forEach(function(x){
+    var k=(x.cat||'Other').trim()||'Other';
+    spent[k]=(spent[k]||0)+(parseFloat(x.amt)||0);
+  });
+  var dl=document.getElementById('budgetCatList');
+  if(dl){var ac=Object.keys(Object.assign({},BUDGETS,spent));
+    dl.innerHTML=ac.map(function(c){return'<option value="'+esc(c)+'">'; }).join('');}
+  var budgeted=Object.keys(BUDGETS).filter(function(c){return BUDGETS[c]>0;});
+  var totB=budgeted.reduce(function(s,c){return s+BUDGETS[c];},0);
+  var totS=budgeted.reduce(function(s,c){return s+(spent[c]||0);},0);
+  var oc=budgeted.filter(function(c){return(spent[c]||0)>BUDGETS[c];}).length;
+  var rem=totB-totS;
+  var sumEl=document.getElementById('budgetSummaryCards');
+  if(sumEl&&budgeted.length){
+    sumEl.innerHTML='<div class="card"><div class="card-lbl">Budgeted</div><div class="card-val">'+fmt(totB)+'</div></div>'+
+      '<div class="card"><div class="card-lbl">Spent</div><div class="card-val '+(totS>totB?'c-red':'')+'">'+fmt(totS)+'</div></div>'+
+      '<div class="card"><div class="card-lbl">'+(rem>=0?'Remaining':'Over By')+'</div><div class="card-val '+(rem>=0?'c-green':'c-red')+'">'+fmt(Math.abs(rem))+'</div></div>';
+  }else if(sumEl){sumEl.innerHTML='';}
+  var badge=document.getElementById('budgetOverBadge');
+  if(badge){badge.textContent=oc>0?oc+' over budget':'';badge.style.display=oc>0?'inline-block':'none';}
+  if(!budgeted.length&&!Object.keys(spent).length){
+    body.innerHTML='<div class="empty-msg">No budgets set yet. Click + Set Budget to add a monthly limit.</div>';return;
+  }
+  function bRow(cat,sp,lim,un){
+    var pct=lim>0?Math.min(200,Math.round(sp/lim*100)):0;
+    var bc=pct>=100?'budget-bar-over':pct>=80?'budget-bar-warn':'budget-bar-ok';
+    var pc=pct>=100?'var(--deficit)':pct>=80?'var(--amber)':'var(--surplus)';
+    var ov=(!un&&pct>=100)?' <span style="color:var(--deficit)">+'+fmt(sp-lim)+' over</span>':'';
+    var as=un?fmt(sp)+'&nbsp;— no limit':fmt(sp)+' of '+fmt(lim)+ov;
+    var db=un?'<div style="width:22px"></div>':'<button class="btn-del" onclick="removeBudget(this.dataset.cat)" data-cat="'+esc(cat)+'" title="Remove">&#215;</button>';
+    return'<div class="budget-row"'+(un?' style="opacity:.7"':'')+'>'+
+      '<div class="budget-cat-name" title="'+esc(cat)+'">'+esc(cat)+'</div>'+
+      '<div class="budget-progress-wrap">'+
+        '<div class="budget-bar-track"><div class="budget-bar-fill '+bc+'" style="width:'+Math.min(100,pct)+'%'+(un?';opacity:.3':'')+'"></div></div>'+
+        '<div class="budget-amounts">'+as+'</div>'+
+      '</div>'+
+      '<div class="budget-pct" style="color:'+(un?'var(--faint)':pc)+'">'+(un?'—':pct+'%')+'</div>'+
+      '<input class="budget-limit-inp" type="number" '+(lim?'value="'+lim+'"':'placeholder="Set"')+' min="0"'+
+        ' onchange="setBudget(this.dataset.cat,this.value)" data-cat="'+esc(cat)+'">'+
+      db+'</div>';
+  }
+  var rr=budgeted.slice().sort().map(function(c){return bRow(c,spent[c]||0,BUDGETS[c],false);});
+  body.innerHTML=rr.length?rr.join(''):'<div class="empty-msg">No budgets set yet. Click + Set Budget to add a monthly limit per category.</div>';
+}
+
 // ══ INIT ═══════════════════════════════════════════════════
-function render(){renderList('income');renderList('expense');updateSummary();updateCharts()}
+function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();}
 applyDark();render();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();
 
 // Pre-load MF schemes silently in background after 2s
