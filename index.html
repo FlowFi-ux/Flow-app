@@ -1021,6 +1021,23 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   .recap-hold-item{grid-template-columns:58px 1fr auto}
   .recap-bill-day{display:none}
 }
+/* ── Goal-SIP Link ────────────────────────────────────── */
+.goal-sip-link{background:var(--surface-alt);border:1px solid var(--border);border-left:3px solid #5b7fa6;border-radius:0 var(--r) var(--r) 0;padding:9px 12px;margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px}
+.goal-sip-link-info{flex:1;min-width:0}
+.goal-sip-link-name{font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.goal-sip-link-meta{color:var(--muted);font-size:10.5px}
+.goal-sip-link-unlink{background:none;border:1px solid var(--border);color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 9px;border-radius:var(--r);cursor:pointer;flex-shrink:0;white-space:nowrap}
+.goal-sip-link-unlink:hover{border-color:var(--deficit);color:var(--deficit)}
+.goal-link-btn{background:none;border:1px dashed var(--border);color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10.5px;padding:5px 12px;border-radius:var(--r);cursor:pointer;margin-top:8px;width:100%;text-align:center}
+.goal-link-btn:hover{border-color:var(--text);color:var(--text)}
+.goal-link-select{display:none;margin-top:8px;padding:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);font-size:11.5px}
+/* ── UPI Pay button ───────────────────────────────────── */
+.btn-upi{background:linear-gradient(135deg,#5a1e8c,#3d1270);color:#fff;border:none;padding:4px 11px;border-radius:var(--r);font-family:'IBM Plex Mono',monospace;font-size:10.5px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.btn-upi:hover{opacity:.88}
+/* ── FlowSnap PDF button ──────────────────────────────── */
+.flowsnap-toolbar{display:flex;justify-content:flex-end;margin-bottom:10px}
+.btn-snap-pdf{background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:5px 13px;border-radius:var(--r);font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:5px}
+.btn-snap-pdf:hover{border-color:var(--text);color:var(--text)}
 
 /* ── SMART NOTIFICATIONS ──────────────────────────────────── */
 .notif-bar{background:var(--amber-bg);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:var(--r);padding:12px 16px;margin-bottom:14px;display:none;align-items:center;gap:10px}
@@ -1581,6 +1598,10 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         <div class="form-field"><span class="form-label">Date</span><input type="date" id="spDate"></div>
         <div class="form-field"><span class="form-label">Paid By</span><input type="text" id="spPaidBy" placeholder="Your name"></div>
       </div>
+      <div class="form-field" style="margin-bottom:10px">
+        <span class="form-label">Your UPI ID <span style="color:var(--faint);font-weight:400">(optional — enables Pay via UPI for others)</span></span>
+        <input type="text" id="spPayeeUPI" placeholder="yourname@upi  or  yourname@okaxis" style="font-size:11.5px">
+      </div>
       <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:6px;font-weight:500">Split Among (add names)</div>
       <div id="splitMemberInputs" class="split-form-members"></div>
       <div style="display:flex;gap:8px;margin-top:10px">
@@ -1950,6 +1971,12 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         <div class="form-field"><span class="form-label">Current Saved (₹)</span><input type="number" id="gCurrent" placeholder="0"></div>
         <div class="form-field"><span class="form-label">Target Date</span><input type="date" id="gDate"></div>
       </div>
+      <div class="form-field" style="margin-bottom:12px">
+        <span class="form-label">Link a SIP <span style="color:var(--faint);font-weight:400">(optional — track which fund is funding this goal)</span></span>
+        <select id="gLinkedSIP" style="font-size:12px" onclick="populateGoalSIPSelect()">
+          <option value="">— Not linked to any SIP —</option>
+        </select>
+      </div>
       <div style="display:flex;gap:8px">
         <button class="btn-primary btn-sm" onclick="saveGoal()">Save Goal</button>
         <button class="btn-ghost btn-sm" onclick="document.getElementById('goalForm').style.display='none'">Cancel</button>
@@ -2272,6 +2299,12 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 
   <!-- ══ FLOW RECAP SUB-PANE ══════════════════════════════ -->
   <div id="tsub-recap" class="sub-pane">
+    <div class="flowsnap-toolbar">
+      <button class="btn-snap-pdf" id="snapPDFBtn" onclick="exportFlowSnapPDF()">
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5.5l3 3 3-3M1 9.5v1a.5.5 0 00.5.5h9a.5.5 0 00.5-.5v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Export PDF
+      </button>
+    </div>
     <div id="recapBody"></div>
   </div>
 
@@ -2834,9 +2867,12 @@ function goalProjection(g){
 }
 function saveGoal(){
   const name=document.getElementById('gName').value.trim(),target=parseFloat(document.getElementById('gTarget').value)||0,current=parseFloat(document.getElementById('gCurrent').value)||0,date=document.getElementById('gDate').value;
+  const linkedMFId=document.getElementById('gLinkedSIP').value||null;
   if(!name||!target){alert('Name and target required.');return}
-  INVEST.goals.push({id:uid(),name,target,current,deadline:date});
-  saveInvest();['gName','gTarget','gCurrent','gDate'].forEach(id=>document.getElementById(id).value='');document.getElementById('goalForm').style.display='none';renderGoals();updateInvestSummary();
+  INVEST.goals.push({id:uid(),name,target,current,deadline:date,linkedMFId});
+  saveInvest();['gName','gTarget','gCurrent','gDate'].forEach(id=>document.getElementById(id).value='');
+  const sl=document.getElementById('gLinkedSIP');if(sl)sl.value='';
+  document.getElementById('goalForm').style.display='none';renderGoals();updateInvestSummary();
 }
 function addToGoal(id){const inp=document.getElementById('gadd_'+id),amt=parseFloat(inp.value)||0;if(!amt)return;const g=INVEST.goals.find(x=>x.id===id);if(!g)return;g.current=Math.min(g.current+amt,g.target);inp.value='';saveInvest();renderGoals();updateInvestSummary()}
 function deleteGoal(id){if(!confirm('Delete goal?'))return;INVEST.goals=INVEST.goals.filter(g=>g.id!==id);saveInvest();renderGoals();updateInvestSummary()}
@@ -2846,15 +2882,53 @@ function renderGoals(){
   const cols=['#5b7fa6','#6b9e6b','#a67c5b','#7a6ba6','#a65b7a'];
   list.innerHTML=INVEST.goals.map((g,gi)=>{
     const pct=g.target?Math.min(100,Math.round(g.current/g.target*100)):0,col=cols[gi%cols.length];
+    // Linked SIP block
+    let sipBlock='';
+    if(g.linkedMFId){
+      const lf=INVEST.mf.find(h=>h.id===g.linkedMFId);
+      if(lf&&lf.sip&&lf.sip.active){
+        const remaining=Math.max(0,(g.target||0)-(g.current||0));
+        const mr=0.12/12;
+        const n=remaining>0&&lf.sip.monthlyAmt>0?Math.ceil(Math.log(1+(remaining*mr)/(lf.sip.monthlyAmt*(1+mr)))/Math.log(1+mr)):0;
+        const monthsStr=n>0?`~${n} month${n!==1?'s':''} to reach goal`:'Goal nearly reached';
+        const fname=(lf.schemeName||'Fund').length>35?(lf.schemeName||'Fund').slice(0,33)+'\u2026':(lf.schemeName||'Fund');
+        sipBlock=`<div class="goal-sip-link">
+          <div class="goal-sip-link-info">
+            <div class="goal-sip-link-name">\uD83D\uDD17 ${esc(fname)}</div>
+            <div class="goal-sip-link-meta">${fmt(lf.sip.monthlyAmt)}/mo on ${lf.sip.sipDay}th &nbsp;\xB7&nbsp; ${monthsStr} (at 12% p.a.)</div>
+          </div>
+          <button class="goal-sip-link-unlink" onclick="unlinkGoalSIP('${g.id}')">Unlink</button>
+        </div>`;
+      } else {
+        sipBlock=`<div class="goal-sip-link"><div class="goal-sip-link-info"><div class="goal-sip-link-meta" style="color:var(--deficit)">Linked SIP not found or inactive.</div></div><button class="goal-sip-link-unlink" onclick="unlinkGoalSIP('${g.id}')">Remove Link</button></div>`;
+      }
+    } else {
+      const sipsAvail=(INVEST.mf||[]).filter(h=>h.sip&&h.sip.active);
+      if(sipsAvail.length){
+        const opts=sipsAvail.map(h=>`<option value="${h.id}">${esc((h.schemeName||'Fund').slice(0,35))} \u2014 ${fmt(h.sip.monthlyAmt)}/mo</option>`).join('');
+        sipBlock=`<div id="goalLinkWrap_${g.id}">
+          <button class="goal-link-btn" onclick="document.getElementById('goalLinkPanel_${g.id}').style.display='block';this.style.display='none'">\uD83D\uDD17 Link a SIP to this goal</button>
+          <div class="goal-link-select" id="goalLinkPanel_${g.id}">
+            <div style="font-size:10.5px;color:var(--muted);margin-bottom:6px">Select the SIP that is funding this goal:</div>
+            <select id="goalLinkSel_${g.id}" style="font-size:12px;width:100%;margin-bottom:8px"><option value="">-- Choose a fund --</option>${opts}</select>
+            <div style="display:flex;gap:8px">
+              <button class="btn-primary btn-sm" onclick="linkGoalSIP('${g.id}')">Link SIP</button>
+              <button class="btn-ghost btn-sm" onclick="document.getElementById('goalLinkPanel_${g.id}').style.display='none';document.querySelector('#goalLinkWrap_${g.id} .goal-link-btn').style.display='block'">Cancel</button>
+            </div>
+          </div>
+        </div>`;
+      }
+    }
     return`<div class="goal-card">
       <div class="goal-head">
         <div><div class="goal-name">${esc(g.name)}</div>${g.deadline?`<div class="goal-deadline">Target: ${new Date(g.deadline).toLocaleDateString('en-IN',{month:'short',year:'numeric'})}</div>`:''}</div>
-        <button class="btn-del" onclick="deleteGoal('${g.id}')">×</button>
+        <button class="btn-del" onclick="deleteGoal('${g.id}')">x</button>
       </div>
       <div class="goal-amounts"><span>Saved: <strong>${fmt(g.current)}</strong></span><span>Remaining: <strong>${fmt(g.target-g.current)}</strong></span><span>Target: <strong>${fmt(g.target)}</strong></span></div>
       <div class="goal-track"><div class="goal-fill" style="width:${pct}%;background:${col}"></div></div>
       <div class="goal-pct">${pct}% complete</div>
       ${goalProjection(g)}
+      ${sipBlock}
       <div class="goal-actions"><input type="number" class="goal-add-inp" id="gadd_${g.id}" placeholder="Add amount"><button class="btn-ghost btn-sm" onclick="addToGoal('${g.id}')">+ Add</button></div>
     </div>`;
   }).join('');
@@ -3903,6 +3977,7 @@ function saveSplit(){
   const total=parseFloat(document.getElementById('spTotal').value)||0;
   const date=document.getElementById('spDate').value;
   const paidBy=document.getElementById('spPaidBy').value.trim();
+  const payeeUPI=document.getElementById('spPayeeUPI').value.trim();
   if(!title||!total){alert('Title and amount required.');return}
   const members=[];
   document.querySelectorAll('.split-member-inp').forEach(row=>{
@@ -3911,9 +3986,9 @@ function saveSplit(){
     if(name)members.push({id:uid(),name,amount:amt,settled:false});
   });
   if(!members.length){alert('Add at least one person.');return}
-  SPLITS.push({id:uid(),title,total,date,paidBy,members});
+  SPLITS.push({id:uid(),title,total,date,paidBy,payeeUPI,members});
   saveSplits();
-  ['spTitle','spTotal','spDate','spPaidBy'].forEach(id=>document.getElementById(id).value='');
+  ['spTitle','spTotal','spDate','spPaidBy','spPayeeUPI'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('splitForm').style.display='none';
   initSplitMembers();
   renderSplits();
@@ -3942,6 +4017,7 @@ function renderSplits(){
         <span class="${m.settled?'split-settled-lbl':''}">${esc(m.name)}</span>
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-weight:500">${fmt(m.amount)}</span>
+          ${!m.settled&&s.payeeUPI?`<button class="btn-upi" onclick="openUPIPay('${esc(s.payeeUPI)}','${esc(s.paidBy||'')}',${m.amount},'${esc(s.title)}','${esc(m.name)}')" title="Open in UPI app">💸 Pay</button>`:''}
           ${!m.settled?`<button class="btn-settle" onclick="settleSplitMember('${s.id}','${m.id}')">Mark Settled</button>`:'<span style="font-size:10px;color:var(--surplus)">✓ Settled</span>'}
         </div>
       </div>`).join('')}
@@ -5169,8 +5245,8 @@ function renderFlowRecap(){
   mfList.forEach(h=>{mfInv+=(h.units||0)*(h.navBuy||0);mfCur+=(h.units||0)*(h.currentNav||h.navBuy||0);});
   let mfSectionHTML='';
   if(mfList.length){
-    const sipTotal=mfList.filter(f=>f.sipAmt).reduce((s,f)=>s+(f.sipAmt||0),0);
-    const sipCount=mfList.filter(f=>f.sipAmt&&f.sipDay).length;
+    const sipTotal=mfList.filter(f=>f.sip&&f.sip.active).reduce((s,f)=>s+(f.sip.monthlyAmt||0),0);
+    const sipCount=mfList.filter(f=>f.sip&&f.sip.active&&f.sip.sipDay).length;
     mfSectionHTML=`<div class="recap-section-title">Mutual Funds (${mfList.length})</div>`;
     mfSectionHTML+=mfList.map(h=>{
       const inv=(h.units||0)*(h.navBuy||0), cur=(h.units||0)*(h.currentNav||h.navBuy||0);
@@ -5178,7 +5254,7 @@ function renderFlowRecap(){
       const name=(h.schemeName||'Fund').length>42?(h.schemeName||'Fund').slice(0,40)+'…':(h.schemeName||'Fund');
       const xirr=calcMFXIRR(h);
       const xirrBadge=xirr!==null?`<span style="font-size:9.5px;padding:2px 7px;border-radius:10px;background:${xirr>=0?'var(--surplus-bg)':'var(--deficit-bg)'};color:${xirr>=0?'var(--surplus)':'var(--deficit)'}">XIRR ${xirr>=0?'+':''}${(xirr*100).toFixed(1)}%</span>`:'';
-      const sipBadge=h.sipAmt?`<span style="font-size:10px;color:var(--muted)">SIP ${fmt(h.sipAmt)}/mo${h.sipDay?' on '+h.sipDay+'th':''}</span>`:'';
+      const sipBadge=h.sip&&h.sip.active?`<span style="font-size:10px;color:var(--muted)">SIP ${fmt(h.sip.monthlyAmt)}/mo${h.sip.sipDay?' on '+h.sip.sipDay+'th':''}</span>`:'';
       return `<div class="recap-fund-item">
         <div class="recap-fund-name">${esc(name)}</div>
         <div class="recap-fund-meta">
@@ -5496,7 +5572,7 @@ function renderAnnualWrapped(){
   const totalPortCur=mfCur+holdCur+fdCur+goalsSaved;
   const portPnl=totalPortCur-totalPortInv;
   // Annual SIP invested (approximate: sipAmt × 12)
-  const annualSIP=(INVEST.mf||[]).filter(f=>f.sipAmt).reduce((s,f)=>s+(f.sipAmt||0),0)*12;
+  const annualSIP=(INVEST.mf||[]).filter(f=>f.sip&&f.sip.active).reduce((s,f)=>s+(f.sip.monthlyAmt||0),0)*12;
   const hasPortfolio=totalPortInv>0;
 
   // ── Build HTML ────────────────────────────────────────────
@@ -5623,14 +5699,14 @@ function scheduleSmartNotifications(){
   // 2. SIPs due in next 1 day
   if(INVEST&&INVEST.mf){
     INVEST.mf.forEach(fund=>{
-      if(!fund.sipAmt||!fund.sipDay) return;
-      const due=new Date(today.getFullYear(),today.getMonth(),fund.sipDay||1);
+      if(!fund.sip||!fund.sip.active||!fund.sip.sipDay) return;
+      const due=new Date(today.getFullYear(),today.getMonth(),fund.sip.sipDay||1);
       if(due<today) due.setMonth(due.getMonth()+1);
       const diff=Math.round((due-today)/(1000*60*60*24));
       if(diff<=1&&diff>=0){
-        const k=`sip_${fund.code}_${due.toISOString().slice(0,7)}`;
+        const k=`sip_${fund.schemeCode}_${due.toISOString().slice(0,7)}`;
         if(!toastsSent[k]){
-          queue.push({key:k,title:`SIP ${diff===0?'Today':'Tomorrow'}`,body:`${(fund.name||'').slice(0,30)} — ${fmt(fund.sipAmt)}`});
+          queue.push({key:k,title:`SIP ${diff===0?'Today':'Tomorrow'}`,body:`${(fund.schemeName||'').slice(0,30)} — ${fmt(fund.sip.monthlyAmt)}`});
         }
       }
     });
@@ -5757,6 +5833,308 @@ function _mv(el,val){
   }else{
     el.textContent=val; el.classList.remove('card-val-masked');
   }
+}
+
+
+// ══ GOAL-SIP LINKING ════════════════════════════════════════
+function populateGoalSIPSelect(){
+  const sel=document.getElementById('gLinkedSIP');
+  if(!sel)return;
+  const current=sel.value;
+  sel.innerHTML='<option value="">— Not linked to any SIP —</option>';
+  (INVEST.mf||[]).filter(h=>h.sip&&h.sip.active).forEach(h=>{
+    const opt=document.createElement('option');
+    opt.value=h.id;
+    opt.textContent=`${(h.schemeName||'Fund').slice(0,38)} — ${fmt(h.sip.monthlyAmt)}/mo`;
+    sel.appendChild(opt);
+  });
+  sel.value=current;
+}
+
+function linkGoalSIP(goalId){
+  const selEl=document.getElementById('goalLinkSel_'+goalId);
+  if(!selEl||!selEl.value){alert('Please choose a fund.');return}
+  const g=INVEST.goals.find(x=>x.id===goalId);
+  if(!g)return;
+  g.linkedMFId=selEl.value;
+  saveInvest();renderGoals();updateInvestSummary();
+}
+
+function unlinkGoalSIP(goalId){
+  const g=INVEST.goals.find(x=>x.id===goalId);
+  if(!g)return;
+  g.linkedMFId=null;
+  saveInvest();renderGoals();updateInvestSummary();
+}
+
+// ══ UPI DEEP-LINK ════════════════════════════════════════════
+function openUPIPay(upiId,payeeName,amount,title,fromName){
+  if(!upiId){return;}
+  const note=`Split: ${title} (from ${fromName})`;
+  const upiURL=`upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(payeeName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
+  // On mobile: opens UPI app selector directly
+  // On desktop: show a copy-friendly dialog
+  const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if(isMobile){
+    window.location.href=upiURL;
+  } else {
+    // Desktop fallback — show copyable info
+    const msg=`UPI Payment Details\n\nPay To: ${payeeName}\nUPI ID: ${upiId}\nAmount: ₹${amount}\nNote: ${note}\n\n(On mobile, this would open your UPI app automatically.)`;
+    if(confirm(msg+'\n\nCopy UPI ID to clipboard?')){
+      navigator.clipboard.writeText(upiId).then(()=>showToast('Copied','UPI ID copied to clipboard')).catch(()=>{});
+    }
+  }
+}
+
+// ══ FLOWSNAP PDF EXPORT ══════════════════════════════════════
+function exportFlowSnapPDF(){
+  const btn=document.getElementById('snapPDFBtn');
+  const today=new Date();
+  const m=today.getMonth();
+  const y=today.getFullYear();
+  const monthName=MONTHS[m];
+  const day=today.getDate();
+
+  if(day<15||day>30){
+    alert('FlowSnap PDF is only available between the 15th and 30th of each month.');
+    return;
+  }
+  if(!window.jspdf){alert('PDF library not loaded. Check your connection and try again.');return}
+
+  btn.textContent='…';btn.disabled=true;
+
+  const safe=s=>String(s||'').replace(/[^\x00-\x7E]/g,'-').substring(0,100);
+  const INR=n=>{const s=Math.abs(Math.round(n||0)).toString();if(s.length<=3)return'Rs.'+s;const l=s.slice(-3),r=s.slice(0,-3);return'Rs.'+r.replace(/\B(?=(\d{2})+(?!\d))/g,',')+','+l;};
+  const pct=(a,b)=>b>0?Math.round(a/b*100):0;
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const W=210,M=14,CW=W-M*2;
+  const tc=(...c)=>pdf.setTextColor(...c),fc=(...c)=>pdf.setFillColor(...c),dc=(...c)=>pdf.setDrawColor(...c);
+  const lw=w=>pdf.setLineWidth(w),ft=f=>pdf.setFont('courier',f||'normal'),fs=s=>pdf.setFontSize(s);
+  const C={black:[8,8,8],text:[25,25,25],muted:[85,85,85],label:[110,110,110],border:[185,185,185],bg:[248,248,247],surplus:[18,80,46],deficit:[120,22,32],accent:[40,80,140]};
+  const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const todayStr=today.getDate()+' '+MN[today.getMonth()]+' '+today.getFullYear();
+  let yy=0;
+
+  // Helper: check page overflow and add page if needed
+  const chk=(need=8)=>{if(yy+need>276){pdf.addPage();yy=14;}};
+  // Section header
+  const secHdr=title=>{chk(10);ft('normal');fs(6);tc(...C.label);pdf.text(title,M,yy);dc(...C.border);lw(.2);pdf.line(M,yy+1.5,W-M,yy+1.5);yy+=6;};
+  // Row with label + value
+  const row=(lbl,val,valClr,bold)=>{chk(7);ft('normal');fs(7.5);tc(...C.muted);pdf.text(safe(lbl),M+4,yy);ft(bold?'bold':'normal');tc(...(valClr||C.text));pdf.text(safe(val),W-M,yy,{align:'right'});yy+=6.5;dc(...C.border);lw(.1);pdf.line(M,yy-1,W-M,yy-1);};
+
+  // ── HEADER ─────────────────────────────────────────────
+  ft('bold');fs(16);tc(...C.black);pdf.text('FlowSnap',M,13);
+  dc(185,185,185);lw(.3);pdf.line(M+36,8,M+36,15);
+  ft('normal');fs(8.5);tc(...C.muted);pdf.text(`${monthName} ${y}`,M+39,13);
+  ft('normal');fs(6.5);tc(...C.label);pdf.text('Generated: '+safe(todayStr),W-M,13,{align:'right'});
+  yy=16;dc(...C.black);lw(.8);pdf.line(M,yy,W-M,yy);dc(...C.border);lw(.3);pdf.line(M,yy+1.3,W-M,yy+1.3);
+
+  // ── CASH FLOW SECTION ──────────────────────────────────
+  const k=`${m}_${y}`;const d=DB[k]||{income:[],expense:[]};
+  const totalInc=d.income.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+  const totalExp=d.expense.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+  const net=totalInc-totalExp;
+  const savRate=totalInc>0?Math.round((net/totalInc)*100):0;
+  const hasTrack=d.income.length||d.expense.length;
+
+  if(hasTrack){
+    yy=20;const colW=CW/3;
+    [{lbl:'INCOME',val:INR(totalInc),clr:C.surplus},{lbl:'EXPENSES',val:INR(totalExp),clr:C.text},{lbl:'NET FLOW',val:(net<0?'- ':'')+INR(net),clr:net>=0?C.surplus:C.deficit}].forEach((item,i)=>{
+      const x=M+i*colW+4;ft('normal');fs(6);tc(...C.label);pdf.text(item.lbl,x,yy+8);ft('bold');fs(11);tc(...item.clr);pdf.text(item.val,x,yy+15);
+      if(i<2){dc(...C.border);lw(.2);pdf.line(M+(i+1)*colW,yy+4,M+(i+1)*colW,yy+18);}
+    });
+    yy+=22;dc(...C.border);lw(.25);pdf.line(M,yy,W-M,yy);yy+=4;
+    // Savings Rate
+    ft('normal');fs(7);tc(...C.muted);pdf.text('Savings Rate:',M+4,yy+4);
+    ft('bold');fs(10);tc(...(savRate>=20?C.surplus:savRate>=10?C.muted:C.deficit));
+    pdf.text(`${savRate}%`,M+38,yy+4);
+    ft('normal');fs(7);tc(...C.muted);
+    const grade=savRate>=30?'A':savRate>=20?'B':savRate>=10?'C':savRate>=0?'D':'F';
+    pdf.text(`Grade: ${grade}`,M+55,yy+4);
+    yy+=10;dc(...C.border);lw(.25);pdf.line(M,yy,W-M,yy);yy+=5;
+
+    // Spending breakdown
+    if(d.expense.length){
+      const cats={};d.expense.forEach(e=>{const c=e.cat||'Uncategorised';cats[c]=(cats[c]||0)+(parseFloat(e.amt)||0);});
+      const sc=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,6);
+      secHdr('SPENDING BREAKDOWN');
+      ft('normal');fs(6);tc(...C.label);
+      pdf.text('CATEGORY',M+4,yy);pdf.text('AMOUNT',M+CW/2,yy);pdf.text('% OF SPEND',W-M,yy,{align:'right'});yy+=4;
+      sc.forEach(([cat,amt],i)=>{
+        chk(7);if(i%2===0){fc(...C.bg);pdf.rect(M,yy,CW,6.5,'F');}
+        ft('normal');fs(7.5);tc(...C.text);pdf.text(safe(cat,22),M+4,yy+4.5);
+        ft('bold');tc(...C.deficit);pdf.text(INR(amt),M+CW/2,yy+4.5);
+        ft('normal');tc(...C.muted);pdf.text(pct(amt,totalExp)+'%',W-M,yy+4.5,{align:'right'});
+        dc(...C.border);lw(.1);pdf.line(M,yy+6.5,W-M,yy+6.5);yy+=6.5;
+      });
+      yy+=4;
+    }
+  } else {
+    yy=22;ft('normal');fs(8);tc(...C.muted);pdf.text('No income or expense entries for '+monthName+' '+y+'.',M,yy);yy+=10;
+  }
+
+  // ── PORTFOLIO SECTION ───────────────────────────────────
+  const mfList=INVEST.mf||[];
+  let mfInv=0,mfCur=0;
+  mfList.forEach(h=>{mfInv+=(h.units||0)*(h.navBuy||0);mfCur+=(h.units||0)*(h.currentNav||h.navBuy||0);});
+  const holdList=INVEST.holdings||[];
+  let holdInv=0,holdCur=0;
+  holdList.forEach(h=>{if(h.type==='FD'&&h.fdRate){holdInv+=(h.buy||0);holdCur+=fdMaturity(h.buy||0,h.fdRate,h.fdTenure||12,h.fdComp||4);}else{holdInv+=(h.qty||0)*(h.buy||0);holdCur+=(h.qty||0)*(h.cur||h.buy||0);}});
+  const fdsList=INVEST.fds||[];
+  let fdInv=0,fdCur=0;
+  fdsList.forEach(f=>{fdInv+=(f.principal||0);fdCur+=fdMaturity(f.principal||0,f.rate||0,f.tenure||12,f.comp||4);});
+  const goalsSaved=(INVEST.goals||[]).reduce((s,g)=>s+(g.current||0),0);
+  const totalPortInv=mfInv+holdInv+fdInv+goalsSaved;
+  const totalPortCur=mfCur+holdCur+fdCur+goalsSaved;
+  const portPnl=totalPortCur-totalPortInv;
+
+  if(totalPortInv>0||mfList.length||holdList.length||fdsList.length){
+    dc(...C.accent);lw(.5);pdf.line(M,yy,W-M,yy);yy+=5;
+    ft('bold');fs(8);tc(...C.accent);pdf.text('PORTFOLIO',M,yy);yy+=6;
+    // Summary
+    [{lbl:'Total Invested',val:INR(totalPortInv)},{lbl:'Current Value',val:INR(totalPortCur)},{lbl:'P&L',val:(portPnl>=0?'+ ':' - ')+INR(portPnl)}].forEach((item,i)=>{
+      const x=M+i*(CW/3)+4;ft('normal');fs(6);tc(...C.label);pdf.text(item.lbl,x,yy+7);ft('bold');fs(9.5);tc(...(i===2?(portPnl>=0?C.surplus:C.deficit):C.text));pdf.text(item.val,x,yy+14);
+      if(i<2){dc(...C.border);lw(.2);pdf.line(M+(i+1)*(CW/3),yy+3,M+(i+1)*(CW/3),yy+17);}
+    });
+    yy+=20;dc(...C.border);lw(.25);pdf.line(M,yy,W-M,yy);yy+=5;
+
+    // Mutual Funds
+    if(mfList.length){
+      secHdr(`MUTUAL FUNDS (${mfList.length})`);
+      ft('normal');fs(5.5);tc(...C.label);
+      pdf.text('FUND',M+4,yy);pdf.text('UNITS',M+82,yy,{align:'right'});pdf.text('INVESTED',M+112,yy,{align:'right'});pdf.text('CURRENT',M+138,yy,{align:'right'});pdf.text('P&L',W-M,yy,{align:'right'});yy+=4;
+      mfList.forEach((h,i)=>{
+        chk(8);
+        const inv=(h.units||0)*(h.navBuy||0),cur=(h.units||0)*(h.currentNav||h.navBuy||0),pnl=cur-inv;
+        const pnlPct=inv>0?(pnl/inv*100):0;
+        const name=safe((h.schemeName||'Fund').slice(0,38));
+        if(i%2===0){fc(...C.bg);pdf.rect(M,yy,CW,7,'F');}
+        ft('normal');fs(7);tc(...C.text);pdf.text(name,M+4,yy+4.5);
+        tc(...C.muted);pdf.text((h.units||0).toFixed(2),M+82,yy+4.5,{align:'right'});
+        pdf.text(INR(inv),M+112,yy+4.5,{align:'right'});
+        pdf.text(INR(cur),M+138,yy+4.5,{align:'right'});
+        ft('bold');tc(...(pnl>=0?C.surplus:C.deficit));
+        pdf.text(`${pnl>=0?'+':'-'}${INR(pnl)} (${pnlPct>=0?'+':''}${pnlPct.toFixed(1)}%)`,W-M,yy+4.5,{align:'right'});
+        dc(...C.border);lw(.1);pdf.line(M,yy+7,W-M,yy+7);yy+=7;
+      });
+      yy+=4;
+    }
+
+    // Holdings
+    if(holdList.length){
+      secHdr(`HOLDINGS (${holdList.length})`);
+      holdList.forEach((h,i)=>{
+        chk(8);
+        let inv=0,cur=0;
+        if(h.type==='FD'&&h.fdRate){inv=h.buy||0;cur=fdMaturity(h.buy||0,h.fdRate,h.fdTenure||12,h.fdComp||4);}
+        else{inv=(h.qty||0)*(h.buy||0);cur=(h.qty||0)*(h.cur||h.buy||0);}
+        const pnl=cur-inv,pnlPct=inv>0?(pnl/inv*100):0;
+        if(i%2===0){fc(...C.bg);pdf.rect(M,yy,CW,7,'F');}
+        ft('normal');fs(7);tc(...C.muted);pdf.text(safe(h.type),M+4,yy+4.5);
+        tc(...C.text);pdf.text(safe((h.name||h.type).slice(0,25)),M+24,yy+4.5);
+        tc(...C.muted);pdf.text(INR(inv),M+112,yy+4.5,{align:'right'});
+        pdf.text(INR(cur),M+138,yy+4.5,{align:'right'});
+        ft('bold');tc(...(pnl>=0?C.surplus:C.deficit));
+        pdf.text(`${pnl>=0?'+':'-'}${INR(pnl)}`,W-M,yy+4.5,{align:'right'});
+        dc(...C.border);lw(.1);pdf.line(M,yy+7,W-M,yy+7);yy+=7;
+      });
+      yy+=4;
+    }
+
+    // FDs
+    if(fdsList.length){
+      secHdr(`FIXED DEPOSITS (${fdsList.length})`);
+      fdsList.forEach((f,i)=>{
+        chk(8);
+        const mat=fdMaturity(f.principal||0,f.rate||0,f.tenure||12,f.comp||4);
+        const startD=f.start?new Date(f.start):null;
+        const matDate=startD?new Date(startD.getFullYear(),startD.getMonth()+f.tenure,startD.getDate()):null;
+        const matStr=matDate?matDate.toLocaleDateString('en-IN',{month:'short',year:'numeric'}):'--';
+        if(i%2===0){fc(...C.bg);pdf.rect(M,yy,CW,7,'F');}
+        ft('normal');fs(7);tc(...C.text);pdf.text(safe(f.bank),M+4,yy+4.5);
+        tc(...C.muted);pdf.text(`${f.rate}% p.a. / ${f.tenure}mo`,M+50,yy+4.5);
+        pdf.text(`Principal: ${INR(f.principal||0)}`,M+95,yy+4.5);
+        pdf.text(`Matures: ${safe(matStr)}`,M+130,yy+4.5);
+        ft('bold');tc(...C.surplus);pdf.text(INR(mat),W-M,yy+4.5,{align:'right'});
+        dc(...C.border);lw(.1);pdf.line(M,yy+7,W-M,yy+7);yy+=7;
+      });
+      yy+=4;
+    }
+
+    // Goals
+    if((INVEST.goals||[]).length){
+      secHdr('SAVINGS GOALS');
+      (INVEST.goals||[]).forEach((g,i)=>{
+        chk(8);
+        const pctG=g.target?Math.min(100,Math.round(g.current/g.target*100)):0;
+        if(i%2===0){fc(...C.bg);pdf.rect(M,yy,CW,7,'F');}
+        ft('normal');fs(7);tc(...C.text);pdf.text(safe(g.name,25),M+4,yy+4.5);
+        tc(...C.muted);pdf.text(`${pctG}% complete`,M+65,yy+4.5);
+        pdf.text(`Saved: ${INR(g.current||0)}`,M+95,yy+4.5);
+        ft('bold');tc(...C.text);pdf.text(`Target: ${INR(g.target||0)}`,W-M,yy+4.5,{align:'right'});
+        dc(...C.border);lw(.1);pdf.line(M,yy+7,W-M,yy+7);yy+=7;
+      });
+      yy+=4;
+    }
+  }
+
+  // ── BILLS & LOANS SECTION ────────────────────────────────
+  const billsList=BILLS||[];
+  const loansList=LOANS||[];
+  if(billsList.length||loansList.length){
+    chk(10);dc(...C.accent);lw(.5);pdf.line(M,yy,W-M,yy);yy+=5;
+    ft('bold');fs(8);tc(...C.accent);pdf.text('BILLS & LOANS',M,yy);yy+=6;
+
+    if(billsList.length){
+      secHdr(`BILLS THIS MONTH (${billsList.length})`);
+      const mk=`${m}_${y}`,todayDay=today.getDate();
+      billsList.forEach((b,i)=>{
+        chk(7);
+        const paid=b.paidMonths&&b.paidMonths.includes(mk);
+        const overdue=!paid&&b.dueDay<todayDay;
+        if(i%2===0){fc(...C.bg);pdf.rect(M,yy,CW,6.5,'F');}
+        ft('normal');fs(7);
+        tc(...(paid?C.surplus:overdue?C.deficit:C.text));
+        pdf.text(paid?'v':overdue?'!':' ',M+3,yy+4.5);
+        tc(...C.text);pdf.text(safe(b.name,25),M+8,yy+4.5);
+        tc(...C.muted);pdf.text(`Due ${b.dueDay}`,M+75,yy+4.5);
+        pdf.text(b.frequency||'Monthly',M+95,yy+4.5);
+        ft('bold');tc(...(paid?C.surplus:overdue?C.deficit:C.text));
+        pdf.text(INR(b.amt),W-M,yy+4.5,{align:'right'});
+        dc(...C.border);lw(.1);pdf.line(M,yy+6.5,W-M,yy+6.5);yy+=6.5;
+      });
+      yy+=4;
+    }
+
+    if(loansList.length){
+      secHdr(`ACTIVE LOANS (${loansList.length})`);
+      loansList.forEach((l,i)=>{
+        chk(8);
+        const out=Math.max(0,loanOutstanding(l));
+        const rem=Math.max(0,l.tenure-l.monthsPaid);
+        if(i%2===0){fc(...C.bg);pdf.rect(M,yy,CW,7,'F');}
+        ft('normal');fs(7);tc(...C.text);pdf.text(safe(l.name,20),M+4,yy+4.5);
+        tc(...C.muted);pdf.text(`${l.rate}% p.a.`,M+55,yy+4.5);
+        pdf.text(`EMI: ${INR(l.emi)}/mo`,M+78,yy+4.5);
+        pdf.text(`${rem}mo left`,M+115,yy+4.5);
+        ft('bold');tc(...C.deficit);pdf.text(`Out: ${INR(out)}`,W-M,yy+4.5,{align:'right'});
+        dc(...C.border);lw(.1);pdf.line(M,yy+7,W-M,yy+7);yy+=7;
+      });
+      yy+=4;
+    }
+  }
+
+  // ── FOOTER ────────────────────────────────────────────────
+  const fy=Math.min(Math.max(yy+8,274),285);
+  if(yy+14>285){pdf.addPage();yy=14;}
+  dc(...C.border);lw(.3);pdf.line(M,fy,W-M,fy);
+  ft('normal');fs(6.5);tc(155,155,155);
+  pdf.text('Flow | FlowSnap',M,fy+4.5);
+  pdf.text(`${monthName} ${y} | Generated ${safe(todayStr)}`,W-M,fy+4.5,{align:'right'});
+
+  try{pdf.save(`FlowSnap_${monthName}_${y}.pdf`);}catch(e){alert('Export failed.');}
+  finally{btn.innerHTML=`<svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5.5l3 3 3-3M1 9.5v1a.5.5 0 00.5.5h9a.5.5 0 00.5-.5v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Export PDF`;btn.disabled=false;}
 }
 
 // ══ INIT ═══════════════════════════════════════════════════
