@@ -174,7 +174,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .col-head{font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:var(--faint);font-weight:500}
 .col-head.right{text-align:right}
 .entries{display:flex;flex-direction:column;gap:3px;min-height:36px}
-.entry{position:relative;display:grid;grid-template-columns:14px .88fr .95fr .44fr .72fr 22px;gap:4px;align-items:center;border-radius:5px;padding:3px 2px;border-left:3px solid transparent;transition:background .1s}
+.entry{display:grid;grid-template-columns:14px .88fr .95fr .44fr .72fr 22px;gap:4px;align-items:center;border-radius:5px;padding:3px 2px;border-left:3px solid transparent;transition:background .1s}
 .entry:hover{background:var(--surface-alt)}
 .entry.drag-over{border-top:2px solid var(--muted)}
 .entry.dragging{opacity:.4}
@@ -839,37 +839,31 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .eye-btn.hidden-on{color:var(--deficit);border-color:var(--deficit-bg)}
 .card-val-masked{letter-spacing:3px;color:var(--faint)!important;font-size:13px!important}
 
-/* ── entry needs position:relative for budget bar ──────── */
-/* (add to existing .entry rule) */
 
-/* ── Spending % bar per category row ───────────────────── */
-.cat-budget-bar{position:absolute;bottom:0;left:0;height:3px;border-radius:0 2px 2px 0;transition:width .35s,background .35s;pointer-events:none;z-index:1}
-.cat-budget-pill{position:absolute;top:2px;right:26px;font-size:8.5px;font-weight:600;padding:1px 5px;border-radius:8px;pointer-events:none;z-index:2;white-space:nowrap;opacity:.85;line-height:1.4}
-.cbp-ok{background:var(--surplus-bg);color:var(--surplus)}
-.cbp-warn{background:var(--amber-bg);color:var(--amber)}
-.cbp-over{background:var(--deficit-bg);color:var(--deficit)}
-
-/* ── Category history modal ─────────────────────────────── */
-.cat-hist-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:600;display:flex;align-items:flex-end;justify-content:center}
-.cat-hist-wrap{background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-width:520px;max-height:82vh;display:flex;flex-direction:column}
-.cat-hist-hdr{padding:18px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.cat-hist-title{font-size:14px;font-weight:600;color:var(--text)}
-.cat-hist-sub{font-size:10.5px;color:var(--muted);margin-top:2px}
-.cat-hist-body{overflow-y:auto;padding:12px 20px 24px;flex:1}
-.cat-hist-month{font-size:9.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--faint);font-weight:500;margin:14px 0 6px}
-.cat-hist-month:first-child{margin-top:0}
-.cat-hist-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);gap:8px}
+/* ── Category History modal ───────────────────────────────── */
+.cat-hist-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:400;
+  display:flex;align-items:flex-end;justify-content:center;padding:0}
+.cat-hist-wrap{background:var(--surface);border-radius:14px 14px 0 0;
+  width:100%;max-width:500px;max-height:78vh;display:flex;flex-direction:column;
+  box-shadow:0 -4px 24px rgba(0,0,0,.2)}
+.cat-hist-hdr{display:flex;align-items:center;justify-content:space-between;
+  padding:16px 18px 10px;border-bottom:1px solid var(--border)}
+.cat-hist-name{font-size:14px;font-weight:600;color:var(--text)}
+.cat-hist-total{font-size:11px;color:var(--muted)}
+.cat-hist-scroll{overflow-y:auto;flex:1;padding:0 18px 18px}
+.cat-hist-month{font-size:9px;text-transform:uppercase;letter-spacing:.9px;
+  color:var(--faint);font-weight:500;margin:14px 0 6px;padding-bottom:4px;
+  border-bottom:1px solid var(--border)}
+.cat-hist-row{display:flex;align-items:center;justify-content:space-between;
+  padding:7px 0;border-bottom:1px solid var(--border)}
 .cat-hist-row:last-child{border-bottom:none}
-.cat-hist-desc{font-size:11.5px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cat-hist-type{font-size:9px;padding:1px 6px;border-radius:8px;flex-shrink:0}
-.cht-inc{background:var(--surplus-bg);color:var(--surplus)}
-.cht-exp{background:var(--deficit-bg);color:var(--deficit)}
-.cat-hist-amt{font-size:12px;font-weight:500;flex-shrink:0}
+.cat-hist-desc{font-size:11.5px;color:var(--text);flex:1;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.cat-hist-amt{font-size:12px;font-weight:500;flex-shrink:0;margin-left:12px}
+.cat-hist-amt.inc{color:var(--surplus)}
+.cat-hist-amt.exp{color:var(--deficit)}
+.cat-hist-empty{text-align:center;padding:28px 0;font-size:11px;color:var(--faint)}
 
-/* ── Pinch to zoom ──────────────────────────────────────── */
-.chart-wrap{overflow:hidden;touch-action:none}
-.chart-zoom-hint{font-size:9.5px;color:var(--faint);text-align:center;margin-top:4px;letter-spacing:.3px}
-.chart-zoom-reset{display:none;font-size:10px;padding:3px 10px;margin:4px auto;background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--r);cursor:pointer;font-family:'IBM Plex Mono',monospace;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -1181,8 +1175,8 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     </div>
   </div>
   <div class="charts">
-    <div class="chart-card"><div class="chart-lbl">Monthly Overview — Income vs Expense</div><div class="chart-wrap" id="barWrap"><canvas id="barChart"></canvas></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px"><span class="chart-zoom-hint">Pinch to zoom</span><button class="chart-zoom-reset" id="barReset" onclick="resetChartZoom('barWrap','barReset')">Reset zoom</button></div></div>
-    <div class="chart-card"><div class="chart-lbl">Expense Breakdown</div><div class="chart-wrap" id="pieWrap"><canvas id="pieChart"></canvas></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px"><span class="chart-zoom-hint">Pinch to zoom</span><button class="chart-zoom-reset" id="pieReset" onclick="resetChartZoom('pieWrap','pieReset')">Reset zoom</button></div></div>
+    <div class="chart-card"><div class="chart-lbl">Monthly Overview — Income vs Expense</div><div class="chart-wrap"><canvas id="barChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-lbl">Expense Breakdown</div><div class="chart-wrap"><canvas id="pieChart"></canvas></div></div>
   </div>
 
 
@@ -2370,6 +2364,9 @@ function renderList(type){
       <input class="e-amt amt ${type==='income'?'amt-inc':''}" type="number" value="${item.amt||''}" placeholder="0" data-t="${type}" data-i="${i}" data-f="amt">
       <button class="btn-del e-del" onclick="delRow('${type}',${i})">×</button>`;
     addSwipeDel(row,type,i);
+    // Add long-press on category input
+    const catInp=row.querySelector('.e-cat');
+    if(catInp) addLongPress(catInp);
     list.appendChild(row);
   });
   if(shown===0)list.innerHTML=mkES(
@@ -4877,71 +4874,80 @@ function _mv(el,val){
 
 
 
-// ══ FEATURE 1: LONG-PRESS CATEGORY HISTORY ════════════════
+// ══ FEATURE 1: LONG-PRESS CATEGORY HISTORY ═══════════════
+function addLongPress(inp){
+  var timer=null;
+  function start(){
+    timer=setTimeout(function(){
+      var cat=(inp.value||'').trim();
+      if(cat) showCatHist(cat);
+    },600);
+  }
+  function cancel(){clearTimeout(timer);}
+  inp.addEventListener('touchstart',start,{passive:true});
+  inp.addEventListener('touchend',cancel,{passive:true});
+  inp.addEventListener('touchmove',cancel,{passive:true});
+  inp.addEventListener('mousedown',start);
+  inp.addEventListener('mouseup',cancel);
+  inp.addEventListener('mouseleave',cancel);
+  inp.addEventListener('contextmenu',function(e){
+    e.preventDefault();
+    var cat=(inp.value||'').trim();
+    if(cat) showCatHist(cat);
+  });
+}
 
-function showCatHistory(cat){
-  cat=(cat||'').trim();if(!cat)return;
-  // Search all DB keys
-  var results=[];
-  Object.keys(DB).sort().forEach(function(key){
+function showCatHist(cat){
+  var entries=[];
+  Object.keys(DB).forEach(function(key){
     var parts=key.split('_');
-    var mIdx=parseInt(parts[0]),yr=parts[1];
-    if(isNaN(mIdx)||!yr)return;
-    var mName=MONTHS[mIdx];
-    ['income','expense'].forEach(function(type){
-      ((DB[key]||{})[type]||[]).forEach(function(e){
-        if((e.cat||'').trim().toLowerCase()===cat.toLowerCase()){
-          results.push({mName:mName,yr:yr,mIdx:mIdx,type:type,
-            desc:e.desc||'',amt:parseFloat(e.amt)||0});
+    var mo=parseInt(parts[0]),yr=parseInt(parts[1]);
+    var md=DB[key];
+    var processArr=function(arr,type){
+      (arr||[]).forEach(function(e){
+        if((e.cat||'').trim()===cat&&e.amt){
+          entries.push({mo:mo,yr:yr,desc:e.desc||'',
+            amt:parseFloat(e.amt)||0,type:type});
         }
       });
-    });
+    };
+    processArr(md.income,'income');
+    processArr(md.expense,'expense');
   });
-  if(!results.length){
-    // Show brief toast instead of empty modal
-    var toast=document.createElement('div');
-    toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:8px 16px;font-size:11px;color:var(--muted);z-index:700;box-shadow:0 4px 12px rgba(0,0,0,.15)';
-    toast.textContent='No history for "'+cat+'"';
-    document.body.appendChild(toast);
-    setTimeout(function(){toast.remove();},2000);
-    return;
-  }
-  // Sort: newest month first
-  results.sort(function(a,b){
-    if(b.yr!==a.yr)return parseInt(b.yr)-parseInt(a.yr);
-    return b.mIdx-a.mIdx;
-  });
-  // Group by month-year
-  var groups={};var order=[];
-  results.forEach(function(r){
-    var k=r.mName+' '+r.yr;
-    if(!groups[k]){groups[k]={rows:[],incTotal:0,expTotal:0};order.push(k);}
-    groups[k].rows.push(r);
-    if(r.type==='income')groups[k].incTotal+=r.amt;
-    else groups[k].expTotal+=r.amt;
-  });
-  var totalInc=results.filter(function(r){return r.type==='income';}).reduce(function(s,r){return s+r.amt;},0);
-  var totalExp=results.filter(function(r){return r.type==='expense';}).reduce(function(s,r){return s+r.amt;},0);
-  var count=results.length;
-  // Build HTML
-  document.getElementById('catHistTitle').textContent=cat;
-  document.getElementById('catHistSub').textContent=
-    count+' entr'+(count===1?'y':'ies')+
-    (totalInc?'  +'+fmt(totalInc)+' income':'')+
-    (totalExp?'  −'+fmt(totalExp)+' expense':'');
+  // Sort newest first
+  entries.sort(function(a,b){return b.yr-a.yr||b.mo-a.mo;});
+  var totalInc=entries.filter(function(e){return e.type==='income';})
+    .reduce(function(s,e){return s+e.amt;},0);
+  var totalExp=entries.filter(function(e){return e.type==='expense';})
+    .reduce(function(s,e){return s+e.amt;},0);
+
+  // Build body
   var html='';
-  order.forEach(function(k){
-    var g=groups[k];
-    html+='<div class="cat-hist-month">'+k+'</div>';
-    g.rows.forEach(function(r){
+  if(!entries.length){
+    html='<div class="cat-hist-empty">No entries found for &ldquo;'+esc(cat)+'&rdquo;</div>';
+  } else {
+    var lastKey='';
+    entries.forEach(function(e){
+      var monthKey=MONTHS[e.mo]+' '+e.yr;
+      if(monthKey!==lastKey){
+        lastKey=monthKey;
+        html+='<div class="cat-hist-month">'+monthKey+'</div>';
+      }
+      var amtCls=e.type==='income'?'inc':'exp';
+      var amtSign=e.type==='income'?'+':'−';
       html+='<div class="cat-hist-row">'
-        +'<span class="cat-hist-desc">'+(r.desc||'—')+'</span>'
-        +'<span class="cat-hist-type '+(r.type==='income'?'cht-inc':'cht-exp')+'">'+(r.type==='income'?'Income':'Expense')+'</span>'
-        +'<span class="cat-hist-amt" style="color:'+(r.type==='income'?'var(--surplus)':'var(--deficit)')+'">'+
-        (r.type==='expense'?'−':'')+fmt(r.amt)+'</span>'
+        +'<span class="cat-hist-desc">'+(e.desc?esc(e.desc):'<span style="color:var(--faint)">No description</span>')+'</span>'
+        +'<span class="cat-hist-amt '+amtCls+'">'+amtSign+fmt(e.amt)+'</span>'
         +'</div>';
     });
-  });
+  }
+
+  document.getElementById('catHistName').textContent=cat;
+  var parts=[];
+  if(totalExp>0) parts.push('Total spent: '+fmt(totalExp));
+  if(totalInc>0) parts.push('Total received: '+fmt(totalInc));
+  parts.push(entries.length+' entr'+(entries.length===1?'y':'ies')+' across all months');
+  document.getElementById('catHistTotal').textContent=parts.join(' · ');
   document.getElementById('catHistBody').innerHTML=html;
   document.getElementById('catHistModal').style.display='flex';
 }
@@ -4949,136 +4955,9 @@ function showCatHistory(cat){
 function closeCatHist(){
   document.getElementById('catHistModal').style.display='none';
 }
-
-// Long-press handler factory
-function addLongPress(el, callback){
-  var timer=null,moved=false;
-  function start(e){
-    moved=false;
-    timer=setTimeout(function(){
-      if(!moved){
-        if(navigator.vibrate)navigator.vibrate(30);
-        callback();
-      }
-    },520);
-  }
-  function cancel(){clearTimeout(timer);}
-  function move(){moved=true;clearTimeout(timer);}
-  el.addEventListener('touchstart',start,{passive:true});
-  el.addEventListener('touchend',cancel);
-  el.addEventListener('touchmove',move,{passive:true});
-  el.addEventListener('contextmenu',function(e){e.preventDefault();if(!moved)callback();});
-}
-
-// ══ FEATURE 2: PINCH-TO-ZOOM ON CHARTS ════════════════════
-
-function addPinchZoom(wrapId, resetId){
-  var el=document.getElementById(wrapId);
-  if(!el)return;
-  var scale=1, startDist=0, startScale=1;
-  var canvas=el.querySelector('canvas');
-  if(!canvas)return;
-
-  el.addEventListener('touchstart',function(e){
-    if(e.touches.length===2){
-      e.preventDefault();
-      startDist=Math.hypot(
-        e.touches[0].clientX-e.touches[1].clientX,
-        e.touches[0].clientY-e.touches[1].clientY
-      );
-      startScale=scale;
-    }
-  },{passive:false});
-
-  el.addEventListener('touchmove',function(e){
-    if(e.touches.length===2){
-      e.preventDefault();
-      var d=Math.hypot(
-        e.touches[0].clientX-e.touches[1].clientX,
-        e.touches[0].clientY-e.touches[1].clientY
-      );
-      scale=Math.min(3.5,Math.max(1,startScale*(d/startDist)));
-      canvas.style.transform='scale('+scale+')';
-      canvas.style.transformOrigin='center center';
-    }
-  },{passive:false});
-
-  el.addEventListener('touchend',function(e){
-    if(e.touches.length<2){
-      var rb=document.getElementById(resetId);
-      if(rb) rb.style.display=scale>1.1?'block':'none';
-      if(scale<1.05){scale=1;canvas.style.transform='';}
-    }
-  });
-
-  // Double-tap to reset
-  var lastTap=0;
-  el.addEventListener('touchend',function(e){
-    if(e.touches.length===0){
-      var now=Date.now();
-      if(now-lastTap<300){
-        scale=1;canvas.style.transform='';
-        var rb=document.getElementById(resetId);
-        if(rb)rb.style.display='none';
-      }
-      lastTap=now;
-    }
-  });
-}
-
-function resetChartZoom(wrapId,resetId){
-  var el=document.getElementById(wrapId);
-  if(!el)return;
-  var canvas=el.querySelector('canvas');
-  if(canvas){canvas.style.transform='';canvas.style.transformOrigin='';}
-  var rb=document.getElementById(resetId);
-  if(rb)rb.style.display='none';
-}
-
-// ══ FEATURE 3: SPENDING % BAR PER CATEGORY ROW ═══════════
-
-function updateCatBudgetBar(row,cat,type){
-  // Remove existing indicators
-  var existing=row.querySelectorAll('.cat-budget-bar,.cat-budget-pill');
-  existing.forEach(function(e){e.remove();});
-  if(type!=='expense'||!cat||!BUDGETS[cat])return;
-  cat=(cat||'').trim();
-  var budget=BUDGETS[cat];
-  if(!budget)return;
-  // Calculate total spent THIS month in this category
-  var spent=(mdata().expense||[]).reduce(function(s,e){
-    return s+((e.cat||'').trim()===cat?(parseFloat(e.amt)||0):0);
-  },0);
-  if(!spent)return;
-  var pct=Math.min(200,Math.round(spent/budget*100));
-  var barPct=Math.min(100,pct);
-  var clr=pct>=100?'var(--deficit)':pct>=80?'var(--amber)':'var(--surplus)';
-  var pillCls=pct>=100?'cbp-over':pct>=80?'cbp-warn':'cbp-ok';
-  // Progress bar at bottom of row
-  var bar=document.createElement('div');
-  bar.className='cat-budget-bar';
-  bar.style.cssText='width:'+barPct+'%;background:'+clr;
-  bar.title=pct+'% of '+cat+' budget used ('+fmt(spent)+' of '+fmt(budget)+')';
-  row.appendChild(bar);
-  // Small pill showing %
-  var pill=document.createElement('span');
-  pill.className='cat-budget-pill '+pillCls;
-  pill.textContent=pct+'%';
-  pill.title=pct+'% of budget used';
-  row.appendChild(pill);
-}
-
-function refreshAllBudgetBars(){
-  ['incList','expList'].forEach(function(listId){
-    var list=document.getElementById(listId);
-    if(!list)return;
-    var type=listId==='incList'?'income':'expense';
-    list.querySelectorAll('.entry').forEach(function(row){
-      var catInp=row.querySelector('.e-cat');
-      if(catInp) updateCatBudgetBar(row,catInp.value,type);
-    });
-  });
-}
+document.getElementById('catHistModal').addEventListener('click',function(e){
+  if(e.target===this) closeCatHist();
+});
 
 // ══ INIT ═══════════════════════════════════════════════════
 function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();renderHeatmap();}
@@ -5154,16 +5033,16 @@ setTimeout(loadAllSchemes, 2000);
 <div id="catDrop" style="display:none"></div>
 
 <!-- ══ CATEGORY HISTORY MODAL ═══════════════════════════════ -->
-<div id="catHistModal" class="cat-hist-bg" style="display:none" onclick="if(event.target===this)closeCatHist()">
+<div id="catHistModal" class="cat-hist-bg" style="display:none">
   <div class="cat-hist-wrap">
     <div class="cat-hist-hdr">
       <div>
-        <div class="cat-hist-title" id="catHistTitle">Category</div>
-        <div class="cat-hist-sub" id="catHistSub"></div>
+        <div class="cat-hist-name" id="catHistName"></div>
+        <div class="cat-hist-total" id="catHistTotal"></div>
       </div>
       <button class="btn-del" onclick="closeCatHist()" style="font-size:18px">&#215;</button>
     </div>
-    <div class="cat-hist-body" id="catHistBody"></div>
+    <div class="cat-hist-scroll" id="catHistBody"></div>
   </div>
 </div>
 
