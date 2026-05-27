@@ -839,6 +839,13 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .eye-btn.hidden-on{color:var(--deficit);border-color:var(--deficit-bg)}
 .card-val-masked{letter-spacing:3px;color:var(--faint)!important;font-size:13px!important}
 
+/* ── Spending % badge on entry rows ──────────────────────── */
+.cat-pct{font-size:9px;font-weight:600;padding:1px 5px;border-radius:8px;
+  white-space:nowrap;flex-shrink:0;letter-spacing:.3px}
+.pct-ok  {background:var(--surplus-bg);color:var(--surplus)}
+.pct-warn{background:var(--amber-bg);color:var(--amber)}
+.pct-over{background:var(--deficit-bg);color:var(--deficit)}
+.pct-neut{background:var(--surface-alt);color:var(--faint)}
 
 /* ── Category History modal ───────────────────────────────── */
 .cat-hist-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:400;
@@ -864,6 +871,11 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .cat-hist-amt.exp{color:var(--deficit)}
 .cat-hist-empty{text-align:center;padding:28px 0;font-size:11px;color:var(--faint)}
 
+/* ── Pinch-to-zoom chart wrap ─────────────────────────────── */
+.chart-wrap{overflow:hidden;cursor:grab;touch-action:pan-y pinch-zoom}
+.chart-wrap canvas{transform-origin:center center;transition:transform .05s}
+.chart-zoom-hint{font-size:9px;color:var(--faint);text-align:right;
+  margin-top:3px;opacity:.7}
 </style>
 </head>
 <body>
@@ -1175,8 +1187,8 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     </div>
   </div>
   <div class="charts">
-    <div class="chart-card"><div class="chart-lbl">Monthly Overview — Income vs Expense</div><div class="chart-wrap"><canvas id="barChart"></canvas></div></div>
-    <div class="chart-card"><div class="chart-lbl">Expense Breakdown</div><div class="chart-wrap"><canvas id="pieChart"></canvas></div></div>
+    <div class="chart-card"><div class="chart-lbl">Monthly Overview — Income vs Expense</div><div class="chart-wrap" id="barWrap"><canvas id="barChart"></canvas></div><div class="chart-zoom-hint">Pinch to zoom &nbsp;&middot;&nbsp; Double-tap to reset</div></div>
+    <div class="chart-card"><div class="chart-lbl">Expense Breakdown</div><div class="chart-wrap" id="pieWrap"><canvas id="pieChart"></canvas></div><div class="chart-zoom-hint">Pinch to zoom &nbsp;&middot;&nbsp; Double-tap to reset</div></div>
   </div>
 
 
@@ -2348,6 +2360,9 @@ function renderList(type){
   const list=document.getElementById(id);
   const items=mdata()[type];
   list.innerHTML='';let shown=0;
+  // Pre-build spending map for % badges (expense only)
+  const catSpent=type==='expense'?buildCatSpentMap():{};
+  const totalExp=Object.values(catSpent).reduce((s,v)=>s+v,0);
   items.forEach((item,i)=>{
     shown++;
     const color=catColor(item.cat);
@@ -2356,9 +2371,11 @@ function renderList(type){
     row.setAttribute('draggable','true');
     row.addEventListener('dragstart',onDragStart);row.addEventListener('dragover',onDragOver);
     row.addEventListener('dragleave',onDragLeave);row.addEventListener('drop',onDrop);row.addEventListener('dragend',onDragEnd);
+    const pctBadge=type==='expense'?getCatPctBadge(item.cat,catSpent,totalExp):'';
     row.innerHTML=`
       <span class="drag-hdl e-dh" title="Drag">⠿</span>
       <input class="e-cat" type="text" value="${esc(item.cat)}" placeholder="Category" data-t="${type}" data-i="${i}" data-f="cat" autocomplete="off" onfocus="showCatDrop(this)" oninput="showCatDrop(this)" onkeydown="catDropKey(event)">
+      ${pctBadge}
       <input class="e-desc" type="text" value="${esc(item.desc)}" placeholder="Description" data-t="${type}" data-i="${i}" data-f="desc">
       <input class="e-tag tag-inp" type="text" value="${esc(item.tag||'')}" placeholder="#tag" data-t="${type}" data-i="${i}" data-f="tag">
       <input class="e-amt amt ${type==='income'?'amt-inc':''}" type="number" value="${item.amt||''}" placeholder="0" data-t="${type}" data-i="${i}" data-f="amt">
@@ -2447,6 +2464,7 @@ function updateCharts(){
   const pL=Object.keys(cats).filter(k=>cats[k]>0),pV=pL.map(k=>cats[k]);
   const pCtx=document.getElementById('pieChart').getContext('2d');if(pieInst)pieInst.destroy();
   pieInst=new Chart(pCtx,!pV.length?{type:'doughnut',data:{labels:['No data'],datasets:[{data:[1],backgroundColor:[c.grid],borderWidth:0}]},options:{...base,plugins:{...base.plugins,tooltip:{enabled:false}}}}:{type:'doughnut',data:{labels:pL,datasets:[{data:pV,backgroundColor:c.pie.slice(0,pV.length),borderWidth:0,hoverOffset:4}]},options:{...base,cutout:'58%'}});
+  setTimeout(initPinchZoom,100);
 }
 
 // ══ BILLS ══════════════════════════════════════════════════
@@ -4958,6 +4976,76 @@ function closeCatHist(){
 document.getElementById('catHistModal').addEventListener('click',function(e){
   if(e.target===this) closeCatHist();
 });
+
+// ══ FEATURE 2: PINCH-TO-ZOOM ON CHARTS ═══════════════════
+function addPinchZoom(el){
+  var scale=1, startDist=0, startScale=1, lastTap=0;
+  var canvas=el.querySelector('canvas');
+  if(!canvas) return;
+
+  el.addEventListener('touchstart',function(e){
+    if(e.touches.length===2){
+      startDist=Math.hypot(
+        e.touches[0].clientX-e.touches[1].clientX,
+        e.touches[0].clientY-e.touches[1].clientY);
+      startScale=scale;
+    }
+    if(e.touches.length===1){
+      var now=Date.now();
+      if(now-lastTap<300){
+        scale=1;
+        canvas.style.transform='scale(1)';
+      }
+      lastTap=now;
+    }
+  },{passive:true});
+
+  el.addEventListener('touchmove',function(e){
+    if(e.touches.length!==2||!startDist) return;
+    var dist=Math.hypot(
+      e.touches[0].clientX-e.touches[1].clientX,
+      e.touches[0].clientY-e.touches[1].clientY);
+    scale=Math.min(3,Math.max(0.9,startScale*(dist/startDist)));
+    canvas.style.transform='scale('+scale.toFixed(2)+')';
+  },{passive:true});
+
+  el.addEventListener('touchend',function(e){
+    if(e.touches.length<2) startDist=0;
+  },{passive:true});
+}
+
+// Init pinch zoom after charts render
+function initPinchZoom(){
+  var bw=document.getElementById('barWrap');
+  var pw=document.getElementById('pieWrap');
+  if(bw&&!bw._pzDone){addPinchZoom(bw);bw._pzDone=true;}
+  if(pw&&!pw._pzDone){addPinchZoom(pw);pw._pzDone=true;}
+}
+
+// ══ FEATURE 3: SPENDING % BADGE ══════════════════════════
+function buildCatSpentMap(){
+  var spent={};
+  (mdata().expense||[]).forEach(function(x){
+    var k=(x.cat||'Other').trim()||'Other';
+    spent[k]=(spent[k]||0)+(parseFloat(x.amt)||0);
+  });
+  return spent;
+}
+
+function getCatPctBadge(cat,catSpent,totalExp){
+  if(!cat) return '';
+  var spent=catSpent[cat]||0;
+  var budget=BUDGETS[cat];
+  if(budget>0){
+    var pct=Math.round(spent/budget*100);
+    var cls=pct>=100?'pct-over':pct>=80?'pct-warn':'pct-ok';
+    return '<span class="cat-pct '+cls+'" title="'+pct+'% of '+fmt(budget)+' budget">'+pct+'%</span>';
+  } else if(totalExp>0&&spent>0){
+    var pct2=Math.round(spent/totalExp*100);
+    return '<span class="cat-pct pct-neut" title="'+pct2+'% of total expenses">'+pct2+'%</span>';
+  }
+  return '';
+}
 
 // ══ INIT ═══════════════════════════════════════════════════
 function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();renderHeatmap();}
