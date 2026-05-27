@@ -32,6 +32,8 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
 <style>
 /* ── Light theme — toned down, darker text ─────────────── */
 :root{
@@ -838,6 +840,31 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .eye-btn:hover{color:var(--text);border-color:var(--border)}
 .eye-btn.hidden-on{color:var(--deficit);border-color:var(--deficit-bg)}
 .card-val-masked{letter-spacing:3px;color:var(--faint)!important;font-size:13px!important}
+
+/* ══ QR SYNC ════════════════════════════════════════════ */
+.qrs-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;display:flex;align-items:center;justify-content:center;padding:16px}
+.qrs-wrap{background:var(--surface);border-radius:12px;padding:0;max-width:380px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.qrs-hdr{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0}
+.qrs-title{font-size:14px;font-weight:600;color:var(--text)}
+.qrs-tabs{display:flex;border-bottom:1px solid var(--border);margin:14px 0 0}
+.qrs-tab{flex:1;padding:10px 0;font-size:12px;font-family:'IBM Plex Mono',monospace;background:none;border:none;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all .15s}
+.qrs-tab.active{color:var(--text);border-bottom-color:var(--text)}
+.qrs-body{padding:18px 20px 20px}
+.qrs-qr-wrap{background:var(--surface-alt);border-radius:var(--r);padding:16px;text-align:center;margin-bottom:14px;min-height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px}
+.qrs-qr-wrap img,.qrs-qr-wrap canvas{border-radius:4px;max-width:100%}
+.qrs-chunk-info{font-size:10px;color:var(--muted);text-align:center;margin-bottom:4px}
+.qrs-prog-track{height:4px;background:var(--surface-alt);border-radius:2px;overflow:hidden;margin-bottom:14px}
+.qrs-prog-fill{height:100%;background:var(--surplus);border-radius:2px;transition:width .3s}
+.qrs-info-box{background:var(--surface-alt);border-radius:var(--r);padding:10px 12px;font-size:10.5px;color:var(--muted);line-height:1.6;margin-top:14px}
+.qrs-info-box strong{color:var(--text)}
+.qrs-video-wrap{border-radius:var(--r);overflow:hidden;background:#000;margin-bottom:12px;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;position:relative}
+#qrVideo{width:100%;height:100%;object-fit:cover}
+.qrs-scan-overlay{position:absolute;inset:0;border:2px solid var(--surplus);border-radius:var(--r);opacity:.5;pointer-events:none}
+.qrs-status{font-size:11px;color:var(--muted);text-align:center;margin-bottom:10px;min-height:18px}
+@media(max-width:420px){
+  .qrs-wrap{max-width:100%;border-radius:16px 16px 0 0;margin-top:auto;max-height:94vh}
+  .qrs-modal-bg{align-items:flex-end;padding:0}
+}
 </style>
 </head>
 <body>
@@ -2172,6 +2199,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 <footer class="footer">
   <div class="footer-inner">
     <span>Flow &nbsp;·&nbsp; <span id="fDate"></span></span>
+    <button class="btn-ghost" onclick="openQRSync()" style="font-size:10px;padding:4px 12px">&#x2197; QR Sync</button>
     <button class="btn-ghost" onclick="backupData()" style="font-size:10px;padding:4px 12px">&#x2B07; Backup</button>
     <label class="btn-ghost" style="font-size:10px;padding:4px 12px;cursor:pointer">&#x2B06; Restore<input type="file" accept=".json" style="display:none" onchange="restoreData(this)"></label>
     <button class="btn-clear-all" onclick="clearAllData()">Clear All Data</button>
@@ -4843,6 +4871,270 @@ function _mv(el,val){
   }
 }
 
+
+// ══ QR SYNC ═══════════════════════════════════════════════
+var _qrsChunks={}, _qrsTotal=0, _qrsAnimTimer=null;
+var _qrsStream=null, _qrsPayload=null, _qrsAnimating=false;
+var QRS_CHUNK=850;
+
+// ── Helpers ──────────────────────────────────────────────
+function _qrsB64(buf){
+  return btoa(String.fromCharCode.apply(null,new Uint8Array(buf)));
+}
+function _qrsFromB64(b64){
+  return Uint8Array.from(atob(b64),function(c){return c.charCodeAt(0);});
+}
+
+// ── Encryption ───────────────────────────────────────────
+async function qrsEncrypt(text,pin){
+  var enc=new TextEncoder();
+  var salt=crypto.getRandomValues(new Uint8Array(16));
+  var iv=crypto.getRandomValues(new Uint8Array(12));
+  var km=await crypto.subtle.importKey('raw',enc.encode(pin),'PBKDF2',false,['deriveKey']);
+  var key=await crypto.subtle.deriveKey(
+    {name:'PBKDF2',salt:salt,iterations:100000,hash:'SHA-256'},
+    km,{name:'AES-GCM',length:256},false,['encrypt']);
+  var enc_data=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},key,enc.encode(text));
+  var combined=new Uint8Array(16+12+enc_data.byteLength);
+  combined.set(salt,0); combined.set(iv,16);
+  combined.set(new Uint8Array(enc_data),28);
+  return _qrsB64(combined.buffer);
+}
+
+async function qrsDecrypt(b64,pin){
+  var bytes=_qrsFromB64(b64);
+  var salt=bytes.slice(0,16),iv=bytes.slice(16,28),data=bytes.slice(28);
+  var enc=new TextEncoder();
+  var km=await crypto.subtle.importKey('raw',enc.encode(pin),'PBKDF2',false,['deriveKey']);
+  var key=await crypto.subtle.deriveKey(
+    {name:'PBKDF2',salt:salt,iterations:100000,hash:'SHA-256'},
+    km,{name:'AES-GCM',length:256},false,['decrypt']);
+  var dec=await crypto.subtle.decrypt({name:'AES-GCM',iv:iv},key,data);
+  return new TextDecoder().decode(dec);
+}
+
+// ── Open / Close ─────────────────────────────────────────
+function openQRSync(){
+  document.getElementById('qrSyncModal').style.display='flex';
+  qrSyncTab('send');
+}
+
+function closeQRSync(){
+  if(_qrsAnimTimer){clearInterval(_qrsAnimTimer);_qrsAnimTimer=null;}
+  _qrsStopScan();
+  _qrsPayload=null; _qrsChunks={}; _qrsTotal=0;
+  document.getElementById('qrSyncModal').style.display='none';
+  document.getElementById('qrCanvas').innerHTML='<div style="font-size:11px;color:var(--faint)">Enter PIN and tap Generate</div>';
+  document.getElementById('qrChunkInfo').textContent='';
+  document.getElementById('qrsProgFill').style.width='0%';
+  document.getElementById('qrsSendPin').value='';
+  document.getElementById('qrsRecvPin').value='';
+  var ib=document.getElementById('qrsImportBtn');
+  ib.disabled=true; ib.style.opacity='.5'; ib.textContent='Import Data';
+  document.getElementById('qrStatus').textContent='Scanning for QR codes…';
+  document.getElementById('qrsRecvProgFill').style.width='0%';
+}
+
+// Close on backdrop click
+document.getElementById('qrSyncModal').addEventListener('click',function(e){
+  if(e.target===this) closeQRSync();
+});
+
+function qrSyncTab(tab){
+  document.getElementById('qrsSend').style.display=tab==='send'?'block':'none';
+  document.getElementById('qrsRecv').style.display=tab==='recv'?'block':'none';
+  document.getElementById('qrsTab-send').classList.toggle('active',tab==='send');
+  document.getElementById('qrsTab-recv').classList.toggle('active',tab==='recv');
+  if(tab==='recv'){_qrsStartScan();}
+  else{_qrsStopScan();}
+}
+
+// ── GENERATE QR (SEND) ───────────────────────────────────
+async function generateQRSync(){
+  var pin=document.getElementById('qrsSendPin').value.trim();
+  if(!pin||pin.length<4){alert('Enter a PIN of at least 4 characters.');return;}
+  if(typeof QRCode==='undefined'){alert('QR library not loaded. Check your internet connection.');return;}
+
+  var btn=document.querySelector('#qrsSend .btn-primary');
+  btn.textContent='Encrypting…'; btn.disabled=true;
+
+  try{
+    var data={v:'flow_backup_v1',timestamp:new Date().toISOString(),
+      db:DB,bills:BILLS,invest:INVEST,loans:LOANS,splits:SPLITS,
+      templates:TEMPLATES,emfund:EMFUND,subs:SUBS,notes:NOTES,
+      nwHistory:NW_HISTORY,budgets:BUDGETS,dark:dark};
+    var json=JSON.stringify(data);
+    var encrypted=await qrsEncrypt(json,pin);
+
+    // Split into chunks
+    var chunks=[];
+    for(var i=0;i<encrypted.length;i+=QRS_CHUNK) chunks.push(encrypted.slice(i,i+QRS_CHUNK));
+    var N=chunks.length;
+    var qrStrings=chunks.map(function(ch,i){return'FLOW:'+(i+1)+'/'+N+':'+ch;});
+
+    var container=document.getElementById('qrCanvas');
+    container.innerHTML='';
+
+    if(_qrsAnimTimer){clearInterval(_qrsAnimTimer);_qrsAnimTimer=null;}
+
+    var cur=0;
+    function showChunk(idx){
+      container.innerHTML='';
+      try{
+        new QRCode(container,{text:qrStrings[idx],width:220,height:220,
+          colorDark:'#0a0a0a',colorLight:'#ffffff',
+          correctLevel:QRCode.CorrectLevel.L});
+      }catch(e){container.innerHTML='<div style="color:var(--deficit);font-size:11px">QR too large for single code</div>';}
+      document.getElementById('qrChunkInfo').textContent=
+        N===1?'Static QR — ready to scan':'QR '+( idx+1)+' of '+N+' — hold steady';
+      document.getElementById('qrsProgFill').style.width=((idx+1)/N*100)+'%';
+    }
+
+    showChunk(0);
+    if(N>1){
+      _qrsAnimTimer=setInterval(function(){
+        cur=(cur+1)%N; showChunk(cur);
+      },1300);
+    }
+    btn.textContent='Regenerate QR';
+  }catch(e){
+    alert('Failed: '+e.message);
+    btn.textContent='Generate QR';
+  }
+  btn.disabled=false;
+}
+
+// ── SCAN (RECEIVE) ───────────────────────────────────────
+async function _qrsStartScan(){
+  _qrsChunks={}; _qrsTotal=0; _qrsPayload=null;
+  document.getElementById('qrStatus').textContent='Starting camera…';
+  document.getElementById('qrsRecvProgFill').style.width='0%';
+  var ib=document.getElementById('qrsImportBtn');
+  ib.disabled=true; ib.style.opacity='.5';
+
+  try{
+    var stream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:{ideal:'environment'},width:{ideal:640},height:{ideal:480}}
+    });
+    _qrsStream=stream;
+    var video=document.getElementById('qrVideo');
+    video.srcObject=stream;
+    await video.play();
+    document.getElementById('qrStatus').textContent='Scanning for QR codes…';
+    _qrsScanLoop();
+  }catch(e){
+    var msg='Camera access denied.';
+    if(e.name==='NotFoundError') msg='No camera found on this device.';
+    document.getElementById('qrStatus').textContent=msg;
+  }
+}
+
+function _qrsStopScan(){
+  if(_qrsStream){_qrsStream.getTracks().forEach(function(t){t.stop();});_qrsStream=null;}
+}
+
+function _qrsScanLoop(){
+  if(!_qrsStream) return;
+  var video=document.getElementById('qrVideo');
+  var canvas=document.getElementById('qrScanCanvas');
+  if(video.readyState===video.HAVE_ENOUGH_DATA){
+    canvas.width=video.videoWidth; canvas.height=video.videoHeight;
+    var ctx=canvas.getContext('2d');
+    ctx.drawImage(video,0,0,canvas.width,canvas.height);
+    var img=ctx.getImageData(0,0,canvas.width,canvas.height);
+    if(typeof jsQR!=='undefined'){
+      var code=jsQR(img.data,img.width,img.height,{inversionAttempts:'dontInvert'});
+      if(code&&code.data.startsWith('FLOW:')){
+        _qrsProcessChunk(code.data);
+      }
+    }
+  }
+  requestAnimationFrame(_qrsScanLoop);
+}
+
+function _qrsProcessChunk(raw){
+  // Format: FLOW:K/N:DATA
+  var prefix='FLOW:';
+  var rest=raw.slice(prefix.length);
+  var colon=rest.indexOf(':');
+  if(colon<0) return;
+  var kn=rest.slice(0,colon);
+  var chunkData=rest.slice(colon+1);
+  var slash=kn.indexOf('/');
+  if(slash<0) return;
+  var k=parseInt(kn.slice(0,slash));
+  var n=parseInt(kn.slice(slash+1));
+  if(isNaN(k)||isNaN(n)) return;
+  if(!_qrsTotal) _qrsTotal=n;
+  if(!_qrsChunks[k]){
+    _qrsChunks[k]=chunkData;
+    var got=Object.keys(_qrsChunks).length;
+    document.getElementById('qrStatus').textContent='Part '+got+' of '+n+' received';
+    document.getElementById('qrsRecvProgFill').style.width=(got/n*100)+'%';
+    if(got===n) _qrsAllDone(n);
+  }
+}
+
+function _qrsAllDone(n){
+  _qrsStopScan();
+  var payload='';
+  for(var i=1;i<=n;i++) payload+=_qrsChunks[i];
+  _qrsPayload=payload;
+  document.getElementById('qrStatus').textContent='All '+n+' parts scanned! Enter PIN and import.';
+  var ib=document.getElementById('qrsImportBtn');
+  ib.disabled=false; ib.style.opacity='1';
+}
+
+async function importQRSync(){
+  var pin=document.getElementById('qrsRecvPin').value.trim();
+  if(!pin){alert('Enter the PIN used to generate the QR.');return;}
+  if(!_qrsPayload){alert('Scan all QR parts first.');return;}
+
+  var btn=document.getElementById('qrsImportBtn');
+  btn.textContent='Decrypting…'; btn.disabled=true;
+
+  try{
+    var json=await qrsDecrypt(_qrsPayload,pin);
+    var data=JSON.parse(json);
+    if(!data.v||!data.db) throw new Error('Invalid data format.');
+
+    var ts=data.timestamp?new Date(data.timestamp).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'Unknown date';
+    if(!confirm('Import data from '+ts+'? This will REPLACE all data on this device. Tap OK to confirm.'))
+    {btn.textContent='Import Data';btn.disabled=false;return;}
+
+    DB=data.db||{};
+    BILLS=data.bills||[];
+    INVEST=data.invest||{goals:[],mf:[],holdings:[],dividends:[],fds:[]};
+    SUBS=data.subs||[]; NOTES=data.notes||[];
+    NW_HISTORY=data.nwHistory||[]; BUDGETS=data.budgets||{};
+    LOANS=data.loans||[]; SPLITS=data.splits||[];
+    TEMPLATES=data.templates||[];
+    if(data.emfund)EMFUND=data.emfund;
+    if(typeof data.dark==='boolean'){dark=data.dark;applyDark();}
+    localStorage.setItem('flow_v3',JSON.stringify(DB));
+    localStorage.setItem('flow_loans',JSON.stringify(LOANS));
+    localStorage.setItem('flow_splits',JSON.stringify(SPLITS));
+    localStorage.setItem('flow_templates',JSON.stringify(TEMPLATES));
+    localStorage.setItem('flow_emfund',JSON.stringify(EMFUND));
+    localStorage.setItem('flow_subs',JSON.stringify(SUBS));
+    localStorage.setItem('flow_notes',JSON.stringify(NOTES));
+    localStorage.setItem('flow_nw_history',JSON.stringify(NW_HISTORY));
+    localStorage.setItem('flow_budgets',JSON.stringify(BUDGETS));
+    closeQRSync();
+    render();renderBills();renderLoans();renderSubs();renderNotes();
+    renderHoldingsTable();renderMFTable();updateInvestSummary();renderGoals();
+    alert('Data imported successfully!');
+  }catch(e){
+    var msg=e.message||'';
+    if(msg.toLowerCase().includes('decrypt')||msg.toLowerCase().includes('operation')){
+      alert('Wrong PIN. Please check and try again.');
+    }else{
+      alert('Import failed: '+msg);
+    }
+    btn.textContent='Import Data'; btn.disabled=false;
+  }
+}
+
 // ══ INIT ═══════════════════════════════════════════════════
 function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();renderHeatmap();}
 applyDark();render();applyAllEyes();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();
@@ -4915,5 +5207,57 @@ setTimeout(loadAllSchemes, 2000);
   </div>
 </div>
 <div id="catDrop" style="display:none"></div>
+
+<!-- ══ QR SYNC MODAL ════════════════════════════════════════ -->
+<div id="qrSyncModal" class="qrs-modal-bg" style="display:none">
+  <div class="qrs-wrap">
+    <div class="qrs-hdr">
+      <span class="qrs-title">&#x1F4F1; QR Sync</span>
+      <button class="btn-del" onclick="closeQRSync()" style="font-size:18px">&#215;</button>
+    </div>
+    <div class="qrs-tabs">
+      <button class="qrs-tab active" id="qrsTab-send" onclick="qrSyncTab('send')">&#x2197; Send to Device</button>
+      <button class="qrs-tab" id="qrsTab-recv" onclick="qrSyncTab('recv')">&#x2198; Receive from Device</button>
+    </div>
+
+    <!-- SEND PANEL -->
+    <div class="qrs-body" id="qrsSend">
+      <div class="qrs-qr-wrap" id="qrCanvas">
+        <div style="font-size:11px;color:var(--faint)">Enter PIN and tap Generate</div>
+      </div>
+      <div class="qrs-chunk-info" id="qrChunkInfo"></div>
+      <div class="qrs-prog-track"><div class="qrs-prog-fill" id="qrsProgFill" style="width:0%"></div></div>
+      <div class="form-field" style="margin-bottom:10px">
+        <span class="form-label">Encryption PIN (share this with the other device)</span>
+        <input type="password" id="qrsSendPin" placeholder="Enter any PIN e.g. 1234" maxlength="12" style="letter-spacing:3px" autocomplete="off">
+      </div>
+      <button class="btn-primary" onclick="generateQRSync()" style="width:100%;padding:10px;font-size:13px">Generate QR</button>
+      <div class="qrs-info-box">
+        <strong>How to use:</strong> Enter a PIN and tap Generate. Show the QR code(s) to the other device while they scan using the Receive tab.<br>
+        <strong>Security:</strong> AES-256 encrypted. PIN never transmitted. Works offline.
+      </div>
+    </div>
+
+    <!-- RECEIVE PANEL -->
+    <div class="qrs-body" id="qrsRecv" style="display:none">
+      <div class="qrs-video-wrap">
+        <video id="qrVideo" playsinline muted></video>
+        <div class="qrs-scan-overlay"></div>
+      </div>
+      <canvas id="qrScanCanvas" style="display:none"></canvas>
+      <div class="qrs-status" id="qrStatus">Scanning for QR codes&hellip;</div>
+      <div class="qrs-prog-track"><div class="qrs-prog-fill" id="qrsRecvProgFill" style="width:0%"></div></div>
+      <div class="form-field" style="margin-bottom:10px">
+        <span class="form-label">Decryption PIN (same PIN used on sender)</span>
+        <input type="password" id="qrsRecvPin" placeholder="Enter the same PIN" maxlength="12" style="letter-spacing:3px" autocomplete="off">
+      </div>
+      <button class="btn-primary" id="qrsImportBtn" onclick="importQRSync()" disabled style="width:100%;padding:10px;font-size:13px;opacity:.5">Import Data</button>
+      <div class="qrs-info-box">
+        <strong>How to use:</strong> Point your camera at the QR code(s) on the sender device. All parts will be collected automatically. Then enter the PIN and tap Import.
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
