@@ -876,6 +876,15 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .chart-wrap canvas{transform-origin:center center;transition:transform .05s}
 .chart-zoom-hint{font-size:9px;color:var(--faint);text-align:right;
   margin-top:3px;opacity:.7}
+
+/* ── Category History Popup ──────────────────────────────── */
+.cat-hist-btn{background:none;border:none;cursor:pointer;color:var(--faint);font-size:14px;padding:0 3px;transition:color .12s;line-height:1;flex-shrink:0}
+.cat-hist-btn:hover{color:var(--muted)}
+.cat-hist-month-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--faint);font-weight:500;padding:8px 18px 4px;border-top:1px solid var(--border)}
+.cat-hist-row{display:flex;justify-content:space-between;align-items:center;padding:8px 18px;border-bottom:1px solid var(--border)}
+.cat-hist-row:last-child{border-bottom:none}
+.cat-hist-desc{font-size:11.5px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cat-hist-amt{font-size:11.5px;color:var(--deficit);font-weight:500;margin-left:12px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -2372,10 +2381,11 @@ function renderList(type){
     row.addEventListener('dragstart',onDragStart);row.addEventListener('dragover',onDragOver);
     row.addEventListener('dragleave',onDragLeave);row.addEventListener('drop',onDrop);row.addEventListener('dragend',onDragEnd);
     const pctBadge=type==='expense'?getCatPctBadge(item.cat,catSpent,totalExp):'';
+    const catHistBtn=type==='expense'&&item.cat?'<button class="cat-hist-btn" onclick="showCatHistory(\'' +esc(item.cat)+ '\'" title="View '+esc(item.cat)+' history">&#x22EF;</button>':'';
     row.innerHTML=`
       <span class="drag-hdl e-dh" title="Drag">⠿</span>
       <input class="e-cat" type="text" value="${esc(item.cat)}" placeholder="Category" data-t="${type}" data-i="${i}" data-f="cat" autocomplete="off" onfocus="showCatDrop(this)" oninput="showCatDrop(this)" onkeydown="catDropKey(event)">
-      ${pctBadge}
+      ${pctBadge}${catHistBtn}
       <input class="e-desc" type="text" value="${esc(item.desc)}" placeholder="Description" data-t="${type}" data-i="${i}" data-f="desc">
       <input class="e-tag tag-inp" type="text" value="${esc(item.tag||'')}" placeholder="#tag" data-t="${type}" data-i="${i}" data-f="tag">
       <input class="e-amt amt ${type==='income'?'amt-inc':''}" type="number" value="${item.amt||''}" placeholder="0" data-t="${type}" data-i="${i}" data-f="amt">
@@ -5037,12 +5047,60 @@ function getCatPctBadge(cat,catSpent,totalExp){
     var pct=Math.round(spent/budget*100);
     var cls=pct>=100?'pct-over':pct>=80?'pct-warn':'pct-ok';
     return '<span class="cat-pct '+cls+'" title="'+pct+'% of '+fmt(budget)+' budget">'+pct+'%</span>';
-  } else if(totalExp>0&&spent>0){
-    var pct2=Math.round(spent/totalExp*100);
-    return '<span class="cat-pct pct-neut" title="'+pct2+'% of total expenses">'+pct2+'%</span>';
   }
   return '';
 }
+
+
+// ── Category History ──────────────────────────────────────
+function showCatHistory(cat){
+  if(!cat)return;
+  var allEntries=[];
+  var totalSpent=0;
+  Object.keys(DB).forEach(function(key){
+    var parts=key.split('_');
+    var mi=parseInt(parts[0]),yi=parts[1];
+    if(isNaN(mi))return;
+    var monthLbl=MONTHS[mi]+' '+yi;
+    (DB[key].expense||[]).forEach(function(e){
+      if((e.cat||'').trim()===cat){
+        allEntries.push({month:monthLbl,sortKey:yi*100+mi,desc:e.desc||'No description',amt:parseFloat(e.amt)||0});
+        totalSpent+=(parseFloat(e.amt)||0);
+      }
+    });
+  });
+  allEntries.sort(function(a,b){return b.sortKey-a.sortKey;});
+  document.getElementById('catHistTitle').textContent=cat;
+  document.getElementById('catHistSummary').textContent=
+    'Total spent: '+fmt(totalSpent)+' · '+allEntries.length+' entr'+(allEntries.length===1?'y':'ies')+' across all months';
+  var byMonth={};
+  allEntries.forEach(function(e){
+    if(!byMonth[e.month])byMonth[e.month]=[];
+    byMonth[e.month].push(e);
+  });
+  var body=document.getElementById('catHistBody');
+  if(!allEntries.length){
+    body.innerHTML='<div style="padding:24px 18px;font-size:11px;color:var(--faint);text-align:center">No entries for this category.</div>';
+  }else{
+    body.innerHTML=Object.keys(byMonth).map(function(month){
+      return'<div class="cat-hist-month-lbl">'+month+'</div>'+
+        byMonth[month].map(function(e){
+          return'<div class="cat-hist-row">'+
+            '<span class="cat-hist-desc">'+esc(e.desc)+'</span>'+
+            '<span class="cat-hist-amt">−'+fmt(e.amt)+'</span>'+
+          '</div>';
+        }).join('');
+    }).join('');
+  }
+  var m=document.getElementById('catHistModal');
+  m.style.display='flex';
+}
+function closeCatHistory(){
+  document.getElementById('catHistModal').style.display='none';
+}
+document.getElementById('catHistModal').addEventListener('click',function(e){
+  if(e.target===this)closeCatHistory();
+});
 
 // ══ INIT ═══════════════════════════════════════════════════
 function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();renderHeatmap();}
@@ -5128,6 +5186,19 @@ setTimeout(loadAllSchemes, 2000);
       <button class="btn-del" onclick="closeCatHist()" style="font-size:18px">&#215;</button>
     </div>
     <div class="cat-hist-scroll" id="catHistBody"></div>
+  </div>
+</div>
+
+
+<!-- ── Category History Modal ───────────────────────────── -->
+<div id="catHistModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:450;align-items:center;justify-content:center;padding:16px">
+  <div style="background:var(--surface);border-radius:10px;max-width:420px;width:100%;max-height:80vh;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.22);display:flex;flex-direction:column">
+    <div style="padding:16px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <span id="catHistTitle" style="font-size:14px;font-weight:600;color:var(--text)"></span>
+      <button class="btn-del" onclick="closeCatHistory()" style="font-size:18px">&#215;</button>
+    </div>
+    <div id="catHistSummary" style="padding:9px 18px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0"></div>
+    <div id="catHistBody" style="overflow-y:auto;flex:1"></div>
   </div>
 </div>
 
