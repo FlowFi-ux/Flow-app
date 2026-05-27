@@ -832,6 +832,12 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .cat-di:last-child{border-bottom:none}
 .cat-di:hover,.cat-di.hi{background:var(--surface-alt)}
 .cat-di.hi{color:var(--surplus)}
+
+/* ── Eye / Hide balance button ────────────────────────────── */
+.eye-btn{background:none;border:1px solid transparent;cursor:pointer;color:var(--muted);padding:3px 5px;border-radius:var(--r);transition:color .12s,border-color .12s;line-height:1;margin-left:auto;display:flex;align-items:center}
+.eye-btn:hover{color:var(--text);border-color:var(--border)}
+.eye-btn.hidden-on{color:var(--deficit);border-color:var(--deficit-bg)}
+.card-val-masked{letter-spacing:3px;color:var(--faint)!important;font-size:13px!important}
 </style>
 </head>
 <body>
@@ -1107,7 +1113,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   <div class="summary">
     <div class="card"><div class="card-lbl">Total Income</div><div class="card-val" id="cIncome">₹0</div><div id="momIncome" style="font-size:10px;color:var(--faint);margin-top:3px"></div></div>
     <div class="card"><div class="card-lbl">Total Expenses</div><div class="card-val" id="cExpense">₹0</div><div id="momExpense" style="font-size:10px;color:var(--faint);margin-top:3px"></div></div>
-    <div class="card"><div class="card-lbl">Net Flow</div><div class="card-val" id="cNet">₹0</div><div id="cBadge"></div></div>
+    <div class="card" style="position:relative"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0"><div class="card-lbl" style="margin:0">Net Flow</div><button class="eye-btn" id="eyeTrack" onclick="toggleHideTrack()" title="Hide / show balances" style="padding:2px 4px;border:none;opacity:.55"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div><div class="card-val" id="cNet" style="margin-top:4px">₹0</div><div id="cBadge"></div></div>
   </div>
   <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px">
     <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted);font-weight:500">Overview</span>
@@ -1264,6 +1270,10 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 <!-- ══ BILLS TAB ════════════════════════════════════════════ -->
 <div id="tab-bills" class="tab-pane">
 <div class="main">
+  <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px">
+    <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted);font-weight:500">Bills Overview</span>
+    <button class="eye-btn" id="eyeBills" onclick="toggleHideBills()" title="Hide / show balances"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+  </div>
   <div class="bills-summary">
     <div class="card"><div class="card-lbl">Total Bills</div><div class="card-val" id="bTotal">0</div></div>
     <div class="card"><div class="card-lbl">Monthly Due</div><div class="card-val" id="bMonthly">₹0</div></div>
@@ -1413,6 +1423,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px">
     <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted);font-weight:500">Portfolio Overview</span>
     <button class="info-btn" onclick="toggleInfo('tip-portfolio')" title="About Portfolio">i</button>
+    <button class="eye-btn" id="eyePortfolio" onclick="toggleHidePortfolio()" title="Hide / show balances"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
   </div>
   <div class="info-tip" id="tip-portfolio"><div class="info-tip-hd">About the Portfolio Tab</div>Track all your investments in one place. Holdings (equity, FD, gold, PPF, NPS, crypto, real estate), Mutual Funds with live NAV, Savings Goals, and an FD Tracker. The <strong>Portfolio Allocation</strong> chart shows your asset distribution by current value.<br><br>Add any type of holding using the Holdings sub-tab. For Mutual Funds, search 16,000+ AMFI-registered schemes. Use the Financial Calculators for SIP projections and loan analysis.<button class="info-tip-close" onclick="toggleInfo('tip-portfolio')">×</button></div>
 
@@ -2048,6 +2059,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <span class="wn-version-date">May 2026</span>
       <span class="wn-version-label wn-label-minor">Update</span>
     </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Hide Balances Eye Toggle</div><div class="wn-entry-desc">Tap the eye icon inside the Net Flow card (Track tab), Bills Overview, or Portfolio Overview to instantly mask all balance values with &bull;&bull;&bull;. Each tab is independent. State persists across sessions &mdash; stays hidden until you tap again.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Monthly Spending Heatmap</div><div class="wn-entry-desc">New collapsible section in the Track tab. Shows all 12 months of the current year colour-coded by expense intensity — None, Low, Medium, High, and Peak — relative to your heaviest spending month. Spot seasonal patterns at a glance.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Category Autocomplete</div><div class="wn-entry-desc">The Category field on every Track tab entry now shows a live dropdown as you type. Suggests from your existing categories across all months plus 25 pre-seeded common Indian categories. Arrow keys to navigate, Enter to select.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-impr">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">Auto-Relock After 3 Minutes</div><div class="wn-entry-desc">If a PIN is set and you switch away from the app or lock your screen, Flow automatically re-locks after 3 minutes in the background. Works on both Android and iOS.</div></div></div>
@@ -2348,13 +2360,15 @@ function onDragEnd(){document.querySelectorAll('.entry').forEach(r=>r.classList.
 // ══ SUMMARY ════════════════════════════════════════════════
 function updateSummary(){
   const d=mdata(),inc=d.income.reduce((s,x)=>s+(parseFloat(x.amt)||0),0),exp=d.expense.reduce((s,x)=>s+(parseFloat(x.amt)||0),0),net=inc-exp;
-  document.getElementById('cIncome').textContent=fmt(inc);
-  document.getElementById('cExpense').textContent=fmt(exp);
-  document.getElementById('cNet').textContent=(net<0?'−':'')+fmt(net);
-  document.getElementById('cNet').className='card-val '+(net>=0?'c-green':'c-red');
-  document.getElementById('pInc').textContent=fmt(inc);
-  document.getElementById('pExp').textContent=fmt(exp);
-  document.getElementById('cBadge').innerHTML=net!==0?`<span class="badge ${net>=0?'badge-s':'badge-d'}">${net>=0?'Surplus':'Deficit'}</span>`:''; calcMoM(inc,exp);
+  const H=_hideTrack;
+  _mv(document.getElementById('cIncome'), H?MASK:fmt(inc));
+  _mv(document.getElementById('cExpense'), H?MASK:fmt(exp));
+  _mv(document.getElementById('cNet'), H?MASK:(net<0?'\u2212':'')+fmt(net));
+  document.getElementById('cNet').className='card-val '+(net>=0?'c-green':'c-red')+(H?' card-val-masked':'');
+  _mv(document.getElementById('pInc'), H?MASK:fmt(inc));
+  _mv(document.getElementById('pExp'), H?MASK:fmt(exp));
+  document.getElementById('cBadge').innerHTML=(!H&&net!==0)?`<span class="badge ${net>=0?'badge-s':'badge-d'}">${net>=0?'Surplus':'Deficit'}</span>`:'';
+  if(H){['momIncome','momExpense'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent='';});}else{calcMoM(inc,exp);}
   updateRatioBar(inc,exp,net);
 }
 function updateRatioBar(inc,exp,net){
@@ -2463,10 +2477,10 @@ function renderBills(){
   const groups={overdue:[],soon:[],upcoming:[],paid:[]};
   BILLS.forEach(b=>{const s=billStatus(b);groups[s].push({...b,_s:s})});
   const monthly=BILLS.filter(b=>b.frequency==='Monthly').reduce((s,b)=>s+b.amt,0);
-  document.getElementById('bTotal').textContent=BILLS.length;
-  document.getElementById('bMonthly').textContent=fmt(monthly);
-  document.getElementById('bOverdue').textContent=groups.overdue.length;
-  document.getElementById('bSoon').textContent=groups.soon.length;
+  document.getElementById('bTotal').textContent=_hideBills?MASK:BILLS.length;
+  _mv(document.getElementById('bMonthly'),_hideBills?MASK:fmt(monthly));
+  document.getElementById('bOverdue').textContent=_hideBills?MASK:groups.overdue.length;
+  document.getElementById('bSoon').textContent=_hideBills?MASK:groups.soon.length;
   const ord=['th','st','nd','rd'];
   function suf(d){return ord[((d+90)%100-10)%10-1]||'th'}
   function bCard(b){
@@ -2868,10 +2882,10 @@ function updateInvestSummary(){
     tc+=fdMaturity(f.principal||0,f.rate||0,f.tenure||12,f.comp||4);
   });
   const pnl=tc-ti;
-  const iEl=document.getElementById('ivInvested');if(iEl)iEl.textContent=fmt(ti);
-  const cEl=document.getElementById('ivCurrent');if(cEl)cEl.textContent=fmt(tc||ti);
+  const iEl=document.getElementById('ivInvested');if(iEl)_mv(iEl,_hidePort?MASK:fmt(ti));
+  const cEl=document.getElementById('ivCurrent');if(cEl)_mv(cEl,_hidePort?MASK:fmt(tc||ti));
   const pEl=document.getElementById('ivPnl');
-  if(pEl){pEl.textContent=(pnl>=0?'+':'')+fmtN(pnl);pEl.className='card-val '+(pnl>=0?'c-green':'c-red');}
+  if(pEl){_mv(pEl,_hidePort?MASK:(pnl>=0?'+':'')+fmtN(pnl));pEl.className='card-val '+(pnl>=0?'c-green':'c-red')+(_hidePort?' card-val-masked':'');}
   // Always refresh net worth and allocation chart
   updateNetWorth();
   updateAllocChart();
@@ -3208,7 +3222,7 @@ function updateNetWorth(){
   (INVEST.mf||[]).forEach(h=>val+=h.units*(h.currentNav||h.navBuy));
   (INVEST.goals||[]).forEach(g=>val+=g.current||0);
   (INVEST.fds||[]).forEach(f=>val+=fdMaturity(f.principal||0,f.rate||0,f.tenure||12,f.comp||4));
-  el.textContent=fmt(val);
+  _mv(el,_hidePort?MASK:fmt(val));
 }
 
 // ══ ANNUAL BILL COST ═══════════════════════════════════════
@@ -3216,7 +3230,7 @@ function calcAnnualBillCost(){
   const el=document.getElementById('bAnnual');if(!el)return;
   const mults={'Monthly':12,'Quarterly':4,'Half-Yearly':2,'Annual':1,'One-Time':1};
   const annual=BILLS.reduce((s,b)=>s+b.amt*(mults[b.frequency]||1),0);
-  el.textContent=fmt(annual);
+  _mv(el,_hideBills?MASK:fmt(annual));
 }
 
 // ══ GLOBAL SEARCH ═══════════════════════════════════════════
@@ -3819,7 +3833,7 @@ function restoreData(input){
       dark=data.dark||false;
       localStorage.setItem('flow_v3',JSON.stringify(DB));localStorage.setItem('flow_bills',JSON.stringify(BILLS));localStorage.setItem('flow_invest',JSON.stringify(INVEST));
       localStorage.setItem('flow_loans',JSON.stringify(LOANS));localStorage.setItem('flow_splits',JSON.stringify(SPLITS));localStorage.setItem('flow_templates',JSON.stringify(TEMPLATES));localStorage.setItem('flow_emfund',JSON.stringify(EMFUND));localStorage.setItem('flow_subs',JSON.stringify(SUBS));localStorage.setItem('flow_notes',JSON.stringify(NOTES));localStorage.setItem('flow_nw_history',JSON.stringify(NW_HISTORY));localStorage.setItem('flow_budgets',JSON.stringify(BUDGETS));
-      applyDark();render();renderBills();renderHoldingsTable();renderMFTable();renderGoals();renderFDTable();renderSplits();renderTemplates();updateInvestSummary();
+      applyDark();render();applyAllEyes();renderBills();renderHoldingsTable();renderMFTable();renderGoals();renderFDTable();renderSplits();renderTemplates();updateInvestSummary();
       alert('Backup restored successfully!');
     }catch(err){alert('Failed to restore: '+err.message)}
   };
@@ -4775,9 +4789,63 @@ function renderHeatmap(){
   }).join('');
 }
 
+
+// ══ HIDE BALANCES — EYE TOGGLE ═══════════════════════════
+var _hideTrack = localStorage.getItem('flow_hide_t')==='1';
+var _hideBills = localStorage.getItem('flow_hide_b')==='1';
+var _hidePort  = localStorage.getItem('flow_hide_p')==='1';
+var MASK = '•••';
+
+var EYE_ON  = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+var EYE_OFF = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
+function _applyEyeBtn(id, hidden){
+  var b=document.getElementById(id);
+  if(!b)return;
+  b.innerHTML = hidden ? EYE_OFF : EYE_ON;
+  b.classList.toggle('hidden-on', hidden);
+}
+
+function applyAllEyes(){
+  _applyEyeBtn('eyeTrack',   _hideTrack);
+  _applyEyeBtn('eyeBills',   _hideBills);
+  _applyEyeBtn('eyePortfolio', _hidePort);
+}
+
+function toggleHideTrack(){
+  _hideTrack=!_hideTrack;
+  localStorage.setItem('flow_hide_t',_hideTrack?'1':'0');
+  _applyEyeBtn('eyeTrack',_hideTrack);
+  updateSummary();
+}
+
+function toggleHideBills(){
+  _hideBills=!_hideBills;
+  localStorage.setItem('flow_hide_b',_hideBills?'1':'0');
+  _applyEyeBtn('eyeBills',_hideBills);
+  renderBills();
+  calcAnnualBillCost();
+}
+
+function toggleHidePortfolio(){
+  _hidePort=!_hidePort;
+  localStorage.setItem('flow_hide_p',_hidePort?'1':'0');
+  _applyEyeBtn('eyePortfolio',_hidePort);
+  updateInvestSummary();
+}
+
+function _mv(el,val){
+  if(!el)return;
+  if(typeof val==='string'&&(val.startsWith('•')||val===MASK)){
+    el.textContent=MASK; el.classList.add('card-val-masked');
+  }else{
+    el.textContent=val; el.classList.remove('card-val-masked');
+  }
+}
+
 // ══ INIT ═══════════════════════════════════════════════════
 function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();renderHeatmap();}
-applyDark();render();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();
+applyDark();render();applyAllEyes();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();
 
 // Pre-load MF schemes silently in background after 2s
 setTimeout(loadAllSchemes, 2000);
