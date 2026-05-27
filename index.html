@@ -4874,6 +4874,7 @@ function _mv(el,val){
 
 // ══ QR SYNC ═══════════════════════════════════════════════
 var _qrsChunks={}, _qrsTotal=0, _qrsAnimTimer=null;
+var _qrsAllChunks=[], _qrsCurChunk=0;
 var _qrsStream=null, _qrsPayload=null, _qrsAnimating=false;
 var QRS_CHUNK=850;
 
@@ -4914,6 +4915,44 @@ async function qrsDecrypt(b64,pin){
 }
 
 // ── Open / Close ─────────────────────────────────────────
+function qrsShowChunk(idx){
+  if(!_qrsAllChunks.length) return;
+  var N=_qrsAllChunks.length;
+  idx=Math.max(0,Math.min(N-1,idx));
+  _qrsCurChunk=idx;
+  var container=document.getElementById('qrCanvas');
+  container.innerHTML='';
+  try{
+    new QRCode(container,{
+      text:_qrsAllChunks[idx],
+      width:240,height:240,
+      colorDark:'#0a0a0a',colorLight:'#ffffff',
+      correctLevel:QRCode.CorrectLevel.L
+    });
+  }catch(e){
+    container.innerHTML='<div style="color:var(--deficit);font-size:11px;padding:8px">Data too large for QR. Try clearing old data first.</div>';
+  }
+  // Nav state
+  var prev=document.getElementById('qrsPrevBtn');
+  var next=document.getElementById('qrsNextBtn');
+  var lbl=document.getElementById('qrsNavLabel');
+  if(prev) prev.disabled=idx===0;
+  if(next) next.textContent=idx===N-1?'✓ Done':'Next →';
+  if(lbl) lbl.textContent='QR '+(idx+1)+' of '+N;
+  document.getElementById('qrsProgFill').style.width=((idx+1)/N*100)+'%';
+}
+
+function qrsNavChunk(dir){
+  var N=_qrsAllChunks.length;
+  var next=_qrsCurChunk+dir;
+  if(next>=N){
+    document.getElementById('qrsNav').style.display='none';
+    document.getElementById('qrChunkInfo').textContent='✓ All '+N+' QR codes shown — check receiver has all parts';
+    return;
+  }
+  qrsShowChunk(next);
+}
+
 function openQRSync(){
   document.getElementById('qrSyncModal').style.display='flex';
   qrSyncTab('send');
@@ -4922,9 +4961,10 @@ function openQRSync(){
 function closeQRSync(){
   if(_qrsAnimTimer){clearInterval(_qrsAnimTimer);_qrsAnimTimer=null;}
   _qrsStopScan();
-  _qrsPayload=null; _qrsChunks={}; _qrsTotal=0;
+  _qrsPayload=null; _qrsChunks={}; _qrsTotal=0; _qrsAllChunks=[]; _qrsCurChunk=0;
   document.getElementById('qrSyncModal').style.display='none';
   document.getElementById('qrCanvas').innerHTML='<div style="font-size:11px;color:var(--faint)">Enter PIN and tap Generate</div>';
+  var _nav=document.getElementById('qrsNav');if(_nav)_nav.style.display='none';
   document.getElementById('qrChunkInfo').textContent='';
   document.getElementById('qrsProgFill').style.width='0%';
   document.getElementById('qrsSendPin').value='';
@@ -4953,11 +4993,9 @@ function qrSyncTab(tab){
 async function generateQRSync(){
   var pin=document.getElementById('qrsSendPin').value.trim();
   if(!pin||pin.length<4){alert('Enter a PIN of at least 4 characters.');return;}
-  if(typeof QRCode==='undefined'){alert('QR library not loaded. Check your internet connection.');return;}
-
+  if(typeof QRCode==='undefined'){alert('QR library not loaded. Check internet connection and reload.');return;}
   var btn=document.querySelector('#qrsSend .btn-primary');
   btn.textContent='Encrypting…'; btn.disabled=true;
-
   try{
     var data={v:'flow_backup_v1',timestamp:new Date().toISOString(),
       db:DB,bills:BILLS,invest:INVEST,loans:LOANS,splits:SPLITS,
@@ -4965,43 +5003,21 @@ async function generateQRSync(){
       nwHistory:NW_HISTORY,budgets:BUDGETS,dark:dark};
     var json=JSON.stringify(data);
     var encrypted=await qrsEncrypt(json,pin);
-
-    // Split into chunks
+    // Split into chunks of 900 chars
     var chunks=[];
-    for(var i=0;i<encrypted.length;i+=QRS_CHUNK) chunks.push(encrypted.slice(i,i+QRS_CHUNK));
+    for(var i=0;i<encrypted.length;i+=900) chunks.push(encrypted.slice(i,i+900));
     var N=chunks.length;
-    var qrStrings=chunks.map(function(ch,i){return'FLOW:'+(i+1)+'/'+N+':'+ch;});
-
-    var container=document.getElementById('qrCanvas');
-    container.innerHTML='';
-
-    if(_qrsAnimTimer){clearInterval(_qrsAnimTimer);_qrsAnimTimer=null;}
-
-    var cur=0;
-    function showChunk(idx){
-      container.innerHTML='';
-      try{
-        new QRCode(container,{text:qrStrings[idx],width:220,height:220,
-          colorDark:'#0a0a0a',colorLight:'#ffffff',
-          correctLevel:QRCode.CorrectLevel.L});
-      }catch(e){container.innerHTML='<div style="color:var(--deficit);font-size:11px">QR too large for single code</div>';}
-      document.getElementById('qrChunkInfo').textContent=
-        N===1?'Static QR — ready to scan':'QR '+( idx+1)+' of '+N+' — hold steady';
-      document.getElementById('qrsProgFill').style.width=((idx+1)/N*100)+'%';
-    }
-
-    showChunk(0);
-    if(N>1){
-      _qrsAnimTimer=setInterval(function(){
-        cur=(cur+1)%N; showChunk(cur);
-      },1300);
-    }
-    btn.textContent='Regenerate QR';
-  }catch(e){
-    alert('Failed: '+e.message);
-    btn.textContent='Generate QR';
-  }
-  btn.disabled=false;
+    _qrsAllChunks=chunks.map(function(ch,i){return'FLOW:'+(i+1)+'/'+N+':'+ch;});
+    _qrsCurChunk=0;
+    // Show nav if multiple chunks
+    var nav=document.getElementById('qrsNav');
+    if(nav) nav.style.display=N>1?'flex':'none';
+    qrsShowChunk(0);
+    document.getElementById('qrChunkInfo').textContent=
+      N===1?'✓ Single QR — scan and you are done':
+      N+' QR codes — scan each one, tap Next after each scan';
+  }catch(e){alert('Failed: '+e.message);}
+  btn.textContent='Regenerate'; btn.disabled=false;
 }
 
 // ── SCAN (RECEIVE) ───────────────────────────────────────
@@ -5069,7 +5085,11 @@ function _qrsProcessChunk(raw){
   if(!_qrsChunks[k]){
     _qrsChunks[k]=chunkData;
     var got=Object.keys(_qrsChunks).length;
-    document.getElementById('qrStatus').textContent='Part '+got+' of '+n+' received';
+    // Flash green feedback
+    var vw=document.querySelector('.qrs-scan-overlay');
+    if(vw){vw.style.borderColor='var(--surplus)';vw.style.opacity='1';
+      setTimeout(function(){if(vw){vw.style.borderColor='var(--surplus)';vw.style.opacity='.5';}},300);}
+    document.getElementById('qrStatus').textContent='✓ Part '+got+' of '+n+' captured'+(got<n?' — scan next QR':'');
     document.getElementById('qrsRecvProgFill').style.width=(got/n*100)+'%';
     if(got===n) _qrsAllDone(n);
   }
@@ -5226,6 +5246,12 @@ setTimeout(loadAllSchemes, 2000);
         <div style="font-size:11px;color:var(--faint)">Enter PIN and tap Generate</div>
       </div>
       <div class="qrs-chunk-info" id="qrChunkInfo"></div>
+      <!-- Manual prev/next nav -->
+      <div id="qrsNav" style="display:none;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px">
+        <button class="btn-ghost btn-sm" id="qrsPrevBtn" onclick="qrsNavChunk(-1)" style="flex:0 0 70px">&#x2190; Prev</button>
+        <span id="qrsNavLabel" style="font-size:11px;color:var(--muted);text-align:center;flex:1"></span>
+        <button class="btn-primary btn-sm" id="qrsNextBtn" onclick="qrsNavChunk(1)" style="flex:0 0 70px">Next &#x2192;</button>
+      </div>
       <div class="qrs-prog-track"><div class="qrs-prog-fill" id="qrsProgFill" style="width:0%"></div></div>
       <div class="form-field" style="margin-bottom:10px">
         <span class="form-label">Encryption PIN (share this with the other device)</span>
