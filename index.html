@@ -801,6 +801,37 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   .wn-entry{flex-direction:column;gap:4px}
   .wn-badge{align-self:flex-start}
 }
+
+/* ── Empty States ─────────────────────────────────────────── */
+.es{text-align:center;padding:32px 16px}
+.es-icon{font-size:20px;margin-bottom:8px;color:var(--faint);letter-spacing:-.5px}
+.es-title{font-size:12px;font-weight:500;color:var(--muted);margin-bottom:4px}
+.es-text{font-size:10.5px;color:var(--faint);margin-bottom:12px;line-height:1.5;max-width:260px;margin:0 auto 12px}
+.es-btn{background:var(--surface-alt);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:6px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;transition:border-color .12s}
+.es-btn:hover{border-color:var(--muted)}
+
+/* ── Heatmap ──────────────────────────────────────────────── */
+.hm-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:6px}
+.hm-cell{border-radius:var(--r);padding:7px 4px;text-align:center}
+.hm-0{background:var(--surface-alt);color:var(--faint)}
+.hm-1{background:#d1fae5;color:#065f46}
+.hm-2{background:#6ee7b7;color:#064e3b}
+.hm-3{background:#fde68a;color:#92400e}
+.hm-4{background:#fca5a5;color:#991b1b}
+[data-theme="dark"] .hm-1{background:#064e3b;color:#6ee7b7}
+[data-theme="dark"] .hm-2{background:#065f46;color:#a7f3d0}
+[data-theme="dark"] .hm-3{background:#451a03;color:#fbbf24}
+[data-theme="dark"] .hm-4{background:#450a0a;color:#fca5a5}
+.hm-month{display:block;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.hm-amt{display:block;font-size:9px;font-weight:500}
+@media(max-width:480px){.hm-grid{grid-template-columns:repeat(4,1fr)}}
+
+/* ── Category Autocomplete ────────────────────────────────── */
+#catDrop{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 4px 16px rgba(0,0,0,.18);z-index:300;max-height:180px;overflow-y:auto;min-width:140px}
+.cat-di{padding:7px 11px;font-size:11.5px;cursor:pointer;color:var(--text);font-family:'IBM Plex Mono',monospace;border-bottom:1px solid var(--border)}
+.cat-di:last-child{border-bottom:none}
+.cat-di:hover,.cat-di.hi{background:var(--surface-alt)}
+.cat-di.hi{color:var(--surplus)}
 </style>
 </head>
 <body>
@@ -1116,6 +1147,31 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="chart-card"><div class="chart-lbl">Expense Breakdown</div><div class="chart-wrap"><canvas id="pieChart"></canvas></div></div>
   </div>
 
+
+  <!-- ══ SPENDING HEATMAP ══════════════════════════════════ -->
+  <div class="card" style="margin-bottom:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:7px">
+        <span class="card-lbl" style="margin:0">Monthly Spending Heatmap</span>
+        <button class="info-btn" onclick="toggleInfo('tip-heatmap')" title="About Heatmap">i</button>
+      </div>
+      <button class="btn-ghost btn-sm" id="hmToggleBtn" onclick="toggleHeatmap()">Show &#x25be;</button>
+    </div>
+    <div class="info-tip" id="tip-heatmap"><div class="info-tip-hd">Monthly Spending Heatmap</div>Shows your expense intensity across all 12 months of the current year. Colour indicates how heavy your spending was relative to your peak month. Useful for spotting seasonal patterns.<button class="info-tip-close" onclick="toggleInfo('tip-heatmap')">&#215;</button></div>
+    <div id="hmBody" style="display:none;margin-top:12px">
+      <div style="font-size:10px;color:var(--faint);margin-bottom:10px">Expense intensity by month &mdash; current year.</div>
+      <div class="hm-grid" id="hmGrid"></div>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
+        <span style="font-size:9px;color:var(--faint)">Scale:</span>
+        <span style="display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--surface-alt)"></span><span style="font-size:9px;color:var(--faint)">None</span></span>
+        <span style="display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#d1fae5"></span><span style="font-size:9px;color:var(--faint)">Low</span></span>
+        <span style="display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#6ee7b7"></span><span style="font-size:9px;color:var(--faint)">Medium</span></span>
+        <span style="display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#fde68a"></span><span style="font-size:9px;color:var(--faint)">High</span></span>
+        <span style="display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#fca5a5"></span><span style="font-size:9px;color:var(--faint)">Peak</span></span>
+      </div>
+    </div>
+  </div>
+
   <!-- ══ BUDGET MANAGER ═════════════════════════════════════ -->
   <div class="card" style="margin-bottom:14px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0">
@@ -1307,7 +1363,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       </div>
     </div>
     <div id="loanSummaryBar" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px"></div>
-    <div id="loanList"><div class="empty-msg">No loans tracked yet.</div></div>
+    <div id="loanList"><div id='loanEmptyState'></div></div>
   </div>
 
   <!-- ══ SUBSCRIPTION TRACKER ═════════════════════════════ -->
@@ -1988,6 +2044,18 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 
   <div class="wn-version-block">
     <div class="wn-version-header">
+      <span class="wn-version-num">v1.8</span>
+      <span class="wn-version-date">May 2026</span>
+      <span class="wn-version-label wn-label-minor">Update</span>
+    </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Monthly Spending Heatmap</div><div class="wn-entry-desc">New collapsible section in the Track tab. Shows all 12 months of the current year colour-coded by expense intensity — None, Low, Medium, High, and Peak — relative to your heaviest spending month. Spot seasonal patterns at a glance.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Category Autocomplete</div><div class="wn-entry-desc">The Category field on every Track tab entry now shows a live dropdown as you type. Suggests from your existing categories across all months plus 25 pre-seeded common Indian categories. Arrow keys to navigate, Enter to select.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-impr">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">Auto-Relock After 3 Minutes</div><div class="wn-entry-desc">If a PIN is set and you switch away from the app or lock your screen, Flow automatically re-locks after 3 minutes in the background. Works on both Android and iOS.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-impr">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">Swipe to Delete on Mobile</div><div class="wn-entry-desc">Swipe any income or expense entry left to delete it. The row turns red as you drag — release past 80% to confirm delete, or release early to snap back. Vertical scrolling is unaffected.</div></div></div>
+  </div>
+
+  <div class="wn-version-block">
+    <div class="wn-version-header">
       <span class="wn-version-num">v1.7</span>
       <span class="wn-version-date">May 2026</span>
       <span class="wn-version-label wn-label-minor">Update</span>
@@ -2252,14 +2320,21 @@ function renderList(type){
     row.addEventListener('dragleave',onDragLeave);row.addEventListener('drop',onDrop);row.addEventListener('dragend',onDragEnd);
     row.innerHTML=`
       <span class="drag-hdl e-dh" title="Drag">⠿</span>
-      <input class="e-cat" type="text" value="${esc(item.cat)}" placeholder="Category" data-t="${type}" data-i="${i}" data-f="cat">
+      <input class="e-cat" type="text" value="${esc(item.cat)}" placeholder="Category" data-t="${type}" data-i="${i}" data-f="cat" autocomplete="off" onfocus="showCatDrop(this)" oninput="showCatDrop(this)" onkeydown="catDropKey(event)">
       <input class="e-desc" type="text" value="${esc(item.desc)}" placeholder="Description" data-t="${type}" data-i="${i}" data-f="desc">
       <input class="e-tag tag-inp" type="text" value="${esc(item.tag||'')}" placeholder="#tag" data-t="${type}" data-i="${i}" data-f="tag">
       <input class="e-amt amt ${type==='income'?'amt-inc':''}" type="number" value="${item.amt||''}" placeholder="0" data-t="${type}" data-i="${i}" data-f="amt">
       <button class="btn-del e-del" onclick="delRow('${type}',${i})">×</button>`;
+    addSwipeDel(row,type,i);
     list.appendChild(row);
   });
-  if(shown===0)list.innerHTML=`<div class="empty-msg">No ${type} entries yet</div>`;
+  if(shown===0)list.innerHTML=mkES(
+    type==='income'?'+ Income':'- Expense',
+    'No '+type+' entries yet',
+    'Tap the button below to record your first '+type+' entry for '+MONTHS[parseInt(selM())]+'.',
+    '+ Add '+type[0].toUpperCase()+type.slice(1),
+    "addRow('"+type+"')"
+  );
 }
 ['incList','expList'].forEach(id=>{document.getElementById(id).addEventListener('input',e=>{const inp=e.target;if(!inp.dataset.t)return;setField(inp.dataset.t,+inp.dataset.i,inp.dataset.f,inp.value)})});
 
@@ -2316,7 +2391,7 @@ function exportCSV(){
 // ══ CHARTS ═════════════════════════════════════════════════
 let barInst=null,pieInst=null,chartTimer=null;
 let budgetTimer=null;
-function scheduleCharts(){clearTimeout(chartTimer);chartTimer=setTimeout(updateCharts,220);clearTimeout(budgetTimer);budgetTimer=setTimeout(renderBudgetManager,300);}
+function scheduleCharts(){clearTimeout(chartTimer);chartTimer=setTimeout(updateCharts,220);clearTimeout(budgetTimer);budgetTimer=setTimeout(renderBudgetManager,300);clearTimeout(budgetTimer);budgetTimer=setTimeout(function(){renderBudgetManager();renderHeatmap();},300);}
 function chartColors(){return{text:dark?'#666':'#555',grid:dark?'#252525':'#ddd',income:dark?'rgba(74,222,128,.62)':'rgba(26,92,58,.52)',expense:dark?'rgba(248,113,113,.62)':'rgba(139,29,42,.52)',pie:dark?['rgba(248,113,113,.75)','rgba(251,191,36,.75)','rgba(167,139,250,.75)','rgba(96,165,250,.75)','rgba(52,211,153,.75)','rgba(251,146,60,.75)']:['rgba(139,29,42,.65)','rgba(160,110,20,.65)','rgba(90,80,140,.65)','rgba(40,75,140,.65)','rgba(25,95,65,.65)','rgba(140,70,25,.65)']}}
 function updateCharts(){
   const c=chartColors(),yr=selY();
@@ -3445,7 +3520,7 @@ function loanOutstanding(l){
 }
 function renderLoans(){
   const el=document.getElementById('loanList');if(!el)return;
-  if(!LOANS.length){el.innerHTML='<div class="empty-msg">No loans tracked yet.</div>';document.getElementById('loanSummaryBar').innerHTML='';return}
+  if(!LOANS.length){el.innerHTML=mkES('&#x2193;','No loans tracked','Track home loans, car loans, personal loans and see your outstanding balance at a glance.','+ Add Loan',"toggleForm('loanForm')");document.getElementById('loanSummaryBar').innerHTML='';return}
   let totalOutstanding=0,totalEMI=0;
   el.innerHTML=LOANS.map(l=>{
     const out=Math.max(0,loanOutstanding(l));
@@ -3566,7 +3641,7 @@ function settleSplitMember(splitId,memberId){
 function deleteSplit(id){if(!confirm('Delete this split?'))return;SPLITS=SPLITS.filter(s=>s.id!==id);saveSplits();renderSplits()}
 function renderSplits(){
   const el=document.getElementById('splitList');if(!el)return;
-  if(!SPLITS.length){el.innerHTML='<div class="empty-msg">No shared expenses tracked yet.</div>';return}
+  if(!SPLITS.length){el.innerHTML=mkES('&#x2194;','No shared expenses','Split bills with friends or family and track who has settled up.','+ Add Split',"toggleForm('splitForm')");return}
   const pending=SPLITS.flatMap(s=>s.members.filter(m=>!m.settled));
   el.innerHTML=SPLITS.map(s=>{
     const pendingAmt=s.members.filter(m=>!m.settled).reduce((t,m)=>t+m.amount,0);
@@ -4050,7 +4125,7 @@ function renderSubs(){
     <div class="card"><div class="card-lbl">Monthly Cost</div><div class="card-val">${fmt(monthly)}</div></div>
     <div class="card"><div class="card-lbl">Annual Cost</div><div class="card-val">${fmt(annual)}</div></div>
   `;}
-  if(!SUBS.length){el.innerHTML='<div class="empty-msg">No subscriptions tracked yet.</div>';return}
+  if(!SUBS.length){el.innerHTML=mkES('&#x2192;','No subscriptions yet','Add your streaming, SaaS, or any recurring subscriptions here.','+ Add Subscription',"toggleForm('subForm')");return}
   el.innerHTML=SUBS.map(s=>{
     const mAmt=s.cost*(mults[s.cycle]||1);
     const statCls=s.status==='Active'?'':'paused cancelled'.split(' ').find(x=>x===s.status.toLowerCase())||'';
@@ -4351,7 +4426,7 @@ function renderNotes(){
   const pinned=filtered.filter(n=>n.pinned);
   const unpinned=filtered.filter(n=>!n.pinned);
   const all=[...pinned,...unpinned];
-  if(!all.length){el.innerHTML=`<div class="empty-msg">${q?'No notes match your search.':'No notes yet. Click + New Note to create one.'}</div>`;return}
+  if(!all.length){el.innerHTML=mkES('&mdash;',q?'No matching notes':'No notes yet',q?'Try a different search term.':'Capture financial thoughts, reminders and observations here.',q?'':'+ New Note',q?'':"toggleForm('noteForm')");return}
   el.innerHTML=all.map(n=>`<div class="note-card${n.pinned?' pinned':''}" onclick="openNote('${n.id}')">
     <div class="note-title">${n.pinned?'📌 ':''}${esc(n.title)}</div>
     <div class="note-preview">${esc(n.content.substring(0,120))}</div>
@@ -4521,8 +4596,187 @@ function renderBudgetManager(){
   body.innerHTML=rr.length?rr.join(''):'<div class="empty-msg">No budgets set yet. Click + Set Budget to add a monthly limit per category.</div>';
 }
 
+
+// ══ EMPTY STATE HELPER ═══════════════════════════════════
+function mkES(icon,title,text,btnLbl,btnAct){
+  return '<div class="es"><div class="es-icon">'+icon+'</div>'
+    +'<div class="es-title">'+title+'</div>'
+    +'<div class="es-text">'+text+'</div>'
+    +(btnLbl?'<button class="es-btn" onclick="'+btnAct+'">'+btnLbl+'</button>':'')
+    +'</div>';
+}
+
+// ══ SWIPE TO DELETE ══════════════════════════════════════
+function addSwipeDel(el,type,idx){
+  var sx=0,sy=0,sw=false,mv=false;
+  el.addEventListener('touchstart',function(e){
+    sx=e.touches[0].clientX;sy=e.touches[0].clientY;sw=false;mv=false;
+  },{passive:true});
+  el.addEventListener('touchmove',function(e){
+    var dx=e.touches[0].clientX-sx,dy=e.touches[0].clientY-sy;
+    if(!mv&&Math.abs(dy)>Math.abs(dx)+5)return;
+    if(dx>=0)return;
+    mv=true;sw=true;
+    var t=Math.max(dx,-100);
+    el.style.transform='translateX('+t+'px)';
+    el.style.background='rgba(220,38,38,'+Math.min(.75,-dx/120)+')';
+    el.style.borderRadius='var(--r)';
+    el.style.color='#fff';
+  },{passive:true});
+  el.addEventListener('touchend',function(e){
+    if(!sw)return;
+    var dx=sx-e.changedTouches[0].clientX;
+    if(dx>80){
+      el.style.cssText+=';transition:transform .18s,opacity .18s;transform:translateX(-110%);opacity:0';
+      setTimeout(function(){delRow(type,idx);},180);
+    }else{
+      el.style.cssText+=';transition:transform .2s';
+      el.style.transform='translateX(0)';
+      el.style.background='';
+      el.style.color='';
+      setTimeout(function(){el.style.transition='';},200);
+    }
+    sw=false;mv=false;
+  },{passive:true});
+}
+
+// ══ AUTO-RELOCK AFTER 3 MINUTES ══════════════════════════
+var RELOCK_MS=3*60*1000;
+var _bgTime=null;
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden){
+    _bgTime=Date.now();
+    try{localStorage.setItem('flow_bg_t',String(_bgTime));}catch(e){}
+  }else{
+    var stored=parseInt(localStorage.getItem('flow_bg_t')||'0');
+    var elapsed=Date.now()-(stored||_bgTime||0);
+    if(elapsed>RELOCK_MS&&localStorage.getItem('flow_pin')){
+      var ls=document.getElementById('lockScreen');
+      if(ls&&ls.classList.contains('hidden')){
+        ls.classList.remove('hidden');
+        pinEntry='';
+        document.querySelectorAll('.pin-dot').forEach(function(d){d.classList.remove('filled');});
+        var pe=document.getElementById('pinError');if(pe)pe.textContent='';
+      }
+    }
+    _bgTime=null;
+    try{localStorage.removeItem('flow_bg_t');}catch(e){}
+  }
+});
+// iOS pagehide/pageshow supplement
+window.addEventListener('pagehide',function(){
+  try{localStorage.setItem('flow_bg_t',String(Date.now()));}catch(e){}
+});
+window.addEventListener('pageshow',function(){
+  var stored=parseInt(localStorage.getItem('flow_bg_t')||'0');
+  if(stored&&Date.now()-stored>RELOCK_MS&&localStorage.getItem('flow_pin')){
+    var ls=document.getElementById('lockScreen');
+    if(ls&&ls.classList.contains('hidden')){
+      ls.classList.remove('hidden');
+      pinEntry='';
+      document.querySelectorAll('.pin-dot').forEach(function(d){d.classList.remove('filled');});
+    }
+  }
+  try{localStorage.removeItem('flow_bg_t');}catch(e){}
+});
+
+// ══ CATEGORY AUTOCOMPLETE ════════════════════════════════
+var _commonCats=['Food','Rent','Salary','Transport','Utilities','Dining',
+  'Healthcare','Entertainment','Shopping','Education','Investment','EMI',
+  'Insurance','Groceries','Fuel','Electricity','Mobile Recharge','WIFI',
+  'Clothing','Gym','Maid','Milk & Water','Provisions','Maintenance'];
+var _catDropIdx=-1;
+var _catDropTgt=null;
+
+function _getCats(q){
+  var cats=new Set(_commonCats);
+  Object.values(DB).forEach(function(m){
+    [(m.income||[]),(m.expense||[])].forEach(function(arr){
+      arr.forEach(function(e){if(e.cat&&e.cat.trim())cats.add(e.cat.trim());});
+    });
+  });
+  var lq=(q||'').toLowerCase().trim();
+  return Array.from(cats).filter(function(c){return!lq||c.toLowerCase().includes(lq);}).sort().slice(0,10);
+}
+
+function showCatDrop(inp){
+  _catDropTgt=inp;
+  var suggs=_getCats(inp.value);
+  var drop=document.getElementById('catDrop');
+  if(!drop||!suggs.length){hideCatDrop();return;}
+  drop.innerHTML=suggs.map(function(s){
+    return'<div class="cat-di" data-val="'+esc(s)+'" onmousedown="pickCat(\''+esc(s)+'\')" ontouchend="pickCat(\''+esc(s)+'\')" >'+esc(s)+'</div>';
+  }).join('');
+  _catDropIdx=-1;
+  var r=inp.getBoundingClientRect();
+  drop.style.cssText='display:block;left:'+r.left+'px;top:'+(r.bottom+2)+'px;width:'+Math.max(150,r.width)+'px';
+}
+
+function hideCatDrop(){
+  var d=document.getElementById('catDrop');
+  if(d)d.style.display='none';
+  _catDropTgt=null;_catDropIdx=-1;
+}
+
+function pickCat(val){
+  if(_catDropTgt){
+    _catDropTgt.value=val;
+    var t=_catDropTgt.dataset.t,idx=parseInt(_catDropTgt.dataset.i);
+    setField(t,idx,'cat',val);
+  }
+  hideCatDrop();
+}
+
+function catDropKey(e){
+  var drop=document.getElementById('catDrop');
+  if(!drop||drop.style.display==='none')return;
+  var items=drop.querySelectorAll('.cat-di');
+  if(e.key==='ArrowDown'){e.preventDefault();_catDropIdx=Math.min(_catDropIdx+1,items.length-1);}
+  else if(e.key==='ArrowUp'){e.preventDefault();_catDropIdx=Math.max(_catDropIdx-1,-1);}
+  else if(e.key==='Enter'&&_catDropIdx>=0){e.preventDefault();pickCat(items[_catDropIdx].dataset.val);return;}
+  else if(e.key==='Escape'){hideCatDrop();return;}
+  items.forEach(function(item,i){item.classList.toggle('hi',i===_catDropIdx);});
+  if(_catDropIdx>=0)items[_catDropIdx].scrollIntoView({block:'nearest'});
+}
+
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.e-cat')&&!e.target.closest('#catDrop'))hideCatDrop();
+});
+
+// ══ SPENDING HEATMAP ══════════════════════════════════════
+var _hmOpen=false;
+
+function toggleHeatmap(){
+  _hmOpen=!_hmOpen;
+  var body=document.getElementById('hmBody');
+  var btn=document.getElementById('hmToggleBtn');
+  if(body)body.style.display=_hmOpen?'block':'none';
+  if(btn)btn.textContent=_hmOpen?'Hide ▴':'Show ▾';
+  if(_hmOpen)renderHeatmap();
+}
+
+function renderHeatmap(){
+  var el=document.getElementById('hmGrid');
+  if(!el||!_hmOpen)return;
+  var year=new Date().getFullYear().toString();
+  var totals=MONTHS.map(function(m,i){
+    var k=i+'_'+year;
+    if(!DB[k])return 0;
+    return (DB[k].expense||[]).reduce(function(s,x){return s+(parseFloat(x.amt)||0);},0);
+  });
+  var max=Math.max.apply(null,totals.concat([1]));
+  el.innerHTML=totals.map(function(total,i){
+    var pct=total/max;
+    var lvl=total===0?0:pct<0.25?1:pct<0.5?2:pct<0.75?3:4;
+    return'<div class="hm-cell hm-'+lvl+'" title="'+MONTHS[i]+': '+fmt(total)+'">'
+      +'<span class="hm-month">'+MONTHS[i].substring(0,3)+'</span>'
+      +'<span class="hm-amt">'+(total>0?fmt(total):'&mdash;')+'</span>'
+      +'</div>';
+  }).join('');
+}
+
 // ══ INIT ═══════════════════════════════════════════════════
-function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();}
+function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();renderHeatmap();}
 applyDark();render();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();
 
 // Pre-load MF schemes silently in background after 2s
@@ -4592,5 +4846,6 @@ setTimeout(loadAllSchemes, 2000);
     </div>
   </div>
 </div>
+<div id="catDrop" style="display:none"></div>
 </body>
 </html>
