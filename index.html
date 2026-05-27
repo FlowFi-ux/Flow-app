@@ -597,7 +597,11 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .split-settled-lbl{text-decoration:line-through;color:var(--faint)}
 .btn-settle{font-size:10px;padding:3px 9px;background:var(--surplus-bg);color:var(--surplus);border:1px solid var(--surplus);border-radius:12px;cursor:pointer;font-family:'IBM Plex Mono',monospace}
 .split-form-members{display:flex;flex-direction:column;gap:6px;margin:10px 0}
-.split-member-inp{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;align-items:center}
+.split-member-inp{display:grid;grid-template-columns:1.2fr 1fr 1.5fr auto;gap:6px;align-items:center}
+.split-phone{font-size:11px!important;color:var(--muted)}
+.btn-notify{font-size:10px;padding:3px 9px;background:var(--surface-alt);color:var(--muted);border:1px solid var(--border);border-radius:12px;cursor:pointer;font-family:'IBM Plex Mono',monospace;white-space:nowrap;line-height:1.4}
+.btn-notify:hover{border-color:var(--text);color:var(--text)}
+.btn-notify.has-phone{background:rgba(74,222,128,.12);color:var(--surplus);border-color:var(--surplus)}
 
 /* ══ MF SIP ═════════════════════════════════════════════════ */
 .sip-badge{font-size:9px;padding:2px 7px;border-radius:10px;background:#e6edf8;color:#2a5080;border:1px solid #b8d0e8;white-space:nowrap;display:inline-block;margin-top:3px}
@@ -636,7 +640,8 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 @media(max-width:640px){
   #loanForm>div:first-of-type{grid-template-columns:1fr 1fr !important}
   .loan-stats{grid-template-columns:1fr 1fr !important}
-  .split-member-inp{grid-template-columns:1fr 1fr auto !important}
+  .split-member-inp{grid-template-columns:1fr 1fr auto !important;grid-template-rows:auto auto}
+  .split-member-inp .split-phone{grid-column:1/3;grid-row:2;margin-top:-2px}
   .debt-order-card{grid-template-columns:20px 1fr auto !important}
   .efund-form-grid{grid-template-columns:1fr 1fr !important}
   .report-grid{grid-template-columns:1fr !important}
@@ -1589,9 +1594,23 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       </div>
       <button class="btn-ghost btn-sm" onclick="toggleForm('splitForm')">+ Add Split</button>
     </div>
-    <div class="info-tip" id="tip-split"><div class="info-tip-hd">Bill Split Tracker</div>Track shared expenses with friends or family. Add the total amount, who paid, and split it among people. Mark each person as settled once they've paid you back.<button class="info-tip-close" onclick="toggleInfo('tip-split')">×</button></div>
+    <div class="info-tip" id="tip-split"><div class="info-tip-hd">Bill Split Tracker</div>Track shared expenses with friends or family. Add the total, who paid, and split among people. Mark each person settled once they pay back.
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+        <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:5px">💬 Notify via WhatsApp / SMS</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7">Add a <strong style="color:var(--text)">WhatsApp number</strong> for each person when creating the split. Each unsettled person gets a <strong style="color:var(--text)">🔔 Notify</strong> button — tapping it opens WhatsApp with a pre-written message showing their name, amount, and a UPI pay link. No manual typing needed.</div>
+        <div style="margin-top:8px;background:var(--surface-alt);border-radius:var(--r);padding:10px 12px;font-size:10.5px;line-height:1.9;color:var(--muted)">
+          <strong style="color:var(--text);display:block;margin-bottom:4px">Example — Rahul splits a dinner</strong>
+          Rahul paid <strong>&#8377;3,600</strong>. He creates a split, enters <code style="background:var(--surface);padding:1px 5px;border-radius:3px;font-size:10px">rahul@okhdfc</code> as UPI ID, adds Priya (&#8377;1,200, 9876543210), Ankit (&#8377;1,200), Neha (&#8377;1,200).<br>
+          <br>Rahul taps <strong>&#x1F4AC; Notify</strong> next to Priya &rarr; WhatsApp opens with:<br>
+          <span style="display:block;margin:5px 0 5px 8px;padding:8px;background:var(--surface);border-radius:6px;font-size:10px;color:var(--text);line-height:1.7"><em>"Hi Priya! &#x1F44B; Rahul added a bill split.<br>&#x1F4CB; Dinner &nbsp;&#x1F4C5; 28 May 2026<br>&#x1F4B0; Your share: &#8377;1,200<br>Tap to pay: upi://pay?pa=rahul@okhdfc..."</em></span>
+          Priya receives the WhatsApp, taps the UPI link &rarr; GPay opens pre-filled &rarr; she pays. Done.<br>
+          <span style="color:var(--faint);font-size:10px">No number? Tapping Notify opens the native share sheet so you can send via any app.</span>
+        </div>
+        <div style="margin-top:7px;font-size:10px;color:var(--faint)">No API, no server. WhatsApp opens on your device — Rahul sends the message, not Flow.</div>
+      </div>
+    <button class="info-tip-close" onclick="toggleInfo('tip-split')">&#215;</button></div>
     <div class="hold-form" id="splitForm" style="display:none;margin-bottom:14px">
-      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:12px">Add Shared Expense</div>
+      <div id="splitFormTitle" style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:12px">Add Shared Expense</div>
       <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
         <div class="form-field"><span class="form-label">Title</span><input type="text" id="spTitle" placeholder="e.g. Dinner, Trip"></div>
         <div class="form-field"><span class="form-label">Total Amount (₹)</span><input type="number" id="spTotal" placeholder="0" oninput="autoSplitAmount()"></div>
@@ -1602,12 +1621,12 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         <span class="form-label">Your UPI ID <span style="color:var(--faint);font-weight:400">(optional — enables Pay via UPI for others)</span></span>
         <input type="text" id="spPayeeUPI" placeholder="yourname@upi  or  yourname@okaxis" style="font-size:11.5px">
       </div>
-      <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:6px;font-weight:500">Split Among (add names)</div>
+      <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:6px;font-weight:500">Split Among — <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--faint)">Name · Amount · WhatsApp No. (optional)</span></div>
       <div id="splitMemberInputs" class="split-form-members"></div>
       <div style="display:flex;gap:8px;margin-top:10px">
         <button class="btn-ghost btn-sm" onclick="addSplitMember()">+ Add Person</button>
-        <button class="btn-primary btn-sm" onclick="saveSplit()">Save Split</button>
-        <button class="btn-ghost btn-sm" onclick="toggleForm('splitForm')">Cancel</button>
+        <button class="btn-primary btn-sm" onclick="saveSplit()">Save</button>
+        <button class="btn-ghost btn-sm" onclick="editingSplitId=null;document.getElementById('splitFormTitle').textContent='Add Shared Expense';toggleForm('splitForm')">Cancel</button>
       </div>
     </div>
     <div id="splitList"></div>
@@ -2347,6 +2366,17 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 
   <div class="wn-version-block">
     <div class="wn-version-header">
+      <span class="wn-version-num">v2.0</span>
+      <span class="wn-version-date">May 2026</span>
+      <span class="wn-version-label wn-label-new">New</span>
+    </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">📄 FlowSnap PDF Export</div><div class="wn-entry-desc">Export your full monthly FlowSnap as a clean, print-ready PDF. Covers savings grade and rate, income &amp; expense breakdown with top categories, complete portfolio (mutual funds per-fund P&amp;L with XIRR, holdings, fixed deposits with maturity values, savings goals progress), bills this month with paid/overdue status, active subscriptions, and loan outstanding balances. Available via the Export PDF button in Planner → FlowSnap, active only during the 15th–30th window. File saves as <em>FlowSnap_Month_Year.pdf</em>.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🔗 Goal-SIP Linking</div><div class="wn-entry-desc">Link any savings goal directly to a mutual fund SIP to track which fund is funding it. The goal card shows the linked fund name, monthly SIP amount, SIP date, and a calculated estimate of months to reach the goal at 12% p.a. Use the "Link a SIP" button on any goal card, or select the SIP when creating a new goal. Settled status is preserved if you edit. Unlink anytime with a single tap. Only funds with an active SIP set up will appear in the selector.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">💸 Bill Split — UPI Deep-link &amp; WhatsApp Notify</div><div class="wn-entry-desc">Two major upgrades to Bill Split. (1) <strong>UPI Pay:</strong> Enter your UPI ID when creating a split — each unsettled person gets a 💸 Pay button that opens GPay, PhonePe, Paytm, or BHIM with the exact amount and your name pre-filled. No API needed — works entirely on-device via the standard NPCI UPI deep-link protocol. (2) <strong>WhatsApp Notify:</strong> Add each person's WhatsApp number in the split form. Tapping 🔔 Notify on their row opens WhatsApp with a pre-written message showing the bill title, their share amount, date, and a UPI pay link — one tap for them to pay. No number? Notify uses the Web Share sheet to send via any app. Also added: Edit button on every split card to modify any entry without deleting and re-creating it.</div></div></div>
+  </div>
+
+  <div class="wn-version-block">
+    <div class="wn-version-header">
       <span class="wn-version-num">v1.9</span>
       <span class="wn-version-date">May 2026</span>
       <span class="wn-version-label wn-label-new">New</span>
@@ -2498,6 +2528,7 @@ let BUDGETS= JSON.parse(localStorage.getItem('flow_budgets')||'{}');
 let incFilter='', expFilter='';
 let dragSrcIdx=null, dragSrcType=null;
 let mfSelectedCode=null, mfSelectedName='';
+let editingSplitId=null;
 let sipMode='regular';
 let mfSearchTimer=null;
 let allMFSchemes=null;
@@ -3957,18 +3988,18 @@ function addSplitMember(){
   splitMemberCount++;
   const c=document.getElementById('splitMemberInputs');
   const d=document.createElement('div');d.className='split-member-inp';d.id='smi_'+splitMemberCount;
-  d.innerHTML=`<input type="text" placeholder="Person name" id="smName_${splitMemberCount}"><input type="number" placeholder="Amount (&#8377;)" id="smAmt_${splitMemberCount}"><button class="btn-del" onclick="this.parentElement.remove()">×</button>`;
+  d.innerHTML=`<input type="text" placeholder="Name" id="smName_${splitMemberCount}"><input type="number" placeholder="Amount (₹)" id="smAmt_${splitMemberCount}"><input type="tel" class="split-phone" placeholder="📱 WhatsApp no." id="smPhone_${splitMemberCount}"><button class="btn-del" onclick="this.parentElement.remove()">×</button>`;
   c.appendChild(d);
 }
 function autoSplitAmount(){
   const total=parseFloat(document.getElementById('spTotal').value)||0;
-  // no auto-split, just informational
+  // informational only
 }
 function initSplitMembers(){
   const el=document.getElementById('splitMemberInputs');el.innerHTML='';splitMemberCount=2;
   for(let i=1;i<=2;i++){
     const d=document.createElement('div');d.className='split-member-inp';
-    d.innerHTML=`<input type="text" placeholder="Person ${i} name" id="smName_${i}"><input type="number" placeholder="Amount (&#8377;)" id="smAmt_${i}"><button class="btn-del" onclick="this.parentElement.remove()">×</button>`;
+    d.innerHTML=`<input type="text" placeholder="Person ${i} name" id="smName_${i}"><input type="number" placeholder="Amount (₹)" id="smAmt_${i}"><input type="tel" class="split-phone" placeholder="📱 WhatsApp no." id="smPhone_${i}"><button class="btn-del" onclick="this.parentElement.remove()">×</button>`;
     el.appendChild(d);
   }
 }
@@ -3983,15 +4014,80 @@ function saveSplit(){
   document.querySelectorAll('.split-member-inp').forEach(row=>{
     const name=row.querySelector('input[type="text"]').value.trim();
     const amt=parseFloat(row.querySelector('input[type="number"]').value)||0;
-    if(name)members.push({id:uid(),name,amount:amt,settled:false});
+    const phone=(row.querySelector('.split-phone')?.value||'').trim().replace(/\D/g,'');
+    if(name)members.push({id:uid(),name,amount:amt,phone,settled:false});
   });
   if(!members.length){alert('Add at least one person.');return}
-  SPLITS.push({id:uid(),title,total,date,paidBy,payeeUPI,members});
+
+  if(editingSplitId){
+    const sp=SPLITS.find(s=>s.id===editingSplitId);
+    if(sp){
+      const settledMap={};sp.members.forEach(m=>{settledMap[m.name.toLowerCase()]=m.settled;});
+      members.forEach(m=>{const k=m.name.toLowerCase();if(settledMap[k]!==undefined)m.settled=settledMap[k];});
+      sp.title=title;sp.total=total;sp.date=date;sp.paidBy=paidBy;sp.payeeUPI=payeeUPI;sp.members=members;
+    }
+    editingSplitId=null;
+    document.getElementById('splitFormTitle').textContent='Add Shared Expense';
+  } else {
+    SPLITS.push({id:uid(),title,total,date,paidBy,payeeUPI,members});
+  }
+
   saveSplits();
   ['spTitle','spTotal','spDate','spPaidBy','spPayeeUPI'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('splitForm').style.display='none';
   initSplitMembers();
   renderSplits();
+}
+function editSplit(id){
+  const sp=SPLITS.find(s=>s.id===id);if(!sp)return;
+  editingSplitId=id;
+  document.getElementById('spTitle').value=sp.title||'';
+  document.getElementById('spTotal').value=sp.total||'';
+  document.getElementById('spDate').value=sp.date||'';
+  document.getElementById('spPaidBy').value=sp.paidBy||'';
+  document.getElementById('spPayeeUPI').value=sp.payeeUPI||'';
+  const c=document.getElementById('splitMemberInputs');c.innerHTML='';splitMemberCount=0;
+  sp.members.forEach((m,i)=>{
+    splitMemberCount++;
+    const d=document.createElement('div');d.className='split-member-inp';
+    d.innerHTML=`<input type="text" placeholder="Name" value="${esc(m.name)}" id="smName_${splitMemberCount}"><input type="number" placeholder="Amount (₹)" value="${m.amount||''}" id="smAmt_${splitMemberCount}"><input type="tel" class="split-phone" placeholder="📱 WhatsApp no." value="${m.phone||''}" id="smPhone_${splitMemberCount}"><button class="btn-del" onclick="this.parentElement.remove()">×</button>`;
+    c.appendChild(d);
+  });
+  document.getElementById('splitFormTitle').textContent='Edit Shared Expense';
+  const form=document.getElementById('splitForm');
+  form.style.display='block';
+  form.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function notifyMember(splitId,memberId){
+  const sp=SPLITS.find(s=>s.id===splitId);
+  const m=sp?.members.find(x=>x.id===memberId);
+  if(!sp||!m)return;
+
+  const upiLink=sp.payeeUPI
+    ?`upi://pay?pa=${encodeURIComponent(sp.payeeUPI)}&pn=${encodeURIComponent(sp.paidBy||'')}&am=${m.amount}&cu=INR&tn=${encodeURIComponent('Split: '+sp.title)}`
+    :'';
+  const dateStr=sp.date?new Date(sp.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'';
+  const amtStr=m.amount.toLocaleString('en-IN');
+
+  const msg=`Hi ${m.name}! 👋\n\n${sp.paidBy||'Someone'} added a bill split.\n\n📋 ${sp.title}${dateStr?'\n📅 '+dateStr:''}\n💰 Your share: ₹${amtStr}${upiLink?'\n\nTap to pay instantly:\n'+upiLink:''}\n\n— Sent via Flow`;
+
+  // WhatsApp if phone number available
+  if(m.phone&&m.phone.length>=10){
+    const phone=m.phone.startsWith('91')?m.phone:'91'+m.phone;
+    window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');
+    return;
+  }
+  // Web Share API (opens native share sheet — WhatsApp, Telegram, SMS, etc.)
+  if(navigator.share){
+    navigator.share({title:'Bill Split — '+sp.title,text:msg}).catch(()=>{});
+    return;
+  }
+  // Fallback — copy to clipboard
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(msg).then(()=>showToast('Copied! 📋','Paste this in WhatsApp or SMS to notify '+m.name)).catch(()=>prompt('Copy and send this:',msg));
+  } else {
+    prompt('Copy and send this:',msg);
+  }
 }
 function settleSplitMember(splitId,memberId){
   const sp=SPLITS.find(s=>s.id===splitId);if(!sp)return;
@@ -4002,23 +4098,27 @@ function deleteSplit(id){if(!confirm('Delete this split?'))return;SPLITS=SPLITS.
 function renderSplits(){
   const el=document.getElementById('splitList');if(!el)return;
   if(!SPLITS.length){el.innerHTML=mkES('&#x2194;','No shared expenses','Split bills with friends or family and track who has settled up.','+ Add Split',"toggleForm('splitForm')");return}
-  const pending=SPLITS.flatMap(s=>s.members.filter(m=>!m.settled));
   el.innerHTML=SPLITS.map(s=>{
     const pendingAmt=s.members.filter(m=>!m.settled).reduce((t,m)=>t+m.amount,0);
     return`<div class="split-card">
       <div class="split-hdr">
-        <div><div class="split-title">${esc(s.title)}</div><div style="font-size:10px;color:var(--faint)">${s.date||''} &nbsp;·&nbsp; Paid by ${esc(s.paidBy||'—')} &nbsp;·&nbsp; Total ${fmt(s.total)}</div></div>
+        <div>
+          <div class="split-title">${esc(s.title)}</div>
+          <div style="font-size:10px;color:var(--faint)">${s.date||''} &nbsp;·&nbsp; Paid by ${esc(s.paidBy||'—')} &nbsp;·&nbsp; Total ${fmt(s.total)}${s.payeeUPI?` &nbsp;·&nbsp; <span style="color:var(--surplus)">UPI set</span>`:''}</div>
+        </div>
         <div style="display:flex;gap:6px;align-items:center">
           ${pendingAmt>0?`<span class="bill-tag" style="color:var(--amber)">Due: ${fmt(pendingAmt)}</span>`:'<span class="bill-tag" style="color:var(--surplus)">Settled</span>'}
-          <button class="btn-del" onclick="deleteSplit('${s.id}')">×</button>
+          <button class="btn-ghost btn-sm" style="padding:3px 9px;font-size:11px" onclick="editSplit('${s.id}')" title="Edit split">&#x270E; Edit</button>
+          <button class="btn-del" onclick="deleteSplit('${s.id}')">x</button>
         </div>
       </div>
       ${s.members.map(m=>`<div class="split-member">
-        <span class="${m.settled?'split-settled-lbl':''}">${esc(m.name)}</span>
-        <div style="display:flex;align-items:center;gap:8px">
+        <span class="${m.settled?'split-settled-lbl':''}">${esc(m.name)}${m.phone?`<span style="font-size:9.5px;color:var(--faint);margin-left:5px" title="${m.phone}">&#x1F4F1;</span>`:''}</span>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end">
           <span style="font-weight:500">${fmt(m.amount)}</span>
-          ${!m.settled&&s.payeeUPI?`<button class="btn-upi" onclick="openUPIPay('${esc(s.payeeUPI)}','${esc(s.paidBy||'')}',${m.amount},'${esc(s.title)}','${esc(m.name)}')" title="Open in UPI app">💸 Pay</button>`:''}
-          ${!m.settled?`<button class="btn-settle" onclick="settleSplitMember('${s.id}','${m.id}')">Mark Settled</button>`:'<span style="font-size:10px;color:var(--surplus)">✓ Settled</span>'}
+          ${!m.settled?`<button class="btn-notify${m.phone?' has-phone':''}" onclick="notifyMember('${s.id}','${m.id}')" title="${m.phone?'WhatsApp '+m.name:'Share with '+m.name}">${m.phone?'&#x1F4AC;':'&#x1F514;'} Notify</button>`:''}
+          ${!m.settled&&s.payeeUPI?`<button class="btn-upi" onclick="openUPIPay('${esc(s.payeeUPI)}','${esc(s.paidBy||'')}',${m.amount},'${esc(s.title)}','${esc(m.name)}')" title="Open in UPI app">&#x1F4B8; Pay</button>`:''}
+          ${!m.settled?`<button class="btn-settle" onclick="settleSplitMember('${s.id}','${m.id}')">Mark Settled</button>`:'<span style="font-size:10px;color:var(--surplus)">&#x2713; Settled</span>'}
         </div>
       </div>`).join('')}
     </div>`;

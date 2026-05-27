@@ -12,7 +12,7 @@
  * ─────────────────────────────────────────────────────────
  */
 
-const CACHE_VERSION = 'flow-v16';          // ← BUMP ON EVERY DEPLOY
+const CACHE_VERSION = 'flow-v17';          // ← BUMP ON EVERY DEPLOY
 const CACHE_NAME    = `flow-${CACHE_VERSION}`;
 
 // Files to cache for full offline support
