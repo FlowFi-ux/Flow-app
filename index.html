@@ -838,6 +838,207 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .eye-btn:hover{color:var(--text);border-color:var(--border)}
 .eye-btn.hidden-on{color:var(--deficit);border-color:var(--deficit-bg)}
 .card-val-masked{letter-spacing:3px;color:var(--faint)!important;font-size:13px!important}
+
+/* ── FEATURE BANNERS ───────────────────────────────────────── */
+/* Recap banner (fixed top, slides in) — vibrant gradient */
+#recapBanner{position:fixed;top:0;left:0;right:0;z-index:9990;transform:translateY(-110%);transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+#recapBanner.show{transform:translateY(0)}
+.rb-inner{background:linear-gradient(135deg,#1a3a5c 0%,#0e7490 48%,#065f46 100%);padding:11px 16px;display:flex;align-items:center;gap:11px;box-shadow:0 5px 24px rgba(0,100,140,.38)}
+.rb-icon{font-size:19px;flex-shrink:0;filter:drop-shadow(0 0 6px rgba(74,222,128,.5))}
+.rb-text{flex:1;min-width:0}
+.rb-title{font-size:12.5px;font-weight:600;color:#ffffff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 4px rgba(0,0,0,.3)}
+.rb-sub{font-size:10.5px;color:rgba(255,255,255,.72);margin-top:1px}
+.rb-view{background:#4ade80;color:#0c2218;border:none;padding:7px 14px;border-radius:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;letter-spacing:.2px;box-shadow:0 2px 8px rgba(74,222,128,.4)}
+.rb-view:hover{background:#86efac;box-shadow:0 3px 12px rgba(74,222,128,.55)}
+.rb-close{background:none;border:none;color:rgba(255,255,255,.5);font-size:17px;cursor:pointer;padding:2px 5px;line-height:1;flex-shrink:0}
+.rb-close:hover{color:#ffffff}
+
+/* Wrapped banner (inline in Track tab) */
+.wrapped-banner{display:none;background:#0c2218;border-radius:8px;padding:14px 16px;margin-bottom:14px;align-items:center;gap:12px}
+.wrapped-banner.show{display:flex}
+[data-theme="dark"] .wrapped-banner{background:#0d2e1a}
+.wb-icon{font-size:24px;flex-shrink:0}
+.wb-body{flex:1}
+.wb-title{font-size:13px;font-weight:600;color:#d4f0e4;margin-bottom:2px}
+.wb-sub{font-size:11px;color:#7ab08f;line-height:1.4}
+.wb-btn{background:#4ade80;color:#0c2218;border:none;padding:8px 16px;border-radius:6px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;letter-spacing:.2px}
+.wb-btn:hover{background:#86efac}
+.wb-x{background:none;border:none;color:#5a8a6a;font-size:18px;cursor:pointer;padding:2px 5px;line-height:1;flex-shrink:0}
+.wb-x:hover{color:#d4f0e4}
+
+/* ── ANNUAL WRAPPED OVERLAY ───────────────────────────────── */
+.wrapped-overlay{position:fixed;inset:0;background:var(--bg);z-index:600;display:flex;flex-direction:column;overflow-y:auto}
+.wrapped-overlay.hidden{display:none}
+.wo-hero{background:linear-gradient(160deg,#071510 0%,#0d2e1a 50%,#0a2416 100%);padding:36px 20px 28px;text-align:center;flex-shrink:0;position:relative}
+.wo-badge{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#5a9e72;margin-bottom:8px;font-weight:500}
+.wo-year{font-size:48px;font-weight:600;color:#d4f0e4;letter-spacing:-3px;line-height:1;margin-bottom:4px}
+.wo-tagline{font-size:13px;color:#7ab08f;margin-bottom:0}
+.wo-close-top{position:absolute;top:14px;right:16px;background:none;border:1px solid #2a5a3a;color:#5a9e72;padding:6px 12px;border-radius:20px;font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer}
+.wo-close-top:hover{border-color:#4ade80;color:#4ade80}
+.wo-body{padding:20px 16px 48px;max-width:700px;margin:0 auto;width:100%}
+.wo-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.wo-stat{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 12px;text-align:center}
+.wo-stat-lbl{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;font-weight:500}
+.wo-stat-val{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.3px}
+.wo-stat-note{font-size:9.5px;color:var(--faint);margin-top:3px}
+.wo-section-hd{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:500;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.wo-section{margin-bottom:22px}
+.wo-highlight{background:linear-gradient(135deg,#0c2218,#163b26);border-radius:10px;padding:18px 16px;margin-bottom:20px}
+.wo-hl-lbl{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#5a9e72;margin-bottom:4px;font-weight:500}
+.wo-hl-val{font-size:26px;font-weight:600;color:#d4f0e4;letter-spacing:-1px;margin-bottom:2px}
+.wo-hl-desc{font-size:11px;color:#7ab08f}
+.wo-month-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
+.wo-month-row:last-child{border-bottom:none}
+.wo-m-name{font-size:10.5px;color:var(--muted);width:34px;flex-shrink:0}
+.wo-bar-track{flex:1;height:5px;background:var(--surface-alt);border-radius:3px;overflow:hidden}
+.wo-bar-fill{height:100%;border-radius:3px;transition:width .6s ease .2s}
+.wo-m-amt{font-size:11px;font-weight:500;text-align:right;min-width:68px;flex-shrink:0}
+.wo-cat-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.wo-cat-row:last-child{border-bottom:none}
+.wo-cat-name{font-size:12px;color:var(--text)}
+.wo-cat-pct{font-size:11px;color:var(--muted);margin-right:8px}
+.wo-cat-amt{font-size:12px;font-weight:500}
+.wo-best-worst{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.wo-bw-card{border-radius:8px;padding:14px 12px}
+.wo-bw-card.best{background:var(--surplus-bg);border:1px solid var(--surplus)}
+.wo-bw-card.worst{background:var(--deficit-bg);border:1px solid var(--deficit)}
+.wo-bw-lbl{font-size:9px;text-transform:uppercase;letter-spacing:1px;font-weight:500;margin-bottom:4px}
+.wo-bw-card.best .wo-bw-lbl{color:var(--surplus)}
+.wo-bw-card.worst .wo-bw-lbl{color:var(--deficit)}
+.wo-bw-month{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px}
+.wo-bw-val{font-size:12px}
+.wo-bw-card.best .wo-bw-val{color:var(--surplus)}
+.wo-bw-card.worst .wo-bw-val{color:var(--deficit)}
+@media(max-width:480px){.wo-stat-row{grid-template-columns:1fr 1fr}.wo-year{font-size:36px}.wo-best-worst{grid-template-columns:1fr}}
+
+/* ── FLOW RECAP (Planner sub-tab) ─────────────────────────── */
+.recap-hero{background:linear-gradient(145deg,#0c1a2e,#192840);border-radius:10px;padding:28px 18px 22px;margin-bottom:16px;color:#d6e8f8;text-align:center;position:relative;overflow:hidden}
+.recap-hero::before{content:'';position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:180px;height:180px;background:radial-gradient(circle,rgba(100,180,255,.06) 0%,transparent 65%);border-radius:50%;pointer-events:none}
+.recap-hero-month{font-size:10px;text-transform:uppercase;letter-spacing:2.5px;color:#6aaad4;margin-bottom:8px;font-weight:500}
+.recap-hero-title{font-size:34px;font-weight:600;letter-spacing:-1.5px;margin-bottom:8px;line-height:1}
+.recap-hero-sub{font-size:12px;color:#8bbdda;line-height:1.6;max-width:320px;margin:0 auto}
+/* Annual Wrapped hero card (in sub-tab) */
+.wo-hero-card{background:linear-gradient(160deg,#071510 0%,#0d2e1a 50%,#0a2416 100%);border-radius:10px;padding:28px 20px 24px;text-align:center;margin-bottom:20px}
+.wo-hero-card .wo-badge{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#5a9e72;margin-bottom:8px;font-weight:500}
+.wo-hero-card .wo-year{font-size:48px;font-weight:600;color:#d4f0e4;letter-spacing:-3px;line-height:1;margin-bottom:4px}
+.wo-hero-card .wo-tagline{font-size:12px;color:#7ab08f}
+@media(max-width:480px){.wo-hero-card .wo-year{font-size:36px}}
+.recap-grade-row{display:flex;align-items:center;gap:16px;margin-bottom:16px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:8px}
+.recap-grade-circle{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;flex-shrink:0;border:3px solid}
+.recap-grade-a{color:#1a5c3a;border-color:#4ade80;background:#e4f2ea}
+.recap-grade-b{color:#1a4a7a;border-color:#60a5fa;background:#e4eef8}
+.recap-grade-c{color:#7a5500;border-color:#fbbf24;background:#fef0c0}
+.recap-grade-d{color:#8b1d2a;border-color:#f87171;background:#fce8ea}
+[data-theme="dark"] .recap-grade-a{color:#4ade80;border-color:#4ade80;background:#0b2218}
+[data-theme="dark"] .recap-grade-b{color:#60a5fa;border-color:#60a5fa;background:#0b1a2e}
+[data-theme="dark"] .recap-grade-c{color:#fbbf24;border-color:#fbbf24;background:#2a1f00}
+[data-theme="dark"] .recap-grade-d{color:#f87171;border-color:#f87171;background:#270b0e}
+.recap-grade-info{flex:1}
+.recap-grade-lbl{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px}
+.recap-grade-desc{font-size:11px;color:var(--muted);line-height:1.5}
+.recap-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.recap-stat-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:13px 12px}
+.recap-sc-lbl{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:5px;font-weight:500}
+.recap-sc-val{font-size:16px;font-weight:600;letter-spacing:-.3px}
+.recap-sc-note{font-size:10px;color:var(--faint);margin-top:3px}
+.recap-narrative{background:var(--surface);border:1px solid var(--border);border-left:3px solid;border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:16px;font-size:12px;color:var(--muted);line-height:1.75}
+.recap-narrative strong{color:var(--text)}
+.recap-narrative.positive{border-left-color:var(--surplus)}
+.recap-narrative.warning{border-left-color:var(--amber)}
+.recap-narrative.negative{border-left-color:var(--deficit)}
+.recap-section-title{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:500;margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.recap-cat-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.recap-cat-item:last-child{border-bottom:none}
+.recap-cat-rank{font-size:9.5px;color:var(--faint);width:18px;flex-shrink:0;text-align:center;font-weight:500}
+.recap-cat-name{flex:1;font-size:12px;color:var(--text)}
+.recap-cat-bar-wrap{width:80px;height:4px;background:var(--surface-alt);border-radius:2px;overflow:hidden}
+.recap-cat-bar{height:100%;background:var(--deficit);border-radius:2px}
+.recap-cat-amt{font-size:11px;font-weight:500;min-width:65px;text-align:right}
+.recap-mom-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.recap-mom-row:last-child{border-bottom:none}
+.recap-mom-lbl{color:var(--muted)}
+.recap-mom-arrow{font-size:10px;margin:0 4px}
+.recap-month-sel-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.recap-empty{text-align:center;padding:40px 20px;color:var(--faint);font-size:12px}
+/* ── FlowSnap extended detail styles ─────────────────── */
+.recap-pf-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.recap-pf-sum-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 11px}
+.recap-pf-sum-lbl{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:5px;font-weight:500}
+.recap-pf-sum-val{font-size:15px;font-weight:600;letter-spacing:-.3px;line-height:1.2}
+.recap-fund-item{padding:11px 0;border-bottom:1px solid var(--border)}
+.recap-fund-item:last-child{border-bottom:none}
+.recap-fund-name{font-size:12px;font-weight:500;color:var(--text);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recap-fund-meta{display:flex;gap:10px;font-size:11px;color:var(--muted);flex-wrap:wrap;align-items:center;line-height:1.7}
+.recap-fund-pnl{font-weight:600;font-size:11.5px}
+.recap-hold-item{display:grid;grid-template-columns:68px 1fr auto;gap:8px;padding:9px 0;border-bottom:1px solid var(--border);align-items:center}
+.recap-hold-item:last-child{border-bottom:none}
+.recap-hold-type-tag{font-size:9px;padding:3px 6px;border-radius:10px;background:var(--surface-alt);color:var(--muted);border:1px solid var(--border);text-align:center;white-space:nowrap}
+.recap-hold-name{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recap-hold-sub{font-size:10.5px;color:var(--muted);margin-top:2px}
+.recap-hold-pnl{text-align:right;white-space:nowrap}
+.recap-hold-cur{font-size:12px;font-weight:500;color:var(--text)}
+.recap-hold-delta{font-size:10.5px;font-weight:500}
+.recap-fd-item{padding:10px 0;border-bottom:1px solid var(--border)}
+.recap-fd-item:last-child{border-bottom:none}
+.recap-fd-bank{font-size:12px;font-weight:500;color:var(--text);margin-bottom:4px}
+.recap-fd-meta{font-size:11px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;line-height:1.7}
+.recap-fd-val{font-size:12px;font-weight:500;color:var(--surplus);margin-top:4px}
+.recap-goal-item{padding:10px 0;border-bottom:1px solid var(--border)}
+.recap-goal-item:last-child{border-bottom:none}
+.recap-goal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:12px}
+.recap-goal-name{font-weight:500;color:var(--text)}
+.recap-goal-pct-lbl{font-size:10.5px;color:var(--muted)}
+.recap-goal-bar{height:5px;background:var(--surface-alt);border-radius:3px;overflow:hidden;margin-bottom:5px}
+.recap-goal-fill{height:100%;border-radius:3px}
+.recap-goal-foot{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted)}
+.recap-bill-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.recap-bill-item:last-child{border-bottom:none}
+.recap-bill-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.recap-bill-dot.paid{background:var(--surplus)}
+.recap-bill-dot.overdue{background:var(--deficit)}
+.recap-bill-dot.soon{background:var(--amber)}
+.recap-bill-dot.upcoming{background:var(--border)}
+.recap-bill-name{flex:1;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.recap-bill-day{font-size:10.5px;color:var(--faint);white-space:nowrap;flex-shrink:0}
+.recap-bill-amt{font-weight:500;white-space:nowrap;flex-shrink:0}
+.recap-bill-badge{font-size:9px;padding:2px 8px;border-radius:10px;white-space:nowrap;flex-shrink:0}
+.recap-bill-badge.paid{background:var(--surplus-bg);color:var(--surplus)}
+.recap-bill-badge.overdue{background:var(--deficit-bg);color:var(--deficit)}
+.recap-bill-badge.soon{background:var(--amber-bg);color:var(--amber)}
+.recap-bill-badge.upcoming{background:var(--surface-alt);color:var(--muted)}
+.recap-sub-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);gap:8px}
+.recap-sub-item:last-child{border-bottom:none}
+.recap-sub-name{font-size:12px;font-weight:500;color:var(--text)}
+.recap-sub-meta{font-size:10.5px;color:var(--muted);margin-top:2px}
+.recap-sub-cost{font-size:12px;font-weight:500;white-space:nowrap;flex-shrink:0}
+.recap-loan-item{padding:10px 0;border-bottom:1px solid var(--border)}
+.recap-loan-item:last-child{border-bottom:none}
+.recap-loan-name{font-size:12px;font-weight:500;color:var(--text);margin-bottom:5px}
+.recap-loan-meta{display:flex;gap:14px;font-size:11px;color:var(--muted);flex-wrap:wrap;line-height:1.8}
+.recap-total-bar{background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:12px}
+@media(max-width:480px){
+  .recap-pf-summary{grid-template-columns:1fr 1fr}
+  .recap-hold-item{grid-template-columns:58px 1fr auto}
+  .recap-bill-day{display:none}
+}
+
+/* ── SMART NOTIFICATIONS ──────────────────────────────────── */
+.notif-bar{background:var(--amber-bg);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:var(--r);padding:12px 16px;margin-bottom:14px;display:none;align-items:center;gap:10px}
+.notif-bar.show{display:flex}
+.notif-bar-icon{font-size:16px;flex-shrink:0}
+.notif-bar-text{flex:1;font-size:11.5px;color:var(--text);line-height:1.5}
+.notif-bar-text small{color:var(--muted);font-size:10.5px}
+.notif-bar-btn{background:var(--text);color:var(--bg);border:none;padding:6px 13px;border-radius:var(--r);font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;flex-shrink:0}
+.notif-bar-x{background:none;border:none;color:var(--faint);font-size:17px;cursor:pointer;flex-shrink:0;padding:2px 5px;line-height:1}
+/* In-app toast stack */
+#toastStack{position:fixed;top:64px;right:14px;z-index:9995;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.flow-toast{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 36px 12px 14px;font-size:12px;color:var(--text);box-shadow:0 4px 20px rgba(0,0,0,.18);max-width:290px;pointer-events:all;opacity:0;transform:translateX(20px);transition:opacity .3s,transform .3s}
+.flow-toast.in{opacity:1;transform:translateX(0)}
+.flow-toast.out{opacity:0;transform:translateX(20px)}
+.flow-toast-title{font-weight:600;margin-bottom:3px;font-size:12px;color:var(--text)}
+.flow-toast-body{font-size:11px;color:var(--muted);line-height:1.5}
+.flow-toast-close{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--faint);font-size:15px;cursor:pointer;line-height:1;padding:0}
+.flow-toast-close:hover{color:var(--text)}
 </style>
 </head>
 <body>
@@ -850,6 +1051,35 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <button onclick="document.getElementById('updateBanner').style.display='none'" style="background:transparent;color:#888;border:1px solid #444;padding:6px 12px;border-radius:4px;font-family:monospace;font-size:12px;cursor:pointer">Later</button>
   </div>
 </div>
+
+<!-- ── Flow Recap Banner (15–25 every month) ──────────── -->
+<div id="recapBanner">
+  <div class="rb-inner">
+    <span class="rb-icon">✦</span>
+    <div class="rb-text">
+      <div class="rb-title" id="recapBannerTitle">✦ May FlowSnap is ready!</div>
+      <div class="rb-sub">Your monthly financial pulse is live — tap to view</div>
+    </div>
+    <button class="rb-view" onclick="openFlowRecap()">View &rarr;</button>
+    <button class="rb-close" onclick="dismissRecapBanner()" title="Dismiss">&times;</button>
+  </div>
+</div>
+
+<!-- ── Annual Wrapped Full-Screen Overlay ─────────────── -->
+<div id="wrappedOverlay" class="wrapped-overlay hidden">
+  <div class="wo-hero">
+    <button class="wo-close-top" onclick="closeWrapped()">&#x2190; Close</button>
+    <div class="wo-badge">Annual Wrapped</div>
+    <div class="wo-year" id="woYear">2025</div>
+    <div class="wo-tagline" id="woTagline">Your year in review &mdash; every rupee, every month.</div>
+  </div>
+  <div class="wo-body" id="woBody">
+    <!-- filled by JS -->
+  </div>
+</div>
+
+<!-- ── Toast Stack ────────────────────────────────────── -->
+<div id="toastStack"></div>
 
 <!-- ══ HOME SCREEN — Professional ════════════════════════════ -->
 <div id="homeScreen" class="home-screen">
@@ -1110,6 +1340,23 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 <!-- ══ TRACK TAB ════════════════════════════════════════════ -->
 <div id="tab-track" class="tab-pane active">
 <div class="main" id="main">
+  <!-- Annual Wrapped Banner (Dec 15 – Jan 15) -->
+  <div class="wrapped-banner" id="wrappedBanner">
+    <span class="wb-icon">🎁</span>
+    <div class="wb-body">
+      <div class="wb-title" id="wrappedBannerTitle">Annual Wrapped is here</div>
+      <div class="wb-sub">Your year in review is ready — tap to see how you did</div>
+    </div>
+    <button class="wb-btn" onclick="openWrapped()">View &rarr;</button>
+    <button class="wb-x" onclick="dismissWrappedBanner()" title="Dismiss">&times;</button>
+  </div>
+  <!-- Smart Notifications permission bar -->
+  <div class="notif-bar" id="notifPermBar">
+    <span class="notif-bar-icon">🔔</span>
+    <div class="notif-bar-text">Get reminders for upcoming bills &amp; SIPs.<br><small>Flow can notify you 1–3 days before due dates.</small></div>
+    <button class="notif-bar-btn" onclick="requestNotifPermission()">Enable</button>
+    <button class="notif-bar-x" onclick="dismissNotifBar()" title="Dismiss">&times;</button>
+  </div>
   <div class="summary">
     <div class="card"><div class="card-lbl">Total Income</div><div class="card-val" id="cIncome">₹0</div><div id="momIncome" style="font-size:10px;color:var(--faint);margin-top:3px"></div></div>
     <div class="card"><div class="card-lbl">Total Expenses</div><div class="card-val" id="cExpense">₹0</div><div id="momExpense" style="font-size:10px;color:var(--faint);margin-top:3px"></div></div>
@@ -1944,6 +2191,8 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <button class="sub-tab" onclick="switchToolsTab('report',this)">Monthly Report</button>
     <button class="sub-tab" onclick="switchToolsTab('emfund',this)">Emergency Fund</button>
     <button class="sub-tab" onclick="switchToolsTab('debtpay',this)">Debt Payoff</button>
+    <button class="sub-tab" id="recapSubTabBtn" onclick="switchToolsTab('recap',this)">✦ FlowSnap</button>
+    <button class="sub-tab" id="wrappedSubTabBtn" onclick="switchToolsTab('wrapped',this)" style="display:none">🎁 Annual Wrapped</button>
   </div>
   <!-- FINANCIAL CALENDAR -->
   <div id="tsub-calendar" class="sub-pane active">
@@ -2020,6 +2269,16 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div id="debtPayoffList"><div class="empty-msg">No loans added yet. Add loans in Portfolio &#x2192; Loans tab first.</div></div>
     <div id="debtSummaryBlock" style="display:none;margin-top:14px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r)"></div>
   </div>
+
+  <!-- ══ FLOW RECAP SUB-PANE ══════════════════════════════ -->
+  <div id="tsub-recap" class="sub-pane">
+    <div id="recapBody"></div>
+  </div>
+
+  <!-- ══ ANNUAL WRAPPED SUB-PANE ══════════════════════════ -->
+  <div id="tsub-wrapped" class="sub-pane">
+    <div id="wrappedSubBody"></div>
+  </div>
 </div>
 </div>
 
@@ -2051,6 +2310,16 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="wn-hero-icon">&#x2726;</div>
     <div class="wn-hero-title">Flow &mdash; Release Notes</div>
     <div class="wn-hero-sub">Every feature, fix and improvement &mdash; from the beginning.</div>
+  </div>
+
+  <div class="wn-version-block">
+    <div class="wn-version-header">
+      <span class="wn-version-num">v1.9</span>
+      <span class="wn-version-date">May 2026</span>
+      <span class="wn-version-label wn-label-new">New</span>
+    </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">✦ FlowSnap — Monthly Financial Story</div><div class="wn-entry-desc">A monthly financial pulse available from the 15th to the 30th of each month. Shows your savings grade (A–F), income vs expenses, narrative insight, top spending categories, month-over-month comparison, and a full portfolio snapshot. Find it under Planner → FlowSnap, or tap the coloured banner that slides in on the 15th.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🔔 Smart Notifications</div><div class="wn-entry-desc">Flow surfaces in-app toasts and browser notifications (with permission) for bills due in the next 3 days, upcoming SIP dates, budget overruns in the current month, and FlowSnap availability. Each event fires only once per period — fully deduplicated. Grant permission via the prompt in the Track tab.</div></div></div>
   </div>
 
   <div class="wn-version-block">
@@ -2277,6 +2546,8 @@ function switchToolsTab(id,btn){
   if(id==='report')renderMonthlyReport();
   if(id==='emfund')renderEmfund();
   if(id==='debtpay')renderDebtPayoff();
+  if(id==='recap')renderFlowRecap();
+  if(id==='wrapped')renderAnnualWrapped();
 }
 
 // ══ DARK MODE ══════════════════════════════════════════════
@@ -4790,6 +5061,651 @@ function renderHeatmap(){
 }
 
 
+
+// ══ FLOW RECAP ══════════════════════════════════════════════
+
+function initRecapSelectors(){
+  // Month/year selectors removed — FlowSnap is locked to the current month window (15-30)
+}
+
+function renderFlowRecap(){
+  const body=document.getElementById('recapBody');
+  if(!body)return;
+
+  const today=new Date();
+  const day=today.getDate();
+  const m=today.getMonth();          // 0-indexed — matches DB key format
+  const y=today.getFullYear();
+  const monthName=MONTHS[m];
+
+  // Locked outside 15–30
+  if(day<15||day>30){
+    body.innerHTML=`<div class="recap-empty">
+      <div style="font-size:32px;margin-bottom:12px">🔒</div>
+      <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">FlowSnap is Locked</div>
+      <div style="max-width:280px;margin:0 auto">Your monthly FlowSnap is available from the <strong>15th to the 30th</strong> of each month.</div>
+      <div style="margin-top:12px;font-size:11px;color:var(--faint)">Check back on the 15th for your ${monthName} FlowSnap.</div>
+    </div>`;
+    return;
+  }
+
+  const k=`${m}_${y}`;
+  const d=DB[k];
+  const hasTrack=d&&(d.income.length||d.expense.length);
+
+  // Helper: section divider
+  const divider=label=>`<div style="display:flex;align-items:center;gap:10px;margin:24px 0 16px">
+    <div style="flex:1;height:1px;background:var(--border)"></div>
+    <span style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:500;white-space:nowrap">${label}</span>
+    <div style="flex:1;height:1px;background:var(--border)"></div>
+  </div>`;
+
+  // ══ SECTION 1: INCOME / EXPENSES ═════════════════════
+  let trackHTML='';
+  if(hasTrack){
+    const totalInc=d.income.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+    const totalExp=d.expense.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+    const net=totalInc-totalExp;
+    const savRate=totalInc>0?Math.round((net/totalInc)*100):0;
+    let grade,gradeClass,gradeDesc;
+    if(savRate>=30){grade='A';gradeClass='recap-grade-a';gradeDesc='Exceptional — you saved 30%+ of your income.';}
+    else if(savRate>=20){grade='B';gradeClass='recap-grade-b';gradeDesc='Solid — you cleared the 20% savings benchmark.';}
+    else if(savRate>=10){grade='C';gradeClass='recap-grade-c';gradeDesc='Moderate — trim spending to push above 20% next month.';}
+    else if(savRate>=0){grade='D';gradeClass='recap-grade-d';gradeDesc='Tight — identify and reduce the biggest spending driver.';}
+    else{grade='F';gradeClass='recap-grade-d';gradeDesc='Overspent — expenses exceeded income this month.';}
+    const cats={};
+    d.expense.forEach(e=>{const c=e.cat||'Uncategorised';cats[c]=(cats[c]||0)+(parseFloat(e.amt)||0);});
+    const sortedCats=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+    const topCat=sortedCats[0]?sortedCats[0][0]:'—';
+    const topAmt=sortedCats[0]?sortedCats[0][1]:0;
+    const maxCatAmt=sortedCats[0]?sortedCats[0][1]:1;
+    const narrativeClass=savRate>=20?'positive':savRate>=0?'warning':'negative';
+    let story='';
+    if(savRate>=30) story=`<strong>${monthName} ${y}</strong> was exceptional — <strong>${savRate}%</strong> of income saved. Biggest spend: <strong>${esc(topCat)}</strong> (${fmt(topAmt)}). Keep this momentum.`;
+    else if(savRate>=20) story=`A solid <strong>${monthName} ${y}</strong>. <strong>${savRate}%</strong> saved. <strong>${esc(topCat)}</strong> was the largest category at ${fmt(topAmt)}. Small trims could push you to an A.`;
+    else if(savRate>=10) story=`<strong>${monthName} ${y}</strong> was moderate — <strong>${savRate}%</strong> savings rate. Heaviest spend: <strong>${esc(topCat)}</strong> (${fmt(topAmt)}). Target 20% next month.`;
+    else if(savRate>=0) story=`A lean <strong>${monthName} ${y}</strong> — just <strong>${savRate}%</strong> saved. <strong>${esc(topCat)}</strong> drove the most spending at ${fmt(topAmt)}.`;
+    else story=`<strong>${monthName} ${y}</strong> ended in deficit — expenses exceeded income by <strong>${fmt(Math.abs(net))}</strong>. Biggest driver: <strong>${esc(topCat)}</strong> (${fmt(topAmt)}).`;
+    const catRows=sortedCats.slice(0,6).map(([cat,amt],i)=>{
+      const pct=Math.round((amt/maxCatAmt)*100);
+      return `<div class="recap-cat-item"><span class="recap-cat-rank">${i+1}</span><span class="recap-cat-name">${esc(cat)}</span><div class="recap-cat-bar-wrap"><div class="recap-cat-bar" style="width:${pct}%"></div></div><span class="recap-cat-amt c-red">${fmt(amt)}</span></div>`;
+    }).join('');
+    const prevM=m===0?11:m-1; const prevY=m===0?y-1:y;
+    const prevD=DB[`${prevM}_${prevY}`];
+    let momHTML='';
+    if(prevD){
+      const pInc=prevD.income.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+      const pExp=prevD.expense.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+      const pNet=pInc-pExp; const incChg=totalInc-pInc,expChg=totalExp-pExp,netChg=net-pNet;
+      const arr=v=>v>0?'▲':'▼',cls=v=>v>0?'c-green':'c-red';
+      momHTML=`<div class="recap-section-title" style="margin-top:16px">vs ${MONTHS[prevM]}</div>
+        <div class="recap-mom-row"><span class="recap-mom-lbl">Income</span><span class="${cls(incChg)}">${arr(incChg)} ${fmt(Math.abs(incChg))}</span></div>
+        <div class="recap-mom-row"><span class="recap-mom-lbl">Expenses</span><span class="${cls(-expChg)}">${expChg>0?'▲':'▼'} ${fmt(Math.abs(expChg))}</span></div>
+        <div class="recap-mom-row"><span class="recap-mom-lbl">Net Flow</span><span class="${cls(netChg)}">${arr(netChg)} ${fmt(Math.abs(netChg))}</span></div>`;
+    }
+    trackHTML=`
+      <div class="recap-grade-row">
+        <div class="recap-grade-circle ${gradeClass}">${grade}</div>
+        <div class="recap-grade-info"><div class="recap-grade-lbl">Savings Rate: ${savRate}%</div><div class="recap-grade-desc">${gradeDesc}</div></div>
+      </div>
+      <div class="recap-stats-grid">
+        <div class="recap-stat-card"><div class="recap-sc-lbl">Income</div><div class="recap-sc-val c-green">${fmt(totalInc)}</div></div>
+        <div class="recap-stat-card"><div class="recap-sc-lbl">Expenses</div><div class="recap-sc-val c-red">${fmt(totalExp)}</div></div>
+        <div class="recap-stat-card"><div class="recap-sc-lbl">Net Flow</div><div class="recap-sc-val ${net>=0?'c-green':'c-red'}">${fmtN(net)}</div></div>
+        <div class="recap-stat-card"><div class="recap-sc-lbl">Top Spend</div><div class="recap-sc-val" style="font-size:12px">${esc(topCat)}</div><div class="recap-sc-note">${fmt(topAmt)}</div></div>
+      </div>
+      <div class="recap-narrative ${narrativeClass}">${story}</div>
+      ${sortedCats.length?`<div class="recap-section-title">Spending Breakdown</div>${catRows}`:''}
+      ${momHTML?`<div style="margin-top:4px">${momHTML}</div>`:''}`;
+  } else {
+    trackHTML=`<div class="recap-narrative warning" style="margin-top:0">No income &amp; expense entries for <strong>${monthName} ${y}</strong> yet. Add them in the Track tab to see your savings grade and spending breakdown.</div>`;
+  }
+
+  // ══ SECTION 2: PORTFOLIO ══════════════════════════════
+
+  // — Mutual Funds —
+  const mfList=INVEST.mf||[];
+  let mfInv=0,mfCur=0;
+  mfList.forEach(h=>{mfInv+=(h.units||0)*(h.navBuy||0);mfCur+=(h.units||0)*(h.currentNav||h.navBuy||0);});
+  let mfSectionHTML='';
+  if(mfList.length){
+    const sipTotal=mfList.filter(f=>f.sipAmt).reduce((s,f)=>s+(f.sipAmt||0),0);
+    const sipCount=mfList.filter(f=>f.sipAmt&&f.sipDay).length;
+    mfSectionHTML=`<div class="recap-section-title">Mutual Funds (${mfList.length})</div>`;
+    mfSectionHTML+=mfList.map(h=>{
+      const inv=(h.units||0)*(h.navBuy||0), cur=(h.units||0)*(h.currentNav||h.navBuy||0);
+      const pnl=cur-inv, pnlPct=inv>0?(pnl/inv*100):0, pnlCls=pnl>=0?'c-green':'c-red';
+      const name=(h.schemeName||'Fund').length>42?(h.schemeName||'Fund').slice(0,40)+'…':(h.schemeName||'Fund');
+      const xirr=calcMFXIRR(h);
+      const xirrBadge=xirr!==null?`<span style="font-size:9.5px;padding:2px 7px;border-radius:10px;background:${xirr>=0?'var(--surplus-bg)':'var(--deficit-bg)'};color:${xirr>=0?'var(--surplus)':'var(--deficit)'}">XIRR ${xirr>=0?'+':''}${(xirr*100).toFixed(1)}%</span>`:'';
+      const sipBadge=h.sipAmt?`<span style="font-size:10px;color:var(--muted)">SIP ${fmt(h.sipAmt)}/mo${h.sipDay?' on '+h.sipDay+'th':''}</span>`:'';
+      return `<div class="recap-fund-item">
+        <div class="recap-fund-name">${esc(name)}</div>
+        <div class="recap-fund-meta">
+          <span>${(h.units||0).toFixed(3)} units</span>
+          <span>Invested: ${fmt(inv)}</span>
+          <span>Current: ${fmt(cur)}</span>
+          <span class="recap-fund-pnl ${pnlCls}">${pnl>=0?'+':''}${fmtN(pnl)} (${pnlPct>=0?'+':''}${pnlPct.toFixed(1)}%)</span>
+          ${xirrBadge}${sipBadge}
+        </div>
+      </div>`;
+    }).join('');
+    if(sipTotal>0) mfSectionHTML+=`<div class="recap-total-bar"><span style="color:var(--muted);font-size:11px">${sipCount} active SIP${sipCount!==1?'s':''}</span><span style="font-weight:600">${fmt(sipTotal)}<span style="color:var(--faint);font-size:10px">/mo</span></span></div>`;
+  }
+
+  // — Other Holdings —
+  const holdList=INVEST.holdings||[];
+  let holdInv=0,holdCur=0;
+  holdList.forEach(h=>{
+    if(h.type==='FD'&&h.fdRate){holdInv+=(h.buy||0);holdCur+=fdMaturity(h.buy||0,h.fdRate,h.fdTenure||12,h.fdComp||4);}
+    else{holdInv+=(h.qty||0)*(h.buy||0);holdCur+=(h.qty||0)*(h.cur||h.buy||0);}
+  });
+  let holdSectionHTML='';
+  if(holdList.length){
+    holdSectionHTML=`<div class="recap-section-title" style="margin-top:16px">Holdings (${holdList.length})</div>`;
+    holdSectionHTML+=holdList.map(h=>{
+      let inv=0,cur=0,sub='';
+      if(h.type==='FD'&&h.fdRate){inv=h.buy||0;cur=fdMaturity(h.buy||0,h.fdRate,h.fdTenure||12,h.fdComp||4);sub=`${fmt(h.buy||0)} @ ${h.fdRate}% · ${h.fdTenure}mo`;}
+      else{inv=(h.qty||0)*(h.buy||0);cur=(h.qty||0)*(h.cur||h.buy||0);sub=h.qty&&h.qty!==1?`${h.qty} × ${fmt(h.buy||0)}`:`Invested: ${fmt(inv)}`;}
+      const pnl=cur-inv, pnlPct=inv>0?(pnl/inv*100):0, pnlCls=pnl>=0?'c-green':'c-red';
+      return `<div class="recap-hold-item">
+        <span class="recap-hold-type-tag">${h.type}</span>
+        <div><div class="recap-hold-name">${esc(h.name||h.type)}</div><div class="recap-hold-sub">${sub}</div></div>
+        <div class="recap-hold-pnl">
+          <div class="recap-hold-cur">${fmt(cur)}</div>
+          <div class="recap-hold-delta ${pnlCls}">${pnl>=0?'+':''}${fmtN(pnl)}<span style="font-size:9.5px;font-weight:400"> (${pnlPct>=0?'+':''}${pnlPct.toFixed(1)}%)</span></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // — FD Tracker —
+  const fdsList=INVEST.fds||[];
+  let fdInv=0,fdCur=0;
+  fdsList.forEach(f=>{fdInv+=(f.principal||0);fdCur+=fdMaturity(f.principal||0,f.rate||0,f.tenure||12,f.comp||4);});
+  let fdSectionHTML='';
+  if(fdsList.length){
+    fdSectionHTML=`<div class="recap-section-title" style="margin-top:16px">Fixed Deposits (${fdsList.length})</div>`;
+    fdSectionHTML+=fdsList.map(f=>{
+      const mat=fdMaturity(f.principal||0,f.rate||0,f.tenure||12,f.comp||4);
+      const interest=mat-(f.principal||0);
+      const startD=f.start?new Date(f.start):null;
+      const matDate=startD?new Date(startD.getFullYear(),startD.getMonth()+f.tenure,startD.getDate()):null;
+      const matStr=matDate?matDate.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—';
+      return `<div class="recap-fd-item">
+        <div class="recap-fd-bank">${esc(f.bank)}</div>
+        <div class="recap-fd-meta"><span>Principal: <strong>${fmt(f.principal||0)}</strong></span><span>${f.rate}% p.a.</span><span>${f.tenure} months</span><span>Matures: ${matStr}</span></div>
+        <div class="recap-fd-val">${fmt(mat)} <span style="font-size:10.5px;font-weight:400;color:var(--surplus)">(+${fmt(interest)} interest)</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  // — Savings Goals —
+  const goalsList=INVEST.goals||[];
+  const goalsSaved=goalsList.reduce((s,g)=>s+(g.current||0),0);
+  let goalSectionHTML='';
+  if(goalsList.length){
+    const goalsAchieved=goalsList.filter(g=>(g.current||0)>=(g.target||1)).length;
+    const goalColors=['#5b7fa6','#6b9e6b','#a67c5b','#7a6ba6','#a65b7a'];
+    goalSectionHTML=`<div class="recap-section-title" style="margin-top:16px">Savings Goals (${goalsAchieved}/${goalsList.length} achieved)</div>`;
+    goalSectionHTML+=goalsList.map((g,gi)=>{
+      const pct=g.target?Math.min(100,Math.round((g.current/g.target)*100)):0;
+      const col=goalColors[gi%goalColors.length];
+      const dl=g.deadline?new Date(g.deadline).toLocaleDateString('en-IN',{month:'short',year:'numeric'}):'';
+      return `<div class="recap-goal-item">
+        <div class="recap-goal-head"><span class="recap-goal-name">${esc(g.name)}</span><span class="recap-goal-pct-lbl">${pct}%${pct>=100?' ✓':''}</span></div>
+        <div class="recap-goal-bar"><div class="recap-goal-fill" style="width:${pct}%;background:${col}"></div></div>
+        <div class="recap-goal-foot">
+          <span>Saved: <strong>${fmt(g.current||0)}</strong></span>
+          <span>${dl?`Target: ${dl} · `:''}<strong>${fmt(g.target||0)}</strong>${(g.target||0)>(g.current||0)?` <span style="color:var(--faint)">(${fmt((g.target||0)-(g.current||0))} left)</span>`:''}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  const totalPortInv=mfInv+holdInv+fdInv+goalsSaved;
+  const totalPortCur=mfCur+holdCur+fdCur+goalsSaved;
+  const portPnl=totalPortCur-totalPortInv;
+  const portPnlPct=totalPortInv>0?(portPnl/totalPortInv*100):0;
+  const hasPortfolio=mfList.length||holdList.length||fdsList.length||goalsList.length;
+
+  let portfolioHTML='';
+  if(hasPortfolio){
+    portfolioHTML=`
+      ${divider('Portfolio')}
+      <div class="recap-pf-summary">
+        <div class="recap-pf-sum-card"><div class="recap-pf-sum-lbl">Total Invested</div><div class="recap-pf-sum-val">${fmt(totalPortInv)}</div></div>
+        <div class="recap-pf-sum-card"><div class="recap-pf-sum-lbl">Current Value</div><div class="recap-pf-sum-val ${totalPortCur>=totalPortInv?'c-green':'c-red'}">${fmt(totalPortCur)}</div></div>
+        <div class="recap-pf-sum-card"><div class="recap-pf-sum-lbl">Total P&amp;L</div><div class="recap-pf-sum-val ${portPnl>=0?'c-green':'c-red'}">${portPnl>=0?'+':''}${fmtN(portPnl)}<div style="font-size:10px;font-weight:400;color:var(--muted);margin-top:2px">${portPnlPct>=0?'+':''}${portPnlPct.toFixed(1)}% return</div></div></div>
+      </div>
+      ${mfSectionHTML}${holdSectionHTML}${fdSectionHTML}${goalSectionHTML}`;
+  }
+
+  // ══ SECTION 3: BILLS & OBLIGATIONS ════════════════════
+
+  const billsList=BILLS||[];
+  let billsSectionHTML='';
+  if(billsList.length){
+    const mk=`${m}_${y}`, todayDay=today.getDate();
+    const suf=n=>n===1?'st':n===2?'nd':n===3?'rd':'th';
+    const withStatus=billsList.map(b=>{
+      let status;
+      if(b.paidMonths&&b.paidMonths.includes(mk)) status='paid';
+      else if(b.dueDay<todayDay) status='overdue';
+      else if(b.dueDay-todayDay<=3) status='soon';
+      else status='upcoming';
+      return{...b,status};
+    });
+    withStatus.sort((a,b)=>({'overdue':0,'soon':1,'upcoming':2,'paid':3}[a.status]-{'overdue':0,'soon':1,'upcoming':2,'paid':3}[b.status]||a.dueDay-b.dueDay));
+    const paidCount=withStatus.filter(b=>b.status==='paid').length;
+    const overdueCount=withStatus.filter(b=>b.status==='overdue').length;
+    billsSectionHTML=`<div class="recap-section-title">Bills This Month — ${paidCount} paid${overdueCount?`, ${overdueCount} overdue`:''}</div>`;
+    billsSectionHTML+=withStatus.map(b=>`<div class="recap-bill-item">
+      <div class="recap-bill-dot ${b.status}"></div>
+      <span class="recap-bill-name">${esc(b.name)}</span>
+      <span class="recap-bill-day">Due ${b.dueDay}${suf(b.dueDay)}</span>
+      <span class="recap-bill-amt">${fmt(b.amt)}</span>
+      <span class="recap-bill-badge ${b.status}">${{'paid':'✓ Paid','overdue':'Overdue','soon':'Due Soon','upcoming':'Upcoming'}[b.status]}</span>
+    </div>`).join('');
+  }
+
+  const activeSubs=(SUBS||[]).filter(s=>s.status==='Active');
+  let subsSectionHTML='';
+  if(activeSubs.length){
+    const mults={'Monthly':1,'Quarterly':1/3,'Half-Yearly':1/6,'Annual':1/12};
+    const subMonthly=Math.round(activeSubs.reduce((s,sub)=>s+(sub.cost||0)*(mults[sub.cycle]||1),0));
+    subsSectionHTML=`<div class="recap-section-title" style="margin-top:16px">Subscriptions (${activeSubs.length} active)</div>`;
+    subsSectionHTML+=activeSubs.map(s=>{
+      const renewStr=s.renewal?new Date(s.renewal).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'';
+      return `<div class="recap-sub-item">
+        <div><div class="recap-sub-name">${esc(s.name)}</div><div class="recap-sub-meta">${s.cycle}${renewStr?' · Renews '+renewStr:''}</div></div>
+        <span class="recap-sub-cost">${fmt(s.cost)}/${s.cycle==='Monthly'?'mo':s.cycle==='Annual'?'yr':s.cycle}</span>
+      </div>`;
+    }).join('');
+    subsSectionHTML+=`<div class="recap-total-bar"><span style="color:var(--muted);font-size:11px">Monthly equivalent</span><span style="font-weight:600">${fmt(subMonthly)}<span style="color:var(--faint);font-size:10px">/mo</span></span></div>`;
+  }
+
+  const loansList=LOANS||[];
+  let loansSectionHTML='';
+  if(loansList.length){
+    const totalEMI=loansList.reduce((s,l)=>s+(l.emi||0),0);
+    const totalOut=loansList.reduce((s,l)=>s+Math.max(0,loanOutstanding(l)),0);
+    loansSectionHTML=`<div class="recap-section-title" style="margin-top:16px">Active Loans (${loansList.length})</div>`;
+    loansSectionHTML+=loansList.map(l=>{
+      const out=Math.max(0,loanOutstanding(l)), rem=Math.max(0,l.tenure-l.monthsPaid);
+      return `<div class="recap-loan-item">
+        <div class="recap-loan-name">${esc(l.name)} <span style="font-size:10px;color:var(--muted);font-weight:400;border:1px solid var(--border);border-radius:10px;padding:1px 7px">${l.type}</span></div>
+        <div class="recap-loan-meta">
+          <span>Outstanding: <strong class="c-red">${fmt(out)}</strong></span>
+          <span>EMI: <strong>${fmt(l.emi)}/mo</strong></span>
+          <span>${l.rate}% p.a.</span>
+          <span>${rem} months left</span>
+        </div>
+      </div>`;
+    }).join('');
+    if(loansList.length>1) loansSectionHTML+=`<div class="recap-total-bar"><span style="color:var(--muted);font-size:11px">Total Outstanding / Monthly EMI</span><span><span class="c-red" style="font-weight:600">${fmt(totalOut)}</span><span style="color:var(--faint);font-size:11px"> · </span><span style="font-weight:600">${fmt(totalEMI)}/mo</span></span></div>`;
+  }
+
+  const hasBillsSection=billsList.length||activeSubs.length||loansList.length;
+  const billsObligHTML=hasBillsSection?`${divider('Bills &amp; Obligations')}${billsSectionHTML}${subsSectionHTML}${loansSectionHTML}`:'';
+
+  if(!hasTrack&&!hasPortfolio&&!hasBillsSection){
+    body.innerHTML=`<div class="recap-empty">📭<br><br>No financial data for <strong>${monthName} ${y}</strong>.<br><span style="font-size:11px;color:var(--faint)">Add entries in Track, Portfolio, and Bills tabs.</span></div>`;
+    return;
+  }
+
+  body.innerHTML=`
+    <div class="recap-hero">
+      <div class="recap-hero-month">${monthName} ${y}</div>
+      <div class="recap-hero-title">FlowSnap</div>
+      <div class="recap-hero-sub">Your complete monthly snapshot — cash flow, portfolio, bills &amp; more.</div>
+    </div>
+    ${trackHTML}${portfolioHTML}${billsObligHTML}`;
+}
+
+// ── Recap Banner logic ──────────────────────────────────────
+function checkRecapBanner(){
+  const today=new Date();
+  const day=today.getDate();
+  const m=today.getMonth()+1;   // 1-indexed: used for localStorage key only
+  const y=today.getFullYear();
+  const dismissedKey=`flow_recap_dismissed_${m}_${y}`;
+  if(day<15||day>30) return;    // window: 15th–30th
+  if(localStorage.getItem(dismissedKey)==='1') return;
+  if(!localStorage.getItem('flow_visited')) return;
+  const monthName=MONTHS[m-1]; // m-1 to convert to 0-indexed for MONTHS array
+  document.getElementById('recapBannerTitle').textContent=`✦ ${monthName} FlowSnap is ready!`;
+  setTimeout(()=>document.getElementById('recapBanner').classList.add('show'), 1200);
+}
+
+function dismissRecapBanner(){
+  const today=new Date();
+  const m=today.getMonth()+1, y=today.getFullYear();
+  localStorage.setItem(`flow_recap_dismissed_${m}_${y}`,'1');
+  document.getElementById('recapBanner').classList.remove('show');
+}
+
+function openFlowRecap(){
+  dismissRecapBanner();
+  const plannerBtn=document.querySelector('.tab-btn[onclick*="tools"]');
+  if(plannerBtn){switchTab('tools',plannerBtn);}
+  setTimeout(()=>{
+    const recapBtn=document.getElementById('recapSubTabBtn');
+    if(recapBtn) recapBtn.click();
+  },150);
+}
+
+// ══ ANNUAL WRAPPED ══════════════════════════════════════════
+
+function isWrappedWindow(){
+  const today=new Date();
+  const m=today.getMonth()+1, d=today.getDate();
+  return (m===12&&d>=15)||(m===1&&d<=15);
+}
+
+function getWrappedYear(){
+  const today=new Date();
+  const m=today.getMonth()+1;
+  return m===1?today.getFullYear()-1:today.getFullYear();
+}
+
+function checkWrappedBanner(){
+  if(!isWrappedWindow()) return;
+  if(!localStorage.getItem('flow_visited')) return;
+  const wy=getWrappedYear();
+  const dismissedKey=`flow_wrapped_dismissed_${wy}`;
+  if(localStorage.getItem(dismissedKey)==='1') return;
+  document.getElementById('wrappedBannerTitle').textContent=`${wy} Annual Wrapped is here`;
+  document.getElementById('wrappedBanner').classList.add('show');
+}
+
+function dismissWrappedBanner(){
+  const wy=getWrappedYear();
+  localStorage.setItem(`flow_wrapped_dismissed_${wy}`,'1');
+  document.getElementById('wrappedBanner').classList.remove('show');
+}
+
+function openWrapped(){
+  dismissWrappedBanner();
+  const plannerBtn=document.querySelector('.tab-btn[onclick*="tools"]');
+  if(plannerBtn){switchTab('tools',plannerBtn);}
+  setTimeout(()=>{
+    const wBtn=document.getElementById('wrappedSubTabBtn');
+    if(wBtn) wBtn.click();
+  },150);
+}
+
+function closeWrapped(){
+  document.getElementById('wrappedOverlay').classList.add('hidden');
+}
+
+function renderAnnualWrapped(){
+  const el=document.getElementById('wrappedSubBody');
+  if(!el) return;
+
+  // Outside window — locked state
+  if(!isWrappedWindow()){
+    el.innerHTML=`<div class="recap-empty">
+      <div style="font-size:32px;margin-bottom:12px">🎁</div>
+      <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">Annual Wrapped is Locked</div>
+      <div style="max-width:280px;margin:0 auto">Available each year from <strong>December 15</strong> through <strong>January 15</strong> — your complete year-in-review.</div>
+      <div style="margin-top:12px;font-size:11px;color:var(--faint)">Come back in December for your ${new Date().getFullYear()} Annual Wrapped.</div>
+    </div>`;
+    return;
+  }
+
+  const wy=getWrappedYear();
+
+  // ── Track: collect yearly income/expense ─────────────────
+  let totalInc=0,totalExp=0,monthsWithData=0;
+  const monthlyData=[];
+  const catTotals={};
+  MONTHS.forEach((mName,i)=>{
+    const k=`${i}_${wy}`;   // 0-indexed — matches DB key format
+    const d=DB[k];
+    const inc=d?d.income.reduce((s,e)=>s+(parseFloat(e.amt)||0),0):0;
+    const exp=d?d.expense.reduce((s,e)=>s+(parseFloat(e.amt)||0),0):0;
+    totalInc+=inc; totalExp+=exp;
+    if(inc>0||exp>0) monthsWithData++;
+    monthlyData.push({name:mName.slice(0,3),inc,exp,net:inc-exp});
+    if(d) d.expense.forEach(e=>{const c=e.cat||'Uncategorised';catTotals[c]=(catTotals[c]||0)+(parseFloat(e.amt)||0);});
+  });
+  const netSavings=totalInc-totalExp;
+  const savRate=totalInc>0?Math.round((netSavings/totalInc)*100):0;
+  const dataMonths=monthlyData.filter(m=>m.inc>0||m.exp>0);
+  const bestMonth=dataMonths.length?dataMonths.reduce((a,b)=>b.net>a.net?b:a,dataMonths[0]):null;
+  const worstMonth=dataMonths.length?dataMonths.reduce((a,b)=>b.exp>a.exp?b:a,dataMonths[0]):null;
+  const topCats=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const maxExpBar=Math.max(...monthlyData.map(m=>m.exp),1);
+
+  // ── Portfolio: current snapshot ───────────────────────────
+  let mfInv=0,mfCur=0;
+  (INVEST.mf||[]).forEach(h=>{mfInv+=(h.units||0)*(h.navBuy||0);mfCur+=(h.units||0)*(h.currentNav||h.navBuy||0);});
+  let holdInv=0,holdCur=0;
+  (INVEST.holdings||[]).forEach(h=>{
+    if(h.type==='FD'&&h.fdRate){holdInv+=(h.buy||0);holdCur+=fdMaturity(h.buy||0,h.fdRate,h.fdTenure||12,h.fdComp||4);}
+    else{holdInv+=(h.qty||0)*(h.buy||0);holdCur+=(h.qty||0)*(h.cur||h.buy||0);}
+  });
+  let fdPrin=0,fdCur=0;
+  (INVEST.fds||[]).forEach(f=>{fdPrin+=(f.principal||0);fdCur+=fdMaturity(f.principal||0,f.rate||0,f.tenure||12,f.comp||4);});
+  const goalsSaved=(INVEST.goals||[]).reduce((s,g)=>s+(g.current||0),0);
+  const goalsTarget=(INVEST.goals||[]).reduce((s,g)=>s+(g.target||0),0);
+  const goalsTotal=(INVEST.goals||[]).length;
+  const goalsAchieved=(INVEST.goals||[]).filter(g=>(g.current||0)>=(g.target||1)).length;
+  const totalPortInv=mfInv+holdInv+fdPrin+goalsSaved;
+  const totalPortCur=mfCur+holdCur+fdCur+goalsSaved;
+  const portPnl=totalPortCur-totalPortInv;
+  // Annual SIP invested (approximate: sipAmt × 12)
+  const annualSIP=(INVEST.mf||[]).filter(f=>f.sipAmt).reduce((s,f)=>s+(f.sipAmt||0),0)*12;
+  const hasPortfolio=totalPortInv>0;
+
+  // ── Build HTML ────────────────────────────────────────────
+  const monthBars=monthlyData.map(m=>{
+    const pct=Math.round((m.exp/maxExpBar)*100);
+    const hasDat=m.inc>0||m.exp>0;
+    return `<div class="wo-month-row"><span class="wo-m-name">${m.name}</span><div class="wo-bar-track"><div class="wo-bar-fill" style="width:${hasDat?pct:0}%;background:var(--deficit);opacity:.7"></div></div><span class="wo-m-amt" style="color:${hasDat?'var(--text)':'var(--faint)'}">${hasDat?fmt(m.exp):'—'}</span></div>`;
+  }).join('');
+
+  const catRows=topCats.map(([cat,amt])=>{
+    const pct=totalExp>0?Math.round((amt/totalExp)*100):0;
+    return `<div class="wo-cat-row"><span class="wo-cat-name">${esc(cat)}</span><span class="wo-cat-pct">${pct}%</span><span class="wo-cat-amt c-red">${fmt(amt)}</span></div>`;
+  }).join('');
+
+  const bwHTML=bestMonth&&worstMonth?`<div class="wo-best-worst">
+    <div class="wo-bw-card best"><div class="wo-bw-lbl">Best Month</div><div class="wo-bw-month">${bestMonth.name}</div><div class="wo-bw-val">+${fmt(bestMonth.net)} saved</div></div>
+    <div class="wo-bw-card worst"><div class="wo-bw-lbl">Highest Spend</div><div class="wo-bw-month">${worstMonth.name}</div><div class="wo-bw-val">${fmt(worstMonth.exp)} spent</div></div>
+  </div>`:'';
+
+  const portfolioHTML=hasPortfolio?`
+    <div class="wo-section">
+      <div class="wo-section-hd">Portfolio Overview</div>
+      <div class="wo-stat-row">
+        <div class="wo-stat"><div class="wo-stat-lbl">MF Invested</div><div class="wo-stat-val">${fmt(mfInv)}</div><div class="wo-stat-note">Current: <span class="${mfCur>=mfInv?'c-green':'c-red'}">${fmt(mfCur)}</span></div></div>
+        <div class="wo-stat"><div class="wo-stat-lbl">Other Holdings</div><div class="wo-stat-val">${fmt(holdCur)}</div></div>
+        <div class="wo-stat"><div class="wo-stat-lbl">FD Value</div><div class="wo-stat-val">${fmt(fdCur)}</div><div class="wo-stat-note">Principal: ${fmt(fdPrin)}</div></div>
+      </div>
+      <div class="wo-highlight" style="margin-top:10px">
+        <div class="wo-hl-lbl">Total Portfolio</div>
+        <div class="wo-hl-val">${fmt(totalPortCur)}</div>
+        <div class="wo-hl-desc">P&amp;L: <span style="color:${portPnl>=0?'#4ade80':'#f87171'}">${portPnl>=0?'+':''}${fmtN(portPnl)}</span> on ${fmt(totalPortInv)} invested.${annualSIP?` Annual SIP commitment: ${fmt(annualSIP)}.`:''}${goalsTotal?` Savings goals: ${goalsAchieved}/${goalsTotal} achieved.`:''}</div>
+      </div>
+    </div>`:'';
+
+  if(monthsWithData===0&&!hasPortfolio){
+    el.innerHTML=`<div class="wo-hero-card"><div class="wo-badge">Annual Wrapped</div><div class="wo-year">${wy}</div><div class="wo-tagline">Your ${wy} in review</div></div><div class="recap-empty" style="margin-top:0">No data found for ${wy}.<br><small style="color:var(--faint)">Start tracking in the Track and Portfolio tabs.</small></div>`;
+    return;
+  }
+
+  el.innerHTML=`
+    <div class="wo-hero-card">
+      <div class="wo-badge">Annual Wrapped</div>
+      <div class="wo-year">${wy}</div>
+      <div class="wo-tagline">Your ${wy} in review — every rupee, every month.</div>
+    </div>
+    ${monthsWithData>0?`
+    <div class="wo-stat-row">
+      <div class="wo-stat"><div class="wo-stat-lbl">Total Income</div><div class="wo-stat-val c-green">${fmt(totalInc)}</div><div class="wo-stat-note">${monthsWithData} months tracked</div></div>
+      <div class="wo-stat"><div class="wo-stat-lbl">Total Expenses</div><div class="wo-stat-val c-red">${fmt(totalExp)}</div></div>
+      <div class="wo-stat"><div class="wo-stat-lbl">Net Savings</div><div class="wo-stat-val ${netSavings>=0?'c-green':'c-red'}">${fmtN(netSavings)}</div><div class="wo-stat-note">${savRate}% rate</div></div>
+    </div>
+    <div class="wo-highlight">
+      <div class="wo-hl-lbl">Annual Savings Rate</div>
+      <div class="wo-hl-val">${savRate}%</div>
+      <div class="wo-hl-desc">${savRate>=30?'Outstanding — top-tier financial discipline.':savRate>=20?'Good — above the 20% savings benchmark.':savRate>=10?'Moderate — room to improve toward 20%.':'Below target — review spending patterns.'}</div>
+    </div>
+    ${bwHTML}
+    <div class="wo-section"><div class="wo-section-hd">Monthly Spending</div>${monthBars}</div>
+    ${topCats.length?`<div class="wo-section"><div class="wo-section-hd">Top Expense Categories</div>${catRows}</div>`:''}`:''}
+    ${portfolioHTML}`;
+}
+
+
+// ══ SMART NOTIFICATIONS ═════════════════════════════════════
+
+function initSmartNotifications(){
+  // Show permission bar if not granted and not dismissed
+  if(!('Notification' in window)) return;
+  if(Notification.permission==='granted'){
+    scheduleSmartNotifications();
+    return;
+  }
+  if(Notification.permission==='denied') return;
+  if(localStorage.getItem('flow_notif_bar_dismissed')==='1') return;
+  if(!localStorage.getItem('flow_visited')) return;
+  // Show after a delay so app feels settled
+  setTimeout(()=>document.getElementById('notifPermBar').classList.add('show'), 2500);
+}
+
+function dismissNotifBar(){
+  localStorage.setItem('flow_notif_bar_dismissed','1');
+  document.getElementById('notifPermBar').classList.remove('show');
+}
+
+function requestNotifPermission(){
+  if(!('Notification' in window)){showToast('Not Supported','Your browser does not support notifications.');return;}
+  Notification.requestPermission().then(perm=>{
+    document.getElementById('notifPermBar').classList.remove('show');
+    if(perm==='granted'){
+      showToast('Notifications On 🔔','Flow will remind you about upcoming bills and SIPs.');
+      scheduleSmartNotifications();
+    } else {
+      localStorage.setItem('flow_notif_bar_dismissed','1');
+    }
+  });
+}
+
+function scheduleSmartNotifications(){
+  // Fire in-app toasts for urgent events, and browser notifications if permitted
+  const today=new Date();
+  today.setHours(0,0,0,0);
+  const toastsSent=JSON.parse(localStorage.getItem('flow_notif_sent')||'{}');
+  const todayStr=today.toISOString().slice(0,10);
+
+  // Clean old sent records
+  Object.keys(toastsSent).forEach(k=>{if(k<todayStr) delete toastsSent[k];});
+
+  const queue=[];
+
+  // 1. Bills due in next 3 days
+  BILLS.forEach(bill=>{
+    if(bill.paid) return;
+    const due=new Date(today.getFullYear(), today.getMonth(), bill.dueDay||1);
+    if(due<today) due.setMonth(due.getMonth()+1);
+    const diff=Math.round((due-today)/(1000*60*60*24));
+    if(diff<=3&&diff>=0){
+      const k=`bill_${bill.id||bill.name}_${due.toISOString().slice(0,7)}`;
+      if(!toastsSent[k]){
+        queue.push({key:k,title:`Bill Due${diff===0?' Today':diff===1?' Tomorrow':` in ${diff} days`}`,body:`${bill.name} — ${fmt(bill.amt||0)}`});
+      }
+    }
+  });
+
+  // 2. SIPs due in next 1 day
+  if(INVEST&&INVEST.mf){
+    INVEST.mf.forEach(fund=>{
+      if(!fund.sipAmt||!fund.sipDay) return;
+      const due=new Date(today.getFullYear(),today.getMonth(),fund.sipDay||1);
+      if(due<today) due.setMonth(due.getMonth()+1);
+      const diff=Math.round((due-today)/(1000*60*60*24));
+      if(diff<=1&&diff>=0){
+        const k=`sip_${fund.code}_${due.toISOString().slice(0,7)}`;
+        if(!toastsSent[k]){
+          queue.push({key:k,title:`SIP ${diff===0?'Today':'Tomorrow'}`,body:`${(fund.name||'').slice(0,30)} — ${fmt(fund.sipAmt)}`});
+        }
+      }
+    });
+  }
+
+  // 3. Budget overruns — always check CURRENT calendar month, not the selected Track tab month
+  const nowDate=new Date();
+  const mk=`${nowDate.getMonth()}_${nowDate.getFullYear()}`;
+  const d=DB[mk];
+  if(d&&Object.keys(BUDGETS).length){
+    const cats={};
+    d.expense.forEach(e=>{const c=e.cat||'Uncategorised';cats[c]=(cats[c]||0)+(parseFloat(e.amt)||0);});
+    Object.entries(BUDGETS).forEach(([cat,limit])=>{
+      const spent=cats[cat]||0;
+      if(spent>limit){
+        const k=`budget_${cat}_${mk}`;
+        if(!toastsSent[k]){
+          queue.push({key:k,title:'Budget Exceeded 🔴',body:`${cat}: ${fmt(spent)} spent vs ${fmt(limit)} budget`});
+        }
+      }
+    });
+  }
+
+  // 4. Flow Recap available
+  const nowDay=new Date().getDate();
+  const nowM=new Date().getMonth()+1;
+  const nowY=new Date().getFullYear();
+  if(nowDay>=25&&nowDay<=30){
+    const recapNotifKey=`recap_notif_${nowM}_${nowY}`;
+    if(!toastsSent[recapNotifKey]){
+      queue.push({key:recapNotifKey,title:'✦ FlowSnap Ready',body:`Your ${MONTHS[nowM-1]} FlowSnap is live — see how you did.`});
+    }
+  }
+
+  // 5. Annual Wrapped
+  if(isWrappedWindow()){
+    const wy=getWrappedYear();
+    const wKey=`wrapped_notif_${wy}`;
+    if(!toastsSent[wKey]){
+      queue.push({key:wKey,title:'🎁 Annual Wrapped',body:`Your ${wy} year in review is ready.`});
+    }
+  }
+
+  // Mark sent and fire
+  queue.forEach((item,i)=>{
+    toastsSent[item.key]=todayStr;
+    setTimeout(()=>showToast(item.title,item.body), 500+i*2500);
+    // Browser notification
+    if(Notification.permission==='granted'){
+      setTimeout(()=>{
+        try{new Notification('Flow — '+item.title,{body:item.body,icon:'./icon-192.png',badge:'./favicon.png',tag:item.key});}catch(e){}
+      }, 500+i*2500);
+    }
+  });
+
+  localStorage.setItem('flow_notif_sent',JSON.stringify(toastsSent));
+}
+
+// ── Toast utility ────────────────────────────────────────────
+function showToast(title,body,duration){
+  const stack=document.getElementById('toastStack');
+  if(!stack)return;
+  duration=duration||5000;
+  const t=document.createElement('div');
+  t.className='flow-toast';
+  t.style.position='relative';
+  t.innerHTML=`<div class="flow-toast-title">${esc(title)}</div><div class="flow-toast-body">${esc(body)}</div><button class="flow-toast-close" onclick="this.parentElement.remove()">&times;</button>`;
+  stack.appendChild(t);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('in')));
+  setTimeout(()=>{
+    t.classList.remove('in'); t.classList.add('out');
+    setTimeout(()=>t.remove(),400);
+  },duration);
+}
+
 // ══ HIDE BALANCES — EYE TOGGLE ═══════════════════════════
 var _hideTrack = localStorage.getItem('flow_hide_t')==='1';
 var _hideBills = localStorage.getItem('flow_hide_b')==='1';
@@ -4845,7 +5761,14 @@ function _mv(el,val){
 
 // ══ INIT ═══════════════════════════════════════════════════
 function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();renderHeatmap();}
-applyDark();render();applyAllEyes();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();
+applyDark();render();applyAllEyes();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();initRecapSelectors();
+
+// Banners & notifications (after a brief settle)
+setTimeout(function(){
+  checkRecapBanner();
+  checkWrappedBanner();
+  initSmartNotifications();
+},800);
 
 // Pre-load MF schemes silently in background after 2s
 setTimeout(loadAllSchemes, 2000);

@@ -3,7 +3,7 @@
  * ─────────────────────────────────────────────────────────
  * HOW UPDATES WORK:
  * Every time you push a new version of the app to GitHub,
- * bump the CACHE_VERSION string below (e.g. v2 → v3).
+ * bump the CACHE_VERSION string below (e.g. v11 → v12).
  * The browser will detect the changed sw.js, install the new
  * worker, clear the old cache, and prompt the user to reload.
  *
@@ -12,7 +12,7 @@
  * ─────────────────────────────────────────────────────────
  */
 
-const CACHE_VERSION = 'flow-v10';          // ← BUMP ON EVERY DEPLOY
+const CACHE_VERSION = 'flow-v14';          // ← BUMP ON EVERY DEPLOY
 const CACHE_NAME    = `flow-${CACHE_VERSION}`;
 
 // Files to cache for full offline support
@@ -42,7 +42,6 @@ self.addEventListener('install', function(event){
         return cache.addAll(STATIC_ASSETS);
       })
       .then(function(){
-        // Take control immediately (don't wait for page reload)
         return self.skipWaiting();
       })
   );
@@ -63,7 +62,6 @@ self.addEventListener('activate', function(event){
         );
       })
       .then(function(){
-        // Claim all open tabs immediately
         return self.clients.claim();
       })
   );
@@ -73,10 +71,7 @@ self.addEventListener('activate', function(event){
 self.addEventListener('fetch', function(event){
   const url = new URL(event.request.url);
 
-  // Skip non-GET requests
   if(event.request.method !== 'GET') return;
-
-  // Skip chrome-extension and dev-tool requests
   if(url.protocol !== 'http:' && url.protocol !== 'https:') return;
 
   // NAV API (mfapi.in) — always network, never cache
@@ -89,26 +84,25 @@ self.addEventListener('fetch', function(event){
     return;
   }
 
-  // Everything else: cache-first with network fallback
+  // Everything else: cache-first with stale-while-revalidate
   event.respondWith(
     caches.match(event.request)
       .then(function(cached){
         if(cached){
-          // Return from cache, and update cache in background
-          var networkFetch = fetch(event.request)
+          // Serve cache immediately; update in background
+          fetch(event.request)
             .then(function(response){
               if(response && response.status === 200){
                 var clone = response.clone();
                 caches.open(CACHE_NAME)
                   .then(function(cache){ cache.put(event.request, clone); });
               }
-              return response;
             })
-            .catch(function(){ /* offline, use cache */ });
-          return cached; // Return cache immediately
+            .catch(function(){});
+          return cached;
         }
 
-        // Not in cache — fetch from network and cache it
+        // Not cached — fetch and cache
         return fetch(event.request)
           .then(function(response){
             if(!response || response.status !== 200 || response.type === 'opaque'){
@@ -120,7 +114,6 @@ self.addEventListener('fetch', function(event){
             return response;
           })
           .catch(function(){
-            // Offline and not cached — return a fallback for navigation
             if(event.request.destination === 'document'){
               return caches.match('./index.html');
             }
