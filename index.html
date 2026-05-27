@@ -838,6 +838,54 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .eye-btn:hover{color:var(--text);border-color:var(--border)}
 .eye-btn.hidden-on{color:var(--deficit);border-color:var(--deficit-bg)}
 .card-val-masked{letter-spacing:3px;color:var(--faint)!important;font-size:13px!important}
+
+/* ── Onboarding progress bar ─────────────────────────────── */
+.onboard-progress-track{width:80%;height:3px;background:var(--border);border-radius:2px;margin:6px auto 2px}
+.onboard-progress-fill{height:100%;background:var(--surplus);border-radius:2px;transition:width .35s ease}
+/* ── Annual Wrapped banner ───────────────────────────────── */
+.aw-banner{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#0d2d1a,#1a4d2e);color:#e2fce8;padding:10px 16px;font-size:12px;font-family:'IBM Plex Mono',monospace;border-bottom:1px solid #2d6b40;flex-wrap:wrap}
+.aw-banner-icon{font-size:18px;flex-shrink:0}
+.aw-banner-text{flex:1;min-width:0}
+.aw-banner-title{font-weight:600;margin-bottom:1px}
+.aw-banner-sub{font-size:10.5px;opacity:.75}
+.aw-banner-view{background:#22c55e;color:#000;border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'IBM Plex Mono',monospace}
+.aw-banner-close{background:none;border:none;color:#e2fce8;opacity:.6;font-size:18px;cursor:pointer;padding:0 2px;flex-shrink:0}
+.aw-banner-close:hover{opacity:1}
+/* ── Notifications ───────────────────────────────────────── */
+.notif-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px}
+.notif-wrap{background:var(--surface);border-radius:10px;max-width:360px;width:100%;padding:20px;box-shadow:0 8px 32px rgba(0,0,0,.22)}
+.notif-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.notif-sub{font-size:11px;color:var(--muted);margin-bottom:16px;line-height:1.5}
+.notif-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.notif-row:last-of-type{border-bottom:none}
+.notif-row-lbl{font-size:12px;color:var(--text)}
+.notif-row-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.notif-toggle{width:36px;height:20px;border-radius:10px;border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.notif-toggle.on{background:var(--surplus)}.notif-toggle.off{background:var(--border)}
+.notif-toggle::after{content:'';position:absolute;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s}
+.notif-toggle.on::after{left:18px}.notif-toggle.off::after{left:2px}
+/* ── Annual Wrapped tab content ──────────────────────────── */
+.aw-hero{text-align:center;padding:20px 0 16px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.aw-year{font-size:28px;font-weight:700;color:var(--text);letter-spacing:-1px}
+.aw-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.aw-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.aw-card{background:var(--surface-alt);border-radius:var(--r);padding:12px;border:1px solid var(--border)}
+.aw-card-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--faint);margin-bottom:4px;font-weight:500}
+.aw-card-val{font-size:16px;font-weight:600;color:var(--text)}
+.aw-section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px}
+.aw-cat-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.aw-cat-name{font-size:11.5px;color:var(--text);flex:0 0 110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aw-cat-bar-track{flex:1;height:6px;background:var(--surface-alt);border-radius:3px;overflow:hidden}
+.aw-cat-bar-fill{height:100%;background:var(--deficit);border-radius:3px}
+.aw-cat-amt{font-size:10.5px;color:var(--muted);flex:0 0 60px;text-align:right;white-space:nowrap}
+.aw-month-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.aw-month-lbl{font-size:10px;color:var(--muted);flex:0 0 30px}
+.aw-month-bar-track{flex:1;height:8px;background:var(--surface-alt);border-radius:3px;overflow:hidden}
+.aw-month-bar-fill{height:100%;border-radius:3px}
+.aw-insight{background:var(--surface-alt);border-radius:var(--r);padding:14px;border-left:3px solid var(--surplus);margin-top:18px;font-size:11.5px;color:var(--text);line-height:1.6}
+.aw-grade{font-size:48px;font-weight:700;text-align:center;margin:8px 0 2px}
+.aw-grade-lbl{font-size:11px;color:var(--muted);text-align:center}
+@media(max-width:480px){.aw-cat-name{flex:0 0 85px}}
 </style>
 </head>
 <body>
@@ -936,6 +984,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   <div class="onboard-card">
     <span class="onboard-icon" id="obIcon">📊</span>
     <div class="onboard-step-num" id="obStep">Step 1 of 5</div>
+    <div class="onboard-progress-track"><div class="onboard-progress-fill" id="obFill" style="width:20%"></div></div>
     <div class="onboard-title" id="obTitle">Welcome to Flow</div>
     <div class="onboard-desc" id="obDesc">Your complete personal finance tracker — offline, private, and always on your device.</div>
     <div class="onboard-dots" id="obDots"></div>
@@ -1088,6 +1137,19 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     </button>
   </div>
 </header>
+
+<!-- ══ ANNUAL WRAPPED BANNER ════════════════════════════════ -->
+<div id="awBanner" style="display:none">
+  <div class="aw-banner">
+    <span class="aw-banner-icon">&#127873;</span>
+    <div class="aw-banner-text">
+      <div class="aw-banner-title" id="awBannerTitle">Annual Wrapped is here</div>
+      <div class="aw-banner-sub">Your year in review is ready &mdash; tap to see how you did</div>
+    </div>
+    <button class="aw-banner-view" onclick="openAnnualWrapped()">View &#x2192;</button>
+    <button class="aw-banner-close" onclick="dismissAwBanner()" title="Dismiss">&#215;</button>
+  </div>
+</div>
 
 <!-- ══ GLOBAL SEARCH PANEL ═════════════════════════════════ -->
 <div id="globalSearchPanel" style="display:none;background:var(--surface);border-bottom:2px solid var(--text);padding:12px 16px">
@@ -1944,6 +2006,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <button class="sub-tab" onclick="switchToolsTab('report',this)">Monthly Report</button>
     <button class="sub-tab" onclick="switchToolsTab('emfund',this)">Emergency Fund</button>
     <button class="sub-tab" onclick="switchToolsTab('debtpay',this)">Debt Payoff</button>
+    <button class="sub-tab" id="awTab" onclick="switchToolsTab('annualwrap',this)" style="display:none">&#127873; Annual Wrapped</button>
   </div>
   <!-- FINANCIAL CALENDAR -->
   <div id="tsub-calendar" class="sub-pane active">
@@ -2020,6 +2083,10 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div id="debtPayoffList"><div class="empty-msg">No loans added yet. Add loans in Portfolio &#x2192; Loans tab first.</div></div>
     <div id="debtSummaryBlock" style="display:none;margin-top:14px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r)"></div>
   </div>
+  <!-- ANNUAL WRAPPED -->
+  <div class="sub-pane" id="tsub-annualwrap">
+    <div id="awContainer"></div>
+  </div>
 </div>
 </div>
 
@@ -2053,6 +2120,16 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="wn-hero-sub">Every feature, fix and improvement &mdash; from the beginning.</div>
   </div>
 
+  <div class="wn-version-block">
+    <div class="wn-version-header">
+      <span class="wn-version-num">v1.9</span>
+      <span class="wn-version-date">May 2026</span>
+      <span class="wn-version-label wn-label-minor">Update</span>
+    </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Onboarding Progress Bar</div><div class="wn-entry-desc">A smooth progress bar now fills step by step across the onboarding walkthrough, so new users always know where they are.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Smart Push Notifications</div><div class="wn-entry-desc">Local alerts for bill reminders (3 days before due), budget overruns, monthly logging reminders, and SIP due dates. Tap &#x1F514; Alerts in the footer to configure. No internet required.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Annual Wrapped &mdash; Year in Review</div><div class="wn-entry-desc">Available December 15 to January 15 each year. Shows total income, expenses, net savings, year grade (A&ndash;F), top spending categories, monthly expense chart, and a personal insight. A green banner appears when your Wrap is ready.</div></div></div>
+  </div>
   <div class="wn-version-block">
     <div class="wn-version-header">
       <span class="wn-version-num">v1.8</span>
@@ -2172,6 +2249,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 <footer class="footer">
   <div class="footer-inner">
     <span>Flow &nbsp;·&nbsp; <span id="fDate"></span></span>
+    <button class="btn-ghost" onclick="openNotifModal()" style="font-size:10px;padding:4px 12px">&#x1F514; Alerts</button>
     <button class="btn-ghost" onclick="backupData()" style="font-size:10px;padding:4px 12px">&#x2B07; Backup</button>
     <label class="btn-ghost" style="font-size:10px;padding:4px 12px;cursor:pointer">&#x2B06; Restore<input type="file" accept=".json" style="display:none" onchange="restoreData(this)"></label>
     <button class="btn-clear-all" onclick="clearAllData()">Clear All Data</button>
@@ -2277,6 +2355,7 @@ function switchToolsTab(id,btn){
   if(id==='report')renderMonthlyReport();
   if(id==='emfund')renderEmfund();
   if(id==='debtpay')renderDebtPayoff();
+  if(id==='annualwrap')renderAnnualWrapped();
 }
 
 // ══ DARK MODE ══════════════════════════════════════════════
@@ -4052,6 +4131,7 @@ function showOnboardStep(){
   dots.innerHTML=ONBOARD_STEPS.map((_,i)=>`<div class="onboard-dot${i===onboardStep?' active':''}"></div>`).join('');
   const nextBtn=document.querySelector('#onboardOverlay .btn-primary');
   if(nextBtn)nextBtn.textContent=onboardStep===ONBOARD_STEPS.length-1?'Get Started →':'Next →';
+  updateObProgress();
 }
 function nextOnboard(){
   if(onboardStep<ONBOARD_STEPS.length-1){onboardStep++;showOnboardStep();}
@@ -4843,9 +4923,207 @@ function _mv(el,val){
   }
 }
 
+
+// ══ ONBOARDING PROGRESS BAR ══════════════════════════════
+function updateObProgress(){
+  var fill=document.getElementById('obFill');
+  if(fill) fill.style.width=((onboardStep+1)/ONBOARD_STEPS.length*100)+'%';
+}
+
+// ══ ANNUAL WRAPPED ════════════════════════════════════════
+// Date range: Dec 15 to Jan 15
+// 2026 Wrap: Dec 15 2026 → Jan 15 2027
+// Calculation:
+//   Dec (month=11, day>=15) → wraps CURRENT year
+//   Jan (month=0, day<=15)  → wraps PREVIOUS year
+function isAnnualWrappedSeason(){
+  var now=new Date(), m=now.getMonth(), d=now.getDate();
+  return (m===11 && d>=15) || (m===0 && d<=15);
+}
+function getWrappedYear(){
+  var now=new Date();
+  return now.getMonth()===0 ? now.getFullYear()-1 : now.getFullYear();
+}
+
+function openAnnualWrapped(){
+  // Switch to Planner tab then Annual Wrapped sub-tab
+  var plannerBtn=document.querySelector('.tab-btn[onclick*="tools"]');
+  if(plannerBtn){switchTab('tools',plannerBtn);}
+  setTimeout(function(){
+    var awBtn=document.getElementById('awTab');
+    if(awBtn) switchToolsTab('annualwrap',awBtn);
+  },100);
+}
+
+function showAwBanner(){
+  if(!isAnnualWrappedSeason()) return;
+  var yr=getWrappedYear();
+  var dismissKey='flow_aw_dismissed_'+yr;
+  if(localStorage.getItem(dismissKey)) return;
+  var banner=document.getElementById('awBanner');
+  var title=document.getElementById('awBannerTitle');
+  if(banner){
+    if(title) title.textContent='✨ '+yr+' Annual Wrapped is here!';
+    banner.style.display='block';
+  }
+  // Show the sub-tab button
+  var tab=document.getElementById('awTab');
+  if(tab) tab.style.display='';
+}
+
+function dismissAwBanner(){
+  var yr=getWrappedYear();
+  localStorage.setItem('flow_aw_dismissed_'+yr,'1');
+  var banner=document.getElementById('awBanner');
+  if(banner) banner.style.display='none';
+}
+
+function renderAnnualWrapped(){
+  var tab=document.getElementById('awTab');
+  if(tab) tab.style.display=isAnnualWrappedSeason()?'':'none';
+  var container=document.getElementById('awContainer');
+  if(!container) return;
+  if(!isAnnualWrappedSeason()){
+    container.innerHTML='<div style="text-align:center;padding:40px 20px;font-size:12px;color:var(--muted);line-height:1.8">'
+      +'&#127873;<br><strong>Annual Wrapped</strong> is available<br>'
+      +'from <strong>December 15</strong> to <strong>January 15</strong> each year.<br><br>'
+      +'Your <strong>'+(new Date().getFullYear())+' Wrap</strong> will appear on Dec 15, '+new Date().getFullYear()+'.</div>';
+    return;
+  }
+  var yr=getWrappedYear();
+  var totalInc=0,totalExp=0,monthlyInc=[],monthlyExp=[],catTotals={};
+  for(var mi=0;mi<12;mi++){
+    var k=mi+'_'+yr;
+    var d=DB[k]||{income:[],expense:[]};
+    var inc=(d.income||[]).reduce(function(s,x){return s+(parseFloat(x.amt)||0);},0);
+    var exp=(d.expense||[]).reduce(function(s,x){return s+(parseFloat(x.amt)||0);},0);
+    monthlyInc.push(inc); monthlyExp.push(exp);
+    totalInc+=inc; totalExp+=exp;
+    (d.expense||[]).forEach(function(e){if(e.cat)catTotals[e.cat]=(catTotals[e.cat]||0)+(parseFloat(e.amt)||0);});
+  }
+  var net=totalInc-totalExp;
+  var savRate=totalInc>0?Math.round(net/totalInc*100):0;
+  var grade=savRate>=30?'A':savRate>=20?'B':savRate>=10?'C':savRate>=0?'D':'F';
+  var gradeColor=grade==='A'||grade==='B'?'var(--surplus)':grade==='C'?'var(--amber)':'var(--deficit)';
+  var cats=Object.keys(catTotals).sort(function(a,b){return catTotals[b]-catTotals[a];}).slice(0,5);
+  var maxCat=cats.length?catTotals[cats[0]]:1;
+  var maxExp=Math.max.apply(null,monthlyExp.concat([1]));
+  var bestM=-1,worstM=-1,bestNet=-Infinity,worstNet=Infinity;
+  for(var i=0;i<12;i++){
+    var n=monthlyInc[i]-monthlyExp[i];
+    if(monthlyInc[i]>0||monthlyExp[i]>0){
+      if(n>bestNet){bestNet=n;bestM=i;}
+      if(n<worstNet){worstNet=n;worstM=i;}
+    }
+  }
+  var insights=[];
+  if(savRate>=25) insights.push('Outstanding — you saved more than a quarter of everything you earned in '+yr+'.');
+  else if(savRate>=15) insights.push('Solid year. A savings rate of '+savRate+'% puts you ahead of most people.');
+  else if(savRate>0) insights.push('You stayed positive in '+yr+'. Push towards 20% savings next year.');
+  else insights.push('Expenses exceeded income in '+yr+'. Your top category is the place to start cutting.');
+  if(bestM>=0) insights.push(MONTHS[bestM]+' was your best month — net '+fmt(bestNet)+'.');
+  if(worstM>=0&&worstM!==bestM) insights.push(MONTHS[worstM]+' was your toughest month — watch that period in '+(yr+1)+'.');
+
+  container.innerHTML=
+    '<div class="aw-hero"><div class="aw-year">'+yr+' in Review</div><div class="aw-sub">Your Annual Wrapped &mdash; Flow</div></div>'
+    +'<div class="aw-grid">'
+      +'<div class="aw-card"><div class="aw-card-lbl">Total Income</div><div class="aw-card-val">'+fmt(totalInc)+'</div></div>'
+      +'<div class="aw-card"><div class="aw-card-lbl">Total Expenses</div><div class="aw-card-val" style="color:var(--deficit)">'+fmt(totalExp)+'</div></div>'
+      +'<div class="aw-card"><div class="aw-card-lbl">Net Saved</div><div class="aw-card-val" style="color:'+(net>=0?'var(--surplus)':'var(--deficit)')+'">'+fmt(net)+'</div></div>'
+      +'<div class="aw-card" style="text-align:center"><div class="aw-card-lbl">Year Grade</div><div class="aw-grade" style="color:'+gradeColor+'">'+grade+'</div><div class="aw-grade-lbl">'+savRate+'% savings rate</div></div>'
+    +'</div>'
+    +(cats.length?'<div style="margin-bottom:18px"><div class="aw-section-title">Top Spending Categories</div>'
+      +cats.map(function(cat){return'<div class="aw-cat-row"><div class="aw-cat-name" title="'+esc(cat)+'">'+esc(cat)+'</div>'
+        +'<div class="aw-cat-bar-track"><div class="aw-cat-bar-fill" style="width:'+Math.round(catTotals[cat]/maxCat*100)+'%"></div></div>'
+        +'<div class="aw-cat-amt">'+fmt(catTotals[cat])+'</div></div>';}).join('')+'</div>':'')
+    +'<div style="margin-bottom:18px"><div class="aw-section-title">Monthly Expenses</div>'
+      +MONTHS.map(function(mo,i){var pct=maxExp>0?Math.round(monthlyExp[i]/maxExp*100):0;
+        var bc=pct>=80?'var(--deficit)':pct>=50?'var(--amber)':'var(--surplus)';
+        return'<div class="aw-month-row"><div class="aw-month-lbl">'+mo.substring(0,3)+'</div>'
+          +'<div class="aw-month-bar-track"><div class="aw-month-bar-fill" style="width:'+pct+'%;background:'+bc+'"></div></div>'
+          +'<div style="font-size:10px;color:var(--muted);flex:0 0 68px;text-align:right">'+(monthlyExp[i]>0?fmt(monthlyExp[i]):'&mdash;')+'</div></div>';}).join('')
+    +'</div>'
+    +(insights.length?'<div class="aw-insight">'+insights.join(' ')+'</div>':'');
+}
+
+// ══ SMART NOTIFICATIONS ═══════════════════════════════════
+var NOTIF_PREFS=JSON.parse(localStorage.getItem('flow_notif')||'{"bills":true,"budget":true,"monthly":true,"sip":false}');
+function saveNotifPrefs(){localStorage.setItem('flow_notif',JSON.stringify(NOTIF_PREFS));}
+
+function openNotifModal(){
+  var permRow=document.getElementById('notifPermRow');
+  if('Notification' in window && Notification.permission==='default'){
+    if(permRow) permRow.style.display='block';
+  } else { if(permRow) permRow.style.display='none'; }
+  ['bills','budget','monthly','sip'].forEach(function(k){
+    var id='nt'+k.charAt(0).toUpperCase()+k.slice(1);
+    var btn=document.getElementById(id);
+    if(btn){btn.classList.toggle('on',!!NOTIF_PREFS[k]);btn.classList.toggle('off',!NOTIF_PREFS[k]);}
+  });
+  var lbl=document.getElementById('notifStatusLbl');
+  if(lbl) lbl.textContent=('Notification' in window&&Notification.permission==='granted')?'Notifications enabled':'Permission required';
+  document.getElementById('notifModal').style.display='flex';
+}
+function closeNotifModal(){document.getElementById('notifModal').style.display='none';}
+document.getElementById('notifModal').addEventListener('click',function(e){if(e.target===this)closeNotifModal();});
+
+function toggleNotif(key){
+  NOTIF_PREFS[key]=!NOTIF_PREFS[key]; saveNotifPrefs();
+  var btn=document.getElementById('nt'+key.charAt(0).toUpperCase()+key.slice(1));
+  if(btn){btn.classList.toggle('on',NOTIF_PREFS[key]);btn.classList.toggle('off',!NOTIF_PREFS[key]);}
+}
+async function requestNotifPermission(){
+  if(!('Notification' in window)) return;
+  var perm=await Notification.requestPermission();
+  if(perm==='granted'){
+    document.getElementById('notifPermRow').style.display='none';
+    var lbl=document.getElementById('notifStatusLbl');
+    if(lbl) lbl.textContent='Notifications enabled';
+    fireNotifNow();
+  }
+}
+function showNotif(title,body,tag){
+  if(!('Notification' in window)||Notification.permission!=='granted') return;
+  try{new Notification(title,{body:body,icon:'./apple-touch-icon.png',tag:tag||title});}catch(e){}
+}
+function fireNotifNow(){
+  if(!('Notification' in window)||Notification.permission!=='granted') return;
+  var today=new Date(),dn=today.getDate(),tm=today.getMonth(),ty=today.getFullYear();
+  if(NOTIF_PREFS.bills&&BILLS&&BILLS.length){
+    BILLS.forEach(function(b){
+      if(b.paid) return;
+      var diff=(parseInt(b.due)||1)-dn;
+      if(diff>=0&&diff<=3) showNotif('Bill Reminder: '+b.name,(diff===0?'Due today':'Due in '+diff+' day'+(diff===1?'':'s'))+' — '+fmt(b.amt||0),'bill-'+b.name);
+    });
+  }
+  if(NOTIF_PREFS.budget&&BUDGETS&&Object.keys(BUDGETS).length){
+    var kk=key(),dd=DB[kk]||{},catSpent={};
+    (dd.expense||[]).forEach(function(e){if(e.cat)catSpent[e.cat]=(catSpent[e.cat]||0)+(parseFloat(e.amt)||0);});
+    Object.keys(BUDGETS).forEach(function(cat){
+      if(BUDGETS[cat]>0&&(catSpent[cat]||0)>=BUDGETS[cat])
+        showNotif('Budget Exceeded: '+cat,'Spent '+fmt(catSpent[cat]||0)+' of '+fmt(BUDGETS[cat]),'budget-'+cat);
+    });
+  }
+  if(NOTIF_PREFS.monthly&&dn===1){
+    var mk=ty+'-'+tm;
+    if(localStorage.getItem('flow_notif_monthly')!==mk){
+      showNotif('New Month Started','Log your income and expenses for '+MONTHS[tm]+' '+ty,'monthly-'+mk);
+      localStorage.setItem('flow_notif_monthly',mk);
+    }
+  }
+  if(NOTIF_PREFS.sip&&INVEST&&INVEST.mf){
+    INVEST.mf.forEach(function(mf){
+      if(!mf.sipDate) return;
+      var diff=(parseInt(mf.sipDate)||1)-dn;
+      if(diff>=0&&diff<=2) showNotif('SIP Reminder: '+(mf.name||'MF'),'SIP of '+fmt(mf.sipAmt||0)+' due '+(diff===0?'today':'in '+diff+' day'+(diff===1?'':'s')),'sip-'+mf.name);
+    });
+  }
+}
+setTimeout(function(){if('Notification' in window&&Notification.permission==='granted')fireNotifNow();},3000);
+
 // ══ INIT ═══════════════════════════════════════════════════
 function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();renderHeatmap();}
-applyDark();render();applyAllEyes();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();
+applyDark();render();applyAllEyes();renderAnnualWrapped();showAwBanner();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();
 
 // Pre-load MF schemes silently in background after 2s
 setTimeout(loadAllSchemes, 2000);
@@ -4915,5 +5193,27 @@ setTimeout(loadAllSchemes, 2000);
   </div>
 </div>
 <div id="catDrop" style="display:none"></div>
+
+<div id="notifModal" class="notif-modal-bg" style="display:none">
+  <div class="notif-wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div><div class="notif-title">&#x1F514; Smart Notifications</div>
+      <div class="notif-sub">Local alerts &mdash; no internet needed.</div></div>
+      <button class="btn-del" onclick="closeNotifModal()" style="font-size:18px">&#215;</button>
+    </div>
+    <div id="notifPermRow" style="background:var(--surface-alt);border-radius:var(--r);padding:12px;margin-bottom:14px;font-size:11.5px;color:var(--muted);line-height:1.5;display:none">
+      Permission needed.<button class="btn-primary" onclick="requestNotifPermission()" style="margin-top:8px;width:100%;padding:8px;font-size:12px">Allow Notifications</button>
+    </div>
+    <div class="notif-row"><div><div class="notif-row-lbl">Bill Reminders</div><div class="notif-row-sub">3 days before a bill is due</div></div><button class="notif-toggle" id="ntBills" onclick="toggleNotif('bills')"></button></div>
+    <div class="notif-row"><div><div class="notif-row-lbl">Budget Alerts</div><div class="notif-row-sub">When a category exceeds its budget</div></div><button class="notif-toggle" id="ntBudget" onclick="toggleNotif('budget')"></button></div>
+    <div class="notif-row"><div><div class="notif-row-lbl">Monthly Reminder</div><div class="notif-row-sub">1st of month &mdash; log your entries</div></div><button class="notif-toggle" id="ntMonthly" onclick="toggleNotif('monthly')"></button></div>
+    <div class="notif-row"><div><div class="notif-row-lbl">SIP Reminder</div><div class="notif-row-sub">SIP due dates in your portfolio</div></div><button class="notif-toggle" id="ntSip" onclick="toggleNotif('sip')"></button></div>
+    <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center">
+      <span id="notifStatusLbl" style="font-size:10.5px;color:var(--faint)"></span>
+      <button class="btn-primary" onclick="fireNotifNow();closeNotifModal()" style="font-size:11px;padding:6px 14px">Check Now</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
