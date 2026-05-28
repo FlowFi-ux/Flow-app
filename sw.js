@@ -12,10 +12,9 @@
  * ─────────────────────────────────────────────────────────
  */
 
-const CACHE_VERSION = 'flow-v27';          // ← BUMP ON EVERY DEPLOY
+const CACHE_VERSION = 'flow-v29';          // ← BUMP ON EVERY DEPLOY
 const CACHE_NAME    = `flow-${CACHE_VERSION}`;
 
-// Files to cache for full offline support
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -27,27 +26,20 @@ const STATIC_ASSETS = [
   './sw.js',
 ];
 
-// CDN assets — cached on first fetch, served offline after
 const CDN_ASSETS = [
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
   'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&display=swap',
 ];
 
-// ── INSTALL — cache static assets immediately ─────────────
 self.addEventListener('install', function(event){
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(function(cache){
-        return cache.addAll(STATIC_ASSETS);
-      })
-      .then(function(){
-        return self.skipWaiting();
-      })
+      .then(function(cache){ return cache.addAll(STATIC_ASSETS); })
+      .then(function(){ return self.skipWaiting(); })
   );
 });
 
-// ── ACTIVATE — delete old caches ─────────────────────────
 self.addEventListener('activate', function(event){
   event.waitUntil(
     caches.keys()
@@ -55,76 +47,53 @@ self.addEventListener('activate', function(event){
         return Promise.all(
           cacheNames
             .filter(function(name){ return name !== CACHE_NAME; })
-            .map(function(name){
-              console.log('[SW] Deleting old cache:', name);
-              return caches.delete(name);
-            })
+            .map(function(name){ console.log('[SW] Deleting old cache:', name); return caches.delete(name); })
         );
       })
-      .then(function(){
-        return self.clients.claim();
-      })
+      .then(function(){ return self.clients.claim(); })
   );
 });
 
-// ── FETCH — cache-first for static, network-first for API ─
 self.addEventListener('fetch', function(event){
   const url = new URL(event.request.url);
-
   if(event.request.method !== 'GET') return;
   if(url.protocol !== 'http:' && url.protocol !== 'https:') return;
 
-  // NAV API (mfapi.in) — always network, never cache
   if(url.hostname === 'api.mfapi.in'){
     event.respondWith(fetch(event.request).catch(function(){
-      return new Response(JSON.stringify({error:'offline'}),{
-        headers:{'Content-Type':'application/json'}
-      });
+      return new Response(JSON.stringify({error:'offline'}),{headers:{'Content-Type':'application/json'}});
     }));
     return;
   }
 
-  // Everything else: cache-first with stale-while-revalidate
   event.respondWith(
     caches.match(event.request)
       .then(function(cached){
         if(cached){
-          // Serve cache immediately; update in background
           fetch(event.request)
             .then(function(response){
               if(response && response.status === 200){
                 var clone = response.clone();
-                caches.open(CACHE_NAME)
-                  .then(function(cache){ cache.put(event.request, clone); });
+                caches.open(CACHE_NAME).then(function(cache){ cache.put(event.request, clone); });
               }
             })
             .catch(function(){});
           return cached;
         }
-
-        // Not cached — fetch and cache
         return fetch(event.request)
           .then(function(response){
-            if(!response || response.status !== 200 || response.type === 'opaque'){
-              return response;
-            }
+            if(!response || response.status !== 200 || response.type === 'opaque') return response;
             var clone = response.clone();
-            caches.open(CACHE_NAME)
-              .then(function(cache){ cache.put(event.request, clone); });
+            caches.open(CACHE_NAME).then(function(cache){ cache.put(event.request, clone); });
             return response;
           })
           .catch(function(){
-            if(event.request.destination === 'document'){
-              return caches.match('./index.html');
-            }
+            if(event.request.destination === 'document') return caches.match('./index.html');
           });
       })
   );
 });
 
-// ── MESSAGE — handle skipWaiting from page ────────────────
 self.addEventListener('message', function(event){
-  if(event.data && event.data.action === 'skipWaiting'){
-    self.skipWaiting();
-  }
+  if(event.data && event.data.action === 'skipWaiting') self.skipWaiting();
 });

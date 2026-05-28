@@ -94,7 +94,6 @@ body{font-family:'IBM Plex Mono','Courier New',monospace;background:var(--bg);co
 .hdr-brand h1{font-size:16px;font-weight:600;letter-spacing:-.3px;white-space:nowrap}
 .hdr-controls{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
 .hdr-controls::-webkit-scrollbar{display:none}
-.hdr-controls::-webkit-scrollbar{display:none}
 .sep{width:1px;height:16px;background:var(--border);flex-shrink:0}
 
 /* ── TABS ─────────────────────────────────────────────── */
@@ -645,17 +644,12 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .btn-notify-icon.wa:hover{background:rgba(37,211,102,.18);border-color:#25d366}
 .btn-notify-icon.sms{border-color:rgba(99,179,237,.5);background:rgba(99,179,237,.08)}
 .btn-notify-icon.sms:hover{background:rgba(99,179,237,.18);border-color:#63b3ed}
-.btn-notify-icon.nudge-due{animation:nudge-pulse 2s infinite}
-@keyframes nudge-pulse{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,.4)}50%{box-shadow:0 0 0 5px rgba(251,191,36,0)};border-color:#fbbf24}
+.btn-notify-icon.nudge-due{animation:nudge-pulse 2s infinite;border-color:#fbbf24}
+@keyframes nudge-pulse{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,.4)}50%{box-shadow:0 0 0 5px rgba(251,191,36,0)}}
 .nudge-dot{position:absolute;top:1px;right:1px;width:7px;height:7px;border-radius:50%;background:#fbbf24;border:1.5px solid var(--surface)}
 [data-theme="dark"] .btn-notify-icon.wa{border-color:rgba(37,211,102,.4)}
 [data-theme="dark"] .btn-notify-icon.sms{border-color:rgba(99,179,237,.4)}
 /* ── Friend Debt Memory ─────────────────────────────────── */
-.debt-entry{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:8px;flex-wrap:wrap}
-.debt-entry:last-child{border-bottom:none}
-.debt-badge-owe-me{background:rgba(74,222,128,.12);color:var(--surplus);border:1px solid var(--surplus);font-size:9px;padding:2px 7px;border-radius:10px;white-space:nowrap}
-.debt-badge-i-owe{background:rgba(248,113,113,.12);color:var(--deficit);border:1px solid var(--deficit);font-size:9px;padding:2px 7px;border-radius:10px;white-space:nowrap}
-.debt-settled{opacity:.45;text-decoration:line-through}
 
 /* ══ MF SIP ═════════════════════════════════════════════════ */
 .sip-badge{font-size:9px;padding:2px 7px;border-radius:10px;background:#e6edf8;color:#2a5080;border:1px solid #b8d0e8;white-space:nowrap;display:inline-block;margin-top:3px}
@@ -1353,11 +1347,11 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn-primary btn-sm" onclick="createQuickSplit('wa')" style="flex:1;justify-content:center;padding:10px;background:#25d366;border-color:#25d366;display:flex;align-items:center;gap:6px">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20.52 3.48A11.8 11.8 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.19 1.6 6.01L0 24l6.14-1.61A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.21-1.25-6.23-3.48-8.52z" fill="white"/></svg>
-        WhatsApp All
+        Split &amp; WhatsApp
       </button>
       <button class="btn-ghost btn-sm" onclick="createQuickSplit('sms')" style="flex:1;justify-content:center;padding:10px;border-color:#63b3ed;color:#63b3ed;display:flex;align-items:center;gap:6px">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 2H4C2.9 2 2 2.9 2 4v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" fill="#63b3ed"/></svg>
-        SMS All
+        Split &amp; SMS
       </button>
       <button class="btn-ghost btn-sm" onclick="closeQuickSplit()" style="padding:10px 14px">Cancel</button>
     </div>
@@ -2690,7 +2684,6 @@ let SUBS  = JSON.parse(localStorage.getItem('flow_subs')||'[]');
 let NOTES = JSON.parse(localStorage.getItem('flow_notes')||'[]');
 let NW_HISTORY=JSON.parse(localStorage.getItem('flow_nw_history')||'[]');
 let BILLS = JSON.parse(localStorage.getItem('flow_bills')||'[]');
-let DEBTS = JSON.parse(localStorage.getItem('flow_debts')||'[]');
 let INVEST= JSON.parse(localStorage.getItem('flow_invest')||'{"goals":[],"mf":[],"holdings":[],"dividends":[],"fds":[]}');
 let dark  = localStorage.getItem('flow_dark')==='true';
 let BUDGETS= JSON.parse(localStorage.getItem('flow_budgets')||'{}');
@@ -2729,7 +2722,6 @@ function toggleForm(id){const e=document.getElementById(id);if(!e)return;e.style
 function mdata(){const k=key();if(!DB[k])DB[k]={income:[],expense:[]};return DB[k]}
 function save(){localStorage.setItem('flow_v3',JSON.stringify(DB))}
 function saveBills(){localStorage.setItem('flow_bills',JSON.stringify(BILLS))}
-function saveDebts(){localStorage.setItem('flow_debts',JSON.stringify(DEBTS))}
 function saveInvest(){localStorage.setItem('flow_invest',JSON.stringify(INVEST))}
 function saveLoans(){localStorage.setItem('flow_loans',JSON.stringify(LOANS))}
 function saveSplits(){localStorage.setItem('flow_splits',JSON.stringify(SPLITS))}
@@ -4206,8 +4198,12 @@ function saveSplit(){
   if(editingSplitId){
     const sp=SPLITS.find(s=>s.id===editingSplitId);
     if(sp){
-      const settledMap={};sp.members.forEach(m=>{settledMap[m.name.toLowerCase()]=m.settled;});
-      members.forEach(m=>{const k=m.name.toLowerCase();if(settledMap[k]!==undefined)m.settled=settledMap[k];});
+      // Build a lookup of existing members by name (lowercase) to preserve id/notifiedAt/settled
+      const prevMap={};sp.members.forEach(m=>{prevMap[m.name.toLowerCase()]={id:m.id,settled:m.settled,notifiedAt:m.notifiedAt||null};});
+      members.forEach(m=>{
+        const prev=prevMap[m.name.toLowerCase()];
+        if(prev){m.id=prev.id;m.settled=prev.settled;m.notifiedAt=prev.notifiedAt;}
+      });
       sp.title=title;sp.total=total;sp.date=date;sp.paidBy=paidBy;sp.payeeUPI=payeeUPI;sp.members=members;
     }
     editingSplitId=null;
@@ -4259,7 +4255,9 @@ function notifyMember(splitId,memberId){
 
   // WhatsApp if phone number available
   if(m.phone&&m.phone.length>=10){
-    const phone=m.phone.startsWith('91')?m.phone:'91'+m.phone;
+    let phone=m.phone.replace(/\D/g,'');
+    if(phone.startsWith('0'))phone=phone.slice(1);          // strip leading 0
+    if(!phone.startsWith('91'))phone='91'+phone;             // add country code
     window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');
     return;
   }
@@ -4307,16 +4305,15 @@ function renderSplits(){
         return '<div class="split-member">'
           +'<div style="display:flex;flex-direction:column;gap:2px">'
           +'<span class="'+(m.settled?'split-settled-lbl':'')+'">'+(m.phone?'<span style="font-size:9.5px;color:var(--faint);margin-left:5px">\u{1F4F1}</span>':'')+esc(m.name)+'</span>'
-          +(daysSince!==null&&!m.settled?'<span style="font-size:9px;color:'+(isNudgeDue?'#fbbf24':'var(--faint')+')\">'+(isNudgeDue?'\u26a1 Nudge due':'Notified '+daysSince+'d ago')+'</span>':'')
+          +(daysSince!==null&&!m.settled?'<span style="font-size:9px;color:'+(isNudgeDue?'#fbbf24':'var(--faint)')+'\">'+(isNudgeDue?'\u26a1 Nudge due':'Notified '+daysSince+'d ago')+'</span>':'')
           +'</div>'
           +'<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end">'
           +'<span style="font-weight:500">'+fmt(m.amount)+'</span>'
-          +(!m.settled?'<button class="btn-notify-icon wa'+(isNudgeDue?' nudge-due':'')+'" onclick="notifyMember(\''+s.id+'\',\''+m.id+'\')" title="'+waTitle+'">'+waSVG+(isNudgeDue?'<span class="nudge-dot"></span>':'')+'</button>':'')
-          +(!m.settled&&m.phone?'<button class="btn-notify-icon sms" onclick="notifySMS(\''+s.id+'\',\''+m.id+'\')" title="SMS '+esc(m.name)+'">'+smsSVG+'</button>':'')
-          +(!m.settled
-            ?'<button class="btn-settle" onclick="settleSplitMember(\''+s.id+'\',\''+m.id+'\')">Mark Settled</button>'
-            :'<span style="display:flex;align-items:center;gap:4px"><span style="font-size:10px;color:var(--surplus)">&#x2713; Settled</span><button class="btn-ghost btn-sm" onclick="unmarkSplitMember(\''+s.id+'\',\''+m.id+'\')" style="font-size:9px;padding:2px 6px;opacity:.55" title="Undo">Undo</button></span>'
-          )
+          +'<span style="font-weight:500">'+fmt(m.amount)+'</span>'
+          +((!m.settled&&m.phone)?'<button class="btn-notify-icon wa'+(isNudgeDue?' nudge-due':'')+'\" onclick="notifyMember(\''+s.id+'\',\''+m.id+'\')" title="'+waTitle+'">'+waSVG+(isNudgeDue?'<span class="nudge-dot"></span>':'')+'</button>':'')
+          +((!m.settled&&m.phone)?'<button class="btn-notify-icon sms" onclick="notifySMS(\''+s.id+'\',\''+m.id+'\')" title="SMS '+esc(m.name)+'">'+smsSVG+'</button>':'')
+          +((!m.settled&&!m.phone)?'<button class="btn-notify-icon" onclick="notifyMember(\''+s.id+'\',\''+m.id+'\')" title="Copy message — add phone for WA/SMS" style="font-size:11px;width:30px;height:30px">&#x1F4CB;</button>':'')
+          +(!m.settled?'<button class="btn-settle" onclick="settleSplitMember(\''+s.id+'\',\''+m.id+'\')">Mark Settled</button>':'<span style="display:flex;align-items:center;gap:4px"><span style="font-size:10px;color:var(--surplus)">&#x2713; Settled</span><button class="btn-ghost btn-sm" onclick="unmarkSplitMember(\''+s.id+'\',\''+m.id+'\')" style="font-size:9px;padding:2px 6px;opacity:.55" title="Undo">Undo</button></span>')
           +'</div></div>';
       }).join('')}
     </div>`;
@@ -6669,7 +6666,9 @@ function notifySMS(splitId,memberId){
     payPart='\nPay to UPI: '+sp.payeeUPI+' | \u20B9'+amtStr;
   }
   const msg='Hi '+m.name+'! '+(sp.paidBy||'Someone')+' added a bill split.\n'+sp.title+(dateStr?' ('+dateStr+')':'')+'\nYour share: \u20B9'+amtStr+payPart+'\n\u2014 Sent via Flow';
-  const phone=m.phone.startsWith('91')?m.phone:'91'+m.phone;
+  let phone=m.phone.replace(/\D/g,'');
+  if(phone.startsWith('0'))phone=phone.slice(1);
+  if(!phone.startsWith('91'))phone='91'+phone;
   // Use sms: scheme — works on both Android and iPhone
   window.open('sms:+'+phone+'?body='+encodeURIComponent(msg),'_blank');
 }
@@ -6684,57 +6683,6 @@ function unmarkSplitMember(splitId,memberId){
 }
 
 // ══ FRIEND DEBT MEMORY ════════════════════════════════════
-function saveDebt(){
-  const name=document.getElementById('dName').value.trim();
-  const amt=parseFloat(document.getElementById('dAmt').value)||0;
-  const dir=document.getElementById('dDir').value;
-  const date=document.getElementById('dDate').value;
-  const note=document.getElementById('dNote').value.trim();
-  if(!name||!amt){alert('Name and amount required.');return;}
-  DEBTS.push({id:uid(),name,amount:amt,direction:dir,date,note,settled:false,createdAt:Date.now()});
-  saveDebts();renderDebts();
-  ['dName','dAmt','dNote'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('dDir').value='owe_me';
-  document.getElementById('dDate').value='';
-  toggleForm('debtForm');
-}
-function settleDebt(id){const d=DEBTS.find(x=>x.id===id);if(d)d.settled=true;saveDebts();renderDebts();}
-function unsettleDebt(id){const d=DEBTS.find(x=>x.id===id);if(d)d.settled=false;saveDebts();renderDebts();}
-function deleteDebt(id){if(!confirm('Delete this entry?'))return;DEBTS=DEBTS.filter(x=>x.id!==id);saveDebts();renderDebts();}
-function renderDebts(){
-  const sum=document.getElementById('debtSummary');
-  const list=document.getElementById('debtList');
-  if(!sum||!list)return;
-  const owedToMe=DEBTS.filter(d=>d.direction==='owe_me'&&!d.settled).reduce((s,d)=>s+d.amount,0);
-  const iOwe=DEBTS.filter(d=>d.direction==='i_owe'&&!d.settled).reduce((s,d)=>s+d.amount,0);
-  sum.innerHTML=`
-    <div class="card"><div class="card-lbl" style="color:var(--surplus)">Owed to you</div><div class="card-val" style="color:var(--surplus)">${fmt(owedToMe)}</div></div>
-    <div class="card"><div class="card-lbl" style="color:var(--deficit)">You owe</div><div class="card-val" style="color:var(--deficit)">${fmt(iOwe)}</div></div>`;
-  if(!DEBTS.length){list.innerHTML='<div class="empty-msg">No IOUs logged yet.</div>';return;}
-  list.innerHTML=DEBTS.slice().sort((a,b)=>b.createdAt-a.createdAt).map(d=>{
-    const daysAgo=d.date?Math.floor((Date.now()-new Date(d.date))/(86400000)):null;
-    return`<div class="debt-entry ${d.settled?'debt-settled':''}">
-      <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
-          <span style="font-weight:500;font-size:13px">${esc(d.name)}</span>
-          <span class="${d.direction==='owe_me'?'debt-badge-owe-me':'debt-badge-i-owe'}">${d.direction==='owe_me'?'Owes you':'You owe'}</span>
-          ${d.settled?'<span style="font-size:9px;color:var(--surplus);background:rgba(74,222,128,.1);padding:2px 6px;border-radius:8px">✓ Settled</span>':''}
-        </div>
-        ${d.note?`<div style="font-size:11px;color:var(--muted)">${esc(d.note)}</div>`:''}
-        ${d.date?`<div style="font-size:10px;color:var(--faint)">${new Date(d.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}${daysAgo!==null&&!d.settled?` &nbsp;·&nbsp; ${daysAgo===0?'Today':daysAgo+' days ago'}`:''}${'</div>'}`:'' }
-      </div>
-      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-        <span style="font-weight:600;font-size:14px;${d.direction==='owe_me'?'color:var(--surplus)':'color:var(--deficit)'}">${fmt(d.amount)}</span>
-        ${!d.settled
-          ?`<button class="btn-settle" onclick="settleDebt('${d.id}')">Settled</button>`
-          :`<button class="btn-ghost btn-sm" onclick="unsettleDebt('${d.id}')" style="font-size:9px;padding:2px 6px;opacity:.55">Undo</button>`
-        }
-        <button class="btn-del" onclick="deleteDebt('${d.id}')">x</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
 // ══ SHAREABLE RECAP CARD ══════════════════════════════════
 function shareRecapCard(){
   const m=parseInt(document.getElementById('selMonth').value);
@@ -6866,10 +6814,17 @@ function addQSMember(name='',phone=''){
 function qsAutoSplit(){
   const total=parseFloat(document.getElementById('qsTotal').value)||0;
   if(!total)return;
-  const rows=document.querySelectorAll('#qsMembers .qs-member-row');
+  const rows=[...document.querySelectorAll('#qsMembers .qs-member-row')];
   if(!rows.length)return;
-  const each=Math.round((total/rows.length)*100)/100;
-  rows.forEach(row=>{const inp=row.querySelectorAll('input')[1];if(inp&&!inp.dataset.manual)inp.value=each;});
+  const each=Math.floor((total/rows.length)*100)/100;
+  let assigned=0;
+  rows.forEach((row,idx)=>{
+    const inp=row.querySelectorAll('input')[1];
+    if(!inp)return;
+    const val=(idx===rows.length-1)?Math.round((total-assigned)*100)/100:each;
+    inp.value=val;
+    assigned+=each;
+  });
 }
 function createQuickSplit(channel){
   const title=document.getElementById('qsTitle').value.trim();
@@ -6893,22 +6848,24 @@ function createQuickSplit(channel){
   const btn=document.getElementById('btab-split');
   if(btn)switchBillsTab('split',btn);
   // Notify via chosen channel
-  const withPhone=sp.members.filter(m=>m.phone);
+  const withPhone=sp.members.filter(m=>m.phone&&m.phone.length>=10);
   if(!withPhone.length){
-    showToast('Split created ⚡','Add phone numbers to send notifications.');
+    showToast('Split created ⚡','Add phone numbers to send WhatsApp/SMS notifications.');
     return;
   }
   if(channel==='wa'){
-    // Open WhatsApp for first person immediately
     notifyMember(sp.id,withPhone[0].id);
     if(withPhone.length>1){
-      setTimeout(()=>showToast('Split created ⚡','Tap 💬 on each person to send the remaining '+(withPhone.length-1)+' notifications.'),800);
+      setTimeout(()=>showToast('Notified '+withPhone[0].name+' ✓','Come back and tap 💬 on each remaining person to notify them ('+( withPhone.length-1)+' left).'),900);
+    } else {
+      setTimeout(()=>showToast('Notified '+withPhone[0].name+' ✓','Split created and notification sent.'),900);
     }
   } else if(channel==='sms'){
-    // SMS first person
     notifySMS(sp.id,withPhone[0].id);
     if(withPhone.length>1){
-      setTimeout(()=>showToast('Split created ⚡','Tap the SMS button on each person for the remaining '+(withPhone.length-1)+' notifications.'),800);
+      setTimeout(()=>showToast('SMS sent to '+withPhone[0].name+' ✓','Come back and tap the SMS button on each remaining person ('+(withPhone.length-1)+' left).'),900);
+    } else {
+      setTimeout(()=>showToast('SMS sent to '+withPhone[0].name+' ✓','Split created and SMS sent.'),900);
     }
   }
 }
@@ -6916,8 +6873,6 @@ function createQuickSplit(channel){
 // ══ INIT ═══════════════════════════════════════════════════
 function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();renderHeatmap();}
 applyDark();render();applyAllEyes();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();initRecapSelectors();initCurrencyUI();initNWToggle();
-// Set today as default for debt date
-(function(){const el=document.getElementById('dDate');if(el)el.value=new Date().toISOString().split('T')[0];})();
 
 // Banners & notifications (after a brief settle)
 setTimeout(function(){
