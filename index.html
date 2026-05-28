@@ -90,7 +90,7 @@ body{font-family:'IBM Plex Mono','Courier New',monospace;background:var(--bg);co
 .info-tip li{margin-bottom:4px}
 
 /* ── HEADER ───────────────────────────────────────────── */
-.hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px;overflow:hidden}
+.hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px}
 .hdr-brand h1{font-size:16px;font-weight:600;letter-spacing:-.3px;white-space:nowrap}
 .hdr-controls{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
 .hdr-controls::-webkit-scrollbar{display:none}
@@ -498,6 +498,32 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   .globalSearchPanel-inner{max-width:1080px;margin:0 auto}
 }
 
+/* ── Responsive: split member row wraps on small screens ── */
+@media(max-width:520px){
+  .split-member{flex-wrap:wrap;gap:6px}
+  .split-member > div{flex:1 1 auto;justify-content:flex-end}
+}
+/* ── Responsive: sub-tabs wrap cleanly on very small screens */
+@media(max-width:400px){
+  .sub-tabs{gap:0}
+  .sub-tab{padding:8px 10px;font-size:11px}
+}
+/* ── Responsive: hdr-brand prevents logo from disappearing ── */
+@media(max-width:360px){
+  .hdr-brand h1{display:none}
+  .hdr{gap:4px;padding:8px 10px}
+}
+/* ── Responsive: cards uniform height on all screens ────── */
+@media(max-width:480px){
+  .card{padding:12px 12px}
+  .card-val{font-size:15px}
+  .card-lbl{font-size:9px}
+}
+/* ── Responsive: bills summary equal cols on 480px ──────── */
+@media(max-width:480px){
+  .bills-summary{grid-template-columns:1fr 1fr !important}
+}
+
 
 /* ══ LOCK SCREEN ════════════════════════════════════════════ */
 .lock-screen{position:fixed;inset:0;background:var(--bg);z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;overflow-y:auto}
@@ -593,7 +619,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .split-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
 .split-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
 .split-title{font-size:13px;font-weight:500}
-.split-member{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;gap:8px}
+.split-member{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;gap:8px;flex-wrap:wrap}
 .split-member:last-child{border-bottom:none}
 .split-settled-lbl{text-decoration:line-through;color:var(--faint)}
 .btn-settle{font-size:10px;padding:3px 9px;background:var(--surplus-bg);color:var(--surplus);border:1px solid var(--surplus);border-radius:12px;cursor:pointer;font-family:'IBM Plex Mono',monospace}
@@ -603,15 +629,15 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .btn-notify{font-size:10px;padding:3px 9px;background:var(--surface-alt);color:var(--muted);border:1px solid var(--border);border-radius:12px;cursor:pointer;font-family:'IBM Plex Mono',monospace;white-space:nowrap;line-height:1.4}
 .btn-notify:hover{border-color:var(--text);color:var(--text)}
 .btn-notify.has-phone{background:rgba(74,222,128,.12);color:var(--surplus);border-color:var(--surplus)}
-/* ── Per-app UPI Pay buttons ──────────────────────────── */
-.btn-pay-app{font-size:9.5px;padding:3px 9px;border-radius:12px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-family:'IBM Plex Mono',monospace;white-space:nowrap;transition:opacity .14s}
-.btn-pay-app:hover{opacity:.75}
-.btn-pay-app.gpay{border-color:rgba(66,133,244,.5);color:#4285F4}
-.btn-pay-app.phonepe{border-color:rgba(95,37,159,.4);color:#5f259f}
-.btn-pay-app.paytm{border-color:rgba(0,41,112,.4);color:#002970}
-[data-theme="dark"] .btn-pay-app.gpay{color:#8ab4f8;border-color:rgba(138,180,248,.4)}
-[data-theme="dark"] .btn-pay-app.phonepe{color:#b39ddb;border-color:rgba(179,157,219,.4)}
-[data-theme="dark"] .btn-pay-app.paytm{color:#90caf9;border-color:rgba(144,202,249,.4)}
+/* ── Notify icon buttons (WhatsApp + SMS) ─────────────── */
+.btn-notify-icon{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--surface);cursor:pointer;transition:all .14s;flex-shrink:0}
+.btn-notify-icon:hover{transform:scale(1.1)}
+.btn-notify-icon.wa{border-color:rgba(37,211,102,.5);background:rgba(37,211,102,.08)}
+.btn-notify-icon.wa:hover{background:rgba(37,211,102,.18);border-color:#25d366}
+.btn-notify-icon.sms{border-color:rgba(99,179,237,.5);background:rgba(99,179,237,.08)}
+.btn-notify-icon.sms:hover{background:rgba(99,179,237,.18);border-color:#63b3ed}
+[data-theme="dark"] .btn-notify-icon.wa{border-color:rgba(37,211,102,.4)}
+[data-theme="dark"] .btn-notify-icon.sms{border-color:rgba(99,179,237,.4)}
 
 /* ══ MF SIP ═════════════════════════════════════════════════ */
 .sip-badge{font-size:9px;padding:2px 7px;border-radius:10px;background:#e6edf8;color:#2a5080;border:1px solid #b8d0e8;white-space:nowrap;display:inline-block;margin-top:3px}
@@ -777,6 +803,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .wn-badge{flex-shrink:0;font-size:8.5px;font-weight:700;letter-spacing:.6px;padding:2px 7px;border-radius:4px;margin-top:2px;text-transform:uppercase;height:fit-content}
 .wn-badge-new{background:var(--surplus-bg);color:var(--surplus);border:1px solid var(--surplus)}
 .wn-badge-fix{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber)}
+.wn-badge-improved{background:rgba(99,179,237,.12);color:#63b3ed;border:1px solid rgba(99,179,237,.4)}
 .wn-badge-impr{background:#e8edf8;color:#3a5a9a;border:1px solid #b8cce8}
 [data-theme="dark"] .wn-badge-impr{background:#0d1a2e;color:#7aaae8;border-color:#1a3050}
 .wn-badge-rem{background:var(--deficit-bg);color:var(--deficit);border:1px solid var(--deficit)}
@@ -1637,7 +1664,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       </div>
       <button class="btn-ghost btn-sm" onclick="toggleForm('splitForm')">+ Add Split</button>
     </div>
-    <div class="info-tip" id="tip-split"><div class="info-tip-hd">Bill Split Tracker</div>Track shared expenses. Add the total, who paid, and split among people. Add each person's WhatsApp number — tap <strong>&#x1F4AC; Notify</strong> to send them their share instantly via WhatsApp with a pay link included.<button class="info-tip-close" onclick="toggleInfo('tip-split')">&#215;</button></div>
+    <div class="info-tip" id="tip-split"><div class="info-tip-hd">Bill Split Tracker</div>Track shared expenses. Add the total amount, who paid, and split it among people. Add each person's WhatsApp number — tap the <strong style="color:#25d366">WhatsApp icon</strong> to send them their share instantly. Tap the <strong style="color:#63b3ed">SMS icon</strong> to send via text message. Once they pay, tap <strong>Mark Settled</strong>.<button class="info-tip-close" onclick="toggleInfo('tip-split')">&#215;</button></div>
     <div class="hold-form" id="splitForm" style="display:none;margin-bottom:14px">
       <div id="splitFormTitle" style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:12px">Add Shared Expense</div>
       <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
@@ -2439,7 +2466,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     </div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">📄 FlowSnap PDF Export</div><div class="wn-entry-desc">Export your monthly FlowSnap as a clean PDF — income, expenses, portfolio P&amp;L, bills, and loans in one file. Find it in Planner → FlowSnap.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🔗 Goal-SIP Linking</div><div class="wn-entry-desc">Link a savings goal to a mutual fund SIP. The goal card shows the linked fund, monthly amount, and estimated months to reach your target at 12% p.a.</div></div></div>
-    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">💸 Bill Split — UPI Pay &amp; WhatsApp Notify</div><div class="wn-entry-desc">Add your UPI ID to a split — each person gets a Pay button that opens GPay / PhonePe pre-filled. Add their WhatsApp number to send them a notification with their share and a pay link directly. Edit button added to every split card.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-improved">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">Bill Split — WhatsApp &amp; SMS Notify</div><div class="wn-entry-desc">Each split member now has two icon buttons: a WhatsApp icon to send their share via WhatsApp, and an SMS icon to send via text message. Works cross-platform — Android and iPhone. Once they pay, mark them settled.</div></div></div>
   </div>
 
   <div class="wn-version-block">
@@ -4196,8 +4223,9 @@ function renderSplits(){
         <span class="${m.settled?'split-settled-lbl':''}">${esc(m.name)}${m.phone?`<span style="font-size:9.5px;color:var(--faint);margin-left:5px" title="${m.phone}">&#x1F4F1;</span>`:''}</span>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end">
           <span style="font-weight:500">${fmt(m.amount)}</span>
-          ${!m.settled?`<button class="btn-notify${m.phone?' has-phone':''}" onclick="notifyMember('${s.id}','${m.id}')" title="${m.phone?'WhatsApp '+m.name:'Share with '+m.name}">${m.phone?'&#x1F4AC;':'&#x1F514;'} Notify</button>`:''}
-          ${!m.settled&&s.payeeUPI?`<button class="btn-pay-app gpay" onclick="openPayApp('${s.id}','${m.id}','gpay')" title="Pay via Google Pay">G Pay</button><button class="btn-pay-app phonepe" onclick="openPayApp('${s.id}','${m.id}','phonepe')" title="Pay via PhonePe">PhonePe</button><button class="btn-pay-app paytm" onclick="openPayApp('${s.id}','${m.id}','paytm')" title="Pay via Paytm">Paytm</button>`:''}
+          ${!m.settled?`<button class="btn-notify-icon wa" onclick="notifyMember('${s.id}','${m.id}')" title="${m.phone?'WhatsApp '+m.name:'Share / copy message'}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20.52 3.48A11.8 11.8 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.19 1.6 6.01L0 24l6.14-1.61A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.21-1.25-6.23-3.48-8.52zM12 22c-1.85 0-3.66-.5-5.23-1.43l-.37-.22-3.87 1.01 1.04-3.77-.24-.39A9.93 9.93 0 0 1 2 12C2 6.48 6.48 2 12 2c2.67 0 5.18 1.04 7.07 2.93A9.95 9.95 0 0 1 22 12c0 5.52-4.48 10-10 10zm5.47-7.53c-.3-.15-1.77-.87-2.04-.97-.28-.1-.48-.15-.68.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.47-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.68-1.63-.93-2.23-.24-.58-.49-.5-.68-.51-.17-.01-.37-.01-.57-.01-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48 0 1.47 1.07 2.89 1.22 3.09.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.63.71.22 1.35.19 1.86.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.19-.57-.34z" fill="#25d366"/></svg></button>`:''} 
+          ${!m.settled&&m.phone?`<button class="btn-notify-icon sms" onclick="notifySMS('${s.id}','${m.id}')" title="SMS ${m.name}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 2H4C2.9 2 2 2.9 2 4v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" fill="#63b3ed"/><path d="M7 9h10M7 13h7" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></button>`:''}
+          ${!m.settled?`<button class="btn-settle" onclick="settleSplitMember('${s.id}','${m.id}')">Mark Settled</button>`:'<span style="font-size:10px;color:var(--surplus)">&#x2713; Settled</span>'}
           ${!m.settled?`<button class="btn-settle" onclick="settleSplitMember('${s.id}','${m.id}')">Mark Settled</button>`:'<span style="font-size:10px;color:var(--surplus)">&#x2713; Settled</span>'}
         </div>
       </div>`).join('')}
@@ -6535,30 +6563,21 @@ function exportRepCSV(){
 }
 
 
-// ══ PER-APP UPI PAYMENT ══════════════════════════════════════
-// Legal: these are officially registered URL schemes by each app.
-// Flow only constructs the URL — no money is processed by Flow.
-function openPayApp(splitId, memberId, app){
+// ══ SMS NOTIFY ════════════════════════════════════════════
+function notifySMS(splitId,memberId){
   const sp=SPLITS.find(s=>s.id===splitId);
   const m=sp?.members.find(x=>x.id===memberId);
-  if(!sp||!m||!sp.payeeUPI)return;
-  const pa=encodeURIComponent(sp.payeeUPI);
-  const pn=encodeURIComponent(sp.paidBy||'');
-  const am=m.amount;
-  const tn=encodeURIComponent('Split: '+sp.title);
-  const isAndroid=/Android/i.test(navigator.userAgent);
-  // On Android, all UPI apps respond to upi:// — the OS shows an app picker or opens the specific app
-  // On iOS, each app has its own registered scheme
-  const urls={
-    gpay: isAndroid
-      ?`upi://pay?pa=${pa}&pn=${pn}&am=${am}&cu=INR&tn=${tn}`
-      :`gpay://upi/pay?pa=${pa}&pn=${pn}&am=${am}&cu=INR&tn=${tn}`,
-    phonepe: isAndroid
-      ?`upi://pay?pa=${pa}&pn=${pn}&am=${am}&cu=INR&tn=${tn}`
-      :`phonepe://pay?pa=${pa}&pn=${pn}&am=${am}&cu=INR&tn=${tn}`,
-    paytm:`paytmmp://cash?pa=${pa}&pn=${pn}&am=${am}&cu=INR&tn=${tn}`,
-  };
-  window.location.href=urls[app]||urls.gpay;
+  if(!sp||!m||!m.phone)return;
+  const dateStr=sp.date?new Date(sp.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'';
+  const amtStr=m.amount.toLocaleString('en-IN');
+  let payPart='';
+  if(sp.payeeUPI){
+    payPart='\nPay to UPI: '+sp.payeeUPI+' | \u20B9'+amtStr;
+  }
+  const msg='Hi '+m.name+'! '+(sp.paidBy||'Someone')+' added a bill split.\n'+sp.title+(dateStr?' ('+dateStr+')':'')+'\nYour share: \u20B9'+amtStr+payPart+'\n\u2014 Sent via Flow';
+  const phone=m.phone.startsWith('91')?m.phone:'91'+m.phone;
+  // Use sms: scheme — works on both Android and iPhone
+  window.open('sms:+'+phone+'?body='+encodeURIComponent(msg),'_blank');
 }
 
 // ══ INIT ═══════════════════════════════════════════════════
