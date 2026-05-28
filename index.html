@@ -1316,6 +1316,17 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <span id="darkLbl">Dark</span>
     </button>
     <div class="sep"></div>
+    <select id="currSel" onchange="setCurrency(this.value)" title="Base Currency" style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:var(--r);padding:4px 6px;cursor:pointer">
+      <option value="INR">&#8377; INR</option>
+      <option value="USD">$ USD</option>
+      <option value="CAD">C$ CAD</option>
+      <option value="GBP">&#163; GBP</option>
+      <option value="EUR">&#8364; EUR</option>
+      <option value="AED">AED</option>
+      <option value="SGD">S$ SGD</option>
+      <option value="AUD">A$ AUD</option>
+    </select>
+    <div class="sep"></div>
     <button class="btn-csv" onclick="exportCSV()">
       <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 9.5h8M6 1v7M3 5.5l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>CSV
     </button>
@@ -1334,6 +1345,17 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <div class="track" id="track2"><div class="knob"></div></div>
       <span id="darkLbl2">Dark</span>
     </button>
+    <div class="sep"></div>
+    <select id="currSel2" onchange="setCurrency(this.value)" title="Base Currency" style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:var(--r);padding:4px 6px;cursor:pointer">
+      <option value="INR">&#8377; INR</option>
+      <option value="USD">$ USD</option>
+      <option value="CAD">C$ CAD</option>
+      <option value="GBP">&#163; GBP</option>
+      <option value="EUR">&#8364; EUR</option>
+      <option value="AED">AED</option>
+      <option value="SGD">S$ SGD</option>
+      <option value="AUD">A$ AUD</option>
+    </select>
     <div class="sep"></div>
     <button class="btn-whats-new" onclick="switchTab('new',document.querySelector('.tab-btn:last-child'))" title="What's New">
       &#x2726;<span class="wn-btn-lbl"> What's New</span>
@@ -1539,91 +1561,89 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 <!-- ══ BILLS TAB ════════════════════════════════════════════ -->
 <div id="tab-bills" class="tab-pane">
 <div class="main">
-  <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px">
-    <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted);font-weight:500">Bills Overview</span>
-    <button class="eye-btn" id="eyeBills" onclick="toggleHideBills()" title="Hide / show balances"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+
+  <!-- Bills Overview summary (always visible) -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div style="display:flex;align-items:center;gap:7px">
+      <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted);font-weight:500">Bills Overview</span>
+      <button class="eye-btn" id="eyeBills" onclick="toggleHideBills()" title="Hide / show balances"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    </div>
   </div>
   <div class="bills-summary">
     <div class="card"><div class="card-lbl">Total Bills</div><div class="card-val" id="bTotal">0</div></div>
-    <div class="card"><div class="card-lbl">Monthly Due</div><div class="card-val" id="bMonthly">₹0</div></div>
+    <div class="card"><div class="card-lbl">Monthly Due</div><div class="card-val" id="bMonthly">&#8377;0</div></div>
     <div class="card"><div class="card-lbl" style="color:var(--deficit)">Overdue</div><div class="card-val c-red" id="bOverdue">0</div></div>
     <div class="card"><div class="card-lbl" style="color:var(--amber)">Due Soon</div><div class="card-val" style="color:var(--amber)" id="bSoon">0</div></div>
-    <div class="card"><div class="card-lbl">Annual Cost</div><div class="card-val" id="bAnnual">₹0</div></div>
+    <div class="card"><div class="card-lbl">Annual Cost</div><div class="card-val" id="bAnnual">&#8377;0</div></div>
   </div>
-  <div class="bill-form" id="billForm" style="display:none">
-    <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:12px" id="billFormTitle">New Bill Reminder</div>
-    <div class="bill-form-grid">
-      <div class="form-field"><span class="form-label">Bill Name</span><input type="text" id="bName" placeholder="e.g. HDFC Credit Card"></div>
-      <div class="form-field"><span class="form-label">Amount (₹)</span><input type="number" id="bAmt" placeholder="0"></div>
-      <div class="form-field"><span class="form-label">Due Day of Month</span><input type="number" id="bDay" placeholder="15" min="1" max="31"></div>
-    </div>
-    <div class="bill-form-grid2">
-      <div class="form-field"><span class="form-label">Category</span>
-        <select id="bCat"><option>Credit Card</option><option>Loan EMI</option><option>Utility</option><option>Subscription</option><option>Insurance</option><option>Rent</option><option>Autopay</option><option>Other</option></select>
-      </div>
-      <div class="form-field"><span class="form-label">Frequency</span>
-        <select id="bFreq"><option>Monthly</option><option>Quarterly</option><option>Half-Yearly</option><option>Annual</option><option>One-Time</option></select>
-      </div>
-      <div class="form-field"><span class="form-label">Autopay</span>
-        <select id="bAutopay"><option value="0">No</option><option value="1">Yes</option></select>
-      </div>
-      <div class="form-field"><span class="form-label">Notes</span><input type="text" id="bNotes" placeholder="Optional"></div>
-    </div>
-    <div style="display:flex;gap:8px">
-      <button class="btn-primary btn-sm" onclick="saveBill()">Save Bill</button>
-      <button class="btn-ghost btn-sm" onclick="_editBillId=null;const ft=document.getElementById('billFormTitle');if(ft)ft.textContent='New Bill Reminder';document.getElementById('billForm').style.display='none'">Cancel</button>
-    </div>
+
+  <!-- Bills Sub-tabs -->
+  <div class="sub-tabs" style="margin-top:14px">
+    <button class="sub-tab active" id="btab-reminders" onclick="switchBillsTab('reminders',this)">Bill Reminders</button>
+    <button class="sub-tab" id="btab-split" onclick="switchBillsTab('split',this)">Bill Split</button>
+    <button class="sub-tab" id="btab-loans" onclick="switchBillsTab('loans',this)">Loan Tracker</button>
+    <button class="sub-tab" id="btab-subs" onclick="switchBillsTab('subs',this)">Subscriptions</button>
   </div>
-  <div class="sec-hdr">
-    <div style="display:flex;align-items:center;gap:7px">
-      <span class="sec-title">Bill Reminders</span>
-      <button class="info-btn" onclick="toggleInfo('tip-bills')" title="About Bills">i</button>
+
+  <!-- ── BILL REMINDERS ───────────────────────────────────── -->
+  <div id="bsub-reminders" class="sub-pane active">
+    <div class="bill-form" id="billForm" style="display:none">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:12px" id="billFormTitle">New Bill Reminder</div>
+      <div class="bill-form-grid">
+        <div class="form-field"><span class="form-label">Bill Name</span><input type="text" id="bName" placeholder="e.g. HDFC Credit Card"></div>
+        <div class="form-field"><span class="form-label">Amount (&#8377;)</span><input type="number" id="bAmt" placeholder="0"></div>
+        <div class="form-field"><span class="form-label">Due Day of Month</span><input type="number" id="bDay" placeholder="15" min="1" max="31"></div>
+      </div>
+      <div class="bill-form-grid2">
+        <div class="form-field"><span class="form-label">Frequency</span><select id="bFreq"><option value="Monthly">Monthly</option><option value="Quarterly">Quarterly</option><option value="Half-Yearly">Half-Yearly</option><option value="Annual">Annual</option><option value="One-Time">One-Time</option></select></div>
+        <div class="form-field"><span class="form-label">Category</span><select id="bCat"><option value="Utilities">Utilities</option><option value="Rent">Rent</option><option value="Loan EMI">Loan EMI</option><option value="Insurance">Insurance</option><option value="Subscription">Subscription</option><option value="Credit Card">Credit Card</option><option value="Tax">Tax</option><option value="Other">Other</option></select></div>
+        <div class="form-field" style="display:flex;align-items:flex-end;gap:8px">
+          <label style="display:flex;align-items:center;gap:5px;font-size:11.5px;cursor:pointer"><input type="checkbox" id="bAutopay" style="width:13px;height:13px"> <span>Autopay</span></label>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn-primary btn-sm" onclick="saveBill()">Save Bill</button>
+        <button class="btn-ghost btn-sm" onclick="cancelBillEdit()">Cancel</button>
+      </div>
     </div>
-    <button class="btn-ghost btn-sm" onclick="toggleBillForm()">+ Add Bill</button>
+    <div class="sec-hdr" style="margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:7px">
+        <span class="sec-title">Bill Reminders</span>
+        <button class="info-btn" onclick="toggleInfo('tip-bills')" title="About Bills">i</button>
+      </div>
+      <button class="btn-ghost btn-sm" onclick="toggleBillForm()">+ Add Bill</button>
+    </div>
+    <div class="info-tip" id="tip-bills"><div class="info-tip-hd">About Bills</div>Track recurring bills — credit cards, EMIs, utilities, subscriptions. Bills auto-classify as <strong>Overdue</strong>, <strong>Due Soon</strong> (within 7 days), or <strong>Upcoming</strong>. Mark as Paid each month. Annual cost shows total yearly bill outgo.<button class="info-tip-close" onclick="toggleInfo('tip-bills')">&#215;</button></div>
+    <div id="billsOverdue"></div>
+    <div id="billsSoon"></div>
+    <div id="billsUpcoming"></div>
   </div>
-  <div class="info-tip" id="tip-bills"><div class="info-tip-hd">About Bills</div>Track recurring bills — credit cards, EMIs, utilities, subscriptions. Bills auto-classify as <strong>Overdue</strong>, <strong>Due Soon</strong> (within 7 days), or <strong>Upcoming</strong>. Mark as Paid each month. Annual cost shows total yearly bill outgo.<button class="info-tip-close" onclick="toggleInfo('tip-bills')">×</button></div>
-  <div id="billsOverdue"></div>
-  <div id="billsSoon"></div>
-  <div id="billsUpcoming"></div>
-  <!-- BILL SPLIT TRACKER -->
-  <div style="margin-top:20px">
-    <div class="sec-hdr">
+
+  <!-- ── BILL SPLIT ───────────────────────────────────────── -->
+  <div id="bsub-split" class="sub-pane">
+    <div class="sec-hdr" style="margin-bottom:8px">
       <div style="display:flex;align-items:center;gap:7px">
         <span class="sec-title">Bill Split Tracker</span>
         <button class="info-btn" onclick="toggleInfo('tip-split')" title="About Bill Split">i</button>
       </div>
       <button class="btn-ghost btn-sm" onclick="toggleForm('splitForm')">+ Add Split</button>
     </div>
-    <div class="info-tip" id="tip-split"><div class="info-tip-hd">Bill Split Tracker</div>Track shared expenses with friends or family. Add the total, who paid, and split among people. Mark each person settled once they pay back.
-      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
-        <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:5px">💬 Notify via WhatsApp / SMS</div>
-        <div style="font-size:11px;color:var(--muted);line-height:1.7">Add a <strong style="color:var(--text)">WhatsApp number</strong> for each person when creating the split. Each unsettled person gets a <strong style="color:var(--text)">🔔 Notify</strong> button — tapping it opens WhatsApp with a pre-written message showing their name, amount, and a UPI pay link. No manual typing needed.</div>
-        <div style="margin-top:8px;background:var(--surface-alt);border-radius:var(--r);padding:10px 12px;font-size:10.5px;line-height:1.9;color:var(--muted)">
-          <strong style="color:var(--text);display:block;margin-bottom:4px">Example — Rahul splits a dinner</strong>
-          Rahul paid <strong>&#8377;3,600</strong>. He creates a split, enters <code style="background:var(--surface);padding:1px 5px;border-radius:3px;font-size:10px">rahul@okhdfc</code> as UPI ID, adds Priya (&#8377;1,200, 9876543210), Ankit (&#8377;1,200), Neha (&#8377;1,200).<br>
-          <br>Rahul taps <strong>&#x1F4AC; Notify</strong> next to Priya &rarr; WhatsApp opens with:<br>
-          <span style="display:block;margin:5px 0 5px 8px;padding:8px;background:var(--surface);border-radius:6px;font-size:10px;color:var(--text);line-height:1.7"><em>"Hi Priya! &#x1F44B; Rahul added a bill split.<br>&#x1F4CB; Dinner &nbsp;&#x1F4C5; 28 May 2026<br>&#x1F4B0; Your share: &#8377;1,200<br>Tap to pay: upi://pay?pa=rahul@okhdfc..."</em></span>
-          Priya receives the WhatsApp, taps the UPI link &rarr; GPay opens pre-filled &rarr; she pays. Done.<br>
-          <span style="color:var(--faint);font-size:10px">No number? Tapping Notify opens the native share sheet so you can send via any app.</span>
-        </div>
-        <div style="margin-top:7px;font-size:10px;color:var(--faint)">No API, no server. WhatsApp opens on your device — Rahul sends the message, not Flow.</div>
-      </div>
-    <button class="info-tip-close" onclick="toggleInfo('tip-split')">&#215;</button></div>
+    <div class="info-tip" id="tip-split"><div class="info-tip-hd">Bill Split Tracker</div>Track shared expenses. Add the total, who paid, and split among people. Add each person's WhatsApp number — tap <strong>&#x1F4AC; Notify</strong> to send them their share instantly via WhatsApp with a pay link included.<button class="info-tip-close" onclick="toggleInfo('tip-split')">&#215;</button></div>
     <div class="hold-form" id="splitForm" style="display:none;margin-bottom:14px">
       <div id="splitFormTitle" style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:12px">Add Shared Expense</div>
       <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
         <div class="form-field"><span class="form-label">Title</span><input type="text" id="spTitle" placeholder="e.g. Dinner, Trip"></div>
-        <div class="form-field"><span class="form-label">Total Amount (₹)</span><input type="number" id="spTotal" placeholder="0" oninput="autoSplitAmount()"></div>
+        <div class="form-field"><span class="form-label">Total Amount (&#8377;)</span><input type="number" id="spTotal" placeholder="0" oninput="autoSplitAmount()"></div>
         <div class="form-field"><span class="form-label">Date</span><input type="date" id="spDate"></div>
         <div class="form-field"><span class="form-label">Paid By</span><input type="text" id="spPaidBy" placeholder="Your name"></div>
       </div>
       <div class="form-field" style="margin-bottom:10px">
-        <span class="form-label">Your UPI ID <span style="color:var(--faint);font-weight:400">(optional — enables Pay via UPI for others)</span></span>
-        <input type="text" id="spPayeeUPI" placeholder="yourname@upi  or  yourname@okaxis" style="font-size:11.5px">
+        <span class="form-label">Your UPI ID <span style="color:var(--faint);font-weight:400">(optional)</span></span>
+        <input type="text" id="spPayeeUPI" placeholder="yourname@upi" style="font-size:11.5px">
       </div>
-      <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:6px;font-weight:500">Split Among — <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--faint)">Name · Amount · WhatsApp No. (optional)</span></div>
-      <div id="splitMemberInputs" class="split-form-members"></div>
-      <div style="display:flex;gap:8px;margin-top:10px">
+      <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:6px;font-weight:500">Split Among &mdash; <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--faint)">Name &middot; Amount &middot; WhatsApp No. (optional)</span></div>
+      <div id="splitMemberInputs"></div>
+      <div style="display:flex;gap:8px;margin-top:8px">
         <button class="btn-ghost btn-sm" onclick="addSplitMember()">+ Add Person</button>
         <button class="btn-primary btn-sm" onclick="saveSplit()">Save</button>
         <button class="btn-ghost btn-sm" onclick="editingSplitId=null;document.getElementById('splitFormTitle').textContent='Add Shared Expense';toggleForm('splitForm')">Cancel</button>
@@ -1632,26 +1652,24 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div id="splitList"></div>
   </div>
 
-  <!-- ── LOAN TRACKER ───────────────────────────────────── -->
-  <div style="margin-top:20px">
-    <div class="sec-hdr">
+  <!-- ── LOAN TRACKER ─────────────────────────────────────── -->
+  <div id="bsub-loans" class="sub-pane">
+    <div class="sec-hdr" style="margin-bottom:8px">
       <div style="display:flex;align-items:center;gap:7px">
         <span class="sec-title">Loan Tracker</span>
         <button class="info-btn" onclick="toggleInfo('tip-loans')" title="About Loan Tracker">i</button>
       </div>
       <button class="btn-ghost btn-sm" onclick="toggleForm('loanForm')">+ Add Loan</button>
     </div>
-    <div class="info-tip" id="tip-loans"><div class="info-tip-hd">Loan Tracker</div>Track all your active loans — home, car, personal, education, or credit cards. Enter the principal, interest rate, and tenure. The app auto-calculates your <strong>EMI</strong>, outstanding balance, months remaining, and interest paid so far using the standard reducing-balance method.<br><br>The <strong>Debt Payoff Planner</strong> in the Planner tab uses these loans to suggest an optimised repayment strategy (Snowball or Avalanche method).<button class="info-tip-close" onclick="toggleInfo('tip-loans')">×</button></div>
+    <div class="info-tip" id="tip-loans"><div class="info-tip-hd">Loan Tracker</div>Track all active loans — home, car, personal, education, credit cards. Enter principal, rate, and tenure. Auto-calculates EMI, outstanding balance, months remaining, and interest paid using the reducing-balance method.<br><br>The <strong>Debt Payoff Planner</strong> in Planner tab uses these loans for Snowball / Avalanche repayment strategies.<button class="info-tip-close" onclick="toggleInfo('tip-loans')">&#215;</button></div>
     <div class="hold-form" id="loanForm" style="display:none;margin-bottom:14px">
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:12px">Add Loan</div>
-      <div style="display:grid;grid-template-columns:1.2fr 0.8fr 0.8fr 0.8fr 0.8fr 1fr;gap:10px;margin-bottom:12px;align-items:end">
-        <div class="form-field"><span class="form-label">Loan Name</span><input type="text" id="lnName" placeholder="e.g. Home Loan SBI"></div>
-        <div class="form-field"><span class="form-label">Type</span>
-          <select id="lnType"><option>Home</option><option>Car</option><option>Personal</option><option>Education</option><option>Credit Card</option><option>Other</option></select>
-        </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px">
+        <div class="form-field"><span class="form-label">Loan Name</span><input type="text" id="lnName" placeholder="e.g. Home Loan"></div>
+        <div class="form-field"><span class="form-label">Type</span><select id="lnType"><option>Home Loan</option><option>Car Loan</option><option>Personal Loan</option><option>Education Loan</option><option>Credit Card</option><option>Other</option></select></div>
         <div class="form-field"><span class="form-label">Principal (&#8377;)</span><input type="number" id="lnPrincipal" placeholder="0"></div>
-        <div class="form-field"><span class="form-label">Rate (% p.a.)</span><input type="number" id="lnRate" placeholder="8.5" step="0.01"></div>
-        <div class="form-field"><span class="form-label">Tenure (Months)</span><input type="number" id="lnTenure" placeholder="240"></div>
+        <div class="form-field"><span class="form-label">Interest Rate (% p.a.)</span><input type="number" id="lnRate" placeholder="8.5" step="0.01"></div>
+        <div class="form-field"><span class="form-label">Tenure (months)</span><input type="number" id="lnTenure" placeholder="240"></div>
         <div class="form-field"><span class="form-label">Start Date</span><input type="date" id="lnStart"></div>
       </div>
       <div style="display:flex;gap:8px">
@@ -1663,38 +1681,29 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div id="loanList"><div id='loanEmptyState'></div></div>
   </div>
 
-  <!-- ══ SUBSCRIPTION TRACKER ═════════════════════════════ -->
-  <div style="margin-top:20px">
-    <div class="sec-hdr">
+  <!-- ── SUBSCRIPTION TRACKER ─────────────────────────────── -->
+  <div id="bsub-subs" class="sub-pane">
+    <div class="sec-hdr" style="margin-bottom:8px">
       <div style="display:flex;align-items:center;gap:7px">
         <span class="sec-title">Subscription Tracker</span>
         <button class="info-btn" onclick="toggleInfo('tip-subs')" title="About Subscriptions">i</button>
       </div>
-      <button class="btn-ghost btn-sm" onclick="toggleForm('subForm')">+ Add</button>
+      <button class="btn-ghost btn-sm" onclick="toggleForm('subForm')">+ Add Subscription</button>
     </div>
-    <div class="info-tip" id="tip-subs"><div class="info-tip-hd">Subscription Tracker</div>Track all recurring subscriptions — streaming, SaaS, fitness, news, etc. Monitor monthly and annual costs. Active, Paused, and Cancelled statuses help you spot forgotten subscriptions draining your account.<button class="info-tip-close" onclick="toggleInfo('tip-subs')">×</button></div>
-    <div class="sub-summary" id="subSummaryBar"></div>
+    <div class="info-tip" id="tip-subs"><div class="info-tip-hd">Subscription Tracker</div>Track all recurring subscriptions — streaming, SaaS, fitness, news. Monitor monthly and annual costs. Active, Paused, and Cancelled statuses help you spot forgotten subscriptions draining your account.<button class="info-tip-close" onclick="toggleInfo('tip-subs')">&#215;</button></div>
     <div class="hold-form" id="subForm" style="display:none;margin-bottom:14px">
-      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:12px" id="subFormTitle">Add Subscription</div>
-      <div style="display:grid;grid-template-columns:1.5fr 0.8fr 0.8fr 0.8fr 0.8fr;gap:10px;margin-bottom:10px;align-items:end">
-        <div class="form-field"><span class="form-label">Service Name</span><input type="text" id="subName" placeholder="e.g. Netflix, Spotify"></div>
-        <div class="form-field"><span class="form-label">Cost (&#8377;)</span><input type="number" id="subCost" placeholder="0" step="0.01"></div>
-        <div class="form-field"><span class="form-label">Billing Cycle</span>
-          <select id="subCycle"><option value="Monthly">Monthly</option><option value="Quarterly">Quarterly</option><option value="Half-Yearly">Half-Yearly</option><option value="Annual">Annual</option></select>
-        </div>
-        <div class="form-field"><span class="form-label">Category</span>
-          <select id="subCat"><option>Streaming</option><option>Music</option><option>SaaS / Tools</option><option>Fitness</option><option>News</option><option>Gaming</option><option>Cloud</option><option>Other</option></select>
-        </div>
-        <div class="form-field"><span class="form-label">Status</span>
-          <select id="subStatus"><option value="Active">Active</option><option value="Paused">Paused</option><option value="Cancelled">Cancelled</option></select>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:12px">Add Subscription</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px">
+        <div class="form-field"><span class="form-label">Name</span><input type="text" id="subName" placeholder="e.g. Netflix"></div>
+        <div class="form-field"><span class="form-label">Cost (&#8377;)</span><input type="number" id="subCost" placeholder="0"></div>
+        <div class="form-field"><span class="form-label">Billing Cycle</span><select id="subCycle"><option>Monthly</option><option>Quarterly</option><option>Half-Yearly</option><option>Annual</option></select></div>
+        <div class="form-field"><span class="form-label">Category</span><select id="subCat"><option>Streaming</option><option>Music</option><option>News</option><option>SaaS / Productivity</option><option>Fitness</option><option>Gaming</option><option>Cloud Storage</option><option>Other</option></select></div>
+        <div class="form-field"><span class="form-label">Status</span><select id="subStatus"><option>Active</option><option>Paused</option><option>Cancelled</option></select></div>
         <div class="form-field"><span class="form-label">Renewal Date</span><input type="date" id="subRenewal"></div>
-        <div class="form-field"><span class="form-label">Notes (optional)</span><input type="text" id="subNotes" placeholder="e.g. Family plan, auto-renews"></div>
       </div>
+      <div class="form-field" style="margin-bottom:12px"><span class="form-label">Notes</span><input type="text" id="subNotes" placeholder="Optional notes"></div>
       <div style="display:flex;gap:8px">
-        <button class="btn-primary btn-sm" onclick="saveSub()">Save</button>
+        <button class="btn-primary btn-sm" onclick="saveSub()">Save Subscription</button>
         <button class="btn-ghost btn-sm" onclick="toggleForm('subForm')">Cancel</button>
       </div>
     </div>
@@ -1703,6 +1712,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 
 </div>
 </div>
+
 
 <!-- ══ PORTFOLIO TAB ═════════════════════════════════════════ -->
 <div id="tab-invest" class="tab-pane">
@@ -1742,13 +1752,16 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       </div>
       <div style="display:flex;gap:6px;align-items:center">
         <button class="btn-ghost btn-sm" onclick="logNetWorthNow()">Log Today</button>
-        <button class="btn-ghost btn-sm" onclick="toggleForm('nwLogList')">History ▾</button>
+        <button class="btn-ghost btn-sm" onclick="toggleForm('nwLogList')">History &#x25BE;</button>
+        <button class="btn-ghost btn-sm" id="nwToggleBtn" onclick="toggleNWChart()" title="Show/Hide chart">&#x25BE; Hide</button>
       </div>
     </div>
-    <div class="info-tip" id="tip-nwtl"><div class="info-tip-hd">Net Worth Timeline</div>Track how your net worth grows over time. The chart auto-builds from your Portfolio data each time you visit. Click <strong>Log Today</strong> to save today's calculated net worth as a snapshot. Use <strong>History</strong> to see or delete past entries.<button class="info-tip-close" onclick="toggleInfo('tip-nwtl')">×</button></div>
-    <div class="nw-chart-wrap"><canvas id="nwChart"></canvas></div>
-    <div id="nwLogList" style="display:none;margin-top:10px;max-height:160px;overflow-y:auto">
-      <div id="nwLogBody"></div>
+    <div class="info-tip" id="tip-nwtl"><div class="info-tip-hd">Net Worth Timeline</div>Track how your net worth grows over time. The chart auto-builds from your Portfolio data each time you visit. Click <strong>Log Today</strong> to save today's calculated net worth as a snapshot. Use <strong>History</strong> to see or delete past entries.<button class="info-tip-close" onclick="toggleInfo('tip-nwtl')">&#215;</button></div>
+    <div id="nwChartSection">
+      <div class="nw-chart-wrap"><canvas id="nwChart"></canvas></div>
+      <div id="nwLogList" style="display:none;margin-top:10px;max-height:160px;overflow-y:auto">
+        <div id="nwLogBody"></div>
+      </div>
     </div>
   </div>
 
@@ -1776,6 +1789,19 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
             <option value="Crypto">Crypto</option>
             <option value="Real Estate">Real Estate</option>
             <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-field" style="flex:0 0 auto">
+          <span class="form-label">Currency</span>
+          <select id="hCurrency" title="Holding currency" style="font-size:12px">
+            <option value="INR">&#8377; INR</option>
+            <option value="USD">$ USD</option>
+            <option value="CAD">C$ CAD</option>
+            <option value="GBP">&#163; GBP</option>
+            <option value="EUR">&#8364; EUR</option>
+            <option value="AED">AED</option>
+            <option value="SGD">S$ SGD</option>
+            <option value="AUD">A$ AUD</option>
           </select>
         </div>
       </div>
@@ -2234,11 +2260,11 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 <div class="main">
   <div class="sub-tabs">
     <button class="sub-tab active" onclick="switchToolsTab('calendar',this)">Financial Calendar</button>
-    <button class="sub-tab" onclick="switchToolsTab('report',this)">Monthly Report</button>
     <button class="sub-tab" onclick="switchToolsTab('emfund',this)">Emergency Fund</button>
     <button class="sub-tab" onclick="switchToolsTab('debtpay',this)">Debt Payoff</button>
-    <button class="sub-tab" id="recapSubTabBtn" onclick="switchToolsTab('recap',this)">✦ FlowSnap</button>
-    <button class="sub-tab" id="wrappedSubTabBtn" onclick="switchToolsTab('wrapped',this)" style="display:none">🎁 Annual Wrapped</button>
+    <button class="sub-tab" id="recapSubTabBtn" onclick="switchToolsTab('recap',this)">&#x2736; FlowSnap</button>
+    <button class="sub-tab" id="wrappedSubTabBtn" onclick="switchToolsTab('wrapped',this)" style="display:none">&#x1F381; Annual Wrapped</button>
+    <button class="sub-tab" onclick="switchToolsTab('reports',this)">Reports</button>
   </div>
   <!-- FINANCIAL CALENDAR -->
   <div id="tsub-calendar" class="sub-pane active">
@@ -2268,20 +2294,6 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     </div>
   </div>
   <!-- MONTHLY REPORT CARD -->
-  <div id="tsub-report" class="sub-pane">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-      <div style="display:flex;align-items:center;gap:7px">
-        <span class="sec-title">Monthly Report Card</span>
-        <button class="info-btn" onclick="toggleInfo('tip-report')" title="About Monthly Report">i</button>
-      </div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <select id="reportMonth" onchange="renderMonthlyReport()" style="font-size:11px"></select>
-        <select id="reportYear" onchange="renderMonthlyReport()" style="font-size:11px"></select>
-      </div>
-    </div>
-    <div class="info-tip" id="tip-report"><div class="info-tip-hd">Monthly Report Card</div>Auto-generates a financial health summary for any month. Grades are based on your <strong>savings rate</strong> (net income ÷ total income): <strong>A</strong> = above 30%, <strong>B</strong> = 20-30%, <strong>C</strong> = 10-20%, <strong>D</strong> = below 10%.<br><br>Also shows income vs expenses, month-over-month changes, and your top 3 expense categories.<button class="info-tip-close" onclick="toggleInfo('tip-report')">×</button></div>
-    <div id="reportBody"><div class="empty-msg">Select a month to generate the report.</div></div>
-  </div>
   <!-- EMERGENCY FUND -->
   <div id="tsub-emfund" class="sub-pane">
     <div class="sec-hdr" style="margin-bottom:14px">
@@ -2331,6 +2343,38 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   <div id="tsub-wrapped" class="sub-pane">
     <div id="wrappedSubBody"></div>
   </div>
+
+  <!-- ══ REPORTS SUB-PANE ══════════════════════════════════ -->
+  <div id="tsub-reports" class="sub-pane">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted);font-weight:500">Report Type</span>
+      <div class="sub-tabs" style="margin:0;flex:1">
+        <button class="sub-tab active" id="repTabTrack" onclick="switchRepType('track',this)">Track</button>
+        <button class="sub-tab" id="repTabBills" onclick="switchRepType('bills',this)">Bills</button>
+        <button class="sub-tab" id="repTabPortfolio" onclick="switchRepType('portfolio',this)">Portfolio</button>
+      </div>
+    </div>
+    <!-- Period selector for Track report -->
+    <div id="repPeriodRow" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
+      <span style="font-size:11px;color:var(--muted)">Period:</span>
+      <select id="repMonth" style="font-size:11px"></select>
+      <select id="repYear" style="font-size:11px"></select>
+    </div>
+    <div style="margin-bottom:12px">
+      <button class="btn-ghost btn-sm" onclick="renderReport()">Generate Report</button>
+    </div>
+    <div id="repBody" style="margin-bottom:16px"><div class="empty-msg">Select a report type and tap Generate.</div></div>
+    <div id="repActions" style="display:none;gap:8px;flex-wrap:wrap">
+      <button class="btn-primary btn-sm" id="repPDFBtn" onclick="exportRepPDF()">
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5.5l3 3 3-3M1 9.5v1a.5.5 0 00.5.5h9a.5.5 0 00.5-.5v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Export PDF
+      </button>
+      <button class="btn-ghost btn-sm" id="repCSVBtn" onclick="exportRepCSV()">
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 9.5h8M6 1v7M3 5.5l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Export Excel (CSV)
+      </button>
+    </div>
+  </div>
 </div>
 </div>
 
@@ -2362,6 +2406,20 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="wn-hero-icon">&#x2726;</div>
     <div class="wn-hero-title">Flow &mdash; Release Notes</div>
     <div class="wn-hero-sub">Every feature, fix and improvement &mdash; from the beginning.</div>
+  </div>
+
+  <div class="wn-version-block">
+    <div class="wn-version-header">
+      <span class="wn-version-num">v2.1</span>
+      <span class="wn-version-date">May 2026</span>
+      <span class="wn-version-label wn-label-minor">Update</span>
+    </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Bills Tab — Sub-tabs</div><div class="wn-entry-desc">Bills is now organised into four sub-tabs: Bill Reminders, Bill Split, Loan Tracker, and Subscriptions. Cleaner navigation, less scrolling.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Reports — Track, Bills & Portfolio</div><div class="wn-entry-desc">New Reports sub-tab under Planner. Generate a full Track report for any month, a Bills & Loans summary, or a Portfolio snapshot. Export as PDF or CSV (Excel-compatible).</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Multi-currency Support</div><div class="wn-entry-desc">Set your base currency (INR, USD, CAD, GBP, EUR, AED, SGD, AUD) from the header. Per-holding currency lets you track Indian investments in ₹ even when your base is USD.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Net Worth Timeline — Collapse Toggle</div><div class="wn-entry-desc">The Net Worth chart can now be hidden with a single tap. State persists across sessions.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-fix">Fix</span><div class="wn-entry-body"><div class="wn-entry-title">Bill Reminders Info Button Layout</div><div class="wn-entry-desc">The info button was rendering without a label due to a missing section title. Fixed.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-fix">Fix</span><div class="wn-entry-body"><div class="wn-entry-title">Reports — Bills & Portfolio Generate</div><div class="wn-entry-desc">The Generate button was hidden inside the period selector row for non-Track reports, making Bills and Portfolio reports unreachable. Fixed — Bills and Portfolio now auto-generate on tab switch.</div></div></div>
   </div>
 
   <div class="wn-version-block">
@@ -2535,7 +2593,19 @@ let allMFSchemes=null;
 let mfLoadingPromise=null;
 
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const fmt  = n=>'₹'+Math.abs(n).toLocaleString('en-IN');
+const CURRENCIES={
+  INR:{sym:'₹',locale:'en-IN'},
+  USD:{sym:'$',locale:'en-US'},
+  CAD:{sym:'C$',locale:'en-CA'},
+  GBP:{sym:'£',locale:'en-GB'},
+  EUR:{sym:'€',locale:'de-DE'},
+  AED:{sym:'AED ',locale:'en-AE'},
+  SGD:{sym:'S$',locale:'en-SG'},
+  AUD:{sym:'A$',locale:'en-AU'},
+};
+let BASE_CURRENCY=localStorage.getItem('flow_currency')||'INR';
+const fmt  = n=>{const c=CURRENCIES[BASE_CURRENCY]||CURRENCIES.INR;return c.sym+Math.abs(n||0).toLocaleString(c.locale);};
+const fmtC = (n,cur)=>{const c=CURRENCIES[cur||BASE_CURRENCY]||CURRENCIES.INR;return c.sym+Math.abs(n||0).toLocaleString(c.locale);};
 const fmtN = n=>(n<0?'−':'')+fmt(n);
 const key  = ()=>`${selM()}_${selY()}`;
 const selM = ()=>document.getElementById('selMonth').value;
@@ -2586,7 +2656,7 @@ function switchTab(id,btn){
   const oc=document.getElementById('otherControls');
   if(id==='track'){tc.style.display='flex';oc.style.display='none'}
   else{tc.style.display='none';oc.style.display='flex'}
-  if(id==='bills'){renderBills();calcAnnualBillCost();renderLoans();renderSubs();}
+  if(id==='bills'){renderBills();calcAnnualBillCost();renderLoans();renderSubs();renderSplits();}
   if(id==='notes'){renderNotes();}
   if(id==='invest'){renderHoldingsTable();renderDividendTable();renderGoals();renderMFTable();renderFDTable();calcSIP();updateInvestSummary();updateAllocChart();setTimeout(renderNWChart,200);}
   if(id==='tools'){initToolsSelectors();renderCalendar();}
@@ -2607,11 +2677,11 @@ function switchToolsTab(id,btn){
   document.getElementById('tsub-'+id).classList.add('active');
   btn.classList.add('active');
   if(id==='calendar')renderCalendar();
-  if(id==='report')renderMonthlyReport();
   if(id==='emfund')renderEmfund();
   if(id==='debtpay')renderDebtPayoff();
   if(id==='recap')renderFlowRecap();
   if(id==='wrapped')renderAnnualWrapped();
+  if(id==='reports'){initRepSelectors();switchRepType('track',document.getElementById('repTabTrack'));}
 }
 
 // ══ DARK MODE ══════════════════════════════════════════════
@@ -3092,7 +3162,8 @@ function onHoldingTypeChange(){
 function g(id){const el=document.getElementById(id);return el?el.value:''}
 function addHolding(){
   const type=document.getElementById('hType').value;
-  let h={id:uid(),type};
+  const currency=document.getElementById('hCurrency')?.value||BASE_CURRENCY;
+  let h={id:uid(),type,currency};
   if(type==='Equity'){
     h.name=g('heqName').trim();h.qty=parseFloat(g('heqQty'))||0;h.buy=parseFloat(g('heqBuy'))||0;h.cur=parseFloat(g('heqCur'))||0;
     if(!h.name||!h.qty){alert('Name and Qty required.');return}
@@ -4117,7 +4188,6 @@ function renderSplits(){
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end">
           <span style="font-weight:500">${fmt(m.amount)}</span>
           ${!m.settled?`<button class="btn-notify${m.phone?' has-phone':''}" onclick="notifyMember('${s.id}','${m.id}')" title="${m.phone?'WhatsApp '+m.name:'Share with '+m.name}">${m.phone?'&#x1F4AC;':'&#x1F514;'} Notify</button>`:''}
-          ${!m.settled&&s.payeeUPI?`<button class="btn-upi" onclick="openUPIPay('${esc(s.payeeUPI)}','${esc(s.paidBy||'')}',${m.amount},'${esc(s.title)}','${esc(m.name)}')" title="Open in UPI app">&#x1F4B8; Pay</button>`:''}
           ${!m.settled?`<button class="btn-settle" onclick="settleSplitMember('${s.id}','${m.id}')">Mark Settled</button>`:'<span style="font-size:10px;color:var(--surplus)">&#x2713; Settled</span>'}
         </div>
       </div>`).join('')}
@@ -6237,9 +6307,226 @@ function exportFlowSnapPDF(){
   finally{btn.innerHTML=`<svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5.5l3 3 3-3M1 9.5v1a.5.5 0 00.5.5h9a.5.5 0 00.5-.5v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Export PDF`;btn.disabled=false;}
 }
 
+
+// ══ MULTI-CURRENCY ══════════════════════════════════════════
+function setCurrency(c){
+  BASE_CURRENCY=CURRENCIES[c]?c:'INR';
+  localStorage.setItem('flow_currency',BASE_CURRENCY);
+  ['currSel','currSel2'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=BASE_CURRENCY;});
+  // Re-render all money displays
+  render();updateInvestSummary();renderBills();calcAnnualBillCost();renderLoans();renderSubs();renderHoldingsTable();renderMFTable();renderFDTable();
+}
+function initCurrencyUI(){
+  ['currSel','currSel2'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=BASE_CURRENCY;});
+}
+
+// ══ BILLS SUB-TABS ══════════════════════════════════════════
+function switchBillsTab(id,btn){
+  const billsPane=document.getElementById('tab-bills');
+  if(!billsPane)return;
+  billsPane.querySelectorAll('.sub-pane').forEach(p=>p.classList.remove('active'));
+  billsPane.querySelectorAll('.sub-tab').forEach(b=>b.classList.remove('active'));
+  const pane=document.getElementById('bsub-'+id);
+  if(pane)pane.classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(id==='reminders'){renderBills();calcAnnualBillCost();}
+  if(id==='split'){renderSplits();}
+  if(id==='loans'){renderLoans();}
+  if(id==='subs'){renderSubs();}
+}
+
+// ══ NW TIMELINE TOGGLE ══════════════════════════════════════
+function toggleNWChart(){
+  const sec=document.getElementById('nwChartSection');
+  const btn=document.getElementById('nwToggleBtn');
+  if(!sec||!btn)return;
+  const hidden=sec.style.display==='none';
+  sec.style.display=hidden?'':'none';
+  btn.innerHTML=hidden?'&#x25BE; Hide':'&#x25B8; Show';
+  localStorage.setItem('flow_nw_hidden',hidden?'0':'1');
+}
+function initNWToggle(){
+  const hidden=localStorage.getItem('flow_nw_hidden')==='1';
+  if(hidden){
+    const sec=document.getElementById('nwChartSection');
+    const btn=document.getElementById('nwToggleBtn');
+    if(sec)sec.style.display='none';
+    if(btn)btn.innerHTML='&#x25B8; Show';
+  }
+}
+
+// ══ REPORTS TAB ══════════════════════════════════════════════
+let repType='track';
+function switchRepType(type,btn){
+  repType=type;
+  document.querySelectorAll('#tsub-reports .sub-tab').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const periodRow=document.getElementById('repPeriodRow');
+  if(periodRow)periodRow.style.display=type==='track'?'flex':'none';
+  const acts=document.getElementById('repActions');if(acts)acts.style.display='none';
+  // Auto-generate for bills and portfolio — no period needed
+  if(type==='bills'||type==='portfolio'){renderReport();}
+  else{document.getElementById('repBody').innerHTML='<div class="empty-msg">Select a period and tap Generate Report.</div>';}
+}
+function initRepSelectors(){
+  const rm=document.getElementById('repMonth'),ry=document.getElementById('repYear');
+  if(!rm||!ry)return;
+  rm.innerHTML=MONTHS.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
+  const now=new Date(),y=now.getFullYear();
+  ry.innerHTML='';for(let yr=y;yr>=y-4;yr--){const o=document.createElement('option');o.value=yr;o.textContent=yr;ry.appendChild(o);}
+  rm.value=now.getMonth();ry.value=y;
+}
+function renderReport(){
+  const body=document.getElementById('repBody');const acts=document.getElementById('repActions');
+  if(!body)return;
+  if(repType==='track')renderTrackReport(body);
+  else if(repType==='bills')renderBillsReport(body);
+  else if(repType==='portfolio')renderPortfolioReport(body);
+  if(acts)acts.style.display='flex';
+}
+function renderTrackReport(body){
+  const m=parseInt(document.getElementById('repMonth').value);
+  const y=parseInt(document.getElementById('repYear').value);
+  const d=DB[`${m}_${y}`]||{income:[],expense:[]};
+  const inc=d.income.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+  const exp=d.expense.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+  const net=inc-exp;const savRate=inc>0?Math.round(net/inc*100):0;
+  const cats={};d.expense.forEach(e=>{const c=e.cat||'Uncategorised';cats[c]=(cats[c]||0)+(parseFloat(e.amt)||0);});
+  const catRows=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<tr><td>${esc(c)}</td><td style="text-align:right">${fmtC(v,BASE_CURRENCY)}</td><td style="text-align:right">${inc>0?Math.round(v/exp*100):0}%</td></tr>`).join('');
+  body.innerHTML=`<div style="margin-bottom:12px">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
+      <div class="recap-stat-card"><div class="recap-sc-lbl">Income</div><div class="recap-sc-val c-green">${fmt(inc)}</div></div>
+      <div class="recap-stat-card"><div class="recap-sc-lbl">Expenses</div><div class="recap-sc-val c-red">${fmt(exp)}</div></div>
+      <div class="recap-stat-card"><div class="recap-sc-lbl">Net Flow</div><div class="recap-sc-val ${net>=0?'c-green':'c-red'}">${fmtN(net)}</div></div>
+      <div class="recap-stat-card"><div class="recap-sc-lbl">Savings Rate</div><div class="recap-sc-val">${savRate}%</div></div>
+    </div>
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">Income Entries (${d.income.length})</div>
+    <table style="width:100%;font-size:11.5px;border-collapse:collapse"><tr style="color:var(--muted);font-size:10px"><th style="text-align:left;padding:4px 0;font-weight:500">Category</th><th style="text-align:left;padding:4px 0;font-weight:500">Description</th><th style="text-align:right;padding:4px 0;font-weight:500">Amount</th></tr>
+    ${d.income.map(e=>`<tr style="border-top:1px solid var(--border)"><td style="padding:5px 4px 5px 0">${esc(e.cat)}</td><td style="padding:5px 4px">${esc(e.desc)}</td><td style="text-align:right;padding:5px 0;color:var(--surplus)">${fmt(e.amt)}</td></tr>`).join('')||'<tr><td colspan="3" style="color:var(--faint);text-align:center;padding:8px">No income entries</td></tr>'}
+    </table>
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin:12px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)">Expense Entries (${d.expense.length})</div>
+    <table style="width:100%;font-size:11.5px;border-collapse:collapse"><tr style="color:var(--muted);font-size:10px"><th style="text-align:left;padding:4px 0;font-weight:500">Category</th><th style="text-align:left;padding:4px 0;font-weight:500">Description</th><th style="text-align:right;padding:4px 0;font-weight:500">Amount</th></tr>
+    ${d.expense.map(e=>`<tr style="border-top:1px solid var(--border)"><td style="padding:5px 4px 5px 0">${esc(e.cat)}</td><td style="padding:5px 4px">${esc(e.desc)}</td><td style="text-align:right;padding:5px 0;color:var(--deficit)">${fmt(e.amt)}</td></tr>`).join('')||'<tr><td colspan="3" style="color:var(--faint);text-align:center;padding:8px">No expense entries</td></tr>'}
+    </table>
+    ${catRows?`<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin:12px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)">Spending by Category</div>
+    <table style="width:100%;font-size:11.5px;border-collapse:collapse"><tr style="color:var(--muted);font-size:10px"><th style="text-align:left;padding:4px 0;font-weight:500">Category</th><th style="text-align:right;font-weight:500">Amount</th><th style="text-align:right;font-weight:500">% of Spend</th></tr>${catRows}</table>`:''}
+  </div>`;
+}
+function renderBillsReport(body){
+  const totalMonthly=BILLS.reduce((s,b)=>{const m={Monthly:1,Quarterly:1/3,'Half-Yearly':1/6,Annual:1/12,'One-Time':0}[b.frequency||'Monthly']||1;return s+(b.amt||0)*m;},0);
+  const totalAnnual=BILLS.reduce((s,b)=>{const m={Monthly:12,Quarterly:4,'Half-Yearly':2,Annual:1,'One-Time':1}[b.frequency||'Monthly']||12;return s+(b.amt||0)*m;},0);
+  const loansTotal=LOANS.reduce((s,l)=>s+Math.max(0,loanOutstanding(l)),0);
+  const loansEMI=LOANS.reduce((s,l)=>s+(l.emi||0),0);
+  const subsMonthly=(SUBS||[]).filter(s=>s.status==='Active').reduce((s,sub)=>{const m={Monthly:1,Quarterly:1/3,'Half-Yearly':1/6,Annual:1/12}[sub.cycle||'Monthly']||1;return s+(sub.cost||0)*m;},0);
+  body.innerHTML=`<div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+      <div class="recap-stat-card"><div class="recap-sc-lbl">Monthly Bills</div><div class="recap-sc-val">${fmt(totalMonthly)}</div></div>
+      <div class="recap-stat-card"><div class="recap-sc-lbl">Annual Cost</div><div class="recap-sc-val">${fmt(totalAnnual)}</div></div>
+      <div class="recap-stat-card"><div class="recap-sc-lbl">Subscriptions/mo</div><div class="recap-sc-val">${fmt(subsMonthly)}</div></div>
+    </div>
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">Bills (${BILLS.length})</div>
+    <table style="width:100%;font-size:11.5px;border-collapse:collapse"><tr style="color:var(--muted);font-size:10px"><th style="text-align:left;padding:4px 0;font-weight:500">Name</th><th style="text-align:left;font-weight:500">Frequency</th><th style="text-align:left;font-weight:500">Due</th><th style="text-align:right;font-weight:500">Amount</th></tr>
+    ${BILLS.map(b=>`<tr style="border-top:1px solid var(--border)"><td style="padding:5px 4px 5px 0">${esc(b.name)}</td><td style="padding:5px 4px">${b.frequency||'Monthly'}</td><td style="padding:5px 4px">${b.dueDay}th</td><td style="text-align:right;padding:5px 0">${fmt(b.amt)}</td></tr>`).join('')||'<tr><td colspan="4" style="color:var(--faint);text-align:center;padding:8px">No bills</td></tr>'}
+    </table>
+    ${LOANS.length?`<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin:12px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)">Loans (${LOANS.length}) — Total Outstanding: ${fmt(loansTotal)} &nbsp;·&nbsp; EMI: ${fmt(loansEMI)}/mo</div>
+    <table style="width:100%;font-size:11.5px;border-collapse:collapse"><tr style="color:var(--muted);font-size:10px"><th style="text-align:left;padding:4px 0;font-weight:500">Loan</th><th style="text-align:right;font-weight:500">Outstanding</th><th style="text-align:right;font-weight:500">EMI/mo</th><th style="text-align:right;font-weight:500">Rate</th></tr>
+    ${LOANS.map(l=>`<tr style="border-top:1px solid var(--border)"><td style="padding:5px 4px 5px 0">${esc(l.name)}</td><td style="text-align:right;padding:5px 4px">${fmt(Math.max(0,loanOutstanding(l)))}</td><td style="text-align:right;padding:5px 4px">${fmt(l.emi)}</td><td style="text-align:right;padding:5px 0">${l.rate}%</td></tr>`).join('')}</table>`:''}
+  </div>`;
+}
+function renderPortfolioReport(body){
+  let mfInv=0,mfCur=0;(INVEST.mf||[]).forEach(h=>{mfInv+=(h.units||0)*(h.navBuy||0);mfCur+=(h.units||0)*(h.currentNav||h.navBuy||0);});
+  let holdInv=0,holdCur=0;(INVEST.holdings||[]).forEach(h=>{if(h.type==='FD'&&h.fdRate){holdInv+=(h.buy||0);holdCur+=fdMaturity(h.buy||0,h.fdRate,h.fdTenure||12,h.fdComp||4);}else{holdInv+=(h.qty||0)*(h.buy||0);holdCur+=(h.qty||0)*(h.cur||h.buy||0);}});
+  let fdPrin=0,fdCur=0;(INVEST.fds||[]).forEach(f=>{fdPrin+=(f.principal||0);fdCur+=fdMaturity(f.principal||0,f.rate||0,f.tenure||12,f.comp||4);});
+  const goalSaved=(INVEST.goals||[]).reduce((s,g)=>s+(g.current||0),0);
+  const totInv=mfInv+holdInv+fdPrin+goalSaved;const totCur=mfCur+holdCur+fdCur+goalSaved;
+  const pnl=totCur-totInv;const pnlPct=totInv>0?(pnl/totInv*100).toFixed(1):0;
+  body.innerHTML=`<div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+      <div class="recap-stat-card"><div class="recap-sc-lbl">Total Invested</div><div class="recap-sc-val">${fmt(totInv)}</div></div>
+      <div class="recap-stat-card"><div class="recap-sc-lbl">Current Value</div><div class="recap-sc-val ${totCur>=totInv?'c-green':'c-red'}">${fmt(totCur)}</div></div>
+      <div class="recap-stat-card"><div class="recap-sc-lbl">Overall P&amp;L</div><div class="recap-sc-val ${pnl>=0?'c-green':'c-red'}">${pnl>=0?'+':''}${fmtN(pnl)} (${pnlPct}%)</div></div>
+    </div>
+    ${(INVEST.mf||[]).length?`<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">Mutual Funds (${(INVEST.mf||[]).length})</div>
+    <table style="width:100%;font-size:11.5px;border-collapse:collapse"><tr style="color:var(--muted);font-size:10px"><th style="text-align:left;padding:4px 0;font-weight:500">Fund</th><th style="text-align:right;font-weight:500">Invested</th><th style="text-align:right;font-weight:500">Current</th><th style="text-align:right;font-weight:500">P&amp;L</th></tr>
+    ${(INVEST.mf||[]).map(h=>{const inv=(h.units||0)*(h.navBuy||0),cur=(h.units||0)*(h.currentNav||h.navBuy||0),p=cur-inv;return`<tr style="border-top:1px solid var(--border)"><td style="padding:5px 4px 5px 0;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc((h.schemeName||'').slice(0,30))}</td><td style="text-align:right;padding:5px 4px">${fmt(inv)}</td><td style="text-align:right;padding:5px 4px">${fmt(cur)}</td><td style="text-align:right;padding:5px 0" class="${p>=0?'c-green':'c-red'}">${p>=0?'+':''}${fmtN(p)}</td></tr>`}).join('')}</table>`:''}
+    ${(INVEST.holdings||[]).length?`<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin:12px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)">Holdings (${(INVEST.holdings||[]).length})</div>
+    <table style="width:100%;font-size:11.5px;border-collapse:collapse"><tr style="color:var(--muted);font-size:10px"><th style="text-align:left;padding:4px 0;font-weight:500">Asset</th><th style="text-align:left;font-weight:500">Type</th><th style="text-align:right;font-weight:500">Invested</th><th style="text-align:right;font-weight:500">Current</th></tr>
+    ${(INVEST.holdings||[]).map(h=>{let inv=0,cur=0;if(h.type==='FD'&&h.fdRate){inv=h.buy||0;cur=fdMaturity(h.buy||0,h.fdRate,h.fdTenure||12,h.fdComp||4);}else{inv=(h.qty||0)*(h.buy||0);cur=(h.qty||0)*(h.cur||h.buy||0);}const c=h.currency||BASE_CURRENCY;return`<tr style="border-top:1px solid var(--border)"><td style="padding:5px 4px 5px 0">${esc(h.name||h.type)}</td><td style="padding:5px 4px;color:var(--muted)">${h.type}</td><td style="text-align:right;padding:5px 4px">${fmtC(inv,c)}</td><td style="text-align:right;padding:5px 0">${fmtC(cur,c)}</td></tr>`}).join('')}</table>`:''}
+    ${(INVEST.goals||[]).length?`<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin:12px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)">Savings Goals</div>
+    <table style="width:100%;font-size:11.5px;border-collapse:collapse"><tr style="color:var(--muted);font-size:10px"><th style="text-align:left;padding:4px 0;font-weight:500">Goal</th><th style="text-align:right;font-weight:500">Saved</th><th style="text-align:right;font-weight:500">Target</th><th style="text-align:right;font-weight:500">%</th></tr>
+    ${(INVEST.goals||[]).map(g=>`<tr style="border-top:1px solid var(--border)"><td style="padding:5px 4px 5px 0">${esc(g.name)}</td><td style="text-align:right;padding:5px 4px">${fmt(g.current||0)}</td><td style="text-align:right;padding:5px 4px">${fmt(g.target||0)}</td><td style="text-align:right;padding:5px 0">${g.target?Math.round((g.current||0)/(g.target)*100):0}%</td></tr>`).join('')}</table>`:''}
+  </div>`;
+}
+function exportRepPDF(){
+  const btn=document.getElementById('repPDFBtn');btn.textContent='…';btn.disabled=true;
+  if(!window.jspdf){alert('PDF library not loaded.');btn.textContent='Export PDF';btn.disabled=false;return;}
+  const {jsPDF}=window.jspdf;const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const safe=s=>String(s||'').replace(/[^\x00-\x7E]/g,'-').slice(0,80);
+  const W=210,M=14,CW=W-M*2;
+  let yy=14;
+  const chk=need=>{if(yy+need>276){pdf.addPage();yy=14;}};
+  pdf.setFont('courier','bold');pdf.setFontSize(14);pdf.setTextColor(8,8,8);
+  const titles={track:`Track Report — ${MONTHS[parseInt(document.getElementById('repMonth').value)]} ${document.getElementById('repYear').value}`,bills:'Bills & Loans Report',portfolio:'Portfolio Report'};
+  pdf.text(safe(titles[repType]||'Report'),M,yy);yy+=8;
+  pdf.setFont('courier','normal');pdf.setFontSize(7);pdf.setTextColor(100,100,100);
+  pdf.text('Generated: '+new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}),M,yy);yy+=8;
+  pdf.setDrawColor(8,8,8);pdf.setLineWidth(.8);pdf.line(M,yy,W-M,yy);yy+=6;
+  // Grab text from repBody
+  const bodyEl=document.getElementById('repBody');
+  if(bodyEl){
+    const rows=bodyEl.querySelectorAll('tr');
+    rows.forEach(row=>{
+      chk(7);const cells=row.querySelectorAll('td,th');
+      cells.forEach((cell,i)=>{
+        const x=M+i*(CW/Math.max(cells.length,1));
+        pdf.setFont('courier',cell.tagName==='TH'?'bold':'normal');
+        pdf.setFontSize(7.5);pdf.setTextColor(cell.tagName==='TH'?100:25,cell.tagName==='TH'?100:25,cell.tagName==='TH'?100:25);
+        const align=cell.style.textAlign==='right'?'right':'left';
+        const xPos=align==='right'?Math.min(W-M,x+(CW/Math.max(cells.length,1))-1):x+1;
+        pdf.text(safe(cell.textContent),xPos,yy,{align});
+      });
+      if(cells.length)yy+=6;
+    });
+  }
+  pdf.setTextColor(140,140,140);pdf.setFontSize(6);
+  pdf.text('Flow Personal Finance',M,280);pdf.text('Page 1',W-M,280,{align:'right'});
+  try{pdf.save(`Flow_${repType}_Report_${Date.now()}.pdf`);}catch(e){alert('Export failed.');}
+  finally{btn.textContent='Export PDF';btn.disabled=false;}
+}
+function exportRepCSV(){
+  const m=parseInt(document.getElementById('repMonth')?.value||0);
+  const y=parseInt(document.getElementById('repYear')?.value||new Date().getFullYear());
+  let csv='',filename='Flow_Report.csv';
+  const C2=(n,cur)=>{const c=CURRENCIES[cur||BASE_CURRENCY]||CURRENCIES.INR;return c.sym+Math.abs(n||0).toFixed(2);};
+  const q=s=>'"'+(String(s||'').replace(/"/g,'""'))+'"';
+  if(repType==='track'){
+    const d=DB[`${m}_${y}`]||{income:[],expense:[]};
+    filename=`Flow_Track_${MONTHS[m]}_${y}.csv`;
+    csv='Type,Category,Description,Tag,Amount\n';
+    d.income.forEach(e=>{csv+=`${q('Income')},${q(e.cat)},${q(e.desc)},${q(e.tag)},${q(e.amt)}\n`;});
+    d.expense.forEach(e=>{csv+=`${q('Expense')},${q(e.cat)},${q(e.desc)},${q(e.tag)},${q(e.amt)}\n`;});
+  } else if(repType==='bills'){
+    filename='Flow_Bills_Report.csv';
+    csv='Type,Name,Amount,Frequency,Due Day,Rate/Info\n';
+    BILLS.forEach(b=>{csv+=`${q('Bill')},${q(b.name)},${q(b.amt)},${q(b.frequency)},${q(b.dueDay)},\n`;});
+    LOANS.forEach(l=>{csv+=`${q('Loan')},${q(l.name)},${q(loanOutstanding(l).toFixed(0))},${q('EMI '+l.emi)},${q(l.tenure+' mo')},${q(l.rate+'%')}\n`;});
+    (SUBS||[]).filter(s=>s.status==='Active').forEach(s=>{csv+=`${q('Subscription')},${q(s.name)},${q(s.cost)},${q(s.cycle)},,\n`;});
+  } else if(repType==='portfolio'){
+    filename='Flow_Portfolio_Report.csv';
+    csv='Type,Name,Units/Qty,Invested,Current Value,P&L\n';
+    (INVEST.mf||[]).forEach(h=>{const inv=(h.units||0)*(h.navBuy||0),cur=(h.units||0)*(h.currentNav||h.navBuy||0);csv+=`${q('MF')},${q(h.schemeName)},${q(h.units)},${q(inv.toFixed(0))},${q(cur.toFixed(0))},${q((cur-inv).toFixed(0))}\n`;});
+    (INVEST.holdings||[]).forEach(h=>{let inv=0,cur=0;if(h.type==='FD'&&h.fdRate){inv=h.buy||0;cur=fdMaturity(h.buy||0,h.fdRate,h.fdTenure||12,h.fdComp||4);}else{inv=(h.qty||0)*(h.buy||0);cur=(h.qty||0)*(h.cur||h.buy||0);}csv+=`${q(h.type)},${q(h.name||h.type)},${q(h.qty||1)},${q(inv.toFixed(0))},${q(cur.toFixed(0))},${q((cur-inv).toFixed(0))}\n`;});
+    (INVEST.goals||[]).forEach(g=>{csv+=`${q('Goal')},${q(g.name)},,${q(g.current||0)},${q(g.target||0)},\n`;});
+  }
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download=filename;document.body.appendChild(a);a.click();
+  setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},500);
+}
+
 // ══ INIT ═══════════════════════════════════════════════════
 function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();renderHeatmap();}
-applyDark();render();applyAllEyes();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();initRecapSelectors();
+applyDark();render();applyAllEyes();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();initRecapSelectors();initCurrencyUI();initNWToggle();
 
 // Banners & notifications (after a brief settle)
 setTimeout(function(){
