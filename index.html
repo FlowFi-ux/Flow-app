@@ -621,6 +621,15 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .split-title{font-size:13px;font-weight:500}
 .split-member{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;gap:8px;flex-wrap:wrap}
 .split-member:last-child{border-bottom:none}
+/* ── Quick Split Modal ──────────────────────────────────── */
+.qs-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:none;align-items:flex-end;justify-content:center;padding:0}
+.qs-modal.open{display:flex}
+.qs-sheet{background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-width:600px;padding:20px 20px 32px;max-height:92vh;overflow-y:auto;animation:qs-slide .25s ease}
+@keyframes qs-slide{from{transform:translateY(60%);opacity:.4}to{transform:translateY(0);opacity:1}}
+.qs-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 18px}
+.qs-title{font-size:15px;font-weight:600;letter-spacing:-.2px;margin-bottom:16px}
+.qs-member-row{display:grid;grid-template-columns:1.2fr 0.8fr 1.2fr auto;gap:8px;margin-bottom:8px;align-items:center}
+@media(max-width:480px){.qs-member-row{grid-template-columns:1fr 0.8fr auto;grid-template-rows:auto auto}.qs-phone-inp{grid-column:1/3;grid-row:2}}
 .split-settled-lbl{text-decoration:line-through;color:var(--faint)}
 .btn-settle{font-size:10px;padding:3px 9px;background:var(--surplus-bg);color:var(--surplus);border:1px solid var(--surplus);border-radius:12px;cursor:pointer;font-family:'IBM Plex Mono',monospace}
 .split-form-members{display:flex;flex-direction:column;gap:6px;margin:10px 0}
@@ -630,14 +639,23 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .btn-notify:hover{border-color:var(--text);color:var(--text)}
 .btn-notify.has-phone{background:rgba(74,222,128,.12);color:var(--surplus);border-color:var(--surplus)}
 /* ── Notify icon buttons (WhatsApp + SMS) ─────────────── */
-.btn-notify-icon{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--surface);cursor:pointer;transition:all .14s;flex-shrink:0}
+.btn-notify-icon{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--surface);cursor:pointer;transition:all .14s;flex-shrink:0;position:relative}
 .btn-notify-icon:hover{transform:scale(1.1)}
 .btn-notify-icon.wa{border-color:rgba(37,211,102,.5);background:rgba(37,211,102,.08)}
 .btn-notify-icon.wa:hover{background:rgba(37,211,102,.18);border-color:#25d366}
 .btn-notify-icon.sms{border-color:rgba(99,179,237,.5);background:rgba(99,179,237,.08)}
 .btn-notify-icon.sms:hover{background:rgba(99,179,237,.18);border-color:#63b3ed}
+.btn-notify-icon.nudge-due{animation:nudge-pulse 2s infinite}
+@keyframes nudge-pulse{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,.4)}50%{box-shadow:0 0 0 5px rgba(251,191,36,0)};border-color:#fbbf24}
+.nudge-dot{position:absolute;top:1px;right:1px;width:7px;height:7px;border-radius:50%;background:#fbbf24;border:1.5px solid var(--surface)}
 [data-theme="dark"] .btn-notify-icon.wa{border-color:rgba(37,211,102,.4)}
 [data-theme="dark"] .btn-notify-icon.sms{border-color:rgba(99,179,237,.4)}
+/* ── Friend Debt Memory ─────────────────────────────────── */
+.debt-entry{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:8px;flex-wrap:wrap}
+.debt-entry:last-child{border-bottom:none}
+.debt-badge-owe-me{background:rgba(74,222,128,.12);color:var(--surplus);border:1px solid var(--surplus);font-size:9px;padding:2px 7px;border-radius:10px;white-space:nowrap}
+.debt-badge-i-owe{background:rgba(248,113,113,.12);color:var(--deficit);border:1px solid var(--deficit);font-size:9px;padding:2px 7px;border-radius:10px;white-space:nowrap}
+.debt-settled{opacity:.45;text-decoration:line-through}
 
 /* ══ MF SIP ═════════════════════════════════════════════════ */
 .sip-badge{font-size:9px;padding:2px 7px;border-radius:10px;background:#e6edf8;color:#2a5080;border:1px solid #b8d0e8;white-space:nowrap;display:inline-block;margin-top:3px}
@@ -1311,6 +1329,42 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 
 
 <!-- ══ INSTALL APP MODAL ════════════════════════════════════ -->
+<!-- ── SPLIT UP MODAL ────────────────────────────────────── -->
+<div id="quickSplitModal" class="qs-modal" onclick="if(event.target===this)closeQuickSplit()">
+  <div class="qs-sheet">
+    <div class="qs-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div class="qs-title">&#x26A1; Split Up</div>
+      <button class="btn-del" onclick="closeQuickSplit()">&#x2715;</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:10px;margin-bottom:12px">
+      <div class="form-field"><span class="form-label">What's it for?</span><input type="text" id="qsTitle" placeholder="e.g. Dinner, Trip, Chai"></div>
+      <div class="form-field"><span class="form-label">Total Amount (&#8377;)</span><input type="number" id="qsTotal" placeholder="0" oninput="qsAutoSplit()"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div class="form-field"><span class="form-label">Paid by</span><input type="text" id="qsPaidBy" placeholder="Your name"></div>
+      <div class="form-field"><span class="form-label">Your UPI ID <span style="color:var(--faint);font-weight:400">(opt.)</span></span><input type="text" id="qsUPI" placeholder="yourname@upi" style="font-size:11px"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:500">Split Among</span>
+      <button class="btn-ghost btn-sm" onclick="addQSMember()">+ Add Person</button>
+    </div>
+    <div id="qsMembers" style="margin-bottom:14px"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-primary btn-sm" onclick="createQuickSplit('wa')" style="flex:1;justify-content:center;padding:10px;background:#25d366;border-color:#25d366;display:flex;align-items:center;gap:6px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20.52 3.48A11.8 11.8 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.19 1.6 6.01L0 24l6.14-1.61A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.21-1.25-6.23-3.48-8.52z" fill="white"/></svg>
+        WhatsApp All
+      </button>
+      <button class="btn-ghost btn-sm" onclick="createQuickSplit('sms')" style="flex:1;justify-content:center;padding:10px;border-color:#63b3ed;color:#63b3ed;display:flex;align-items:center;gap:6px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 2H4C2.9 2 2 2.9 2 4v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" fill="#63b3ed"/></svg>
+        SMS All
+      </button>
+      <button class="btn-ghost btn-sm" onclick="closeQuickSplit()" style="padding:10px 14px">Cancel</button>
+    </div>
+    <div id="qsStatus" style="margin-top:10px;font-size:11px;color:var(--muted);text-align:center"></div>
+  </div>
+</div>
+
 <div id="installModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:800;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--surface);border-radius:12px;max-width:440px;width:100%;padding:28px;box-shadow:0 12px 40px rgba(0,0,0,.3)">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
@@ -1365,6 +1419,9 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="sep"></div>
     <button class="btn-csv" onclick="exportCSV()">
       <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 9.5h8M6 1v7M3 5.5l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>CSV
+    </button>
+    <button class="btn-ghost" onclick="shareRecapCard()" title="Share monthly recap card" style="padding:5px 9px;display:flex;align-items:center;gap:4px;font-size:11px">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>Card
     </button>
     <button class="btn-pdf" id="pdfBtn" onclick="exportPDF()">
       <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5.5l3 3 3-3M1 9.5v1a.5.5 0 00.5.5h9a.5.5 0 00.5-.5v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>PDF
@@ -1662,7 +1719,10 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         <span class="sec-title">Bill Split Tracker</span>
         <button class="info-btn" onclick="toggleInfo('tip-split')" title="About Bill Split">i</button>
       </div>
-      <button class="btn-ghost btn-sm" onclick="toggleForm('splitForm')">+ Add Split</button>
+      <div style="display:flex;gap:6px">
+        <button class="btn-primary btn-sm" onclick="openQuickSplit()" title="Split Up — quick split &amp; notify">&#x26A1; Split Up</button>
+        <button class="btn-ghost btn-sm" onclick="toggleForm('splitForm')">+ Add Split</button>
+      </div>
     </div>
     <div class="info-tip" id="tip-split"><div class="info-tip-hd">Bill Split Tracker</div>Track shared expenses. Add the total amount, who paid, and split it among people. Add each person's WhatsApp number — tap the <strong style="color:#25d366">WhatsApp icon</strong> to send them their share instantly. Tap the <strong style="color:#63b3ed">SMS icon</strong> to send via text message. Once they pay, tap <strong>Mark Settled</strong>.<button class="info-tip-close" onclick="toggleInfo('tip-split')">&#215;</button></div>
     <div class="hold-form" id="splitForm" style="display:none;margin-bottom:14px">
@@ -1746,8 +1806,8 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div id="subList"></div>
   </div>
 
-</div>
-</div>
+</div><!-- /.main -->
+</div><!-- /#tab-bills -->
 
 
 <!-- ══ PORTFOLIO TAB ═════════════════════════════════════════ -->
@@ -2446,6 +2506,21 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 
   <div class="wn-version-block">
     <div class="wn-version-header">
+      <span class="wn-version-num">v2.2</span>
+      <span class="wn-version-date">May 2026</span>
+      <span class="wn-version-label wn-label-minor">Update</span>
+    </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">&#x26A1; Split Up — Quick Split &amp; Notify</div><div class="wn-entry-desc">Tap Split Up in the Bill Split tab to instantly create a split, auto-divide equally, and notify all members via WhatsApp or SMS in one tap. Pre-fills from your last split — minimum effort.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Shareable Recap Cards</div><div class="wn-entry-desc">Tap the Card button in the Track tab to generate a clean PNG summary of your month — income, expenses, savings rate, top spend. Share directly via WhatsApp, Instagram, or download.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Auto-Nudge for Unsettled Members</div><div class="wn-entry-desc">After 3 days, the WhatsApp button on an unsettled split member glows amber with a nudge dot. Shows "Notified Xd ago" so you know exactly how long they've been sitting on it.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-improved">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">Unmark Settled — Undo Button</div><div class="wn-entry-desc">Accidentally marked someone as settled? An Undo button now appears next to ✓ Settled so you can reverse it instantly.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-fix">Fix</span><div class="wn-entry-body"><div class="wn-entry-title">Double Mark Settled Button</div><div class="wn-entry-desc">Each split member was showing two identical Mark Settled buttons due to a duplicated template line. Fixed — one button per member.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-fix">Fix</span><div class="wn-entry-body"><div class="wn-entry-title">FlowSnap Banner — New User Guard</div><div class="wn-entry-desc">The monthly FlowSnap banner was appearing for brand-new users with zero entries on days 15–30. Fixed — banner now only shows when the user has at least one income or expense entry logged.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-fix">Fix</span><div class="wn-entry-body"><div class="wn-entry-title">Blank Tabs on Bills Switch</div><div class="wn-entry-desc">Switching to the Bills tab was silently calling renderDebts() on removed DOM elements, which aborted the render chain on some browsers leaving tabs blank. Root cause removed.</div></div></div>
+  </div>
+
+  <div class="wn-version-block">
+    <div class="wn-version-header">
       <span class="wn-version-num">v2.1</span>
       <span class="wn-version-date">May 2026</span>
       <span class="wn-version-label wn-label-minor">Update</span>
@@ -2615,6 +2690,7 @@ let SUBS  = JSON.parse(localStorage.getItem('flow_subs')||'[]');
 let NOTES = JSON.parse(localStorage.getItem('flow_notes')||'[]');
 let NW_HISTORY=JSON.parse(localStorage.getItem('flow_nw_history')||'[]');
 let BILLS = JSON.parse(localStorage.getItem('flow_bills')||'[]');
+let DEBTS = JSON.parse(localStorage.getItem('flow_debts')||'[]');
 let INVEST= JSON.parse(localStorage.getItem('flow_invest')||'{"goals":[],"mf":[],"holdings":[],"dividends":[],"fds":[]}');
 let dark  = localStorage.getItem('flow_dark')==='true';
 let BUDGETS= JSON.parse(localStorage.getItem('flow_budgets')||'{}');
@@ -2653,6 +2729,7 @@ function toggleForm(id){const e=document.getElementById(id);if(!e)return;e.style
 function mdata(){const k=key();if(!DB[k])DB[k]={income:[],expense:[]};return DB[k]}
 function save(){localStorage.setItem('flow_v3',JSON.stringify(DB))}
 function saveBills(){localStorage.setItem('flow_bills',JSON.stringify(BILLS))}
+function saveDebts(){localStorage.setItem('flow_debts',JSON.stringify(DEBTS))}
 function saveInvest(){localStorage.setItem('flow_invest',JSON.stringify(INVEST))}
 function saveLoans(){localStorage.setItem('flow_loans',JSON.stringify(LOANS))}
 function saveSplits(){localStorage.setItem('flow_splits',JSON.stringify(SPLITS))}
@@ -4169,6 +4246,8 @@ function notifyMember(splitId,memberId){
   const sp=SPLITS.find(s=>s.id===splitId);
   const m=sp?.members.find(x=>x.id===memberId);
   if(!sp||!m)return;
+  // Track when last notified for nudge feature
+  m.notifiedAt=Date.now();saveSplits();
 
   const upiLink=sp.payeeUPI
     ?`upi://pay?pa=${encodeURIComponent(sp.payeeUPI)}&pn=${encodeURIComponent(sp.paidBy||'')}&am=${m.amount}&cu=INR&tn=${encodeURIComponent('Split: '+sp.title)}`
@@ -4219,21 +4298,30 @@ function renderSplits(){
           <button class="btn-del" onclick="deleteSplit('${s.id}')">x</button>
         </div>
       </div>
-      ${s.members.map(m=>`<div class="split-member">
-        <span class="${m.settled?'split-settled-lbl':''}">${esc(m.name)}${m.phone?`<span style="font-size:9.5px;color:var(--faint);margin-left:5px" title="${m.phone}">&#x1F4F1;</span>`:''}</span>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end">
-          <span style="font-weight:500">${fmt(m.amount)}</span>
-          ${!m.settled?`<button class="btn-notify-icon wa" onclick="notifyMember('${s.id}','${m.id}')" title="${m.phone?'WhatsApp '+m.name:'Share / copy message'}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20.52 3.48A11.8 11.8 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.19 1.6 6.01L0 24l6.14-1.61A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.21-1.25-6.23-3.48-8.52zM12 22c-1.85 0-3.66-.5-5.23-1.43l-.37-.22-3.87 1.01 1.04-3.77-.24-.39A9.93 9.93 0 0 1 2 12C2 6.48 6.48 2 12 2c2.67 0 5.18 1.04 7.07 2.93A9.95 9.95 0 0 1 22 12c0 5.52-4.48 10-10 10zm5.47-7.53c-.3-.15-1.77-.87-2.04-.97-.28-.1-.48-.15-.68.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.47-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.68-1.63-.93-2.23-.24-.58-.49-.5-.68-.51-.17-.01-.37-.01-.57-.01-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48 0 1.47 1.07 2.89 1.22 3.09.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.63.71.22 1.35.19 1.86.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.19-.57-.34z" fill="#25d366"/></svg></button>`:''} 
-          ${!m.settled&&m.phone?`<button class="btn-notify-icon sms" onclick="notifySMS('${s.id}','${m.id}')" title="SMS ${m.name}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 2H4C2.9 2 2 2.9 2 4v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" fill="#63b3ed"/><path d="M7 9h10M7 13h7" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></button>`:''}
-          ${!m.settled?`<button class="btn-settle" onclick="settleSplitMember('${s.id}','${m.id}')">Mark Settled</button>`:'<span style="font-size:10px;color:var(--surplus)">&#x2713; Settled</span>'}
-          ${!m.settled?`<button class="btn-settle" onclick="settleSplitMember('${s.id}','${m.id}')">Mark Settled</button>`:'<span style="font-size:10px;color:var(--surplus)">&#x2713; Settled</span>'}
-        </div>
-      </div>`).join('')}
+      ${s.members.map(m=>{
+        const isNudgeDue=!m.settled&&m.notifiedAt&&(Date.now()-m.notifiedAt)>((s.nudgeDays||3)*86400000);
+        const daysSince=m.notifiedAt?Math.floor((Date.now()-m.notifiedAt)/86400000):null;
+        const waTitle=(m.phone?'WhatsApp '+m.name:'Share / copy')+(daysSince!==null?' \xb7 Sent '+daysSince+'d ago':'');
+        const waSVG='<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20.52 3.48A11.8 11.8 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.19 1.6 6.01L0 24l6.14-1.61A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.21-1.25-6.23-3.48-8.52zM12 22c-1.85 0-3.66-.5-5.23-1.43l-.37-.22-3.87 1.01 1.04-3.77-.24-.39A9.93 9.93 0 0 1 2 12C2 6.48 6.48 2 12 2c2.67 0 5.18 1.04 7.07 2.93A9.95 9.95 0 0 1 22 12c0 5.52-4.48 10-10 10zm5.47-7.53c-.3-.15-1.77-.87-2.04-.97-.28-.1-.48-.15-.68.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.47-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.68-1.63-.93-2.23-.24-.58-.49-.5-.68-.51-.17-.01-.37-.01-.57-.01-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48 0 1.47 1.07 2.89 1.22 3.09.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.63.71.22 1.35.19 1.86.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.19-.57-.34z" fill="#25d366"/></svg>';
+        const smsSVG='<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 2H4C2.9 2 2 2.9 2 4v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" fill="#63b3ed"/><path d="M7 9h10M7 13h7" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>';
+        return '<div class="split-member">'
+          +'<div style="display:flex;flex-direction:column;gap:2px">'
+          +'<span class="'+(m.settled?'split-settled-lbl':'')+'">'+(m.phone?'<span style="font-size:9.5px;color:var(--faint);margin-left:5px">\u{1F4F1}</span>':'')+esc(m.name)+'</span>'
+          +(daysSince!==null&&!m.settled?'<span style="font-size:9px;color:'+(isNudgeDue?'#fbbf24':'var(--faint')+')\">'+(isNudgeDue?'\u26a1 Nudge due':'Notified '+daysSince+'d ago')+'</span>':'')
+          +'</div>'
+          +'<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end">'
+          +'<span style="font-weight:500">'+fmt(m.amount)+'</span>'
+          +(!m.settled?'<button class="btn-notify-icon wa'+(isNudgeDue?' nudge-due':'')+'" onclick="notifyMember(\''+s.id+'\',\''+m.id+'\')" title="'+waTitle+'">'+waSVG+(isNudgeDue?'<span class="nudge-dot"></span>':'')+'</button>':'')
+          +(!m.settled&&m.phone?'<button class="btn-notify-icon sms" onclick="notifySMS(\''+s.id+'\',\''+m.id+'\')" title="SMS '+esc(m.name)+'">'+smsSVG+'</button>':'')
+          +(!m.settled
+            ?'<button class="btn-settle" onclick="settleSplitMember(\''+s.id+'\',\''+m.id+'\')">Mark Settled</button>'
+            :'<span style="display:flex;align-items:center;gap:4px"><span style="font-size:10px;color:var(--surplus)">&#x2713; Settled</span><button class="btn-ghost btn-sm" onclick="unmarkSplitMember(\''+s.id+'\',\''+m.id+'\')" style="font-size:9px;padding:2px 6px;opacity:.55" title="Undo">Undo</button></span>'
+          )
+          +'</div></div>';
+      }).join('')}
     </div>`;
   }).join('');
 }
-
-// ══ MF SIP TRACKER ════════════════════════════════════════
 function setSIPForMF(id){
   const h=INVEST.mf.find(x=>x.id===id);if(!h)return;
   const hasSip=h.sip&&h.sip.active;
@@ -5657,6 +5745,11 @@ function checkRecapBanner(){
   if(day<15||day>30) return;    // window: 15th–30th
   if(localStorage.getItem(dismissedKey)==='1') return;
   if(!localStorage.getItem('flow_visited')) return;
+  // Don't show for users with no financial data at all (new users / empty accounts)
+  const hasAnyData=Object.keys(DB).some(k=>{
+    const d=DB[k];return(d.income&&d.income.length>0)||(d.expense&&d.expense.length>0);
+  });
+  if(!hasAnyData) return;
   const monthName=MONTHS[m-1]; // m-1 to convert to 0-indexed for MONTHS array
   document.getElementById('recapBannerTitle').textContent=`✦ ${monthName} FlowSnap is ready!`;
   setTimeout(()=>document.getElementById('recapBanner').classList.add('show'), 1200);
@@ -6568,6 +6661,7 @@ function notifySMS(splitId,memberId){
   const sp=SPLITS.find(s=>s.id===splitId);
   const m=sp?.members.find(x=>x.id===memberId);
   if(!sp||!m||!m.phone)return;
+  m.notifiedAt=Date.now();saveSplits();
   const dateStr=sp.date?new Date(sp.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'';
   const amtStr=m.amount.toLocaleString('en-IN');
   let payPart='';
@@ -6580,9 +6674,250 @@ function notifySMS(splitId,memberId){
   window.open('sms:+'+phone+'?body='+encodeURIComponent(msg),'_blank');
 }
 
+
+// ══ UNMARK SETTLED ════════════════════════════════════════
+function unmarkSplitMember(splitId,memberId){
+  const sp=SPLITS.find(s=>s.id===splitId);if(!sp)return;
+  const m=sp.members.find(x=>x.id===memberId);
+  if(m){m.settled=false;m.notifiedAt=null;}
+  saveSplits();renderSplits();
+}
+
+// ══ FRIEND DEBT MEMORY ════════════════════════════════════
+function saveDebt(){
+  const name=document.getElementById('dName').value.trim();
+  const amt=parseFloat(document.getElementById('dAmt').value)||0;
+  const dir=document.getElementById('dDir').value;
+  const date=document.getElementById('dDate').value;
+  const note=document.getElementById('dNote').value.trim();
+  if(!name||!amt){alert('Name and amount required.');return;}
+  DEBTS.push({id:uid(),name,amount:amt,direction:dir,date,note,settled:false,createdAt:Date.now()});
+  saveDebts();renderDebts();
+  ['dName','dAmt','dNote'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('dDir').value='owe_me';
+  document.getElementById('dDate').value='';
+  toggleForm('debtForm');
+}
+function settleDebt(id){const d=DEBTS.find(x=>x.id===id);if(d)d.settled=true;saveDebts();renderDebts();}
+function unsettleDebt(id){const d=DEBTS.find(x=>x.id===id);if(d)d.settled=false;saveDebts();renderDebts();}
+function deleteDebt(id){if(!confirm('Delete this entry?'))return;DEBTS=DEBTS.filter(x=>x.id!==id);saveDebts();renderDebts();}
+function renderDebts(){
+  const sum=document.getElementById('debtSummary');
+  const list=document.getElementById('debtList');
+  if(!sum||!list)return;
+  const owedToMe=DEBTS.filter(d=>d.direction==='owe_me'&&!d.settled).reduce((s,d)=>s+d.amount,0);
+  const iOwe=DEBTS.filter(d=>d.direction==='i_owe'&&!d.settled).reduce((s,d)=>s+d.amount,0);
+  sum.innerHTML=`
+    <div class="card"><div class="card-lbl" style="color:var(--surplus)">Owed to you</div><div class="card-val" style="color:var(--surplus)">${fmt(owedToMe)}</div></div>
+    <div class="card"><div class="card-lbl" style="color:var(--deficit)">You owe</div><div class="card-val" style="color:var(--deficit)">${fmt(iOwe)}</div></div>`;
+  if(!DEBTS.length){list.innerHTML='<div class="empty-msg">No IOUs logged yet.</div>';return;}
+  list.innerHTML=DEBTS.slice().sort((a,b)=>b.createdAt-a.createdAt).map(d=>{
+    const daysAgo=d.date?Math.floor((Date.now()-new Date(d.date))/(86400000)):null;
+    return`<div class="debt-entry ${d.settled?'debt-settled':''}">
+      <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+          <span style="font-weight:500;font-size:13px">${esc(d.name)}</span>
+          <span class="${d.direction==='owe_me'?'debt-badge-owe-me':'debt-badge-i-owe'}">${d.direction==='owe_me'?'Owes you':'You owe'}</span>
+          ${d.settled?'<span style="font-size:9px;color:var(--surplus);background:rgba(74,222,128,.1);padding:2px 6px;border-radius:8px">✓ Settled</span>':''}
+        </div>
+        ${d.note?`<div style="font-size:11px;color:var(--muted)">${esc(d.note)}</div>`:''}
+        ${d.date?`<div style="font-size:10px;color:var(--faint)">${new Date(d.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}${daysAgo!==null&&!d.settled?` &nbsp;·&nbsp; ${daysAgo===0?'Today':daysAgo+' days ago'}`:''}${'</div>'}`:'' }
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <span style="font-weight:600;font-size:14px;${d.direction==='owe_me'?'color:var(--surplus)':'color:var(--deficit)'}">${fmt(d.amount)}</span>
+        ${!d.settled
+          ?`<button class="btn-settle" onclick="settleDebt('${d.id}')">Settled</button>`
+          :`<button class="btn-ghost btn-sm" onclick="unsettleDebt('${d.id}')" style="font-size:9px;padding:2px 6px;opacity:.55">Undo</button>`
+        }
+        <button class="btn-del" onclick="deleteDebt('${d.id}')">x</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══ SHAREABLE RECAP CARD ══════════════════════════════════
+function shareRecapCard(){
+  const m=parseInt(document.getElementById('selMonth').value);
+  const y=parseInt(document.getElementById('selYear').value);
+  const d=DB[`${m}_${y}`]||{income:[],expense:[]};
+  const inc=d.income.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+  const exp=d.expense.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+  const net=inc-exp;
+  const savRate=inc>0?Math.round(net/inc*100):0;
+  const cats={};d.expense.forEach(e=>{const c=e.cat||'Other';cats[c]=(cats[c]||0)+(parseFloat(e.amt)||0);});
+  const topCat=Object.entries(cats).sort((a,b)=>b[1]-a[1])[0];
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  const bg=isDark?'#0e0e0e':'#ffffff';
+  const fg=isDark?'#f5f5f4':'#0e0e0e';
+  const sub=isDark?'rgba(255,255,255,0.28)':'rgba(0,0,0,0.38)';
+  const div=isDark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.1)';
+  const GREEN='#4ade80';const RED='#f87171';const AMBER='#fbbf24';
+
+  const canvas=document.createElement('canvas');
+  const W=800,H=460;canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d');
+
+  // Background
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  // Accent bar left
+  ctx.fillStyle=GREEN;ctx.fillRect(0,0,5,H);
+  // Subtle top strip
+  const grad=ctx.createLinearGradient(0,0,W,0);
+  grad.addColorStop(0,'rgba(74,222,128,0.08)');grad.addColorStop(1,'rgba(74,222,128,0)');
+  ctx.fillStyle=grad;ctx.fillRect(5,0,W-5,3);
+
+  // Brand
+  ctx.fillStyle=sub;ctx.font='600 10px monospace';ctx.fillText('FLOW PERSONAL FINANCE',40,42);
+  // Month
+  ctx.fillStyle=fg;ctx.font='700 36px monospace';ctx.fillText(MONTHS[m].toUpperCase()+' '+y,40,96);
+  // Divider
+  ctx.fillStyle=div;ctx.fillRect(40,112,W-80,1);
+
+  // Stats row
+  const stats=[
+    {lbl:'INCOME',val:fmt(inc),col:GREEN},
+    {lbl:'EXPENSES',val:fmt(exp),col:RED},
+    {lbl:'NET SAVED',val:fmt(Math.max(0,net)),col:net>=0?GREEN:RED},
+    {lbl:'SAVINGS RATE',val:savRate+'%',col:savRate>=20?GREEN:savRate>=10?AMBER:RED},
+  ];
+  stats.forEach((st,i)=>{
+    const x=40+i*185;
+    ctx.fillStyle=sub;ctx.font='500 9px monospace';ctx.fillText(st.lbl,x,148);
+    ctx.fillStyle=st.col;ctx.font='700 22px monospace';ctx.fillText(st.val,x,178);
+  });
+
+  // Divider
+  ctx.fillStyle=div;ctx.fillRect(40,198,W-80,1);
+
+  // Top category
+  if(topCat){
+    ctx.fillStyle=sub;ctx.font='500 9px monospace';ctx.fillText('BIGGEST SPEND',40,226);
+    ctx.fillStyle=AMBER;ctx.font='600 17px monospace';ctx.fillText(topCat[0]+' — '+fmt(topCat[1]),40,252);
+  }
+
+  // Tagline
+  const tags=['Track it. Own it.','Every rupee tells a story.','Know where it goes.','Clarity starts here.','Your money, your rules.'];
+  ctx.fillStyle=sub;ctx.font='500 12px monospace';ctx.fillText(tags[new Date().getMonth()%tags.length],40,H-44);
+  // Divider
+  ctx.fillStyle=div;ctx.fillRect(40,H-60,W-80,1);
+
+  // F. watermark
+  ctx.fillStyle=isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)';
+  ctx.font='700 120px monospace';ctx.textAlign='right';ctx.fillText('F.',W-30,H-20);ctx.textAlign='left';
+
+  // Share
+  canvas.toBlob(async blob=>{
+    const file=new File([blob],'Flow_Recap_'+MONTHS[m]+'_'+y+'.png',{type:'image/png'});
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+      try{await navigator.share({title:'My '+MONTHS[m]+' '+y+' Money Recap',text:'Monthly finance summary — tracked in Flow',files:[file]});return;}
+      catch(e){}
+    }
+    // Fallback — download
+    const a=document.createElement('a');a.href=canvas.toDataURL('image/png');
+    a.download='Flow_'+MONTHS[m]+'_'+y+'_Recap.png';a.click();
+    showToast('Card saved!','Check your downloads.');
+  },'image/png');
+}
+
+
+// ══ QUICK SPLIT ═══════════════════════════════════════════
+let qsMemberCount=0;
+function openQuickSplit(){
+  const modal=document.getElementById('quickSplitModal');
+  if(!modal)return;
+  modal.classList.add('open');
+  // Pre-fill from last split for speed
+  const last=SPLITS.length?SPLITS[SPLITS.length-1]:null;
+  const paidByEl=document.getElementById('qsPaidBy');
+  if(last&&paidByEl&&!paidByEl.value)paidByEl.value=last.paidBy||'';
+  const upiEl=document.getElementById('qsUPI');
+  if(last&&upiEl&&!upiEl.value)upiEl.value=last.payeeUPI||'';
+  const membersEl=document.getElementById('qsMembers');
+  if(membersEl&&!membersEl.children.length){
+    qsMemberCount=0;
+    if(last&&last.members.length){
+      // Pre-populate with last split's people
+      last.members.slice(0,4).forEach(m=>addQSMember(m.name,m.phone));
+    } else {
+      addQSMember();addQSMember();
+    }
+  }
+  document.getElementById('qsTitle').focus();
+}
+function closeQuickSplit(){
+  const modal=document.getElementById('quickSplitModal');
+  if(modal)modal.classList.remove('open');
+  // Reset for next time
+  qsMemberCount=0;
+  ['qsTitle','qsTotal','qsPaidBy','qsUPI'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const membersEl=document.getElementById('qsMembers');if(membersEl)membersEl.innerHTML='';
+  const st=document.getElementById('qsStatus');if(st)st.textContent='';
+}
+function addQSMember(name='',phone=''){
+  qsMemberCount++;
+  const wrap=document.getElementById('qsMembers');if(!wrap)return;
+  const row=document.createElement('div');row.className='qs-member-row';row.id='qsr_'+qsMemberCount;
+  row.innerHTML=`<input type="text" placeholder="Name" value="${esc(name)}" style="font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--r);background:var(--bg);color:var(--text);font-family:'IBM Plex Mono',monospace;width:100%">
+    <input type="number" placeholder="&#8377; share" style="font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--r);background:var(--bg);color:var(--text);font-family:'IBM Plex Mono',monospace;width:100%">
+    <input type="tel" class="qs-phone-inp" placeholder="&#x1F4F1; WhatsApp no." value="${esc(phone)}" style="font-size:11.5px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--r);background:var(--bg);color:var(--text);font-family:'IBM Plex Mono',monospace;width:100%">
+    <button class="btn-del" onclick="document.getElementById('qsr_${qsMemberCount}').remove();qsAutoSplit()" title="Remove">&#x2715;</button>`;
+  wrap.appendChild(row);
+}
+function qsAutoSplit(){
+  const total=parseFloat(document.getElementById('qsTotal').value)||0;
+  if(!total)return;
+  const rows=document.querySelectorAll('#qsMembers .qs-member-row');
+  if(!rows.length)return;
+  const each=Math.round((total/rows.length)*100)/100;
+  rows.forEach(row=>{const inp=row.querySelectorAll('input')[1];if(inp&&!inp.dataset.manual)inp.value=each;});
+}
+function createQuickSplit(channel){
+  const title=document.getElementById('qsTitle').value.trim();
+  const total=parseFloat(document.getElementById('qsTotal').value)||0;
+  const paidBy=document.getElementById('qsPaidBy').value.trim();
+  const payeeUPI=document.getElementById('qsUPI').value.trim();
+  if(!title||!total){alert('Title and amount are required.');return;}
+  const members=[];
+  document.querySelectorAll('#qsMembers .qs-member-row').forEach(row=>{
+    const inps=row.querySelectorAll('input');
+    const name=inps[0].value.trim();
+    const amt=parseFloat(inps[1].value)||0;
+    const phone=(inps[2].value||'').trim().replace(/\D/g,'');
+    if(name)members.push({id:uid(),name,amount:amt,phone,settled:false});
+  });
+  if(!members.length){alert('Add at least one person.');return;}
+  const sp={id:uid(),title,total,date:new Date().toISOString().split('T')[0],paidBy,payeeUPI,members,nudgeDays:3};
+  SPLITS.push(sp);saveSplits();
+  closeQuickSplit();
+  // Switch to split tab first
+  const btn=document.getElementById('btab-split');
+  if(btn)switchBillsTab('split',btn);
+  // Notify via chosen channel
+  const withPhone=sp.members.filter(m=>m.phone);
+  if(!withPhone.length){
+    showToast('Split created ⚡','Add phone numbers to send notifications.');
+    return;
+  }
+  if(channel==='wa'){
+    // Open WhatsApp for first person immediately
+    notifyMember(sp.id,withPhone[0].id);
+    if(withPhone.length>1){
+      setTimeout(()=>showToast('Split created ⚡','Tap 💬 on each person to send the remaining '+(withPhone.length-1)+' notifications.'),800);
+    }
+  } else if(channel==='sms'){
+    // SMS first person
+    notifySMS(sp.id,withPhone[0].id);
+    if(withPhone.length>1){
+      setTimeout(()=>showToast('Split created ⚡','Tap the SMS button on each person for the remaining '+(withPhone.length-1)+' notifications.'),800);
+    }
+  }
+}
+
 // ══ INIT ═══════════════════════════════════════════════════
 function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();renderHeatmap();}
 applyDark();render();applyAllEyes();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();initRecapSelectors();initCurrencyUI();initNWToggle();
+// Set today as default for debt date
+(function(){const el=document.getElementById('dDate');if(el)el.value=new Date().toISOString().split('T')[0];})();
 
 // Banners & notifications (after a brief settle)
 setTimeout(function(){
