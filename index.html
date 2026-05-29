@@ -456,6 +456,19 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 
   /* Hold form type row */
   .hold-form > div:first-child{flex-wrap:wrap}
+
+  /* Portfolio — NW chart height */
+  .nw-chart-wrap{height:150px}
+
+  /* Portfolio sub-tabs scroll properly */
+  #tab-invest .sub-tabs{padding-bottom:2px}
+  
+  /* MF table compact on mobile */
+  .mf-table-wrap{border-radius:var(--r);border:1px solid var(--border)}
+  
+  /* SIP results compact */
+  .sip-result-row{padding:9px 10px;font-size:11.5px}
+  .sip-result-row.total{padding:10px 10px}
 }
 
 /* ── 480px — small mobile ────────────────────────────────── */
@@ -475,12 +488,18 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   .calc-nav-btn{padding:5px 8px;font-size:10px}
   .alloc-canvas-wrap{height:130px;width:130px}
   .invest-summary-4{grid-template-columns:1fr 1fr}
+  /* Portfolio specific */
+  .alloc-legend-item{font-size:10px !important}
+  #tab-invest .card{padding:10px}
+  .sip-field label{font-size:9px}
+  .sip-field input{font-size:12px}
 }
 
 /* ── 380px — very small ──────────────────────────────────── */
 @media(max-width:380px){
-  .summary,.invest-summary,.invest-summary-4,.bills-summary{grid-template-columns:1fr}
+  .summary,.invest-summary,.invest-summary-4,.bills-summary{grid-template-columns:1fr 1fr}
   .hs-wordmark{font-size:48px}
+  .alloc-canvas-wrap{height:110px;width:110px}
 }
 
 
@@ -496,31 +515,41 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   .tab-bar{padding:0 24px}
   .globalSearchPanel-inner{max-width:1080px;margin:0 auto}
 }
-
-/* ── Responsive: split member row wraps on small screens ── */
+/* ── Split member row ────────────────────────────────────── */
 @media(max-width:520px){
   .split-member{flex-wrap:wrap;gap:6px}
   .split-member > div{flex:1 1 auto;justify-content:flex-end}
 }
-/* ── Responsive: sub-tabs wrap cleanly on very small screens */
+/* ── Sub-tabs compact on very small ─────────────────────── */
 @media(max-width:400px){
   .sub-tabs{gap:0}
-  .sub-tab{padding:8px 10px;font-size:11px}
+  .sub-tab{padding:8px 8px;font-size:10.5px}
 }
-/* ── Responsive: hdr-brand prevents logo from disappearing ── */
+/* ── Header brand at 360px ──────────────────────────────── */
 @media(max-width:360px){
   .hdr-brand h1{display:none}
   .hdr{gap:4px;padding:8px 10px}
 }
-/* ── Responsive: cards uniform height on all screens ────── */
+/* ── Card sizing ─────────────────────────────────────────── */
 @media(max-width:480px){
   .card{padding:12px 12px}
   .card-val{font-size:15px}
   .card-lbl{font-size:9px}
 }
-/* ── Responsive: bills summary equal cols on 480px ──────── */
+/* ── Bills summary equal cols ────────────────────────────── */
 @media(max-width:480px){
   .bills-summary{grid-template-columns:1fr 1fr !important}
+}
+/* ── QS modal responsive ─────────────────────────────────── */
+@media(max-width:480px){
+  .qs-member-row{grid-template-columns:1fr 0.8fr auto !important;grid-template-rows:auto auto}
+  .qs-phone-inp{grid-column:1/3 !important;grid-row:2}
+}
+/* ── Tour card on small screens ─────────────────────────── */
+@media(max-width:400px){
+  .tour-card{padding:14px 14px 24px}
+  .tour-title{font-size:15px}
+  .tour-desc{font-size:11.5px}
 }
 
 
@@ -2370,31 +2399,30 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       </div>
     </div>
 
+    <!-- ── INFLATION CALCULATOR ──────────────────────── -->
+    <div style="margin-top:22px;padding-top:18px;border-top:2px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <span style="font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:600;color:var(--muted)">Inflation Calculator</span>
+        <span style="font-size:10px;color:var(--faint)">— real value of money over time</span>
+      </div>
+      <div class="sip-grid" style="margin-bottom:14px">
+        <div class="sip-field"><label>Today's Amount (&#8377;)</label><input type="number" id="inflAmt" placeholder="100000" oninput="calcInflation()"></div>
+        <div class="sip-field"><label>Inflation Rate (%/yr)</label><input type="number" id="inflRate" value="6" step="0.1" oninput="calcInflation()"></div>
+        <div class="sip-field"><label>Years</label><input type="number" id="inflYrs" placeholder="10" oninput="calcInflation()"></div>
+      </div>
+      <div class="sip-results">
+        <div class="sip-result-row"><span>Today's Value</span><span id="inflToday" class="c-green">—</span></div>
+        <div class="sip-result-row"><span>Future Cost (after <span id="inflYrsLbl">—</span> yrs @ <span id="inflRateLbl">—</span>%)</span><span id="inflFuture" class="c-red">—</span></div>
+        <div class="sip-result-row total"><span>Purchasing Power Today</span><span id="inflPower">—</span></div>
+        <div class="sip-result-row"><span>Value Eroded by Inflation</span><span id="inflEroded" class="c-red">—</span></div>
+        <div style="display:none"><span id="inflAmtLbl"></span></div>
+      </div>
+    </div>
+
   </div><!-- close sub-sip -->
 
-        <!-- ── INFLATION CALCULATOR ──────────────────────────── -->
-        <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border)">
-          <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px">
-            <span style="font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:500;color:var(--muted)">Inflation Calculator</span>
-          </div>
-          <div class="sip-grid" style="margin-bottom:12px">
-            <div class="sip-field"><label>Today's Amount (&#8377;)</label><input type="number" id="inflAmt" placeholder="100000" oninput="calcInflation()"></div>
-            <div class="sip-field"><label>Inflation Rate (%/yr)</label><input type="number" id="inflRate" value="6" step="0.1" oninput="calcInflation()"></div>
-            <div class="sip-field"><label>Years</label><input type="number" id="inflYrs" placeholder="10" oninput="calcInflation()"></div>
-          </div>
-          <div class="sip-results">
-            <div class="sip-result-row"><span>Today's Value</span><span id="inflToday" class="c-green">—</span></div>
-            <div class="sip-result-row"><span>Future Cost (after <span id="inflYrsLbl">—</span> yrs @ <span id="inflRateLbl">—</span>%)</span><span id="inflFuture" class="c-red">—</span></div>
-            <div class="sip-result-row total"><span>Purchasing Power Today of Future Amount</span><span id="inflPower">—</span></div>
-            <div class="sip-result-row"><span>Value Eroded by Inflation</span><span id="inflEroded" class="c-red">—</span></div>
-            <div class="sip-result-row" style="display:none"><span id="inflAmtLbl"></span></div>
-          </div>
-        </div>
-
-
-  </div>
-
-</div>
+</div><!-- /.main -->
+</div><!-- /#tab-invest -->
 
 
 <!-- ══ PLANNER TAB ═════════════════════════════════════════ -->
