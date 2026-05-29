@@ -1688,6 +1688,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
           <label style="display:flex;align-items:center;gap:5px;font-size:11.5px;cursor:pointer"><input type="checkbox" id="bAutopay" style="width:13px;height:13px"> <span>Autopay</span></label>
         </div>
       </div>
+      <div class="form-field" style="margin-bottom:10px"><span class="form-label">Notes (optional)</span><input type="text" id="bNotes" placeholder="e.g. HDFC credit card bill"></div>
       <div style="display:flex;gap:8px;margin-top:4px">
         <button class="btn-primary btn-sm" onclick="saveBill()">Save Bill</button>
         <button class="btn-ghost btn-sm" onclick="cancelBillEdit()">Cancel</button>
@@ -1782,7 +1783,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     </div>
     <div class="info-tip" id="tip-subs"><div class="info-tip-hd">Subscription Tracker</div>Track all recurring subscriptions — streaming, SaaS, fitness, news. Monitor monthly and annual costs. Active, Paused, and Cancelled statuses help you spot forgotten subscriptions draining your account.<button class="info-tip-close" onclick="toggleInfo('tip-subs')">&#215;</button></div>
     <div class="hold-form" id="subForm" style="display:none;margin-bottom:14px">
-      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:12px">Add Subscription</div>
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:12px" id="subFormTitle">Add Subscription</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px">
         <div class="form-field"><span class="form-label">Name</span><input type="text" id="subName" placeholder="e.g. Netflix"></div>
         <div class="form-field"><span class="form-label">Cost (&#8377;)</span><input type="number" id="subCost" placeholder="0"></div>
@@ -1797,6 +1798,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         <button class="btn-ghost btn-sm" onclick="toggleForm('subForm')">Cancel</button>
       </div>
     </div>
+    <div id="subSummaryBar" style="display:none;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px"></div>
     <div id="subList"></div>
   </div>
 
@@ -2338,6 +2340,25 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     </div>
 
   </div><!-- close sub-sip -->
+
+        <!-- ── INFLATION CALCULATOR ──────────────────────────── -->
+        <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px">
+            <span style="font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:500;color:var(--muted)">Inflation Calculator</span>
+          </div>
+          <div class="sip-grid" style="margin-bottom:12px">
+            <div class="sip-field"><label>Today's Amount (&#8377;)</label><input type="number" id="inflAmt" placeholder="100000" oninput="calcInflation()"></div>
+            <div class="sip-field"><label>Inflation Rate (%/yr)</label><input type="number" id="inflRate" value="6" step="0.1" oninput="calcInflation()"></div>
+            <div class="sip-field"><label>Years</label><input type="number" id="inflYrs" placeholder="10" oninput="calcInflation()"></div>
+          </div>
+          <div class="sip-results">
+            <div class="sip-result-row"><span>Today's Value</span><span id="inflToday" class="c-green">—</span></div>
+            <div class="sip-result-row"><span>Future Cost (after <span id="inflYrsLbl">—</span> yrs @ <span id="inflRateLbl">—</span>%)</span><span id="inflFuture" class="c-red">—</span></div>
+            <div class="sip-result-row total"><span>Purchasing Power Today of Future Amount</span><span id="inflPower">—</span></div>
+            <div class="sip-result-row"><span>Value Eroded by Inflation</span><span id="inflEroded" class="c-red">—</span></div>
+            <div class="sip-result-row" style="display:none"><span id="inflAmtLbl"></span></div>
+          </div>
+        </div>
 
 
   </div>
@@ -2943,8 +2964,8 @@ function saveBill(){
     name,amt,dueDay:day,
     category:document.getElementById('bCat').value,
     frequency:document.getElementById('bFreq').value,
-    autopay:document.getElementById('bAutopay').value==='1',
-    notes:document.getElementById('bNotes').value.trim()
+    autopay:document.getElementById('bAutopay').checked,
+    notes:(document.getElementById('bNotes')?.value||'').trim()
   };
   if(_editBillId){
     const b=BILLS.find(x=>x.id===_editBillId);
@@ -2969,11 +2990,18 @@ function editBill(id){
   document.getElementById('bDay').value=b.dueDay;
   document.getElementById('bCat').value=b.category;
   document.getElementById('bFreq').value=b.frequency;
-  document.getElementById('bAutopay').value=b.autopay?'1':'0';
-  document.getElementById('bNotes').value=b.notes||'';
+  document.getElementById('bAutopay').checked=b.autopay||false;
+  const bnEl=document.getElementById('bNotes');if(bnEl)bnEl.value=b.notes||'';
   const ft=document.getElementById('billFormTitle');if(ft)ft.textContent='Edit Bill Reminder';
   document.getElementById('billForm').style.display='block';
   document.getElementById('billForm').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function cancelBillEdit(){
+  _editBillId=null;
+  ['bName','bAmt','bDay','bNotes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const ap=document.getElementById('bAutopay');if(ap)ap.checked=false;
+  const ft=document.getElementById('billFormTitle');if(ft)ft.textContent='New Bill Reminder';
+  document.getElementById('billForm').style.display='none';
 }
 function billStatus(bill){
   const now=new Date(),m=now.getMonth(),y=now.getFullYear(),mk=`${m}_${y}`;
@@ -3895,7 +3923,7 @@ function toggleInfo(id){
 
 // ══ TOOLS — INIT SELECTORS ════════════════════════════════
 function initToolsSelectors(){
-  const ms=document.getElementById('reportMonth'),ys=document.getElementById('reportYear');
+  const ms=document.getElementById('repMonth'),ys=document.getElementById('repYear');
   if(!ms||ms.options.length>0)return;
   MONTHS.forEach((m,i)=>{const o=document.createElement('option');o.value=i;o.textContent=m;ms.appendChild(o)});
   const cy=new Date().getFullYear();
@@ -3969,51 +3997,6 @@ function renderCalendar(){
 }
 function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--}renderCalendar()}
 function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++}renderCalendar()}
-
-// ══ MONTHLY REPORT CARD ═══════════════════════════════════
-function renderMonthlyReport(){
-  const ms=document.getElementById('reportMonth'),ys=document.getElementById('reportYear');
-  if(!ms||!ys)return;
-  const m=parseInt(ms.value),y=parseInt(ys.value);
-  const md=DB[`${m}_${y}`]||{income:[],expense:[]};
-  const inc=md.income.reduce((s,x)=>s+(parseFloat(x.amt)||0),0);
-  const exp=md.expense.reduce((s,x)=>s+(parseFloat(x.amt)||0),0);
-  const net=inc-exp;
-  const sr=inc>0?Math.round(net/inc*100):0;
-  const grade=sr>=30?'A':sr>=20?'B':sr>=10?'C':'D';
-  const gradeClass=grade==='A'?'rg-a':grade==='B'?'rg-b':grade==='C'?'rg-c':'rg-d';
-  const feedback={A:'Excellent! You saved over 30% of your income this month.',B:'Good job. You saved 20-30% — keep building toward 30%.',C:'Fair. Try to cut discretionary spending to boost savings.',D:'Savings are below 10% this month. Review your top expense categories.'};
-  // Category breakdown
-  const cats={};md.expense.forEach(x=>{const k=(x.cat||'Other').trim();cats[k]=(cats[k]||0)+(parseFloat(x.amt)||0)});
-  const topCats=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,3);
-  // Prev month compare
-  let pm=m-1,py=y;if(pm<0){pm=11;py=y-1}
-  const prev=DB[`${pm}_${py}`]||{income:[],expense:[]};
-  const pInc=prev.income.reduce((s,x)=>s+(parseFloat(x.amt)||0),0);
-  const pExp=prev.expense.reduce((s,x)=>s+(parseFloat(x.amt)||0),0);
-  const incChg=pInc>0?((inc-pInc)/pInc*100).toFixed(1):null;
-  const expChg=pExp>0?((exp-pExp)/pExp*100).toFixed(1):null;
-  document.getElementById('reportBody').innerHTML=`
-    <div class="report-grade-wrap">
-      <div class="report-grade ${gradeClass}">${grade}</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:6px">Savings Rate: <strong>${sr}%</strong> &nbsp;·&nbsp; ${MONTHS[m]} ${y}</div>
-    </div>
-    <div class="report-grid">
-      <div class="report-box">
-        <div class="report-box-title">Income &amp; Expenses</div>
-        <div class="report-line"><span>Total Income</span><span class="c-green">${fmt(inc)}</span></div>
-        <div class="report-line"><span>Total Expenses</span><span class="c-red">${fmt(exp)}</span></div>
-        <div class="report-line"><span>Net Flow</span><span style="color:${net>=0?'var(--surplus)':'var(--deficit)'}">${net>=0?'+':''}${fmtN(net)}</span></div>
-        <div class="report-line" style="font-size:11px;color:var(--faint)"><span>Income vs last month</span><span>${incChg!=null?(parseFloat(incChg)>=0?'▲ +':'▼ ')+incChg+'%':'—'}</span></div>
-        <div class="report-line" style="font-size:11px;color:var(--faint)"><span>Expenses vs last month</span><span>${expChg!=null?(parseFloat(expChg)>=0?'▲ +':'▼ ')+expChg+'%':'—'}</span></div>
-      </div>
-      <div class="report-box">
-        <div class="report-box-title">Top Expense Categories</div>
-        ${topCats.length?topCats.map(([cat,amt],i)=>`<div class="report-line"><span>${i+1}. ${esc(cat)}</span><span>${fmt(amt)} (${inc>0?Math.round(amt/exp*100):'—'}%)</span></div>`).join(''):'<div class="empty-msg" style="padding:8px 0">No expenses this month</div>'}
-      </div>
-    </div>
-    <div class="report-feedback">${feedback[grade]}</div>`;
-}
 
 // ══ EMERGENCY FUND ════════════════════════════════════════
 function renderEmfund(){
@@ -4774,7 +4757,7 @@ function renderSubs(){
   const monthly=active.reduce((t,s)=>t+s.cost*(mults[s.cycle]||1),0);
   const annual=active.reduce((t,s)=>{const m={'Monthly':12,'Quarterly':4,'Half-Yearly':2,'Annual':1};return t+s.cost*(m[s.cycle]||12)},0);
   const bar=document.getElementById('subSummaryBar');
-  if(bar){bar.innerHTML=`
+  if(bar){bar.style.display='grid';bar.innerHTML=`
     <div class="card"><div class="card-lbl">Active</div><div class="card-val">${active.length}</div></div>
     <div class="card"><div class="card-lbl">Monthly Cost</div><div class="card-val">${fmt(monthly)}</div></div>
     <div class="card"><div class="card-lbl">Annual Cost</div><div class="card-val">${fmt(annual)}</div></div>
