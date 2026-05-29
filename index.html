@@ -539,18 +539,35 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .pin-error{color:var(--deficit);font-size:11px;min-height:18px;text-align:center;font-weight:500}
 @media(max-width:360px){.pin-pad{width:210px}.pin-btn{padding:15px 0;font-size:18px}}
 
-/* ══ ONBOARDING ═════════════════════════════════════════════ */
-.onboard-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:550;display:flex;align-items:center;justify-content:center;padding:20px}
-.onboard-overlay.hidden{display:none}
-.onboard-card{background:var(--surface);border-radius:10px;padding:32px 28px;max-width:440px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25)}
-.onboard-icon{font-size:36px;margin-bottom:12px;display:block}
-.onboard-step-num{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px;font-weight:500}
-.onboard-title{font-size:20px;font-weight:600;letter-spacing:-.3px;margin-bottom:10px;color:var(--text)}
-.onboard-desc{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:22px}
-.onboard-dots{display:flex;gap:6px;margin-bottom:20px}
-.onboard-dot{height:6px;border-radius:3px;background:var(--border);transition:all .2s;width:6px}
-.onboard-dot.active{background:var(--text);width:18px}
-.onboard-actions{display:flex;justify-content:space-between;align-items:center}
+/* ══ INTERACTIVE TOUR ═══════════════════════════════════════ */
+.tour-overlay{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.72);pointer-events:all}
+.tour-highlight{position:fixed;z-index:801;pointer-events:none;border-radius:10px;box-shadow:0 0 0 3px rgba(74,222,128,.95),0 0 0 7px rgba(74,222,128,.18),0 0 28px rgba(74,222,128,.35);transition:top .32s cubic-bezier(.4,0,.2,1),left .32s cubic-bezier(.4,0,.2,1),width .32s,height .32s;animation:tour-pulse 2s infinite}
+@keyframes tour-pulse{0%,100%{box-shadow:0 0 0 3px rgba(74,222,128,.95),0 0 0 7px rgba(74,222,128,.14),0 0 28px rgba(74,222,128,.25)}50%{box-shadow:0 0 0 3px rgba(74,222,128,1),0 0 0 12px rgba(74,222,128,.1),0 0 40px rgba(74,222,128,.4)}}
+.tour-card{position:fixed;bottom:0;left:0;right:0;z-index:802;background:var(--surface);border-top:1px solid var(--border);border-radius:14px 14px 0 0;padding:18px 20px 30px;box-shadow:0 -8px 32px rgba(0,0,0,.3);pointer-events:all}
+.tour-card.entering{animation:tour-slide-up .28s ease}
+@keyframes tour-slide-up{from{transform:translateY(50%);opacity:0}to{transform:translateY(0);opacity:1}}
+.tour-step-bar{display:flex;align-items:center;gap:8px;margin-bottom:13px}
+.tour-tab-chip{font-size:9px;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(74,222,128,.12);color:var(--surplus);border:1px solid rgba(74,222,128,.3);flex-shrink:0}
+.tour-step-count{font-size:9.5px;color:var(--faint);font-weight:500;flex-shrink:0}
+.tour-dots{display:flex;gap:4px;flex:1;justify-content:center;flex-wrap:wrap}
+.tour-dot{width:5px;height:5px;border-radius:50%;background:var(--border);transition:all .22s;flex-shrink:0}
+.tour-dot.done{background:rgba(74,222,128,.45)}
+.tour-dot.active{background:var(--surplus);width:14px;border-radius:3px}
+.tour-title{font-size:17px;font-weight:600;letter-spacing:-.2px;color:var(--text);margin-bottom:6px}
+.tour-desc{font-size:12.5px;color:var(--muted);line-height:1.72;margin-bottom:16px}
+.tour-actions{display:flex;justify-content:space-between;align-items:center}
+/* ══ DEMO BANNER ═══════════════════════════════════════════ */
+.demo-banner{position:fixed;bottom:0;left:0;right:0;z-index:500;background:linear-gradient(90deg,#fbbf24,#f59e0b);color:#000;padding:9px 16px;display:none;align-items:center;justify-content:space-between;gap:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;box-shadow:0 -2px 12px rgba(251,191,36,.3)}
+.demo-banner.show{display:flex}
+.demo-banner-left{display:flex;align-items:center;gap:8px}
+.demo-banner-badge{background:#000;color:#fbbf24;font-size:9px;padding:2px 7px;border-radius:10px;letter-spacing:.8px;text-transform:uppercase;font-weight:600}
+.demo-banner-btns{display:flex;gap:8px;flex-shrink:0}
+.demo-btn-exit{background:#000;color:#fbbf24;border:none;padding:5px 12px;border-radius:6px;font-size:10px;font-family:'IBM Plex Mono',monospace;cursor:pointer;font-weight:600;letter-spacing:.3px}
+.demo-btn-clear{background:rgba(0,0,0,.15);color:#000;border:1px solid rgba(0,0,0,.2);padding:5px 10px;border-radius:6px;font-size:10px;font-family:'IBM Plex Mono',monospace;cursor:pointer}
+/* ══ HOME SCREEN — Demo button ══════════════════════════════ */
+.hs-demo-cta{width:100%;background:transparent;color:var(--muted);border:1px dashed var(--border);padding:11px 24px;font-size:12px;font-family:'IBM Plex Mono',monospace;border-radius:var(--r);cursor:pointer;transition:all .18s;margin-bottom:10px;letter-spacing:.2px}
+.hs-demo-cta:hover{border-color:var(--surplus);color:var(--surplus);background:rgba(74,222,128,.06)}
+
 
 /* ══ CALENDAR ═══════════════════════════════════════════════ */
 .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
@@ -1191,6 +1208,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         </div>
       </div>
       <button class="hs-cta" onclick="enterApp()">Enter Flow &rarr;</button>
+      <button class="hs-demo-cta" onclick="enterDemoMode()">&#x1F9EA; Try Demo &mdash; explore with sample data</button>
       <button id="installPWABtn" onclick="openInstallModal()" style="display:inline-flex;align-items:center;gap:6px;margin-top:12px;background:transparent;border:1px solid var(--border);color:var(--muted);padding:9px 20px;border-radius:var(--r);font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;letter-spacing:.3px;transition:all .14s" onmouseover="this.style.borderColor='var(--text)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">&#x2B07; Install App</button>
       <div class="hs-trust">
         <span>All data on your device</span>
@@ -1231,22 +1249,35 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   <button class="btn-primary" onclick="pinKey('enter')" style="width:220px;padding:12px;margin-top:2px;font-size:13px">Unlock &#x21B5;</button>
   <button id="forgotPinBtn" class="btn-ghost btn-sm" onclick="forgotPin()" style="display:none;margin-top:6px;font-size:11px;color:var(--faint)">Forgot PIN?</button>
 </div>
-<!-- ══ ONBOARDING ════════════════════════════════════════════ -->
-<div id="onboardOverlay" class="onboard-overlay hidden">
-  <div class="onboard-card">
-    <span class="onboard-icon" id="obIcon">📊</span>
-    <div class="onboard-step-num" id="obStep">Step 1 of 5</div>
-    <div class="onboard-title" id="obTitle">Welcome to Flow</div>
-    <div class="onboard-desc" id="obDesc">Your complete personal finance tracker — offline, private, and always on your device.</div>
-    <div class="onboard-dots" id="obDots"></div>
-    <div class="onboard-actions">
-      <button class="btn-ghost btn-sm" onclick="skipOnboard()">Skip</button>
-      <button class="btn-primary btn-sm" onclick="nextOnboard()">Next →</button>
-    </div>
+<!-- ══ INTERACTIVE TOUR ════════════════════════════════════ -->
+<div id="tourOverlay" style="display:none" class="tour-overlay"></div>
+<div id="tourHighlight" style="display:none" class="tour-highlight"></div>
+<div id="tourCard" style="display:none" class="tour-card">
+  <div class="tour-step-bar">
+    <span class="tour-tab-chip" id="tourTabChip">Track</span>
+    <div class="tour-dots" id="tourDots"></div>
+    <span class="tour-step-count" id="tourStepCount">1 / 15</span>
+  </div>
+  <div class="tour-title" id="tourTitle">Welcome</div>
+  <div class="tour-desc" id="tourDesc"></div>
+  <div class="tour-actions">
+    <button class="btn-ghost btn-sm" onclick="endTour()" style="color:var(--faint);font-size:11px">Skip tour</button>
+    <button class="btn-primary btn-sm" onclick="nextTourStep()" id="tourNextBtn">Next &rarr;</button>
   </div>
 </div>
 
-<!-- ══ IMPORT CSV MODAL ═══════════════════════════════════════ -->
+
+<!-- ══ DEMO BANNER ═══════════════════════════════════════════ -->
+<div class="demo-banner" id="demoBanner">
+  <div class="demo-banner-left">
+    <span class="demo-banner-badge">Demo</span>
+    <span>Exploring with sample data — nothing is real or saved permanently</span>
+  </div>
+  <div class="demo-banner-btns">
+    <button class="demo-btn-clear" onclick="clearDemoAndStart()">Start Fresh</button>
+    <button class="demo-btn-exit" onclick="exitDemoMode()">Exit Demo ✕</button>
+  </div>
+</div>
 <div id="importModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;padding:20px;overflow-y:auto">
   <div style="background:var(--surface);border-radius:10px;max-width:600px;margin:40px auto;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,.2)">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
@@ -4578,6 +4609,8 @@ function closePinSetup(){
 }
 function skipPinFirstTime(){
   closePinSetup();
+  // Start tour even if PIN was skipped
+  setTimeout(startTour, 400);
 }
 function setupPinKey(k){
   const err=document.getElementById('setupPinError');
@@ -4652,40 +4685,151 @@ document.addEventListener('keydown', function(e){
   }
 });
 
-// ══ ONBOARDING WALKTHROUGH ════════════════════════════════
-const ONBOARD_STEPS=[
-  {icon:'👋',title:'Welcome to Flow',desc:'Your all-in-one personal finance tracker. Everything is stored locally on your device — offline, private, and always yours. Let\'s take a quick tour.'},
-  {icon:'📊',title:'Track Tab',desc:'Log monthly income and expenses by category, tag, and description. Drag rows to reorder. Export to PDF or CSV. View bar chart and pie chart of your spending.'},
-  {icon:'🔔',title:'Bills Tab',desc:'Set recurring bill reminders with due dates. Track overdue and upcoming bills. Split shared expenses with friends using the Bill Split tracker.'},
-  {icon:'💼',title:'Portfolio Tab',desc:'Track equity, MF, gold, FD, PPF, NPS, and other holdings. Add mutual fund holdings with live NAV. Set savings goals and track loans.'},
-  {icon:'🛠',title:'Tools Tab',desc:'View a financial calendar with all events, generate a monthly report card, track your emergency fund coverage, and plan debt payoff using Snowball or Avalanche method.'}
+// ══ INTERACTIVE TOUR ════════════════════════════════════════
+const TOUR_STEPS=[
+  // 1 — TRACK: overview
+  {tab:'track',target:'.tab-bar',chip:'Navigation',
+   title:'5 Tabs — Everything in one app',
+   desc:'Flow has 5 tabs. We\'ll walk you through each one live. Tap Next to go tab by tab.'},
+  // 2 — TRACK: month selector
+  {tab:'track',target:'#trackControls',chip:'Track',
+   title:'Select Month & Export',
+   desc:'Change the month from the selector above. Export your data as PDF, CSV, or a shareable recap card anytime.'},
+  // 3 — TRACK: summary cards
+  {tab:'track',target:'.summary',chip:'Track',
+   title:'Monthly Summary — Live Totals',
+   desc:'Income, Expenses and Net Flow update the instant you add an entry. Your savings rate is always visible here.'},
+  // 4 — TRACK: ledger
+  {tab:'track',target:'.ledger',chip:'Track',scroll:true,
+   title:'Your Ledger — Add Entries Here',
+   desc:'Tap "+ Add income entry" or "+ Add expense entry" below to log money. Add category, description and tag. Drag rows to reorder.'},
+  // 5 — TRACK: charts
+  {tab:'track',target:'.chart-card',chip:'Track',scroll:true,
+   title:'Charts — Auto-Generated',
+   desc:'Bar chart (income vs expenses) and pie chart (spend by category) build themselves as you add entries. No setup needed.'},
+  // 6 — BILLS: tab
+  {tab:'bills',target:'.tab-btn:nth-child(2)',chip:'Bills',
+   title:'Bills Tab — Reminders & Splits',
+   desc:'Track recurring bills with due dates, split expenses with friends, monitor loans and subscriptions — all here.'},
+  // 7 — BILLS: reminders
+  {tab:'bills',target:'#bsub-reminders',chip:'Bill Reminders',
+   title:'Bill Reminders',
+   desc:'Add recurring bills — rent, credit card, loan EMI, insurance. Flow shows what\'s due this week and what\'s overdue in red.'},
+  // 8 — BILLS: split up
+  {tab:'bills',subtab:'split',target:'#bsub-split .sec-hdr',chip:'Bill Split',
+   title:'⚡ Split Up — Notify via WhatsApp',
+   desc:'Split any shared expense instantly. Enter total → auto-divides equally → tap 💬 to notify each person via WhatsApp or SMS.'},
+  // 9 — PORTFOLIO: tab
+  {tab:'invest',target:'.tab-btn:nth-child(3)',chip:'Portfolio',
+   title:'Portfolio Tab — All Investments',
+   desc:'Track equity, mutual funds, gold, FD, PPF, NPS, crypto and more. Set savings goals and use financial calculators.'},
+  // 10 — PORTFOLIO: sub-tabs
+  {tab:'invest',target:'#tab-invest .sub-tabs',chip:'Portfolio',
+   title:'Holdings, MF, Goals & Calculators',
+   desc:'Four sections: Holdings for all assets, Mutual Funds with live NAV, Savings Goals with progress, and Financial Calculators (SIP, EMI, FD, Loan Prepayment, Inflation).'},
+  // 11 — PORTFOLIO: mutual funds
+  {tab:'invest',subtab:'mf',target:'#mfSearch',chip:'Mutual Funds',scroll:true,
+   title:'16,000+ Mutual Fund Schemes',
+   desc:'Search any AMFI-registered fund by name or AMC. Live NAV fetched automatically. Set up SIP schedules and track XIRR returns.'},
+  // 12 — PLANNER: tab
+  {tab:'tools',target:'.tab-btn:nth-child(4)',chip:'Planner',
+   title:'Planner Tab — Tools & Calendar',
+   desc:'Financial calendar, emergency fund tracker, debt payoff planner, monthly FlowSnap recap, and detailed reports — all here.'},
+  // 13 — PLANNER: calendar
+  {tab:'tools',target:'#tsub-calendar',chip:'Calendar',
+   title:'Financial Calendar',
+   desc:'Every bill due date and SIP day plotted on one calendar. Green = paid, amber = due soon, red = overdue. Never miss a payment.'},
+  // 14 — NOTES: tab
+  {tab:'notes',target:'#tab-notes .main',chip:'Notes',
+   title:'Notes — Quick Financial Jots',
+   desc:'Write financial goals, budget notes, or reminders. Pin important notes to the top. Lightweight and always available offline.'},
+  // 15 — FINAL
+  {tab:'track',target:'.ledger .btn-add',chip:'Ready!',scroll:true,
+   title:'You\'re all set! 🎉',
+   desc:'Tap "+ Add income entry" to log your first transaction. All your data stays on this device — private, offline, yours.'},
 ];
-let onboardStep=0;
-function startOnboarding(){
-  onboardStep=0;showOnboardStep();
-  document.getElementById('onboardOverlay').classList.remove('hidden');
+
+let _tourStep=0;
+let _tourResizeObs=null;
+
+function startTour(){
+  if(!document.getElementById('tourCard'))return;
+  _tourStep=0;
+  _showTourStep();
 }
-function showOnboardStep(){
-  const s=ONBOARD_STEPS[onboardStep];
-  document.getElementById('obIcon').textContent=s.icon;
-  document.getElementById('obStep').textContent=`Step ${onboardStep+1} of ${ONBOARD_STEPS.length}`;
-  document.getElementById('obTitle').textContent=s.title;
-  document.getElementById('obDesc').textContent=s.desc;
-  const dots=document.getElementById('obDots');
-  dots.innerHTML=ONBOARD_STEPS.map((_,i)=>`<div class="onboard-dot${i===onboardStep?' active':''}"></div>`).join('');
-  const nextBtn=document.querySelector('#onboardOverlay .btn-primary');
-  if(nextBtn)nextBtn.textContent=onboardStep===ONBOARD_STEPS.length-1?'Get Started →':'Next →';
+// keep startOnboarding as alias so pin flow still works
+const startOnboarding=startTour;
+
+function _showTourStep(){
+  const step=TOUR_STEPS[_tourStep];
+  const total=TOUR_STEPS.length;
+  // ── Switch tab
+  const tabBtn=document.querySelector('.tab-btn[onclick*="\''+step.tab+'\'"]');
+  if(tabBtn&&!tabBtn.classList.contains('active'))tabBtn.click();
+  // ── Switch sub-tab after a tick
+  if(step.subtab){
+    const stBtn=document.getElementById('btab-'+step.subtab)||document.querySelector('[onclick*="switchSubTab(\''+step.subtab+'\'"]');
+    setTimeout(()=>{
+      if(step.tab==='bills'){const b=document.getElementById('btab-'+step.subtab);if(b)switchBillsTab(step.subtab,b);}
+      else if(stBtn)stBtn.click();
+      _positionTour(step);
+    },200);
+  } else {
+    _positionTour(step);
+  }
 }
-function nextOnboard(){
-  if(onboardStep<ONBOARD_STEPS.length-1){onboardStep++;showOnboardStep();}
-  else{skipOnboard();}
+
+function _positionTour(step){
+  // ── Update card content
+  document.getElementById('tourTabChip').textContent=step.chip;
+  document.getElementById('tourTitle').textContent=step.title;
+  document.getElementById('tourDesc').textContent=step.desc;
+  document.getElementById('tourStepCount').textContent=(_tourStep+1)+' / '+TOUR_STEPS.length;
+  const nb=document.getElementById('tourNextBtn');
+  if(nb)nb.textContent=_tourStep===TOUR_STEPS.length-1?'Start Tracking →':'Next →';
+  // Dots
+  const dotsEl=document.getElementById('tourDots');
+  dotsEl.innerHTML=TOUR_STEPS.map((_,i)=>'<div class="tour-dot'+(i<_tourStep?' done':i===_tourStep?' active':'')+'"></div>').join('');
+  // ── Show overlay + card
+  const overlay=document.getElementById('tourOverlay');
+  const card=document.getElementById('tourCard');
+  const hl=document.getElementById('tourHighlight');
+  overlay.style.display='block';
+  card.style.display='block';
+  card.classList.toggle('entering',true);
+  setTimeout(()=>card.classList.remove('entering'),300);
+  // ── Position highlight
+  const doPosition=()=>{
+    const target=document.querySelector(step.target);
+    if(!target){hl.style.display='none';return;}
+    if(step.scroll)target.scrollIntoView({behavior:'smooth',block:'nearest'});
+    setTimeout(()=>{
+      const r=target.getBoundingClientRect();
+      const pad=7;
+      // Account for card height so highlight is visible above card
+      const cardH=card.offsetHeight;
+      const finalTop=Math.min(r.top-pad, window.innerHeight-cardH-r.height-30);
+      hl.style.cssText='display:block;top:'+(r.top-pad)+'px;left:'+(r.left-pad)+'px;width:'+(r.width+pad*2)+'px;height:'+(r.height+pad*2)+'px;';
+    },step.scroll?400:80);
+  };
+  doPosition();
 }
-function skipOnboard(){
-  document.getElementById('onboardOverlay').classList.add('hidden');
+
+function nextTourStep(){
+  if(_tourStep<TOUR_STEPS.length-1){_tourStep++;_showTourStep();}
+  else{endTour();}
+}
+
+function endTour(){
+  document.getElementById('tourOverlay').style.display='none';
+  document.getElementById('tourCard').style.display='none';
+  document.getElementById('tourHighlight').style.display='none';
   localStorage.setItem('flow_onboarded','1');
 }
-// Onboarding hook is now inline in enterApp() above
+// keep skipOnboard as alias
+const skipOnboard=endTour;
 
+// ══ SUBSCRIPTION TRACKER ═══════════════════════════════════
 
 // ══ SUBSCRIPTION TRACKER ═══════════════════════════════════
 let _editSubId=null; // null=add mode, id=edit mode
@@ -6853,9 +6997,120 @@ function createQuickSplit(channel){
   }
 }
 
+
+// ══ DEMO MODE ═════════════════════════════════════════════
+const DEMO_KEY='flow_demo_active';
+function enterDemoMode(){
+  document.getElementById('homeScreen').classList.add('hidden');
+  loadDemoData();
+  localStorage.setItem(DEMO_KEY,'1');
+  document.getElementById('demoBanner').classList.add('show');
+  render();
+  if(typeof renderBills==='function')renderBills();
+  if(typeof renderSplits==='function')renderSplits();
+  if(typeof renderLoans==='function')renderLoans();
+  if(typeof renderSubs==='function')renderSubs();
+  if(typeof renderNotes==='function')renderNotes();
+  if(typeof updateInvestSummary==='function'){
+    updateInvestSummary();renderHoldingsTable();renderGoals();renderMFTable();renderFDTable();
+  }
+  setTimeout(startTour, 600);
+}
+function exitDemoMode(){
+  if(!confirm('Exit demo mode? All sample data will be removed.'))return;
+  ['flow_v3','flow_bills','flow_loans','flow_splits','flow_subs','flow_invest','flow_notes','flow_nw_history','flow_budgets','flow_templates','flow_emfund',DEMO_KEY,'flow_visited'].forEach(k=>localStorage.removeItem(k));
+  location.reload();
+}
+function clearDemoAndStart(){
+  if(!confirm('Clear sample data and start fresh with your own entries?'))return;
+  ['flow_v3','flow_bills','flow_loans','flow_splits','flow_subs','flow_invest','flow_notes','flow_nw_history','flow_budgets','flow_templates','flow_emfund',DEMO_KEY].forEach(k=>localStorage.removeItem(k));
+  DB={};BILLS=[];LOANS=[];SPLITS=[];SUBS=[];NOTES=[];
+  if(typeof INVEST!=='undefined')INVEST={goals:[],mf:[],holdings:[],dividends:[],fds:[]};
+  document.getElementById('demoBanner').classList.remove('show');
+  render();
+}
+function loadDemoData(){
+  const now=new Date(),cM=now.getMonth(),cY=now.getFullYear();
+  const pM=cM===0?11:cM-1,pY=cM===0?cY-1:cY;
+  const d2=n=>String(n).padStart(2,'0');
+  const ds=(y,m,dy)=>y+'-'+d2(m+1)+'-'+d2(dy);
+  function mkE(type,cat,desc,amt,tag,day,m,y){return{id:uid(),type,cat,desc,amt:String(amt),tag:tag||'',date:ds(y,m,day)};}
+  DB={};
+  DB[cM+'_'+cY]={
+    income:[mkE('income','Salary','Monthly Salary — TechCorp',72000,'Regular',1,cM,cY),mkE('income','Freelance','UI/UX Design — Client',18500,'Freelance',12,cM,cY)],
+    expense:[mkE('expense','Rent','Apartment Rent — Koramangala',22000,'Fixed',1,cM,cY),mkE('expense','Groceries','BigBasket Monthly',5800,'Essentials',6,cM,cY),mkE('expense','Dining','Weekend Dinners & Café',3200,'Lifestyle',8,cM,cY),mkE('expense','Transport','Uber + Metro Card',2400,'Daily',10,cM,cY),mkE('expense','Utilities','Jio Fiber + Electricity',2100,'Fixed',15,cM,cY),mkE('expense','Entertainment','OTT Subscriptions',1200,'Lifestyle',5,cM,cY),mkE('expense','Shopping','Myntra + Amazon',4800,'Lifestyle',18,cM,cY),mkE('expense','Healthcare','Apollo Pharmacy + Gym',1800,'Health',9,cM,cY)]
+  };
+  DB[pM+'_'+pY]={
+    income:[mkE('income','Salary','Monthly Salary — TechCorp',72000,'Regular',1,pM,pY),mkE('income','Freelance','Logo Design — StartupHub',8000,'Freelance',20,pM,pY)],
+    expense:[mkE('expense','Rent','Apartment Rent',22000,'Fixed',1,pM,pY),mkE('expense','Groceries','Zepto + Swiggy Instamart',4900,'Essentials',5,pM,pY),mkE('expense','Dining','Restaurant & Delivery',5600,'Lifestyle',12,pM,pY),mkE('expense','Transport','Cab + Fuel',3100,'Daily',8,pM,pY),mkE('expense','Utilities','Electricity + Internet',1950,'Fixed',15,pM,pY),mkE('expense','Travel','Goa Weekend Trip ✈️',12000,'Vacation',22,pM,pY),mkE('expense','Shopping','Electronics Accessories',3200,'Lifestyle',16,pM,pY),mkE('expense','Healthcare','Doctor + Medicines',900,'Health',4,pM,pY)]
+  };
+  localStorage.setItem('flow_v3',JSON.stringify(DB));
+  BILLS=[
+    {id:uid(),name:'HDFC Credit Card',amt:18500,dueDay:10,category:'Credit Card',frequency:'Monthly',autopay:false,notes:'Pay in full',paidMonths:[]},
+    {id:uid(),name:'House Rent',amt:22000,dueDay:1,category:'Rent',frequency:'Monthly',autopay:false,notes:'NEFT to landlord',paidMonths:[]},
+    {id:uid(),name:'Jio Fiber Broadband',amt:1199,dueDay:15,category:'Utilities',frequency:'Monthly',autopay:true,notes:'Auto-deducted',paidMonths:[]},
+    {id:uid(),name:'SBI Home Loan EMI',amt:24500,dueDay:5,category:'Loan EMI',frequency:'Monthly',autopay:true,notes:'Auto-deducted',paidMonths:[]},
+    {id:uid(),name:'LIC Term Insurance',amt:14200,dueDay:20,category:'Insurance',frequency:'Annual',autopay:false,notes:'Annual premium',paidMonths:[]},
+  ];
+  localStorage.setItem('flow_bills',JSON.stringify(BILLS));
+  SUBS=[
+    {id:uid(),name:'Netflix',cost:649,cycle:'Monthly',cat:'Streaming',status:'Active',renewal:ds(cY,cM,18),notes:'4K plan',paidMonths:[]},
+    {id:uid(),name:'Spotify Premium',cost:119,cycle:'Monthly',cat:'Music',status:'Active',renewal:ds(cY,cM,12),notes:'Individual',paidMonths:[]},
+    {id:uid(),name:'Adobe Creative Cloud',cost:4230,cycle:'Annual',cat:'SaaS / Productivity',status:'Active',renewal:'',notes:'All Apps',paidMonths:[]},
+    {id:uid(),name:'Cult.fit Membership',cost:2499,cycle:'Monthly',cat:'Fitness',status:'Active',renewal:ds(cY,cM,25),notes:'Lite plan',paidMonths:[]},
+    {id:uid(),name:'Prime Video',cost:299,cycle:'Monthly',cat:'Streaming',status:'Paused',renewal:'',notes:'Paused',paidMonths:[]},
+  ];
+  localStorage.setItem('flow_subs',JSON.stringify(SUBS));
+  LOANS=[
+    {id:uid(),name:'SBI Home Loan',principal:2500000,rate:8.5,tenureMonths:240,startDate:ds(cY-2,3,5),notes:'Flat in Bangalore'},
+    {id:uid(),name:'HDFC Car Loan',principal:800000,rate:9.5,tenureMonths:60,startDate:ds(cY-1,8,10),notes:'Swift Dezire'},
+  ];
+  localStorage.setItem('flow_loans',JSON.stringify(LOANS));
+  SPLITS=[
+    {id:uid(),title:'Goa Trip',total:18000,date:ds(pY,pM,22),paidBy:'You',payeeUPI:'yourname@okaxis',nudgeDays:3,
+     members:[{id:uid(),name:'Rahul',amount:6000,phone:'9876543210',settled:true,notifiedAt:Date.now()-5*86400000},{id:uid(),name:'Priya',amount:6000,phone:'9123456789',settled:false,notifiedAt:Date.now()-4*86400000},{id:uid(),name:'Arjun',amount:6000,phone:'',settled:false,notifiedAt:null}]},
+    {id:uid(),title:'Dinner at Fatty Bao',total:4200,date:ds(cY,cM,8),paidBy:'You',payeeUPI:'yourname@okaxis',nudgeDays:3,
+     members:[{id:uid(),name:'Neha',amount:2100,phone:'9988776655',settled:false,notifiedAt:null},{id:uid(),name:'Vikram',amount:2100,phone:'9765432109',settled:false,notifiedAt:null}]},
+  ];
+  localStorage.setItem('flow_splits',JSON.stringify(SPLITS));
+  NOTES=[
+    {id:uid(),title:'Financial Goals 2025',body:'1. Build 6-month emergency fund — ₹3.6L\n2. Max PPF contribution — ₹1.5L\n3. Start Nifty 50 SIP — ₹10k/month\n4. Pay off car loan early\n5. Europe trip savings',pinned:true,created:Date.now()-30*86400000,updated:Date.now()-5*86400000},
+    {id:uid(),title:'Budget Caps',body:'Food & Dining: ₹8,000\nShopping: ₹5,000\nEntertainment: ₹2,000\nTravel: ₹3,000\n\nReview every 15th.',pinned:false,created:Date.now()-15*86400000,updated:Date.now()-2*86400000},
+  ];
+  localStorage.setItem('flow_notes',JSON.stringify(NOTES));
+  INVEST={
+    holdings:[
+      {id:uid(),name:'Infosys Ltd',type:'Equity',units:50,buyPrice:1420,currency:'INR',date:ds(cY-1,5,12),notes:'Long-term hold'},
+      {id:uid(),name:'HDFC Bank',type:'Equity',units:30,buyPrice:1560,currency:'INR',date:ds(cY-1,8,20),notes:''},
+      {id:uid(),name:'Digital Gold',type:'Gold',units:10,buyPrice:6450,currency:'INR',date:ds(cY,1,15),notes:'10g @ ₹6450/g'},
+      {id:uid(),name:'PPF — SBI',type:'PPF',units:1,buyPrice:552000,currency:'INR',date:ds(cY-5,3,1),notes:'Annual ₹1.5L'},
+      {id:uid(),name:'NPS Tier-1 (Equity)',type:'NPS',units:1,buyPrice:285000,currency:'INR',date:ds(cY-3,6,1),notes:'Employer + self'},
+    ],
+    mf:[
+      {id:uid(),schemeCode:'119598',schemeName:'Mirae Asset Large Cap Fund — Direct Growth',units:520,buyNav:89.5,date:ds(cY-2,0,10),sip:{active:true,sipDay:7,monthlyAmt:10000,startDate:ds(cY-2,0,10)},currentNav:null},
+      {id:uid(),schemeCode:'119551',schemeName:'Axis Bluechip Fund — Direct Growth',units:310,buyNav:46.2,date:ds(cY-1,4,5),sip:{active:true,sipDay:10,monthlyAmt:5000,startDate:ds(cY-1,4,5)},currentNav:null},
+      {id:uid(),schemeCode:'135781',schemeName:'Parag Parikh Flexi Cap Fund — Direct Growth',units:180,buyNav:58.4,date:ds(cY-1,9,15),sip:{active:false,sipDay:null,monthlyAmt:0,startDate:null},currentNav:null},
+    ],
+    fds:[
+      {id:uid(),bank:'HDFC Bank FD',principal:200000,rate:7.1,tenureMonths:12,compounding:4,startDate:ds(cY-1,cM,10),notes:'Tax-saver FD'},
+    ],
+    goals:[
+      {id:uid(),name:'Emergency Fund',target:360000,saved:180000,deadline:ds(cY+1,cM,1),notes:'6 months expenses',linkedMF:null},
+      {id:uid(),name:'Europe Trip ✈️',target:300000,saved:75000,deadline:ds(cY+1,8,1),notes:'Italy + Spain',linkedMF:null},
+      {id:uid(),name:'MacBook Pro',target:200000,saved:52000,deadline:ds(cY,10,1),notes:'M3 Pro',linkedMF:null},
+    ],
+    dividends:[],
+  };
+  localStorage.setItem('flow_invest',JSON.stringify(INVEST));
+  BUDGETS={};BUDGETS[cM+'_'+cY]={Food:8000,Groceries:7000,Dining:4000,Transport:3000,Shopping:5000,Entertainment:2000,Utilities:2500,Healthcare:2000};
+  localStorage.setItem('flow_budgets',JSON.stringify(BUDGETS));
+  localStorage.setItem('flow_visited','1');
+}
+
 // ══ INIT ═══════════════════════════════════════════════════
 function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();renderHeatmap();}
 applyDark();render();applyAllEyes();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();initRecapSelectors();initCurrencyUI();initNWToggle();
+if(localStorage.getItem('flow_demo_active')==='1'){const db=document.getElementById('demoBanner');if(db)db.classList.add('show');}
 
 // Banners & notifications (after a brief settle)
 setTimeout(function(){
