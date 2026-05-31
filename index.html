@@ -123,15 +123,6 @@ body{font-family:'IBM Plex Mono','Courier New',monospace;background:var(--bg);co
   .tab-bar{display:flex}
 }
 
-/* ══ PULL TO REFRESH ════════════════════════════════════════ */
-.ptr-wrap{position:fixed;top:0;left:0;right:0;z-index:150;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;transform:translateY(-100%);transition:transform .25s ease;pointer-events:none}
-.ptr-wrap.pulling{transform:translateY(0)}
-.ptr-wrap.refreshing{transform:translateY(0)}
-.ptr-spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--text);border-radius:50%;animation:none;flex-shrink:0}
-.ptr-wrap.refreshing .ptr-spinner{animation:ptr-spin .7s linear infinite}
-@keyframes ptr-spin{to{transform:rotate(360deg)}}
-.ptr-text{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
-
 /* ══ NOTIFICATION BELL ══════════════════════════════════════ */
 .notif-btn{position:relative;background:none;border:none;cursor:pointer;padding:4px;color:var(--muted);transition:color .18s;-webkit-tap-highlight-color:transparent;border-radius:6px}
 .notif-btn:hover{color:var(--text)}
@@ -609,7 +600,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 }
 /* ── iOS safe area on main content area ─────────────────── */
 @media(max-width:640px){
-  .main{padding-bottom:calc(40px + env(safe-area-inset-bottom, 0px))}
+  /* 640px inherits 768px bottom-nav padding — do not override */
 }
 /* ── 380px daily tracker ────────────────────────────────── */
 @media(max-width:380px){
@@ -1749,12 +1740,6 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   </div>
 </nav>
 
-<!-- ══ PULL-TO-REFRESH INDICATOR ════════════════════════════ -->
-<div class="ptr-wrap" id="ptrWrap">
-  <div class="ptr-spinner" id="ptrSpinner"></div>
-  <span class="ptr-text" id="ptrText">Pull to refresh</span>
-</div>
-
 <!-- ══ NOTIFICATION OVERLAY & PANEL ════════════════════════ -->
 <div class="notif-overlay" id="notifOverlay" onclick="closeNotifPanel()"></div>
 <div class="notif-panel" id="notifPanel">
@@ -2878,6 +2863,9 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <span class="wn-version-label wn-label-minor">Update</span>
     </div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">📅 Daily Expense Tracker</div><div class="wn-entry-desc">Tap <strong>Daily</strong> in the Track tab — an independent tracker separate from the monthly budget. Log miscellaneous expenses with category, date &amp; description. 7-day strip, Total Spent card, daily limit bar, zero-spend day tracking, and tap any day to see its expenses. Not linked to monthly.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">⬇ Bottom Navigation Bar</div><div class="wn-entry-desc">On mobile, the top tab strip is replaced by a fixed bottom nav bar with icons — Track, Bills, Portfolio, Planner, Notes. Thumb-friendly and always reachable. A red dot appears on Bills when a payment is overdue. On desktop the top bar remains unchanged.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🔔 Notifications &amp; Reminders</div><div class="wn-entry-desc">A bell icon in the header opens the Notification panel — shows overdue bills, payments due within 3 days, SIPs due today, and FlowSnap availability. Grant browser permission to receive native OS reminders. Red badge appears automatically when alerts exist.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">✦ Count-up Animation</div><div class="wn-entry-desc">Summary card numbers (Income, Expenses, Net Flow) now animate smoothly from zero to their value whenever you switch months or add an entry. Ease-out cubic curve at 500ms — makes the app feel polished and responsive.</div></div></div>
   </div>
 
   <div class="wn-version-block">
@@ -7408,70 +7396,6 @@ function _mv(el,val){
     el.textContent=val;
   }
 }
-
-// ══ PULL TO REFRESH ═══════════════════════════════════════
-(function(){
-  let startY=0,currentY=0,pulling=false,refreshing=false;
-  const THRESHOLD=70;
-  const wrap=()=>document.getElementById('ptrWrap');
-  const txt=()=>document.getElementById('ptrText');
-
-  document.addEventListener('touchstart',function(e){
-    if(refreshing) return;
-    if(window.scrollY>0) return; // only trigger at very top
-    startY=e.touches[0].clientY;
-    pulling=true;
-  },{passive:true});
-
-  document.addEventListener('touchmove',function(e){
-    if(!pulling||refreshing) return;
-    if(window.scrollY>0){pulling=false;return;}
-    currentY=e.touches[0].clientY;
-    const delta=currentY-startY;
-    if(delta<=0){return;}
-    const progress=Math.min(delta/THRESHOLD,1);
-    const w=wrap();
-    if(w){
-      w.classList.add('pulling');
-      w.style.opacity=progress.toFixed(2);
-      w.style.transform=`translateY(${Math.min(delta*0.5,THRESHOLD*0.5)}px)`;
-      const t=txt();
-      if(t) t.textContent=delta>=THRESHOLD?'Release to refresh':'Pull to refresh';
-    }
-  },{passive:true});
-
-  document.addEventListener('touchend',function(){
-    if(!pulling||refreshing) return;
-    pulling=false;
-    const delta=currentY-startY;
-    const w=wrap();
-    if(delta>=THRESHOLD){
-      // Trigger refresh
-      refreshing=true;
-      if(w){
-        w.classList.add('refreshing');
-        w.style.transform='translateY(0)';
-        const t=txt();if(t)t.textContent='Refreshing…';
-      }
-      // Refresh MF NAVs + re-render
-      refreshAllNAV().then(()=>{
-        render();
-        setTimeout(()=>{
-          refreshing=false;
-          if(w){w.classList.remove('pulling','refreshing');w.style.opacity='0';w.style.transform='';}
-          showToast('Refreshed','NAV data updated');
-        },600);
-      }).catch(()=>{
-        refreshing=false;
-        if(w){w.classList.remove('pulling','refreshing');w.style.opacity='0';w.style.transform='';}
-      });
-    } else {
-      // Snap back
-      if(w){w.classList.remove('pulling');w.style.opacity='0';w.style.transform='';}
-    }
-    startY=0;currentY=0;
-  },{passive:true});
-})();
 
 // ══ NOTIFICATIONS ═════════════════════════════════════════
 function openNotifPanel(){
