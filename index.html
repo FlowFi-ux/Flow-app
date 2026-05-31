@@ -50,8 +50,8 @@
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-tap-highlight-color:transparent}
-body{font-family:'IBM Plex Mono','Courier New',monospace;background:var(--bg);color:var(--text);font-size:13px;line-height:1.55;transition:background .2s,color .2s}
+html{-webkit-tap-highlight-color:transparent;overflow-x:hidden;scroll-behavior:smooth}
+body{font-family:'IBM Plex Mono','Courier New',monospace;background:var(--bg);color:var(--text);font-size:13px;line-height:1.55;transition:background .2s,color .2s;overflow-x:hidden;-webkit-overflow-scrolling:touch}
 
 /* ── HOME SCREEN — Professional ──────────────────────── */
 .home-screen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;flex-direction:column;overflow-y:auto}
@@ -82,6 +82,8 @@ body{font-family:'IBM Plex Mono','Courier New',monospace;background:var(--bg);co
 .info-btn{background:var(--surface);border:1.5px solid var(--border);color:var(--muted);width:20px;height:20px;border-radius:50%;font-size:11px;font-style:italic;font-weight:700;font-family:Georgia,serif;padding:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;line-height:1;box-shadow:0 1px 3px rgba(0,0,0,.1)}
 .info-btn:hover{background:var(--text);color:var(--bg);border-color:var(--text)}
 .info-tip{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--text);border-radius:0 0 var(--r) var(--r);padding:14px 16px 14px;font-size:12px;color:var(--text);line-height:1.65;margin-bottom:14px;display:none;box-shadow:0 6px 20px rgba(0,0,0,.13);position:relative}
+.info-tip[style*="block"]{animation:info-fade-in .16s ease}
+@keyframes info-fade-in{from{opacity:0}to{opacity:1}}
 .info-tip.open{display:block}
 .info-tip-hd{font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:500;margin-bottom:8px}
 .info-tip-close{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--faint);font-size:16px;cursor:pointer;line-height:1;padding:0}
@@ -99,11 +101,16 @@ body{font-family:'IBM Plex Mono','Courier New',monospace;background:var(--bg);co
 /* ── TABS ─────────────────────────────────────────────── */
 .tab-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
 .tab-bar::-webkit-scrollbar{display:none}
-.tab-btn{background:none;border:none;border-bottom:2px solid transparent;padding:10px 14px;font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--muted);cursor:pointer;transition:all .15s;border-radius:0;margin-bottom:-1px;white-space:nowrap;flex-shrink:0}
+.tab-btn{background:none;border:none;border-bottom:2px solid transparent;padding:10px 14px;font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--muted);cursor:pointer;transition:color .2s,border-color .2s;border-radius:0;margin-bottom:-1px;white-space:nowrap;flex-shrink:0}
 .tab-btn:hover{color:var(--text)}
 .tab-btn.active{color:var(--text);border-bottom-color:var(--text);font-weight:500}
-.tab-pane{display:none}
-.tab-pane.active{display:block}
+.tab-pane{display:none;opacity:0}
+.tab-pane.active{display:block;animation:tab-fade-in .2s ease forwards}
+@keyframes tab-fade-in{from{opacity:0}to{opacity:1}}
+/* Sub-pane transitions */
+.sub-pane{display:none;opacity:0}
+.sub-pane.active{display:block;animation:sub-fade-in .16s ease forwards}
+@keyframes sub-fade-in{from{opacity:0}to{opacity:1}}
 
 /* ── FORM ELEMENTS ────────────────────────────────────── */
 select,input[type="text"],input[type="number"],input[type="date"],textarea{font-family:'IBM Plex Mono',monospace;font-size:12px;background:var(--surface-alt);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:var(--r);outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none}
@@ -138,11 +145,11 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .track.on .knob{transform:translateX(13px)}
 
 /* ── LAYOUT ───────────────────────────────────────────── */
-.main{max-width:1080px;margin:0 auto;padding:18px 16px 40px}
+.main{max-width:1080px;margin:0 auto;padding:18px 16px 40px;overflow-x:hidden}
 
 /* ── SUMMARY CARDS ────────────────────────────────────── */
 .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow);transition:box-shadow .18s,border-color .18s}
 .card-lbl{font-size:9.5px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted);margin-bottom:6px;font-weight:500}
 .card-val{font-size:19px;font-weight:500;letter-spacing:-.5px}
 .c-green{color:var(--surplus)} .c-red{color:var(--deficit)}
@@ -222,7 +229,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .invest-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
 .sub-tabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:14px;border-bottom:1px solid var(--border);white-space:nowrap}
 .sub-tabs::-webkit-scrollbar{display:none}
-.sub-tab{background:none;border:none;border-bottom:2px solid transparent;padding:9px 14px;font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--muted);cursor:pointer;transition:all .14s;border-radius:0;margin-bottom:-1px;flex-shrink:0;white-space:nowrap}
+.sub-tab{background:none;border:none;border-bottom:2px solid transparent;padding:9px 14px;font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--muted);cursor:pointer;transition:color .18s,border-color .18s;border-radius:0;margin-bottom:-1px;flex-shrink:0;white-space:nowrap}
 .sub-tab.active{color:var(--text);border-bottom-color:var(--text);font-weight:500}
 .sub-pane{display:none}
 .sub-pane.active{display:block}
@@ -263,7 +270,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .mf-result-code{font-size:10px;color:var(--faint)}
 .mf-add-form{background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:14px}
 .mf-add-grid{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;align-items:end}
-.mf-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.mf-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
 .data-table{width:100%;border-collapse:collapse;font-size:12px;min-width:600px}
 .data-table th{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);padding:7px 8px;border-bottom:1px solid var(--border);text-align:left;font-weight:500;white-space:nowrap}
 .data-table th.right{text-align:right}
@@ -669,7 +676,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 /* ── Quick Split Modal ──────────────────────────────────── */
 .qs-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:none;align-items:flex-end;justify-content:center;padding:0}
 .qs-modal.open{display:flex}
-.qs-sheet{background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-width:600px;padding:20px 20px 32px;max-height:92vh;overflow-y:auto;animation:qs-slide .25s ease}
+.qs-sheet{background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-width:600px;padding:20px 20px 32px;max-height:92vh;overflow-y:auto;animation:qs-slide .25s cubic-bezier(.34,1.56,.64,1)}
 @keyframes qs-slide{from{transform:translateY(60%);opacity:.4}to{transform:translateY(0);opacity:1}}
 .qs-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 18px}
 .qs-title{font-size:15px;font-weight:600;letter-spacing:-.2px;margin-bottom:16px}
@@ -927,7 +934,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 @media(max-width:480px){.hm-grid{grid-template-columns:repeat(4,1fr)}}
 
 /* ── Category Autocomplete ────────────────────────────────── */
-#catDrop{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 4px 16px rgba(0,0,0,.18);z-index:300;max-height:180px;overflow-y:auto;min-width:140px}
+#catDrop{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 4px 16px rgba(0,0,0,.18);z-index:9998;max-height:180px;overflow-y:auto;min-width:140px}
 .cat-di{padding:7px 11px;font-size:11.5px;cursor:pointer;color:var(--text);font-family:'IBM Plex Mono',monospace;border-bottom:1px solid var(--border)}
 .cat-di:last-child{border-bottom:none}
 .cat-di:hover,.cat-di.hi{background:var(--surface-alt)}
@@ -5508,24 +5515,35 @@ function _getCats(q){
   return Array.from(cats).filter(function(c){return!lq||c.toLowerCase().includes(lq);}).sort().slice(0,10);
 }
 
+
+// ── Category dropdown — position once, close on scroll ────
 function showCatDrop(inp){
   _catDropTgt=inp;
   var suggs=_getCats(inp.value);
   var drop=document.getElementById('catDrop');
   if(!drop||!suggs.length){hideCatDrop();return;}
   drop.innerHTML=suggs.map(function(s){
-    return'<div class="cat-di" data-val="'+esc(s)+'" onmousedown="pickCat(\''+esc(s)+'\')" ontouchend="pickCat(\''+esc(s)+'\')" >'+esc(s)+'</div>';
+    return'<div class="cat-di" data-val="'+esc(s)+'" onmousedown="pickCat(\''+esc(s)+'\')" ontouchend="pickCat(\''+esc(s)+'\')">'+esc(s)+'</div>';
   }).join('');
   _catDropIdx=-1;
+  // Calculate position once — viewport-relative coords for position:fixed
   var r=inp.getBoundingClientRect();
-  drop.style.cssText='display:block;left:'+r.left+'px;top:'+(r.bottom+2)+'px;width:'+Math.max(150,r.width)+'px';
+  var estDropH=Math.min(suggs.length*36+8,180);
+  var spaceBelow=window.innerHeight-r.bottom-8;
+  var top=(spaceBelow>=estDropH||spaceBelow>=r.top-8)?r.bottom+2:r.top-estDropH-2;
+  // Set position:fixed inline to be immune from ancestor transforms
+  drop.style.cssText='display:block;position:fixed;left:'+r.left+'px;top:'+top+'px;width:'+Math.max(150,r.width)+'px;';
+  // Close on ANY page scroll — browser handles the fixed positioning, not JS
+  window.addEventListener('scroll',hideCatDrop,{passive:true,once:true});
 }
 
 function hideCatDrop(){
   var d=document.getElementById('catDrop');
   if(d)d.style.display='none';
+  window.removeEventListener('scroll',hideCatDrop,{passive:true});
   _catDropTgt=null;_catDropIdx=-1;
 }
+
 
 function pickCat(val){
   if(_catDropTgt){
