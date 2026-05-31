@@ -1639,7 +1639,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   <!-- View toggle: Ledger ↔ Daily -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap">
     <div class="view-toggle">
-      <button class="view-toggle-btn active" id="btnLedgerView" onclick="switchTrackView('ledger')">Ledger</button>
+      <button class="view-toggle-btn active" id="btnLedgerView" onclick="switchTrackView('ledger')">Monthly</button>
       <button class="view-toggle-btn" id="btnDailyView" onclick="switchTrackView('daily')">Daily</button>
     </div>
     <div id="dailyLimitRow" style="display:none;align-items:center;gap:6px">
@@ -7431,7 +7431,7 @@ function quickDailyAdd(){
   if(!DB[m+'_'+y])DB[m+'_'+y]={income:[],expense:[]};
   const today=new Date().toISOString().split('T')[0];
   DB[m+'_'+y].expense.push({id:uid(),type:'expense',cat,desc,amt:String(amt),tag:'',date:today});
-  saveDB();render();renderDailyView();
+  save();render();renderDailyView();
   // Clear inputs
   ['dqCat','dqDesc','dqAmt'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   showToast('Added ₹'+fmt(amt),'Logged to today — '+cat);
