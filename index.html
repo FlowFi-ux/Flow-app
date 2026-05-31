@@ -575,7 +575,70 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .pin-error{color:var(--deficit);font-size:11px;min-height:18px;text-align:center;font-weight:500}
 @media(max-width:360px){.pin-pad{width:210px}.pin-btn{padding:15px 0;font-size:18px}}
 
-/* ══ INTERACTIVE TOUR ═══════════════════════════════════════ */
+/* ══ DAILY EXPENSE TRACKER ══════════════════════════════════ */
+.view-toggle{display:flex;gap:0;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;flex-shrink:0}
+.view-toggle-btn{background:none;border:none;border-radius:0;padding:6px 13px;font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--muted);cursor:pointer;transition:background .16s,color .16s;white-space:nowrap}
+.view-toggle-btn.active{background:var(--text);color:var(--bg);font-weight:500}
+.daily-view{display:none}
+.daily-view.show{display:block;animation:sub-fade-in .16s ease forwards}
+/* 7-day strip */
+.daily-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px}
+.ds-day{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;background:var(--surface);border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:border-color .16s,background .16s}
+.ds-day:hover{border-color:var(--text)}
+.ds-day.today{border-color:var(--surplus);background:rgba(74,222,128,.06)}
+.ds-day.zero{background:rgba(74,222,128,.04)}
+.ds-day-label{font-size:8.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--faint)}
+.ds-day-date{font-size:11px;font-weight:600;color:var(--text)}
+.ds-day-amt{font-size:9px;color:var(--muted);text-align:center}
+.ds-day-zero{font-size:10px}
+.ds-day-bar{width:100%;height:3px;border-radius:2px;background:var(--border);overflow:hidden;margin-top:2px}
+.ds-day-bar-fill{height:100%;border-radius:2px;background:var(--deficit);transition:width .3s}
+/* Daily quick-add */
+.daily-quickadd{display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+.daily-quickadd input{flex:1;min-width:80px;padding:8px 10px;font-size:12px;font-family:'IBM Plex Mono',monospace;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);color:var(--text);outline:none}
+.daily-quickadd input:focus{border-color:var(--text)}
+/* Daily limit bar */
+.daily-limit-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.dlb-label{font-size:10px;color:var(--muted);white-space:nowrap}
+.dlb-track{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.dlb-fill{height:100%;border-radius:3px;background:var(--surplus);transition:width .4s ease}
+.dlb-fill.warn{background:var(--amber)}
+.dlb-fill.over{background:var(--deficit)}
+.dlb-amt{font-size:11px;font-weight:500;white-space:nowrap;flex-shrink:0}
+/* Day groups */
+.day-group{margin-bottom:14px;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:box-shadow .18s}
+.day-group:hover{box-shadow:var(--shadow)}
+.day-group-hdr{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;background:var(--surface);cursor:pointer;user-select:none}
+.day-group-hdr-left{display:flex;align-items:center;gap:8px}
+.day-group-date{font-size:12px;font-weight:600;color:var(--text)}
+.day-group-weekday{font-size:10px;color:var(--muted)}
+.day-group-zero-badge{font-size:9px;padding:2px 8px;background:rgba(74,222,128,.12);color:var(--surplus);border:1px solid rgba(74,222,128,.3);border-radius:10px}
+.day-group-total{font-size:12px;font-weight:600;color:var(--text)}
+.day-group-over{color:var(--deficit)}
+.day-entries{border-top:1px solid var(--border)}
+.day-entry-row{display:flex;align-items:center;padding:8px 14px;border-bottom:1px solid var(--border);gap:10px;font-size:12px}
+.day-entry-row:last-child{border-bottom:none}
+.day-entry-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.day-entry-dot.income{background:var(--surplus)}
+.day-entry-dot.expense{background:var(--deficit)}
+.day-entry-cat{font-weight:500;color:var(--text);min-width:80px;flex-shrink:0}
+.day-entry-desc{color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11.5px}
+.day-entry-tag{font-size:9.5px;color:var(--faint);background:var(--surface-alt);padding:2px 6px;border-radius:8px;flex-shrink:0}
+.day-entry-amt{font-weight:500;flex-shrink:0;min-width:60px;text-align:right}
+.day-entry-amt.income{color:var(--surplus)}
+.day-entry-amt.expense{color:var(--deficit)}
+/* Daily stats bar */
+.daily-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+@media(max-width:640px){
+  .daily-stats{grid-template-columns:1fr 1fr}
+  .daily-strip{gap:3px}
+  .ds-day{padding:6px 2px}
+  .ds-day-label{font-size:7.5px}
+  .ds-day-date{font-size:10px}
+  .ds-day-amt{font-size:8.5px}
+  .day-entry-tag{display:none}
+  .day-entry-desc{font-size:11px}
+}
 .tour-overlay{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.72);pointer-events:all}
 .tour-highlight{position:fixed;z-index:801;pointer-events:none;border-radius:10px;box-shadow:0 0 0 3px rgba(74,222,128,.95),0 0 0 7px rgba(74,222,128,.18),0 0 28px rgba(74,222,128,.35);transition:top .32s cubic-bezier(.4,0,.2,1),left .32s cubic-bezier(.4,0,.2,1),width .32s,height .32s;animation:tour-pulse 2s infinite}
 @keyframes tour-pulse{0%,100%{box-shadow:0 0 0 3px rgba(74,222,128,.95),0 0 0 7px rgba(74,222,128,.14),0 0 28px rgba(74,222,128,.25)}50%{box-shadow:0 0 0 3px rgba(74,222,128,1),0 0 0 12px rgba(74,222,128,.1),0 0 40px rgba(74,222,128,.4)}}
@@ -1573,7 +1636,42 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     </div>
     <div class="ratio-track"><div class="ratio-inc" id="rIncBar" style="width:50%"></div><div class="ratio-exp" id="rExpBar" style="width:50%"></div></div>
   </div>
-  <div class="ledger">
+  <!-- View toggle: Ledger ↔ Daily -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap">
+    <div class="view-toggle">
+      <button class="view-toggle-btn active" id="btnLedgerView" onclick="switchTrackView('ledger')">Ledger</button>
+      <button class="view-toggle-btn" id="btnDailyView" onclick="switchTrackView('daily')">Daily</button>
+    </div>
+    <div id="dailyLimitRow" style="display:none;align-items:center;gap:6px">
+      <span style="font-size:10px;color:var(--muted)">Daily limit</span>
+      <input type="number" id="dailyLimitInp" placeholder="e.g. 2000" style="width:90px;padding:5px 8px;font-size:11px;font-family:'IBM Plex Mono',monospace;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);color:var(--text);outline:none" oninput="saveDailyLimit()" title="Set daily spend limit">
+    </div>
+  </div>
+
+  <!-- ── DAILY VIEW ─────────────────────────────────────── -->
+  <div class="daily-view" id="dailyViewPanel">
+    <!-- Stats row -->
+    <div class="daily-stats" id="dailyStats"></div>
+    <!-- 7-day strip -->
+    <div class="daily-strip" id="dailyStrip"></div>
+    <!-- Today's limit bar -->
+    <div class="daily-limit-bar" id="dailyLimitBarWrap" style="display:none">
+      <span class="dlb-label">Today</span>
+      <div class="dlb-track"><div class="dlb-fill" id="dailyLimitFill"></div></div>
+      <span class="dlb-amt" id="dailyLimitAmt"></span>
+    </div>
+    <!-- Quick add expense for today -->
+    <div class="daily-quickadd">
+      <input type="text" id="dqCat" placeholder="Category" autocomplete="off" onfocus="showCatDrop(this)" oninput="showCatDrop(this)" onkeydown="catDropKey(event)" data-t="expense" data-i="-1" data-f="cat" style="max-width:140px">
+      <input type="text" id="dqDesc" placeholder="Description" style="flex:1.5">
+      <input type="number" id="dqAmt" placeholder="₹ Amount" style="max-width:100px" onkeydown="if(event.key==='Enter')quickDailyAdd()">
+      <button class="btn-primary btn-sm" onclick="quickDailyAdd()">+ Add</button>
+    </div>
+    <!-- Day groups -->
+    <div id="dailyGroups"></div>
+  </div>
+
+  <div class="ledger" id="ledgerPanel">
     <div class="ledger-panel">
       <div class="panel-head">
         <span class="panel-title">Income</span>
@@ -2591,7 +2689,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <span class="wn-version-date">May 2026</span>
       <span class="wn-version-label wn-label-minor">Update</span>
     </div>
-    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">&#x26A1; Split Up — Quick Split &amp; Notify</div><div class="wn-entry-desc">Tap Split Up in the Bill Split tab to instantly create a split, auto-divide equally, and notify all members via WhatsApp or SMS in one tap. Pre-fills from your last split — minimum effort.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Daily Expense Tracker</div><div class="wn-entry-desc">Tap the "Daily" toggle in the Track tab to switch from the flat ledger to a day-by-day grouped view. See a 7-day spend strip, daily totals, zero-spend day badges, avg/highest day stats, and a daily limit progress bar. Quick-add expenses for today in 2 taps.</div></div></div><div class="wn-entry-desc">Tap Split Up in the Bill Split tab to instantly create a split, auto-divide equally, and notify all members via WhatsApp or SMS in one tap. Pre-fills from your last split — minimum effort.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Shareable Recap Cards</div><div class="wn-entry-desc">Tap the Card button in the Track tab to generate a clean PNG summary of your month — income, expenses, savings rate, top spend. Share directly via WhatsApp, Instagram, or download.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Auto-Nudge for Unsettled Members</div><div class="wn-entry-desc">After 3 days, the WhatsApp button on an unsettled split member glows amber with a nudge dot. Shows "Notified Xd ago" so you know exactly how long they've been sitting on it.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-improved">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">Unmark Settled — Undo Button</div><div class="wn-entry-desc">Accidentally marked someone as settled? An Undo button now appears next to ✓ Settled so you can reverse it instantly.</div></div></div>
@@ -7153,8 +7251,181 @@ function loadDemoData(){
   localStorage.setItem('flow_visited','1');
 }
 
+
+// ══ DAILY EXPENSE TRACKER ═════════════════════════════════
+let _dailyViewActive=false;
+const DAYS_OF_WEEK=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const FULL_DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+function getDailyLimit(){return parseFloat(localStorage.getItem('flow_daily_limit')||'0');}
+function saveDailyLimit(){
+  const v=parseFloat(document.getElementById('dailyLimitInp').value)||0;
+  if(v>0)localStorage.setItem('flow_daily_limit',String(v));
+  else localStorage.removeItem('flow_daily_limit');
+  renderDailyView();
+}
+
+function switchTrackView(mode){
+  _dailyViewActive=(mode==='daily');
+  document.getElementById('btnLedgerView').classList.toggle('active',!_dailyViewActive);
+  document.getElementById('btnDailyView').classList.toggle('active',_dailyViewActive);
+  document.getElementById('ledgerPanel').style.display=_dailyViewActive?'none':'';
+  const dv=document.getElementById('dailyViewPanel');
+  dv.classList.toggle('show',_dailyViewActive);
+  const dlr=document.getElementById('dailyLimitRow');
+  if(dlr)dlr.style.display=_dailyViewActive?'flex':'none';
+  if(_dailyViewActive){
+    const inp=document.getElementById('dailyLimitInp');
+    const lim=getDailyLimit();if(inp&&lim>0)inp.value=lim;
+    renderDailyView();
+  }
+}
+
+function renderDailyView(){
+  const m=parseInt(selM()),y=parseInt(selY());
+  const d=DB[m+'_'+y]||{income:[],expense:[]};
+  const allInc=d.income||[],allExp=d.expense||[];
+  const dailyLimit=getDailyLimit();
+  const today=new Date();
+  const isCurrentMonth=(m===today.getMonth()&&y===today.getFullYear());
+
+  // ── Build date → entries map ────────────────────────────
+  const dayMap={};
+  [...allInc.map(e=>({...e,_type:'income'})),...allExp.map(e=>({...e,_type:'expense'}))]
+    .forEach(e=>{
+      const day=e.date?e.date.slice(0,10):'';
+      if(!day)return;
+      if(!dayMap[day])dayMap[day]={income:[],expense:[],total:0};
+      dayMap[day][e._type].push(e);
+      if(e._type==='expense')dayMap[day].total+=(parseFloat(e.amt)||0);
+    });
+
+  // ── Stats row ───────────────────────────────────────────
+  const activeDays=Object.keys(dayMap).length;
+  const zeroDays=isCurrentMonth?today.getDate()-activeDays:
+    (new Date(y,m+1,0).getDate()-activeDays);
+  const totalExp=allExp.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+  const avgDay=activeDays>0?totalExp/activeDays:0;
+  const maxDay=Object.values(dayMap).reduce((mx,d)=>Math.max(mx,d.total),0);
+  const bestDay=Object.entries(dayMap).sort((a,b)=>a[1].total-b[1].total)[0];
+
+  const statsEl=document.getElementById('dailyStats');
+  if(statsEl)statsEl.innerHTML=[
+    {lbl:'Active Days',val:activeDays,sub:'days with entries'},
+    {lbl:'Zero-Spend Days',val:zeroDays+'  ✦',sub:'days with no expense',clr:'var(--surplus)'},
+    {lbl:'Avg Daily Spend',val:fmt(Math.round(avgDay)),sub:'per active day'},
+    {lbl:'Highest Day',val:fmt(Math.round(maxDay)),sub:bestDay?'on '+new Date(bestDay[0]).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):''},
+  ].map(s=>`<div class="card"><div class="card-lbl">${s.lbl}</div><div class="card-val" style="font-size:16px${s.clr?';color:'+s.clr:''}">${s.val}</div><div style="font-size:9.5px;color:var(--faint);margin-top:2px">${s.sub}</div></div>`).join('');
+
+  // ── 7-day strip (last 7 days if current month, else last 7 of month) ──
+  const stripEl=document.getElementById('dailyStrip');
+  if(stripEl){
+    const refDate=isCurrentMonth?new Date():new Date(y,m+1,0);
+    const days7=[];
+    for(let i=6;i>=0;i--){
+      const d2=new Date(refDate);d2.setDate(refDate.getDate()-i);
+      if(d2.getMonth()===m&&d2.getFullYear()===y)days7.push(d2);
+    }
+    stripEl.innerHTML=days7.map(day=>{
+      const key=day.toISOString().split('T')[0];
+      const dm=dayMap[key]||null;
+      const amt=dm?dm.total:0;
+      const isToday=isCurrentMonth&&day.toDateString()===today.toDateString();
+      const isZero=!dm&&day<=(isCurrentMonth?today:new Date(y,m+1,0));
+      const barPct=maxDay>0?Math.round((amt/maxDay)*100):0;
+      return `<div class="ds-day${isToday?' today':''}${isZero?' zero':''}" onclick="scrollToDay('${key}')">
+        <span class="ds-day-label">${DAYS_OF_WEEK[day.getDay()]}</span>
+        <span class="ds-day-date">${day.getDate()}</span>
+        <span class="ds-day-amt">${amt>0?fmt(Math.round(amt)):(isZero?'<span class="ds-day-zero">✦</span>':'—')}</span>
+        <div class="ds-day-bar"><div class="ds-day-bar-fill" style="width:${barPct}%"></div></div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Today limit bar ─────────────────────────────────────
+  const limWrap=document.getElementById('dailyLimitBarWrap');
+  if(limWrap){
+    if(dailyLimit>0&&isCurrentMonth){
+      limWrap.style.display='flex';
+      const todayKey=today.toISOString().split('T')[0];
+      const todaySpend=(dayMap[todayKey]||{total:0}).total;
+      const pct=Math.min(Math.round((todaySpend/dailyLimit)*100),100);
+      const fill=document.getElementById('dailyLimitFill');
+      const amt=document.getElementById('dailyLimitAmt');
+      if(fill){fill.style.width=pct+'%';fill.className='dlb-fill'+(todaySpend>dailyLimit?' over':todaySpend>dailyLimit*0.8?' warn':'');}
+      if(amt){
+        const left=dailyLimit-todaySpend;
+        amt.style.color=left<0?'var(--deficit)':left<dailyLimit*0.2?'var(--amber)':'var(--surplus)';
+        amt.textContent=left>=0?fmt(Math.round(left))+' left':fmt(Math.round(-left))+' over';
+      }
+    } else limWrap.style.display='none';
+  }
+
+  // ── Day groups — sorted newest first ──────────────────────
+  const groupsEl=document.getElementById('dailyGroups');
+  if(!groupsEl)return;
+  const sortedDays=Object.keys(dayMap).sort((a,b)=>b.localeCompare(a));
+  if(!sortedDays.length){
+    groupsEl.innerHTML='<div class="empty-msg">No entries for this month yet. Add your first entry above.</div>';
+    return;
+  }
+  groupsEl.innerHTML=sortedDays.map(dateKey=>{
+    const dm=dayMap[dateKey];
+    const d2=new Date(dateKey+'T00:00:00');
+    const isToday=isCurrentMonth&&d2.toDateString()===today.toDateString();
+    const isYest=isCurrentMonth&&d2.toDateString()===new Date(today.getTime()-86400000).toDateString();
+    const dateLabel=isToday?'Today':isYest?'Yesterday':d2.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:d2.getFullYear()!==today.getFullYear()?'numeric':undefined});
+    const weekday=FULL_DAYS[d2.getDay()];
+    const dayTotal=dm.total;
+    const isOver=dailyLimit>0&&dayTotal>dailyLimit;
+    const allEntries=[...dm.income.map(e=>({...e,_type:'income'})),...dm.expense.map(e=>({...e,_type:'expense'}))];
+    return `<div class="day-group" id="dg_${dateKey}">
+      <div class="day-group-hdr" onclick="toggleDayGroup('${dateKey}')">
+        <div class="day-group-hdr-left">
+          <span class="day-group-date">${dateLabel}</span>
+          <span class="day-group-weekday">${weekday}</span>
+          ${isToday?'<span class="day-group-zero-badge">Today</span>':''}
+        </div>
+        <span class="day-group-total${isOver?' day-group-over':''}">${fmt(dayTotal)}${isOver?' ↑':''}</span>
+      </div>
+      <div class="day-entries" id="de_${dateKey}">
+        ${allEntries.map(e=>`<div class="day-entry-row">
+          <div class="day-entry-dot ${e._type}"></div>
+          <span class="day-entry-cat">${esc(e.cat||'—')}</span>
+          <span class="day-entry-desc">${esc(e.desc||'')}</span>
+          ${e.tag?`<span class="day-entry-tag">#${esc(e.tag)}</span>`:''}
+          <span class="day-entry-amt ${e._type}">${e._type==='income'?'+':''}${fmt(parseFloat(e.amt)||0)}</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleDayGroup(dateKey){
+  const el=document.getElementById('de_'+dateKey);
+  if(el)el.style.display=el.style.display==='none'?'':'none';
+}
+function scrollToDay(dateKey){
+  const el=document.getElementById('dg_'+dateKey);
+  if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function quickDailyAdd(){
+  const cat=(document.getElementById('dqCat').value||'').trim();
+  const desc=(document.getElementById('dqDesc').value||'').trim();
+  const amt=parseFloat(document.getElementById('dqAmt').value)||0;
+  if(!cat||!amt){showToast('Fill category and amount','Required fields for quick add');return;}
+  const m=parseInt(selM()),y=parseInt(selY());
+  if(!DB[m+'_'+y])DB[m+'_'+y]={income:[],expense:[]};
+  const today=new Date().toISOString().split('T')[0];
+  DB[m+'_'+y].expense.push({id:uid(),type:'expense',cat,desc,amt:String(amt),tag:'',date:today});
+  saveDB();render();renderDailyView();
+  // Clear inputs
+  ['dqCat','dqDesc','dqAmt'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  showToast('Added ₹'+fmt(amt),'Logged to today — '+cat);
+}
+
 // ══ INIT ═══════════════════════════════════════════════════
-function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();renderHeatmap();}
+function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();renderHeatmap();if(_dailyViewActive)renderDailyView();}
 applyDark();render();applyAllEyes();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();initRecapSelectors();initCurrencyUI();initNWToggle();
 if(localStorage.getItem('flow_demo_active')==='1'){const db=document.getElementById('demoBanner');if(db)db.classList.add('show');}
 

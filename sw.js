@@ -12,7 +12,7 @@
  * ─────────────────────────────────────────────────────────
  */
 
-const CACHE_VERSION = 'flow-v35';          // ← BUMP ON EVERY DEPLOY
+const CACHE_VERSION = 'flow-v36';          // ← BUMP ON EVERY DEPLOY
 const CACHE_NAME    = `flow-${CACHE_VERSION}`;
 
 const STATIC_ASSETS = [
