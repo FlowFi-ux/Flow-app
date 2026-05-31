@@ -100,6 +100,54 @@ body{font-family:'IBM Plex Mono','Courier New',monospace;background:var(--bg);co
 
 /* ── TABS ─────────────────────────────────────────────── */
 .tab-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+
+/* ══ BOTTOM NAV ═════════════════════════════════════════════ */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--surface);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom,0px);height:calc(56px + env(safe-area-inset-bottom,0px))}
+.bn-inner{display:flex;height:56px;align-items:stretch}
+.bn-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;cursor:pointer;padding:0 2px;color:var(--faint);transition:color .18s;position:relative;-webkit-tap-highlight-color:transparent;min-width:0}
+.bn-btn.active{color:var(--text)}
+.bn-btn.active .bn-icon svg{stroke:var(--text)}
+.bn-icon{display:flex;align-items:center;justify-content:center;width:24px;height:24px;flex-shrink:0}
+.bn-icon svg{width:20px;height:20px;stroke:var(--faint);stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:stroke .18s}
+.bn-btn.active .bn-icon svg{stroke:var(--text)}
+.bn-label{font-size:9.5px;font-family:'IBM Plex Mono',monospace;font-weight:500;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:56px}
+.bn-dot{position:absolute;top:6px;right:calc(50% - 14px);width:6px;height:6px;border-radius:50%;background:var(--deficit);border:1.5px solid var(--surface);display:none}
+.bn-dot.show{display:block}
+@media(max-width:768px){
+  .tab-bar{display:none}
+  .bottom-nav{display:block}
+  .main{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+}
+@media(min-width:769px){
+  .bottom-nav{display:none!important}
+  .tab-bar{display:flex}
+}
+
+/* ══ PULL TO REFRESH ════════════════════════════════════════ */
+.ptr-wrap{position:fixed;top:0;left:0;right:0;z-index:150;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;transform:translateY(-100%);transition:transform .25s ease;pointer-events:none}
+.ptr-wrap.pulling{transform:translateY(0)}
+.ptr-wrap.refreshing{transform:translateY(0)}
+.ptr-spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--text);border-radius:50%;animation:none;flex-shrink:0}
+.ptr-wrap.refreshing .ptr-spinner{animation:ptr-spin .7s linear infinite}
+@keyframes ptr-spin{to{transform:rotate(360deg)}}
+.ptr-text{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+
+/* ══ NOTIFICATION BELL ══════════════════════════════════════ */
+.notif-btn{position:relative;background:none;border:none;cursor:pointer;padding:4px;color:var(--muted);transition:color .18s;-webkit-tap-highlight-color:transparent;border-radius:6px}
+.notif-btn:hover{color:var(--text)}
+.notif-btn svg{width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;display:block}
+.notif-badge{position:absolute;top:1px;right:1px;width:7px;height:7px;border-radius:50%;background:var(--deficit);border:1.5px solid var(--surface);display:none}
+.notif-badge.show{display:block}
+.notif-panel{position:fixed;top:0;right:0;bottom:0;width:min(320px,100vw);background:var(--surface);border-left:1px solid var(--border);z-index:300;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);overflow-y:auto;padding:20px 18px}
+.notif-panel.open{transform:translateX(0)}
+.notif-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:299;display:none}
+.notif-overlay.open{display:block}
+.notif-item{padding:12px;border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;font-size:12px;background:var(--surface)}
+.notif-item-title{font-weight:600;color:var(--text);margin-bottom:3px}
+.notif-item-body{color:var(--muted);line-height:1.5}
+.notif-item.urgent{border-left:3px solid var(--deficit)}
+.notif-item.warn{border-left:3px solid var(--amber)}
+.notif-item.info{border-left:3px solid var(--surplus)}
 .tab-bar::-webkit-scrollbar{display:none}
 .tab-btn{background:none;border:none;border-bottom:2px solid transparent;padding:10px 14px;font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--muted);cursor:pointer;transition:color .2s,border-color .2s;border-radius:0;margin-bottom:-1px;white-space:nowrap;flex-shrink:0}
 .tab-btn:hover{color:var(--text)}
@@ -1619,12 +1667,20 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5.5l3 3 3-3M1 9.5v1a.5.5 0 00.5.5h9a.5.5 0 00.5-.5v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>PDF
     </button>
     <div class="sep"></div>
+    <button class="notif-btn" id="notifBell" onclick="openNotifPanel()" title="Notifications">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <div class="notif-badge" id="notifBadge"></div>
+    </button>
     <button class="btn-whats-new" onclick="switchTab('new',document.querySelector('.tab-btn:last-child'))" title="What's New">
       &#x2726;<span class="wn-btn-lbl"> What's New</span>
     </button>
   </div>
   <div class="hdr-controls" id="otherControls" style="display:none">
     <button class="btn-ghost" onclick="openInstallModal()" title="Install App" style="padding:5px 9px;font-size:11px">&#x2B07; Install</button>
+    <button class="notif-btn" onclick="openNotifPanel()" title="Notifications" style="margin-left:4px">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <div class="notif-badge" id="notifBadge2"></div>
+    </button>
    <button class="btn-ghost" onclick="openPinSetup()" title="PIN Lock" style="padding:5px 9px;font-size:11px;display:flex;align-items:center;gap:4px">&#x1F512; Lock</button>
     <button class="toggle-wrap" onclick="toggleDark()">
       <div class="track" id="track2"><div class="knob"></div></div>
@@ -1657,7 +1713,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   <div id="globalSearchResults" style="max-width:1080px;margin:10px auto 0;max-height:320px;overflow-y:auto"></div>
 </div>
 
-<!-- ══ TAB BAR ══════════════════════════════════════════════ -->
+<!-- ══ TAB BAR (desktop) ═════════════════════════════════════ -->
 <nav class="tab-bar">
   <button class="tab-btn active" onclick="switchTab('track',this)">Track</button>
   <button class="tab-btn" onclick="switchTab('bills',this)">Bills</button>
@@ -1666,10 +1722,58 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   <button class="tab-btn" onclick="switchTab('notes',this)">Notes</button>
 </nav>
 
+<!-- ══ BOTTOM NAV (mobile) ══════════════════════════════════ -->
+<nav class="bottom-nav" id="bottomNav">
+  <div class="bn-inner">
+    <button class="bn-btn active" id="bn-track" onclick="bnSwitch('track',this)">
+      <div class="bn-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <span class="bn-label">Track</span>
+    </button>
+    <button class="bn-btn" id="bn-bills" onclick="bnSwitch('bills',this)">
+      <div class="bn-icon"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+      <span class="bn-label">Bills</span>
+      <div class="bn-dot" id="bnBillsDot"></div>
+    </button>
+    <button class="bn-btn" id="bn-invest" onclick="bnSwitch('invest',this)">
+      <div class="bn-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+      <span class="bn-label">Portfolio</span>
+    </button>
+    <button class="bn-btn" id="bn-tools" onclick="bnSwitch('tools',this)">
+      <div class="bn-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <span class="bn-label">Planner</span>
+    </button>
+    <button class="bn-btn" id="bn-notes" onclick="bnSwitch('notes',this)">
+      <div class="bn-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+      <span class="bn-label">Notes</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ══ PULL-TO-REFRESH INDICATOR ════════════════════════════ -->
+<div class="ptr-wrap" id="ptrWrap">
+  <div class="ptr-spinner" id="ptrSpinner"></div>
+  <span class="ptr-text" id="ptrText">Pull to refresh</span>
+</div>
+
+<!-- ══ NOTIFICATION OVERLAY & PANEL ════════════════════════ -->
+<div class="notif-overlay" id="notifOverlay" onclick="closeNotifPanel()"></div>
+<div class="notif-panel" id="notifPanel">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div style="font-size:14px;font-weight:600;letter-spacing:-.2px">Notifications</div>
+    <button class="btn-del" onclick="closeNotifPanel()">&#x2715;</button>
+  </div>
+  <div id="notifPermRow" style="display:none;padding:10px 12px;background:var(--surface-alt);border-radius:var(--r);margin-bottom:14px;font-size:11.5px;color:var(--muted)">
+    <div style="font-weight:500;color:var(--text);margin-bottom:4px">Enable Reminders</div>
+    Allow browser notifications to get bill due date reminders and FlowSnap alerts.
+    <button class="btn-primary btn-sm" onclick="requestNotifPermission()" style="margin-top:8px;width:100%;justify-content:center;padding:8px">Allow Notifications</button>
+  </div>
+  <div id="notifList"></div>
+</div>
+
 <!-- ══ TRACK TAB ════════════════════════════════════════════ -->
 <div id="tab-track" class="tab-pane active">
 <div class="main" id="main">
-  <!-- Annual Wrapped Banner (Dec 15 – Jan 15) -->
+  <!-- Annual Wrapped Banner (Dec 25 – Jan 5) -->
   <div class="wrapped-banner" id="wrappedBanner">
     <span class="wb-icon">🎁</span>
     <div class="wb-body">
@@ -2822,7 +2926,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <span class="wn-version-date">May 2026</span>
       <span class="wn-version-label wn-label-new">New</span>
     </div>
-    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">✦ FlowSnap — Monthly Financial Story</div><div class="wn-entry-desc">A monthly financial pulse available from the 15th to the 30th of each month. Shows your savings grade (A–F), income vs expenses, narrative insight, top spending categories, month-over-month comparison, and a full portfolio snapshot. Find it under Planner → FlowSnap, or tap the coloured banner that slides in on the 15th.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">✦ FlowSnap — Monthly Financial Story</div><div class="wn-entry-desc">A monthly financial pulse available from the <strong>25th to the last day</strong> of each month. Shows your savings grade (A–F), income vs expenses, narrative insight, top spending categories, month-over-month comparison, and a full portfolio snapshot. Find it under Planner → FlowSnap, or tap the coloured banner that slides in on the 25th.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🔔 Smart Notifications</div><div class="wn-entry-desc">Flow surfaces in-app toasts and browser notifications (with permission) for bills due in the next 3 days, upcoming SIP dates, budget overruns in the current month, and FlowSnap availability. Each event fires only once per period — fully deduplicated. Grant permission via the prompt in the Track tab.</div></div></div>
   </div>
 
@@ -3036,7 +3140,7 @@ function switchTab(id,btn){
   document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
-  btn.classList.add('active');
+  if(btn) btn.classList.add('active');
   const tc=document.getElementById('trackControls');
   const oc=document.getElementById('otherControls');
   if(id==='track'){tc.style.display='flex';oc.style.display='none'}
@@ -3045,6 +3149,11 @@ function switchTab(id,btn){
   if(id==='notes'){renderNotes();}
   if(id==='invest'){renderHoldingsTable();renderDividendTable();renderGoals();renderMFTable();renderFDTable();calcSIP();updateInvestSummary();updateAllocChart();setTimeout(renderNWChart,200);}
   if(id==='tools'){initToolsSelectors();renderCalendar();}
+  // ── Sync bottom nav active state ────────────────────────
+  document.querySelectorAll('.bn-btn').forEach(b=>b.classList.remove('active'));
+  const bn=document.getElementById('bn-'+id);
+  if(bn) bn.classList.add('active');
+  updateBnBillsDot();
 }
 function switchSubTab(id,btn){
   const tabPane=btn.closest('.tab-pane');
@@ -5812,14 +5921,19 @@ function renderFlowRecap(){
   const m=today.getMonth();          // 0-indexed — matches DB key format
   const y=today.getFullYear();
   const monthName=MONTHS[m];
+  const lastDayOfMonth=new Date(y,m+1,0).getDate(); // 28/29/30/31 depending on month
 
-  // Locked outside 15–30
-  if(day<15||day>30){
+  // Locked outside 25–end of month
+  if(day<25||day>lastDayOfMonth){
+    // When day < 25, FlowSnap opens on the 25th of THIS month
+    // When day > lastDay (impossible in practice — just a guard)
+    const nextM=(m+1)%12;
+    const targetMonthName=day<25?monthName:MONTHS[nextM];
     body.innerHTML=`<div class="recap-empty">
       <div style="font-size:32px;margin-bottom:12px">🔒</div>
       <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">FlowSnap is Locked</div>
-      <div style="max-width:280px;margin:0 auto">Your monthly FlowSnap is available from the <strong>15th to the 30th</strong> of each month.</div>
-      <div style="margin-top:12px;font-size:11px;color:var(--faint)">Check back on the 15th for your ${monthName} FlowSnap.</div>
+      <div style="max-width:280px;margin:0 auto">Your monthly FlowSnap is available from the <strong>25th to the last day</strong> of each month.</div>
+      <div style="margin-top:12px;font-size:11px;color:var(--faint)">Check back on the 25th for your ${targetMonthName} FlowSnap.</div>
     </div>`;
     return;
   }
@@ -6104,11 +6218,11 @@ function checkRecapBanner(){
   const day=today.getDate();
   const m=today.getMonth()+1;   // 1-indexed: used for localStorage key only
   const y=today.getFullYear();
+  const lastDay=new Date(y,m,0).getDate(); // last day of current month
   const dismissedKey=`flow_recap_dismissed_${m}_${y}`;
-  if(day<15||day>30) return;    // window: 15th–30th
+  if(day<25||day>lastDay) return;    // window: 25th–last day of month
   if(localStorage.getItem(dismissedKey)==='1') return;
   if(!localStorage.getItem('flow_visited')) return;
-  // Don't show for users with no financial data at all (new users / empty accounts)
   const hasAnyData=Object.keys(DB).some(k=>{
     const d=DB[k];return(d.income&&d.income.length>0)||(d.expense&&d.expense.length>0);
   });
@@ -6140,12 +6254,13 @@ function openFlowRecap(){
 function isWrappedWindow(){
   const today=new Date();
   const m=today.getMonth()+1, d=today.getDate();
-  return (m===12&&d>=15)||(m===1&&d<=15);
+  return (m===12&&d>=25)||(m===1&&d<=5);
 }
 
 function getWrappedYear(){
   const today=new Date();
   const m=today.getMonth()+1;
+  // Jan 1–5: still showing previous year's wrapped
   return m===1?today.getFullYear()-1:today.getFullYear();
 }
 
@@ -6185,11 +6300,12 @@ function renderAnnualWrapped(){
 
   // Outside window — locked state
   if(!isWrappedWindow()){
+    const nextYear=new Date().getFullYear();
     el.innerHTML=`<div class="recap-empty">
       <div style="font-size:32px;margin-bottom:12px">🎁</div>
       <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">Annual Wrapped is Locked</div>
-      <div style="max-width:280px;margin:0 auto">Available each year from <strong>December 15</strong> through <strong>January 15</strong> — your complete year-in-review.</div>
-      <div style="margin-top:12px;font-size:11px;color:var(--faint)">Come back in December for your ${new Date().getFullYear()} Annual Wrapped.</div>
+      <div style="max-width:280px;margin:0 auto">Available each year from <strong>December 25</strong> through <strong>January 5</strong> — your complete year-in-review.</div>
+      <div style="margin-top:12px;font-size:11px;color:var(--faint)">Come back on 25 December for your ${nextYear} Annual Wrapped.</div>
     </div>`;
     return;
   }
@@ -6559,8 +6675,9 @@ function exportFlowSnapPDF(){
   const monthName=MONTHS[m];
   const day=today.getDate();
 
-  if(day<15||day>30){
-    alert('FlowSnap PDF is only available between the 15th and 30th of each month.');
+  const lastDay=new Date(y,m+1,0).getDate();
+  if(day<25||day>lastDay){
+    alert('FlowSnap PDF is only available between the 25th and the last day of each month.');
     return;
   }
   if(!window.jspdf){alert('PDF library not loaded. Check your connection and try again.');return}
@@ -7237,6 +7354,239 @@ function createQuickSplit(channel){
 }
 
 
+
+// ══ BOTTOM NAV ═════════════════════════════════════════════
+function bnSwitch(id, btn){
+  const topBtn=document.querySelector('.tab-btn[onclick*="\''+id+'\'"]');
+  switchTab(id, topBtn||btn);
+}
+function updateBnBillsDot(){
+  const dot=document.getElementById('bnBillsDot');
+  if(!dot) return;
+  const today=new Date(),m=today.getMonth(),y=today.getFullYear();
+  const overdue=BILLS.some(b=>{
+    const mk=m+'_'+y;
+    if(b.paidMonths&&b.paidMonths.includes(mk)) return false;
+    const due=new Date(y,m,b.dueDay);
+    return due<today;
+  });
+  dot.classList.toggle('show', overdue);
+}
+
+// ══ COUNT-UP ANIMATION ════════════════════════════════════
+function animateValue(el, targetStr, duration=550){
+  if(!el) return;
+  // Extract number from formatted string (remove ₹, commas, etc.)
+  const isNeg=targetStr.includes('−')||targetStr.startsWith('-');
+  const numStr=targetStr.replace(/[^\d.]/g,'');
+  const target=parseFloat(numStr)||0;
+  if(target===0){el.textContent=targetStr;return;}
+  const start=performance.now();
+  const prefix=isNeg?'−':'';
+  function tick(now){
+    const elapsed=Math.min(now-start,duration);
+    // Ease-out cubic
+    const t=elapsed/duration;
+    const eased=1-Math.pow(1-t,3);
+    const cur=Math.round(target*eased);
+    el.textContent=prefix+fmt(cur);
+    if(elapsed<duration) requestAnimationFrame(tick);
+    else el.textContent=targetStr; // set exact final value
+  }
+  requestAnimationFrame(tick);
+}
+// Override _mv to animate summary cards
+const _origMv=typeof _mv==='function'?_mv:null;
+function _mv(el,val){
+  if(!el) return;
+  // Only animate numeric ₹ values in summary cards (has card-val class)
+  const isCardVal=el.classList&&el.classList.contains('card-val');
+  const looksLikeAmount=typeof val==='string'&&(val.match(/^[₹−\d,]+$/))||false;
+  if(isCardVal&&looksLikeAmount&&!val.includes('•')){
+    animateValue(el, val, 500);
+  } else {
+    el.textContent=val;
+  }
+}
+
+// ══ PULL TO REFRESH ═══════════════════════════════════════
+(function(){
+  let startY=0,currentY=0,pulling=false,refreshing=false;
+  const THRESHOLD=70;
+  const wrap=()=>document.getElementById('ptrWrap');
+  const txt=()=>document.getElementById('ptrText');
+
+  document.addEventListener('touchstart',function(e){
+    if(refreshing) return;
+    if(window.scrollY>0) return; // only trigger at very top
+    startY=e.touches[0].clientY;
+    pulling=true;
+  },{passive:true});
+
+  document.addEventListener('touchmove',function(e){
+    if(!pulling||refreshing) return;
+    if(window.scrollY>0){pulling=false;return;}
+    currentY=e.touches[0].clientY;
+    const delta=currentY-startY;
+    if(delta<=0){return;}
+    const progress=Math.min(delta/THRESHOLD,1);
+    const w=wrap();
+    if(w){
+      w.classList.add('pulling');
+      w.style.opacity=progress.toFixed(2);
+      w.style.transform=`translateY(${Math.min(delta*0.5,THRESHOLD*0.5)}px)`;
+      const t=txt();
+      if(t) t.textContent=delta>=THRESHOLD?'Release to refresh':'Pull to refresh';
+    }
+  },{passive:true});
+
+  document.addEventListener('touchend',function(){
+    if(!pulling||refreshing) return;
+    pulling=false;
+    const delta=currentY-startY;
+    const w=wrap();
+    if(delta>=THRESHOLD){
+      // Trigger refresh
+      refreshing=true;
+      if(w){
+        w.classList.add('refreshing');
+        w.style.transform='translateY(0)';
+        const t=txt();if(t)t.textContent='Refreshing…';
+      }
+      // Refresh MF NAVs + re-render
+      refreshAllNAV().then(()=>{
+        render();
+        setTimeout(()=>{
+          refreshing=false;
+          if(w){w.classList.remove('pulling','refreshing');w.style.opacity='0';w.style.transform='';}
+          showToast('Refreshed','NAV data updated');
+        },600);
+      }).catch(()=>{
+        refreshing=false;
+        if(w){w.classList.remove('pulling','refreshing');w.style.opacity='0';w.style.transform='';}
+      });
+    } else {
+      // Snap back
+      if(w){w.classList.remove('pulling');w.style.opacity='0';w.style.transform='';}
+    }
+    startY=0;currentY=0;
+  },{passive:true});
+})();
+
+// ══ NOTIFICATIONS ═════════════════════════════════════════
+function openNotifPanel(){
+  renderNotifList();
+  document.getElementById('notifPanel').classList.add('open');
+  document.getElementById('notifOverlay').classList.add('open');
+  // Clear badge
+  ['notifBadge','notifBadge2'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('show');});
+}
+function closeNotifPanel(){
+  document.getElementById('notifPanel').classList.remove('open');
+  document.getElementById('notifOverlay').classList.remove('open');
+}
+function renderNotifList(){
+  const list=document.getElementById('notifList');
+  const permRow=document.getElementById('notifPermRow');
+  if(!list) return;
+  // Show permission request if not granted
+  const perm=('Notification' in window)?Notification.permission:'denied';
+  if(permRow) permRow.style.display=(perm==='default')?'block':'none';
+
+  const today=new Date();
+  const m=today.getMonth(),y=today.getFullYear();
+  const mk=m+'_'+y;
+  const items=[];
+
+  // Overdue bills
+  BILLS.forEach(b=>{
+    if(b.paidMonths&&b.paidMonths.includes(mk)) return;
+    const due=new Date(y,m,b.dueDay);
+    const diff=Math.ceil((due-today)/86400000);
+    if(diff<0) items.push({type:'urgent',title:'⚠ Overdue: '+b.name,body:fmt(b.amt)+' was due on '+b.dueDay+' '+MONTHS[m]});
+    else if(diff<=3) items.push({type:'warn',title:'⏰ Due soon: '+b.name,body:fmt(b.amt)+' due in '+(diff===0?'today':diff+' day'+(diff!==1?'s':''))});
+  });
+
+  // SIP reminders
+  (INVEST.mf||[]).forEach(fund=>{
+    if(!fund.sip||!fund.sip.active||!fund.sip.sipDay) return;
+    const diff=fund.sip.sipDay-today.getDate();
+    if(diff>=0&&diff<=3) items.push({type:'info',title:'📈 SIP Due: '+(fund.schemeName||'MF Fund').split('—')[0].trim(),body:fmt(fund.sip.monthlyAmt)+'/mo on '+fund.sip.sipDay+'th'+(diff===0?' — today':' — in '+diff+' day'+(diff!==1?'s':''))});
+  });
+
+  // FlowSnap ready
+  const day=today.getDate();
+  const lastDay=new Date(y,m+1,0).getDate();
+  if(day>=25&&day<=lastDay&&Object.keys(DB).some(k=>{const d=DB[k];return d&&((d.income&&d.income.length)||(d.expense&&d.expense.length));})){
+    items.push({type:'info',title:'✦ '+MONTHS[m]+' FlowSnap is ready',body:'Your monthly financial story is available under Planner → FlowSnap'});
+  }
+
+  if(!items.length){
+    list.innerHTML='<div style="text-align:center;padding:32px 0;color:var(--muted);font-size:12px"><div style="font-size:28px;margin-bottom:8px">🔔</div>All clear — no pending alerts</div>';
+    return;
+  }
+
+  // Update badges
+  const hasUrgent=items.some(i=>i.type==='urgent'||i.type==='warn');
+  if(hasUrgent){
+    ['notifBadge','notifBadge2'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('show');});
+  }
+
+  list.innerHTML=items.map(i=>`<div class="notif-item ${i.type}"><div class="notif-item-title">${i.title}</div><div class="notif-item-body">${i.body}</div></div>`).join('');
+}
+
+async function requestNotifPermission(){
+  if(!('Notification' in window)){showToast('Not supported','Browser notifications not supported');return;}
+  const p=await Notification.requestPermission();
+  if(p==='granted'){
+    localStorage.setItem('flow_notif_enabled','1');
+    showToast('Notifications on','You\'ll get bill and SIP reminders');
+    // Send a test notification
+    new Notification('Flow',{body:'Notifications enabled! You\'ll get bill and SIP reminders.',icon:'./icon-192.png',tag:'flow-welcome'});
+    renderNotifList();
+    // Schedule background check via SW
+    sendNotifsViaServiceWorker();
+  } else {
+    showToast('Permission denied','Enable notifications in browser settings');
+  }
+}
+
+function sendNotifsViaServiceWorker(){
+  if(Notification.permission!=='granted') return;
+  const today=new Date();
+  const m=today.getMonth(),y=today.getFullYear(),mk=m+'_'+y;
+  BILLS.forEach(b=>{
+    if(b.paidMonths&&b.paidMonths.includes(mk)) return;
+    const due=new Date(y,m,b.dueDay);
+    const diff=Math.ceil((due-today)/86400000);
+    if(diff>=0&&diff<=3){
+      setTimeout(()=>{
+        try{new Notification('Flow — Bill Reminder',{
+          body:b.name+' ₹'+fmt(b.amt)+' '+(diff===0?'due today':'due in '+diff+' day'+(diff!==1?'s':'')),
+          icon:'./icon-192.png',tag:'bill-'+b.id,badge:'./icon-192.png'
+        });}catch(e){}
+      },2000);
+    }
+  });
+}
+
+function checkAndShowNotifBadge(){
+  const today=new Date(),m=today.getMonth(),y=today.getFullYear(),mk=m+'_'+y;
+  const hasAlert=BILLS.some(b=>{
+    if(b.paidMonths&&b.paidMonths.includes(mk)) return false;
+    const due=new Date(y,m,b.dueDay);
+    const diff=Math.ceil((due-today)/86400000);
+    return diff<=3&&diff>=0;
+  });
+  if(hasAlert){
+    ['notifBadge','notifBadge2'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('show');});
+  }
+  // Fire notifications if permission granted
+  if(localStorage.getItem('flow_notif_enabled')==='1'&&Notification.permission==='granted'){
+    sendNotifsViaServiceWorker();
+  }
+}
+
 // ══ DEMO MODE ═════════════════════════════════════════════
 const DEMO_KEY='flow_demo_active';
 function enterDemoMode(){
@@ -7627,6 +7977,8 @@ function quickDailyAdd(){
 // ══ INIT ═══════════════════════════════════════════════════
 function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();renderHeatmap();if(_dailyViewActive)renderDailyView();}
 applyDark();render();applyAllEyes();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();initRecapSelectors();initCurrencyUI();initNWToggle();
+// Notification badge + bottom nav bills dot on load
+setTimeout(()=>{checkAndShowNotifBadge();updateBnBillsDot();},1500);
 if(localStorage.getItem('flow_demo_active')==='1'){const db=document.getElementById('demoBanner');if(db)db.classList.add('show');}
 
 // Banners & notifications (after a brief settle)
