@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <title>Flow — Personal Finance</title>
 
 <!-- ── PWA Install & App Meta ─────────────────────────── -->
@@ -92,7 +92,7 @@ body{font-family:'IBM Plex Mono','Courier New',monospace;background:var(--bg);co
 .info-tip li{margin-bottom:4px}
 
 /* ── HEADER ───────────────────────────────────────────── */
-.hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px}
+.hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top, 0px));display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px}
 .hdr-brand h1{font-size:16px;font-weight:600;letter-spacing:-.3px;white-space:nowrap}
 .hdr-controls{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
 .hdr-controls::-webkit-scrollbar{display:none}
@@ -145,7 +145,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .track.on .knob{transform:translateX(13px)}
 
 /* ── LAYOUT ───────────────────────────────────────────── */
-.main{max-width:1080px;margin:0 auto;padding:18px 16px 40px;overflow-x:hidden}
+.main{max-width:1080px;margin:0 auto;padding:18px 16px 40px;overflow-x:hidden;scroll-padding-bottom:80px}
 
 /* ── SUMMARY CARDS ────────────────────────────────────── */
 .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
@@ -211,6 +211,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .form-field{display:flex;flex-direction:column;gap:5px}
 .form-label{font-size:9.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);font-weight:500}
 .form-field input,.form-field select{width:100%}
+.form-field input:focus,.form-field select:focus{outline:none;border-color:var(--text);box-shadow:0 0 0 2px rgba(var(--text-rgb,200,200,200),.08)}
 .bill-section-lbl{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--faint);margin:12px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--border);font-weight:500}
 .bill-list{display:flex;flex-direction:column;gap:8px}
 .bill-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--border);border-radius:var(--r);padding:12px 14px;box-shadow:var(--shadow);display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start}
@@ -554,10 +555,24 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 }
 /* ── Tour card on small screens ─────────────────────────── */
 @media(max-width:400px){
-  .tour-card{padding:14px 14px 24px}
+  .tour-card{padding:14px 14px calc(24px + env(safe-area-inset-bottom, 0px))}
   .tour-title{font-size:15px}
   .tour-desc{font-size:11.5px}
 }
+/* ── iOS safe area on main content area ─────────────────── */
+@media(max-width:640px){
+  .main{padding-bottom:calc(40px + env(safe-area-inset-bottom, 0px))}
+}
+/* ── 380px daily tracker ────────────────────────────────── */
+@media(max-width:380px){
+  #dqFormGrid{grid-template-columns:1fr !important}
+  .day-entry-cat{min-width:60px}
+  .day-entry-amt{min-width:50px}
+  .day-group-hdr{padding:8px 10px}
+  .day-entries .day-entry-row{padding:7px 10px;gap:6px}
+}
+/* ── Update banner safe area ────────────────────────────── */
+#updateBanner{padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px)) !important}
 
 
 /* ══ LOCK SCREEN ════════════════════════════════════════════ */
@@ -627,10 +642,12 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .day-entry-amt{font-weight:500;flex-shrink:0;min-width:60px;text-align:right}
 .day-entry-amt.income{color:var(--surplus)}
 .day-entry-amt.expense{color:var(--deficit)}
-/* Daily stats bar */
+/* Daily stats grid — hero card full-width + 4 mini cards */
 .daily-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.daily-stats>.daily-hero{grid-column:1/-1}
 @media(max-width:640px){
   .daily-stats{grid-template-columns:1fr 1fr}
+  .daily-stats>.daily-hero{grid-column:1/-1}
   .daily-strip{gap:3px}
   .ds-day{padding:6px 2px}
   .ds-day-label{font-size:7.5px}
@@ -638,11 +655,13 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   .ds-day-amt{font-size:8.5px}
   .day-entry-tag{display:none}
   .day-entry-desc{font-size:11px}
+  /* Quick-add form: 2 columns on mobile */
+  #dqFormGrid{grid-template-columns:1fr 1fr !important}
 }
 .tour-overlay{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.72);pointer-events:all}
 .tour-highlight{position:fixed;z-index:801;pointer-events:none;border-radius:10px;box-shadow:0 0 0 3px rgba(74,222,128,.95),0 0 0 7px rgba(74,222,128,.18),0 0 28px rgba(74,222,128,.35);transition:top .32s cubic-bezier(.4,0,.2,1),left .32s cubic-bezier(.4,0,.2,1),width .32s,height .32s;animation:tour-pulse 2s infinite}
 @keyframes tour-pulse{0%,100%{box-shadow:0 0 0 3px rgba(74,222,128,.95),0 0 0 7px rgba(74,222,128,.14),0 0 28px rgba(74,222,128,.25)}50%{box-shadow:0 0 0 3px rgba(74,222,128,1),0 0 0 12px rgba(74,222,128,.1),0 0 40px rgba(74,222,128,.4)}}
-.tour-card{position:fixed;bottom:0;left:0;right:0;z-index:802;background:var(--surface);border-top:1px solid var(--border);border-radius:14px 14px 0 0;padding:18px 20px 30px;box-shadow:0 -8px 32px rgba(0,0,0,.3);pointer-events:all}
+.tour-card{position:fixed;bottom:0;left:0;right:0;z-index:802;background:var(--surface);border-top:1px solid var(--border);border-radius:14px 14px 0 0;padding:18px 20px calc(30px + env(safe-area-inset-bottom, 0px));box-shadow:0 -8px 32px rgba(0,0,0,.3);pointer-events:all}
 .tour-card.entering{animation:tour-slide-up .28s ease}
 @keyframes tour-slide-up{from{transform:translateY(50%);opacity:0}to{transform:translateY(0);opacity:1}}
 .tour-step-bar{display:flex;align-items:center;gap:8px;margin-bottom:13px}
@@ -656,7 +675,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .tour-desc{font-size:12.5px;color:var(--muted);line-height:1.72;margin-bottom:16px}
 .tour-actions{display:flex;justify-content:space-between;align-items:center}
 /* ══ DEMO BANNER ═══════════════════════════════════════════ */
-.demo-banner{position:fixed;bottom:0;left:0;right:0;z-index:500;background:linear-gradient(90deg,#fbbf24,#f59e0b);color:#000;padding:9px 16px;display:none;align-items:center;justify-content:space-between;gap:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;box-shadow:0 -2px 12px rgba(251,191,36,.3)}
+.demo-banner{position:fixed;bottom:0;left:0;right:0;z-index:500;background:linear-gradient(90deg,#fbbf24,#f59e0b);color:#000;padding:9px 16px calc(9px + env(safe-area-inset-bottom, 0px));display:none;align-items:center;justify-content:space-between;gap:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;box-shadow:0 -2px 12px rgba(251,191,36,.3)}
 .demo-banner.show{display:flex}
 .demo-banner-left{display:flex;align-items:center;gap:8px}
 .demo-banner-badge{background:#000;color:#fbbf24;font-size:9px;padding:2px 7px;border-radius:10px;letter-spacing:.8px;text-transform:uppercase;font-weight:600}
@@ -739,7 +758,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 /* ── Quick Split Modal ──────────────────────────────────── */
 .qs-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:none;align-items:flex-end;justify-content:center;padding:0}
 .qs-modal.open{display:flex}
-.qs-sheet{background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-width:600px;padding:20px 20px 32px;max-height:92vh;overflow-y:auto;animation:qs-slide .25s cubic-bezier(.34,1.56,.64,1)}
+.qs-sheet{background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-width:600px;padding:20px 20px calc(32px + env(safe-area-inset-bottom, 0px));max-height:92vh;overflow-y:auto;animation:qs-slide .25s cubic-bezier(.34,1.56,.64,1)}
 @keyframes qs-slide{from{transform:translateY(60%);opacity:.4}to{transform:translateY(0);opacity:1}}
 .qs-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 18px}
 .qs-title{font-size:15px;font-weight:600;letter-spacing:-.2px;margin-bottom:16px}
@@ -1452,6 +1471,55 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 </div>
 
 
+<!-- ══ DAY DETAIL PANEL ══════════════════════════════════════ -->
+<div id="dayDetailModal" class="qs-modal" onclick="if(event.target===this)closeDayDetail()">
+  <div class="qs-sheet" style="max-height:75vh">
+    <div class="qs-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+      <div>
+        <div style="font-size:16px;font-weight:600;letter-spacing:-.2px" id="dayDetailDate">Saturday, 31 May</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px" id="dayDetailSub">0 expenses</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:18px;font-weight:600;color:var(--deficit)" id="dayDetailTotal">₹0</span>
+        <button class="btn-del" onclick="closeDayDetail()">&#x2715;</button>
+      </div>
+    </div>
+    <div id="dayDetailEntries" style="overflow-y:auto;max-height:55vh"></div>
+  </div>
+</div>
+
+<!-- ══ EDIT DAILY ENTRY MODAL ════════════════════════════════ -->
+<div id="editDailyModal" class="qs-modal" onclick="if(event.target===this)closeEditDailyEntry()">
+  <div class="qs-sheet" style="max-height:65vh">
+    <div class="qs-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-size:15px;font-weight:600;letter-spacing:-.2px">Edit Expense</div>
+      <button class="btn-del" onclick="closeEditDailyEntry()">&#x2715;</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div class="form-field"><span class="form-label">Category</span>
+        <input type="text" id="edqCat" placeholder="e.g. Groceries" autocomplete="off" onfocus="showCatDrop(this)" oninput="showCatDrop(this)" onkeydown="catDropKey(event)" data-t="expense" data-i="-2" data-f="cat">
+      </div>
+      <div class="form-field"><span class="form-label">Amount (&#8377;)</span>
+        <input type="number" id="edqAmt" placeholder="0">
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:10px;margin-bottom:16px">
+      <div class="form-field"><span class="form-label">Description</span>
+        <input type="text" id="edqDesc" placeholder="What was this for?">
+      </div>
+      <div class="form-field"><span class="form-label">Date</span>
+        <input type="date" id="edqDate">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-primary btn-sm" onclick="saveEditDailyEntry()" style="flex:1;justify-content:center;padding:10px">Save Changes</button>
+      <button class="btn-ghost btn-sm" onclick="closeEditDailyEntry()" style="padding:10px 16px">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ INSTALL APP MODAL ════════════════════════════════════ -->
 <!-- ── SPLIT UP MODAL ────────────────────────────────────── -->
 <div id="quickSplitModal" class="qs-modal" onclick="if(event.target===this)closeQuickSplit()">
@@ -1650,7 +1718,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 
   <!-- ── DAILY VIEW ─────────────────────────────────────── -->
   <div class="daily-view" id="dailyViewPanel">
-    <!-- Stats row -->
+    <!-- Stats row: Total Spent hero + mini cards -->
     <div class="daily-stats" id="dailyStats"></div>
     <!-- 7-day strip -->
     <div class="daily-strip" id="dailyStrip"></div>
@@ -1660,12 +1728,24 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <div class="dlb-track"><div class="dlb-fill" id="dailyLimitFill"></div></div>
       <span class="dlb-amt" id="dailyLimitAmt"></span>
     </div>
-    <!-- Quick add expense for today -->
-    <div class="daily-quickadd">
-      <input type="text" id="dqCat" placeholder="Category" autocomplete="off" onfocus="showCatDrop(this)" oninput="showCatDrop(this)" onkeydown="catDropKey(event)" data-t="expense" data-i="-1" data-f="cat" style="max-width:140px">
-      <input type="text" id="dqDesc" placeholder="Description" style="flex:1.5">
-      <input type="number" id="dqAmt" placeholder="₹ Amount" style="max-width:100px" onkeydown="if(event.key==='Enter')quickDailyAdd()">
-      <button class="btn-primary btn-sm" onclick="quickDailyAdd()">+ Add</button>
+    <!-- Quick add — independent from monthly budget -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:14px">
+      <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:10px">Add Expense</div>
+      <div style="display:grid;grid-template-columns:1.2fr 1fr 0.9fr 0.85fr;gap:8px;margin-bottom:8px" id="dqFormGrid">
+        <div class="form-field" style="margin:0"><span class="form-label">Category</span>
+          <input type="text" id="dqCat" placeholder="e.g. Chai" autocomplete="off" onfocus="showCatDrop(this)" oninput="showCatDrop(this)" onkeydown="catDropKey(event)" data-t="expense" data-i="-1" data-f="cat">
+        </div>
+        <div class="form-field" style="margin:0"><span class="form-label">Description</span>
+          <input type="text" id="dqDesc" placeholder="What was this?">
+        </div>
+        <div class="form-field" style="margin:0"><span class="form-label">Amount (&#8377;)</span>
+          <input type="number" id="dqAmt" placeholder="0" onkeydown="if(event.key==='Enter')quickDailyAdd()">
+        </div>
+        <div class="form-field" style="margin:0"><span class="form-label">Date</span>
+          <input type="date" id="dqDate">
+        </div>
+      </div>
+      <button class="btn-primary btn-sm" onclick="quickDailyAdd()" style="width:100%;justify-content:center;padding:9px">+ Add Expense</button>
     </div>
     <!-- Day groups -->
     <div id="dailyGroups"></div>
@@ -1691,6 +1771,9 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <button class="btn-add" onclick="addRow('expense')">+ Add expense entry</button>
     </div>
   </div>
+
+  <!-- ══ MONTHLY-ONLY: hidden when Daily view is active ══ -->
+  <div id="monthlyOnlySection">
   <div class="charts">
     <div class="chart-card"><div class="chart-lbl">Monthly Overview — Income vs Expense</div><div class="chart-wrap"><canvas id="barChart"></canvas></div></div>
     <div class="chart-card"><div class="chart-lbl">Expense Breakdown</div><div class="chart-wrap"><canvas id="pieChart"></canvas></div></div>
@@ -1807,6 +1890,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       </div>
     </div>
   </div>
+  </div><!-- /#monthlyOnlySection -->
 </div>
 </div>
 
@@ -2689,11 +2773,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <span class="wn-version-date">May 2026</span>
       <span class="wn-version-label wn-label-minor">Update</span>
     </div>
-    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">📅 Daily Expense Tracker</div><div class="wn-entry-desc">A brand new way to view your spending. Tap <strong>Daily</strong> in the Track tab to see entries grouped day-by-day instead of a flat list. Shows today, yesterday, and every day with entries — collapsible and sorted newest first.</div></div></div>
-    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">7-Day Spend Strip</div><div class="wn-entry-desc">A mini visual strip at the top of Daily view shows the last 7 days with spend amounts and proportional bars. Zero-spend days get a ✦ badge. Tap any day to jump straight to it.</div></div></div>
-    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Daily Spend Limit</div><div class="wn-entry-desc">Set an optional daily cap (e.g. ₹2,000). A progress bar shows how much of today's limit is used — green under 80%, amber approaching, red when over. Shows exactly how much you have left today.</div></div></div>
-    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Quick Add for Today</div><div class="wn-entry-desc">Add an expense directly from Daily view in 2 taps — Category, Amount, done. Logs to today's date instantly and updates the monthly budget, summary cards, and charts automatically.</div></div></div>
-    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Daily Stats — Zero-Spend Streaks &amp; Averages</div><div class="wn-entry-desc">Four stat cards: Active Days, Zero-Spend Days (days with no expenses), Average Daily Spend, and Highest Spend Day. All calculated from your existing entries — no extra input needed.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">📅 Daily Expense Tracker</div><div class="wn-entry-desc">Tap <strong>Daily</strong> in the Track tab — an independent tracker separate from the monthly budget. Log miscellaneous expenses with category, date &amp; description. 7-day strip, Total Spent card, daily limit bar, zero-spend day tracking, and tap any day to see its expenses. Not linked to monthly.</div></div></div>
   </div>
 
   <div class="wn-version-block">
@@ -2874,6 +2954,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 <script>
 // ══ STATE ══════════════════════════════════════════════════
 let DB    = JSON.parse(localStorage.getItem('flow_v3')||'{}');
+let DAILY_EXPENSES = JSON.parse(localStorage.getItem('flow_daily')||'[]');
 let LOANS = JSON.parse(localStorage.getItem('flow_loans')||'[]');
 let SPLITS= JSON.parse(localStorage.getItem('flow_splits')||'[]');
 let TEMPLATES=JSON.parse(localStorage.getItem('flow_templates')||'[]');
@@ -2919,6 +3000,7 @@ function toggleForm(id){const e=document.getElementById(id);if(!e)return;e.style
 
 function mdata(){const k=key();if(!DB[k])DB[k]={income:[],expense:[]};return DB[k]}
 function save(){localStorage.setItem('flow_v3',JSON.stringify(DB))}
+function saveDaily(){localStorage.setItem('flow_daily',JSON.stringify(DAILY_EXPENSES))}
 function saveBills(){localStorage.setItem('flow_bills',JSON.stringify(BILLS))}
 function saveInvest(){localStorage.setItem('flow_invest',JSON.stringify(INVEST))}
 function saveLoans(){localStorage.setItem('flow_loans',JSON.stringify(LOANS))}
@@ -7287,50 +7369,73 @@ function switchTrackView(mode){
   dv.classList.toggle('show',_dailyViewActive);
   const dlr=document.getElementById('dailyLimitRow');
   if(dlr)dlr.style.display=_dailyViewActive?'flex':'none';
+  // Hide charts / heatmap / budget / templates / annual in Daily view
+  const mos=document.getElementById('monthlyOnlySection');
+  if(mos)mos.style.display=_dailyViewActive?'none':'';
   if(_dailyViewActive){
     const inp=document.getElementById('dailyLimitInp');
     const lim=getDailyLimit();if(inp&&lim>0)inp.value=lim;
+    const dq=document.getElementById('dqDate');
+    if(dq&&!dq.value)dq.value=new Date().toISOString().split('T')[0];
     renderDailyView();
   }
 }
 
 function renderDailyView(){
   const m=parseInt(selM()),y=parseInt(selY());
-  const d=DB[m+'_'+y]||{income:[],expense:[]};
-  const allInc=d.income||[],allExp=d.expense||[];
   const dailyLimit=getDailyLimit();
   const today=new Date();
   const isCurrentMonth=(m===today.getMonth()&&y===today.getFullYear());
 
-  // ── Build date → entries map ────────────────────────────
-  const dayMap={};
-  [...allInc.map(e=>({...e,_type:'income'})),...allExp.map(e=>({...e,_type:'expense'}))]
-    .forEach(e=>{
-      const day=e.date?e.date.slice(0,10):'';
-      if(!day)return;
-      if(!dayMap[day])dayMap[day]={income:[],expense:[],total:0};
-      dayMap[day][e._type].push(e);
-      if(e._type==='expense')dayMap[day].total+=(parseFloat(e.amt)||0);
-    });
+  // ── Filter DAILY_EXPENSES for selected month ─────────────
+  const monthEntries=DAILY_EXPENSES.filter(e=>{
+    if(!e.date)return false;
+    const d=new Date(e.date+'T00:00:00');
+    return d.getMonth()===m&&d.getFullYear()===y;
+  });
 
-  // ── Stats row ───────────────────────────────────────────
+  // ── Build date → entries map ─────────────────────────────
+  const dayMap={};
+  monthEntries.forEach(e=>{
+    const day=e.date.slice(0,10);
+    if(!dayMap[day])dayMap[day]={entries:[],total:0};
+    dayMap[day].entries.push(e);
+    dayMap[day].total+=(parseFloat(e.amt)||0);
+  });
+
+  // ── Derived stats ────────────────────────────────────────
   const activeDays=Object.keys(dayMap).length;
-  const zeroDays=isCurrentMonth?today.getDate()-activeDays:
-    (new Date(y,m+1,0).getDate()-activeDays);
-  const totalExp=allExp.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+  const daysElapsed=isCurrentMonth?today.getDate():new Date(y,m+1,0).getDate();
+  const zeroDays=Math.max(0,daysElapsed-activeDays);
+  const totalExp=monthEntries.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
   const avgDay=activeDays>0?totalExp/activeDays:0;
   const maxDay=Object.values(dayMap).reduce((mx,d)=>Math.max(mx,d.total),0);
-  const bestDay=Object.entries(dayMap).sort((a,b)=>a[1].total-b[1].total)[0];
+  const highestEntry=Object.entries(dayMap).sort((a,b)=>b[1].total-a[1].total)[0];
 
+  // ── Stats — hero Total Spent + 4 mini cards ──────────────
   const statsEl=document.getElementById('dailyStats');
-  if(statsEl)statsEl.innerHTML=[
-    {lbl:'Active Days',val:activeDays,sub:'days with entries'},
-    {lbl:'Zero-Spend Days',val:zeroDays+'  ✦',sub:'days with no expense',clr:'var(--surplus)'},
-    {lbl:'Avg Daily Spend',val:fmt(Math.round(avgDay)),sub:'per active day'},
-    {lbl:'Highest Day',val:fmt(Math.round(maxDay)),sub:bestDay?'on '+new Date(bestDay[0]).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):''},
-  ].map(s=>`<div class="card"><div class="card-lbl">${s.lbl}</div><div class="card-val" style="font-size:16px${s.clr?';color:'+s.clr:''}">${s.val}</div><div style="font-size:9.5px;color:var(--faint);margin-top:2px">${s.sub}</div></div>`).join('');
+  if(statsEl)statsEl.innerHTML=
+    `<div class="card daily-hero" style="background:var(--text);color:var(--bg);border-color:var(--text)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:1.1px;font-weight:500;opacity:.6;margin-bottom:5px">Total Spent — ${MONTHS[m]||''} ${y}</div>
+          <div style="font-size:28px;font-weight:600;letter-spacing:-.5px">${fmt(totalExp)}</div>
+          <div style="font-size:10px;opacity:.55;margin-top:3px">${monthEntries.length} expense${monthEntries.length!==1?'s':''} · ${activeDays} active day${activeDays!==1?'s':''}</div>
+        </div>
+        <div style="text-align:right;opacity:.65">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px">Daily Avg</div>
+          <div style="font-size:17px;font-weight:500">${fmt(Math.round(avgDay))}</div>
+        </div>
+      </div>
+    </div>`+
+    [
+      {lbl:'Zero-Spend Days',val:zeroDays+' ✦',sub:'clean days this period',clr:'var(--surplus)'},
+      {lbl:'Avg Daily',val:fmt(Math.round(avgDay)),sub:'per active day'},
+      {lbl:'Highest Day',val:fmt(Math.round(maxDay)),sub:highestEntry?new Date(highestEntry[0]+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'—'},
+      {lbl:'Total Entries',val:monthEntries.length,sub:'this period'},
+    ].map(s=>`<div class="card"><div class="card-lbl">${s.lbl}</div><div class="card-val" style="font-size:15px${s.clr?';color:'+s.clr:''}">${s.val}</div><div style="font-size:9.5px;color:var(--faint);margin-top:2px">${s.sub}</div></div>`).join('');
 
-  // ── 7-day strip (last 7 days if current month, else last 7 of month) ──
+  // ── 7-day strip ──────────────────────────────────────────
   const stripEl=document.getElementById('dailyStrip');
   if(stripEl){
     const refDate=isCurrentMonth?new Date():new Date(y,m+1,0);
@@ -7346,7 +7451,7 @@ function renderDailyView(){
       const isToday=isCurrentMonth&&day.toDateString()===today.toDateString();
       const isZero=!dm&&day<=(isCurrentMonth?today:new Date(y,m+1,0));
       const barPct=maxDay>0?Math.round((amt/maxDay)*100):0;
-      return `<div class="ds-day${isToday?' today':''}${isZero?' zero':''}" onclick="scrollToDay('${key}')">
+      return`<div class="ds-day${isToday?' today':''}${isZero?' zero':''}" onclick="openDayDetail('${key}')" style="cursor:pointer">
         <span class="ds-day-label">${DAYS_OF_WEEK[day.getDay()]}</span>
         <span class="ds-day-date">${day.getDate()}</span>
         <span class="ds-day-amt">${amt>0?fmt(Math.round(amt)):(isZero?'<span class="ds-day-zero">✦</span>':'—')}</span>
@@ -7355,7 +7460,7 @@ function renderDailyView(){
     }).join('');
   }
 
-  // ── Today limit bar ─────────────────────────────────────
+  // ── Today limit bar ──────────────────────────────────────
   const limWrap=document.getElementById('dailyLimitBarWrap');
   if(limWrap){
     if(dailyLimit>0&&isCurrentMonth){
@@ -7364,22 +7469,22 @@ function renderDailyView(){
       const todaySpend=(dayMap[todayKey]||{total:0}).total;
       const pct=Math.min(Math.round((todaySpend/dailyLimit)*100),100);
       const fill=document.getElementById('dailyLimitFill');
-      const amt=document.getElementById('dailyLimitAmt');
+      const amtEl=document.getElementById('dailyLimitAmt');
       if(fill){fill.style.width=pct+'%';fill.className='dlb-fill'+(todaySpend>dailyLimit?' over':todaySpend>dailyLimit*0.8?' warn':'');}
-      if(amt){
+      if(amtEl){
         const left=dailyLimit-todaySpend;
-        amt.style.color=left<0?'var(--deficit)':left<dailyLimit*0.2?'var(--amber)':'var(--surplus)';
-        amt.textContent=left>=0?fmt(Math.round(left))+' left':fmt(Math.round(-left))+' over';
+        amtEl.style.color=left<0?'var(--deficit)':left<dailyLimit*0.2?'var(--amber)':'var(--surplus)';
+        amtEl.textContent=left>=0?fmt(Math.round(left))+' left':fmt(Math.round(-left))+' over';
       }
     } else limWrap.style.display='none';
   }
 
-  // ── Day groups — sorted newest first ──────────────────────
+  // ── Day groups — newest first ────────────────────────────
   const groupsEl=document.getElementById('dailyGroups');
   if(!groupsEl)return;
   const sortedDays=Object.keys(dayMap).sort((a,b)=>b.localeCompare(a));
   if(!sortedDays.length){
-    groupsEl.innerHTML='<div class="empty-msg">No entries for this month yet. Add your first entry above.</div>';
+    groupsEl.innerHTML='<div class="empty-msg" style="text-align:center;padding:32px 0"><div style="font-size:28px;margin-bottom:8px">📋</div><div style="font-size:13px;color:var(--muted)">Nothing logged yet</div><div style="font-size:11px;color:var(--faint);margin-top:4px">Use the form above to record your daily expenses.<br>This tracker is independent — it won\'t affect your monthly budget.</div></div>';
     return;
   }
   groupsEl.innerHTML=sortedDays.map(dateKey=>{
@@ -7391,8 +7496,7 @@ function renderDailyView(){
     const weekday=FULL_DAYS[d2.getDay()];
     const dayTotal=dm.total;
     const isOver=dailyLimit>0&&dayTotal>dailyLimit;
-    const allEntries=[...dm.income.map(e=>({...e,_type:'income'})),...dm.expense.map(e=>({...e,_type:'expense'}))];
-    return `<div class="day-group" id="dg_${dateKey}">
+    return`<div class="day-group" id="dg_${dateKey}">
       <div class="day-group-hdr" onclick="toggleDayGroup('${dateKey}')">
         <div class="day-group-hdr-left">
           <span class="day-group-date">${dateLabel}</span>
@@ -7402,12 +7506,13 @@ function renderDailyView(){
         <span class="day-group-total${isOver?' day-group-over':''}">${fmt(dayTotal)}${isOver?' ↑':''}</span>
       </div>
       <div class="day-entries" id="de_${dateKey}">
-        ${allEntries.map(e=>`<div class="day-entry-row">
-          <div class="day-entry-dot ${e._type}"></div>
+        ${dm.entries.map(e=>`<div class="day-entry-row">
+          <div class="day-entry-dot expense"></div>
           <span class="day-entry-cat">${esc(e.cat||'—')}</span>
           <span class="day-entry-desc">${esc(e.desc||'')}</span>
-          ${e.tag?`<span class="day-entry-tag">#${esc(e.tag)}</span>`:''}
-          <span class="day-entry-amt ${e._type}">${e._type==='income'?'+':''}${fmt(parseFloat(e.amt)||0)}</span>
+          <span class="day-entry-amt expense">${fmt(parseFloat(e.amt)||0)}</span>
+          <button class="btn-ghost btn-sm" onclick="openEditDailyEntry('${e.id}')" title="Edit" style="padding:3px 7px;font-size:10px;flex-shrink:0">&#x270F;&#xFE0F;</button>
+          <button class="btn-del" onclick="deleteDailyEntry('${e.id}')" title="Delete" style="margin-left:2px;flex-shrink:0">&#x2715;</button>
         </div>`).join('')}
       </div>
     </div>`;
@@ -7418,23 +7523,105 @@ function toggleDayGroup(dateKey){
   const el=document.getElementById('de_'+dateKey);
   if(el)el.style.display=el.style.display==='none'?'':'none';
 }
-function scrollToDay(dateKey){
-  const el=document.getElementById('dg_'+dateKey);
-  if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});
+
+// ── Day Detail Panel — tap date strip card to see expenses ─
+function openDayDetail(dateKey){
+  const d2=new Date(dateKey+'T00:00:00');
+  const today=new Date();
+  const isToday=d2.toDateString()===today.toDateString();
+  const isYest=d2.toDateString()===new Date(today.getTime()-86400000).toDateString();
+  const dateLabel=isToday?'Today':isYest?'Yesterday':d2.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  const entries=DAILY_EXPENSES.filter(e=>e.date&&e.date.slice(0,10)===dateKey);
+  const total=entries.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+
+  document.getElementById('dayDetailDate').textContent=dateLabel;
+  document.getElementById('dayDetailSub').textContent=entries.length+' expense'+(entries.length!==1?'s':'');
+  document.getElementById('dayDetailTotal').textContent=fmt(total);
+
+  const entriesEl=document.getElementById('dayDetailEntries');
+  if(!entries.length){
+    entriesEl.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--muted);font-size:12px">No expenses recorded for this day.</div>';
+  } else {
+    entriesEl.innerHTML=entries.map(e=>`<div class="day-entry-row" style="padding:10px 0">
+      <div class="day-entry-dot expense"></div>
+      <span class="day-entry-cat" style="min-width:90px">${esc(e.cat||'—')}</span>
+      <span class="day-entry-desc">${esc(e.desc||'')}</span>
+      <span class="day-entry-amt expense" style="min-width:70px;text-align:right">${fmt(parseFloat(e.amt)||0)}</span>
+      <button class="btn-ghost btn-sm" onclick="openEditFromDetail('${e.id}')" title="Edit" style="padding:3px 7px;font-size:10px;flex-shrink:0">&#x270F;&#xFE0F;</button>
+      <button class="btn-del" onclick="deleteDailyEntryFromDetail('${e.id}','${dateKey}')" title="Delete" style="margin-left:2px;flex-shrink:0">&#x2715;</button>
+    </div>`).join('');
+  }
+  const modal=document.getElementById('dayDetailModal');
+  if(modal)modal.classList.add('open');
 }
+function closeDayDetail(){
+  const modal=document.getElementById('dayDetailModal');
+  if(modal)modal.classList.remove('open');
+}
+function openEditFromDetail(id){
+  closeDayDetail();
+  setTimeout(()=>openEditDailyEntry(id),200);
+}
+function deleteDailyEntryFromDetail(id,dateKey){
+  DAILY_EXPENSES=DAILY_EXPENSES.filter(e=>e.id!==id);
+  saveDaily();
+  // Refresh day detail
+  const entries=DAILY_EXPENSES.filter(e=>e.date&&e.date.slice(0,10)===dateKey);
+  if(!entries.length){closeDayDetail();}else{openDayDetail(dateKey);}
+  renderDailyView();
+}
+
+function deleteDailyEntry(id){
+  DAILY_EXPENSES=DAILY_EXPENSES.filter(e=>e.id!==id);
+  saveDaily();renderDailyView();
+}
+
+// ── Edit Daily Entry ─────────────────────────────────────
+let _editingDailyId=null;
+function openEditDailyEntry(id){
+  const e=DAILY_EXPENSES.find(x=>x.id===id);
+  if(!e)return;
+  _editingDailyId=id;
+  document.getElementById('edqCat').value=e.cat||'';
+  document.getElementById('edqAmt').value=e.amt||'';
+  document.getElementById('edqDesc').value=e.desc||'';
+  document.getElementById('edqDate').value=e.date||new Date().toISOString().split('T')[0];
+  const modal=document.getElementById('editDailyModal');
+  if(modal)modal.classList.add('open');
+}
+function closeEditDailyEntry(){
+  _editingDailyId=null;
+  const modal=document.getElementById('editDailyModal');
+  if(modal)modal.classList.remove('open');
+}
+function saveEditDailyEntry(){
+  if(!_editingDailyId)return;
+  const e=DAILY_EXPENSES.find(x=>x.id===_editingDailyId);
+  if(!e){closeEditDailyEntry();return;}
+  const cat=(document.getElementById('edqCat').value||'').trim();
+  const amt=parseFloat(document.getElementById('edqAmt').value)||0;
+  const desc=(document.getElementById('edqDesc').value||'').trim();
+  const date=document.getElementById('edqDate').value||e.date;
+  if(!cat||!amt){showToast('Category and amount required','');return;}
+  e.cat=cat;e.amt=String(amt);e.desc=desc;e.date=date;
+  saveDaily();closeEditDailyEntry();renderDailyView();
+  showToast('Entry updated','Changes saved');
+}
+
+// ── Quick Add — writes to DAILY_EXPENSES only ────────────
 function quickDailyAdd(){
   const cat=(document.getElementById('dqCat').value||'').trim();
   const desc=(document.getElementById('dqDesc').value||'').trim();
   const amt=parseFloat(document.getElementById('dqAmt').value)||0;
-  if(!cat||!amt){showToast('Fill category and amount','Required fields for quick add');return;}
-  const m=parseInt(selM()),y=parseInt(selY());
-  if(!DB[m+'_'+y])DB[m+'_'+y]={income:[],expense:[]};
-  const today=new Date().toISOString().split('T')[0];
-  DB[m+'_'+y].expense.push({id:uid(),type:'expense',cat,desc,amt:String(amt),tag:'',date:today});
-  save();render();renderDailyView();
-  // Clear inputs
+  const dateVal=document.getElementById('dqDate').value||new Date().toISOString().split('T')[0];
+  if(!cat||!amt){showToast('Category and amount required','');return;}
+  DAILY_EXPENSES.push({id:uid(),cat,desc,amt:String(amt),note:'',date:dateVal,created:Date.now()});
+  saveDaily();renderDailyView();
   ['dqCat','dqDesc','dqAmt'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  showToast('Added ₹'+fmt(amt),'Logged to today — '+cat);
+  const dq=document.getElementById('dqDate');
+  if(dq)dq.value=new Date().toISOString().split('T')[0]; // reset to today
+  showToast('₹'+fmt(amt)+' logged',cat+(desc?' — '+desc:''));
 }
 
 // ══ INIT ═══════════════════════════════════════════════════
