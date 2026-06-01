@@ -57,12 +57,12 @@ html.dark-transitioning *,
 html.dark-transitioning *::before,
 html.dark-transitioning *::after{
   transition:
-    background-color .35s ease,
-    border-color .32s ease,
-    color .32s ease,
-    box-shadow .35s ease,
-    fill .32s ease,
-    stroke .32s ease !important;
+    background-color .2s ease,
+    border-color .18s ease,
+    color .18s ease,
+    box-shadow .2s ease,
+    fill .18s ease,
+    stroke .18s ease !important;
 }
 body{font-family:'IBM Plex Mono','Courier New',monospace;background:var(--bg);color:var(--text);font-size:13px;line-height:1.55;overflow-x:hidden;-webkit-overflow-scrolling:touch}
 
@@ -1412,7 +1412,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         </div>
         <div class="hs-feat">
           <div class="hs-num">04</div>
-          <div><div class="hs-ft">SIP Calculator</div><div class="hs-fd">Regular &amp; Step-Up SIP projections with compounded returns and wealth ratio.</div></div>
+          <div><div class="hs-ft">Planner</div><div class="hs-fd">Financial calendar, emergency fund, debt payoff, FlowSnap monthly recap, reports and notes — all in one tab.</div></div>
         </div>
       </div>
       <button class="hs-cta" onclick="enterApp()">Enter Flow &rarr;</button>
@@ -3214,11 +3214,11 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="settings-section-hdr">About</div>
     <div class="settings-row">
       <div class="settings-row-left"><div class="settings-row-label">App Version</div></div>
-      <div class="settings-row-right" style="font-size:12px;color:var(--muted)">Flow v2.3</div>
+      <div class="settings-row-right" style="font-size:12px;color:var(--muted)">Flow v2.4</div>
     </div>
     <div class="settings-row">
       <div class="settings-row-left"><div class="settings-row-label">What's New</div><div class="settings-row-desc">See latest features and changes</div></div>
-      <div class="settings-row-right"><button class="btn-ghost btn-sm" onclick="switchTab('new',document.querySelector('.tab-btn[onclick*=\"new\"]'))" style="font-size:11px">View →</button></div>
+      <div class="settings-row-right"><button class="btn-ghost btn-sm" onclick="switchTab('new',null)" style="font-size:11px">View &rarr;</button></div>
     </div><div class="settings-row">
       <div class="settings-row-left"><div class="settings-row-label">Privacy</div><div class="settings-row-desc">All data stays on this device — nothing sent to any server</div></div>
       <div class="settings-row-right"><span style="font-size:11px;color:var(--surplus)">🔒 Local only</span></div>
@@ -3391,13 +3391,11 @@ function applyDark(){
 }
 function toggleDark(){
   dark=!dark;
-  // Add class first — double rAF ensures browser paints ONE frame with the
-  // transition rule active before data-theme flips, so elements can interpolate
   document.documentElement.classList.add('dark-transitioning');
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  requestAnimationFrame(()=>{
     applyDark();
-    setTimeout(()=>document.documentElement.classList.remove('dark-transitioning'),420);
-  }));
+    setTimeout(()=>document.documentElement.classList.remove('dark-transitioning'),230);
+  });
 }
 
 // ══ INIT SELECTORS ═════════════════════════════════════════
@@ -6804,6 +6802,20 @@ function applyAllEyes(){
   _applyEyeBtn('eyePortfolio', _hidePort);
 }
 
+// ── Settings hide-all toggle (single master switch) ───────
+function toggleAllEyes(){
+  const current=localStorage.getItem('flow_eye_all')==='1';
+  const next=!current;
+  localStorage.setItem('flow_eye_all',next?'1':'0');
+  // Apply to all three sections together
+  _hideTrack=next;  localStorage.setItem('flow_hide_t',next?'1':'0');
+  _hideBills=next;  localStorage.setItem('flow_hide_b',next?'1':'0');
+  _hidePort=next;   localStorage.setItem('flow_hide_p',next?'1':'0');
+  applyAllEyes();
+  updateSummary();
+  updateInvestSummary();
+}
+
 function toggleHideTrack(){
   _hideTrack=!_hideTrack;
   localStorage.setItem('flow_hide_t',_hideTrack?'1':'0');
@@ -7811,10 +7823,10 @@ function setThemeMode(mode,btn){
   else if(mode==='light') dark=false;
   else dark=!!(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches);
   document.documentElement.classList.add('dark-transitioning');
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  requestAnimationFrame(()=>{
     applyDark();
-    setTimeout(()=>document.documentElement.classList.remove('dark-transitioning'),420);
-  }));
+    setTimeout(()=>document.documentElement.classList.remove('dark-transitioning'),230);
+  });
 }
 function updateSettEyeTrack(){
   const eyeOff=localStorage.getItem('flow_eye_all')==='1';
@@ -8251,12 +8263,22 @@ setTimeout(loadAllSchemes, 2000);
       .then(function(reg){
         console.log('[Flow] SW registered, scope:', reg.scope);
 
-        // Detect new version available
+        // ① If there's already a WAITING SW (user came back after an update
+        //    was downloaded on a previous visit) — show banner immediately
+        if(reg.waiting){
+          var banner = document.getElementById('updateBanner');
+          if(banner) banner.style.display = 'flex';
+        }
+
+        // ② Force the browser to CHECK sw.js for changes right now
+        //    (without this, Chrome waits up to 24h between checks)
+        reg.update();
+
+        // ③ Catch NEW installs that complete during this page visit
         reg.addEventListener('updatefound', function(){
           var newSW = reg.installing;
           newSW.addEventListener('statechange', function(){
             if(newSW.state === 'installed' && navigator.serviceWorker.controller){
-              // New version ready — prompt user
               var banner = document.getElementById('updateBanner');
               if(banner) banner.style.display = 'flex';
             }
