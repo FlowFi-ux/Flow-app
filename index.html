@@ -138,6 +138,9 @@ body{font-family:'IBM Plex Mono','Courier New',monospace;background:var(--bg);co
 
 /* ══ NOTIFICATION BELL ══════════════════════════════════════ */
 .notif-btn{position:relative;background:none;border:none;cursor:pointer;padding:4px;color:var(--muted);transition:color .18s;-webkit-tap-highlight-color:transparent;border-radius:6px}
+/* Desktop-only elements — shown ≥769px, hidden on mobile */
+.desktop-only{display:flex}
+@media(max-width:768px){.desktop-only{display:none!important}}
 .notif-btn:hover{color:var(--text)}
 .notif-btn svg{width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;display:block}
 .notif-badge{position:absolute;top:1px;right:1px;width:7px;height:7px;border-radius:50%;background:var(--deficit);border:1.5px solid var(--surface);display:none}
@@ -1680,22 +1683,27 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M8 1H3a1 1 0 00-1 1v7M9 3H5a1 1 0 00-1 1v6a1 1 0 001 1h4a1 1 0 001-1V4a1 1 0 00-1-1z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       <span class="btn-copy-lbl">Copy</span>
     </button>
-    <button class="btn-ghost" onclick="document.getElementById('importModal').style.display='flex'" title="Import CSV" style="padding:5px 9px;display:flex;align-items:center;gap:4px;font-size:11px"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 8V1M3 5.5l3 3 3-3M1 9.5v1a.5.5 0 00.5.5h9a.5.5 0 00.5-.5v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>Import</button>
     <button class="btn-ghost" onclick="openGlobalSearch()" title="Search" style="padding:5px 9px;display:flex;align-items:center;gap:4px;font-size:11px"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4" stroke="currentColor" stroke-width="1.3"/><path d="M9.5 9.5L12 12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Search</button>
     <div class="sep"></div>
-    <button class="btn-csv" onclick="exportCSV()"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 9.5h8M6 1v7M3 5.5l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>CSV</button>
-    <button class="btn-ghost" onclick="shareRecapCard()" title="Share recap card" style="padding:5px 9px;display:flex;align-items:center;gap:4px;font-size:11px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>Card</button>
     <button class="btn-pdf" id="pdfBtn" onclick="exportPDF()"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5.5l3 3 3-3M1 9.5v1a.5.5 0 00.5.5h9a.5.5 0 00.5-.5v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>PDF</button>
+    <button class="btn-csv" onclick="exportCSV()"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 9.5h8M6 1v7M3 5.5l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>CSV</button>
+    <button class="btn-ghost" onclick="shareRecapCard()" title="Share Flow Card" style="padding:5px 9px;display:flex;align-items:center;gap:4px;font-size:11px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>Flow Card</button>
     <div class="sep"></div>
     <button class="notif-btn" id="notifBell" onclick="openNotifPanel()" title="Notifications">
       <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
       <div class="notif-badge" id="notifBadge"></div>
+    </button>
+    <button class="notif-btn desktop-only" onclick="switchTab('settings',null)" title="Settings" id="desktopSettingsBtn">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
   </div>
   <div class="hdr-controls" id="otherControls" style="display:none">
     <button class="notif-btn" onclick="openNotifPanel()" title="Notifications">
       <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
       <div class="notif-badge" id="notifBadge2"></div>
+    </button>
+    <button class="notif-btn desktop-only" onclick="switchTab('settings',null)" title="Settings">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
   </div>
 </header>
@@ -1715,7 +1723,6 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   <button class="tab-btn" onclick="switchTab('bills',this)">Bills</button>
   <button class="tab-btn" onclick="switchTab('invest',this)">Portfolio</button>
   <button class="tab-btn" onclick="switchTab('tools',this)">Planner</button>
-  <button class="tab-btn" onclick="switchTab('settings',this)">⚙ Settings</button>
 </nav>
 
 <!-- ══ BOTTOM NAV (mobile) ══════════════════════════════════ -->
@@ -2718,7 +2725,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <button class="sub-tab" id="recapSubTabBtn" onclick="switchToolsTab('recap',this)">&#x2736; FlowSnap</button>
     <button class="sub-tab" id="wrappedSubTabBtn" onclick="switchToolsTab('wrapped',this)" style="display:none">&#x1F381; Annual Wrapped</button>
     <button class="sub-tab" onclick="switchToolsTab('reports',this)">Reports</button>
-    <button class="sub-tab" onclick="switchToolsTab('notes',this)">&#x1F4DD; Notes</button>
+    <button class="sub-tab" onclick="switchToolsTab('notes',this)">Notes</button>
   </div>
   <!-- FINANCIAL CALENDAR -->
   <div id="tsub-calendar" class="sub-pane active">
@@ -3182,6 +3189,10 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   <div class="settings-section">
     <div class="settings-section-hdr">Data &amp; Backup</div>
     <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Import CSV</div><div class="settings-row-desc">Import entries from a CSV file into the ledger</div></div>
+      <div class="settings-row-right"><button class="btn-ghost btn-sm" onclick="document.getElementById('importModal').style.display='flex'" style="font-size:11px">&#x2B06; Import</button></div>
+    </div>
+    <div class="settings-row">
       <div class="settings-row-left"><div class="settings-row-label">Backup Now</div><div class="settings-row-desc" id="settBackupDesc">Export all your data as a JSON file</div></div>
       <div class="settings-row-right"><button class="btn-primary btn-sm" onclick="backupData()" style="font-size:11px">&#x2B07; Backup</button></div>
     </div>
@@ -3239,9 +3250,6 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 <footer class="footer">
   <div class="footer-inner">
     <span>Flow &nbsp;·&nbsp; <span id="fDate"></span></span>
-    <button class="btn-ghost" onclick="backupData()" style="font-size:10px;padding:4px 12px">&#x2B07; Backup</button>
-    <label class="btn-ghost" style="font-size:10px;padding:4px 12px;cursor:pointer">&#x2B06; Restore<input type="file" accept=".json" style="display:none" onchange="restoreData(this)"></label>
-    <button class="btn-clear-all" onclick="clearAllData()">Clear All Data</button>
   </div>
 </footer>
 
@@ -5019,7 +5027,14 @@ function renderTemplates(){
 function backupData(){
   const data={v:'flow_backup_v1',timestamp:new Date().toISOString(),db:DB,bills:BILLS,invest:INVEST,loans:LOANS,splits:SPLITS,templates:TEMPLATES,emfund:EMFUND,subs:SUBS,notes:NOTES,nwHistory:NW_HISTORY,budgets:BUDGETS,dark};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Flow_Backup_${new Date().toISOString().split('T')[0]}.json`;a.click();
+  const fname=`Flow_Backup_${new Date().toISOString().split('T')[0]}.json`;
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;a.click();
+  // Record backup time and refresh all backup status labels immediately
+  localStorage.setItem('flow_last_backup',String(Date.now()));
+  const bd=document.getElementById('settBackupDesc');
+  if(bd){bd.textContent='Last backup: today';bd.style.color='var(--faint)';}
+  updateBackupStatus();
+  showToast('✓ Backup saved',fname+' downloaded to your device');
 }
 function restoreData(input){
   const file=input.files[0];if(!file)return;
@@ -5236,12 +5251,12 @@ document.addEventListener('keydown', function(e){
 const TOUR_STEPS=[
   // 1 — NAVIGATION
   {tab:'track',target:'.tab-bar',chip:'Navigation',
-   title:'5 Tabs — Everything in one place',
-   desc:'Flow has 5 tabs: Track, Bills, Portfolio, Planner and Settings. On mobile they appear as a bottom nav bar. Tap Next to explore each one live.'},
+   title:'4 Tabs + Settings — Everything in one place',
+   desc:'Flow has 4 main tabs: Track, Bills, Portfolio, Planner. On desktop, tap the ⚙ gear icon in the top-right corner to open Settings. On mobile, use the bottom nav bar — 5 icons including the gear.'},
   // 2 — TRACK: month controls
   {tab:'track',target:'#trackControls',chip:'Track',
    title:'Month Selector & Exports',
-   desc:'Switch month and year from the top bar. Export as PDF, CSV, or a shareable recap card. Use Search to find any entry across all months.'},
+   desc:'Switch month and year from the top bar. Export as PDF, CSV, or share a Flow Card. Use Search to find any entry. Import CSV has moved to Settings → Data & Backup.'},
   // 3 — TRACK: summary cards
   {tab:'track',target:'.summary',chip:'Track',
    title:'Live Summary — Income · Expenses · Net',
@@ -5249,7 +5264,7 @@ const TOUR_STEPS=[
   // 4 — TRACK: daily view
   {tab:'track',target:'.view-toggle',chip:'Track',
    title:'Monthly or Daily Tracker',
-   desc:'Switch between the full monthly ledger and the Daily Expense Tracker. Daily is independent — small daily purchases tracked separately, never mixed with monthly budget.'},
+   desc:'Switch between the full monthly ledger and the Daily Expense Tracker. Daily is independent — small purchases tracked separately, never mixed with monthly budget.'},
   // 5 — TRACK: ledger
   {tab:'track',target:'.ledger',chip:'Track',scroll:true,
    title:'Your Ledger — Add Entries',
@@ -5265,7 +5280,7 @@ const TOUR_STEPS=[
   // 8 — BILLS: split
   {tab:'bills',subtab:'split',target:'#bsub-split .sec-hdr',chip:'Bill Split',
    title:'⚡ Split Up — Notify via WhatsApp',
-   desc:'Split any shared expense instantly. Enter total → auto-divides equally → notify each person via WhatsApp or SMS. Track who settled; nudge after 3 days.'},
+   desc:'Split any shared expense instantly. Enter total → auto-divides equally → notify each person via WhatsApp or SMS. Track who settled and nudge after 3 days.'},
   // 9 — PORTFOLIO: tab
   {tab:'invest',target:'.tab-btn:nth-child(3)',chip:'Portfolio',
    title:'Portfolio — All Your Investments',
@@ -5282,19 +5297,15 @@ const TOUR_STEPS=[
   {tab:'tools',target:'#recapSubTabBtn',chip:'FlowSnap',
    title:'✦ FlowSnap — Monthly Recap (25th–end)',
    desc:'Available 25th to last day of every month. Shows savings grade A–F, income vs expenses, top spend categories and a narrative. Export as PDF.'},
-  // 13 — PLANNER: calendar
-  {tab:'tools',target:'#tsub-calendar',chip:'Calendar',
-   title:'Financial Calendar',
-   desc:'Every bill due date and SIP day on one calendar. Green = paid, amber = due soon, red = overdue. Never miss a payment.'},
-  // 14 — PLANNER: notes
+  // 13 — PLANNER: notes
   {tab:'tools',subtab:'notes',target:'#tsub-notes',chip:'Notes',
-   title:'📝 Notes — Inside Planner',
+   title:'Notes — Inside Planner',
    desc:'Write financial goals, reminders or anything. Pin important notes to the top. Find under Planner → Notes sub-tab.'},
-  // 15 — SETTINGS
+  // 14 — SETTINGS
   {tab:'settings',target:'#tab-settings .settings-page',chip:'Settings',
    title:'⚙ Settings — Your Control Centre',
-   desc:'Set currency, theme (Light/Auto/Dark), display name and financial year. Configure PIN lock, notifications, backup reminders and Track view preferences — all here.'},
-  // 16 — FINAL
+   desc:'On desktop tap the ⚙ icon (top-right, next to the bell). Profile, theme, PIN lock, backup, notifications, Import CSV and Track preferences — everything in one place.'},
+  // 15 — FINAL
   {tab:'track',target:'.ledger',chip:'Ready!',scroll:true,
    title:'You\'re all set! 🎉',
    desc:'Tap "+ Add income entry" to log your first transaction. All data stays on this device — private, offline, always yours.'},
@@ -5976,17 +5987,29 @@ function addSwipeDel(el,type,idx){
   },{passive:true});
 }
 
-// ══ AUTO-RELOCK AFTER 3 MINUTES ══════════════════════════
-var RELOCK_MS=3*60*1000;
+// ══ LOCK ON BACKGROUND & AUTO-RELOCK ════════════════════
+var RELOCK_MS=3*60*1000; // fallback 3-min relock if PIN set (but lock_bg OFF)
 var _bgTime=null;
 document.addEventListener('visibilitychange',function(){
+  if(!localStorage.getItem('flow_pin')) return; // no PIN — nothing to lock
   if(document.hidden){
     _bgTime=Date.now();
     try{localStorage.setItem('flow_bg_t',String(_bgTime));}catch(e){}
+    // Lock immediately if "Lock on Background" is enabled
+    if(localStorage.getItem('flow_lock_bg')==='1'){
+      var ls=document.getElementById('lockScreen');
+      if(ls&&ls.classList.contains('hidden')){
+        ls.classList.remove('hidden');
+        pinEntry='';
+        document.querySelectorAll('.pin-dot').forEach(function(d){d.classList.remove('filled');});
+        var pe=document.getElementById('pinError');if(pe)pe.textContent='';
+      }
+    }
   }else{
     var stored=parseInt(localStorage.getItem('flow_bg_t')||'0');
     var elapsed=Date.now()-(stored||_bgTime||0);
-    if(elapsed>RELOCK_MS&&localStorage.getItem('flow_pin')){
+    // Also relock after 3 min even if lock_bg is OFF (safety net)
+    if(elapsed>RELOCK_MS&&localStorage.getItem('flow_lock_bg')!=='1'){
       var ls=document.getElementById('lockScreen');
       if(ls&&ls.classList.contains('hidden')){
         ls.classList.remove('hidden');
