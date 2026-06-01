@@ -3297,8 +3297,15 @@ const CURRENCIES={
 };
 let BASE_CURRENCY=localStorage.getItem('flow_currency')||'INR';
 const fmt  = n=>{const c=CURRENCIES[BASE_CURRENCY]||CURRENCIES.INR;return c.sym+Math.abs(n||0).toLocaleString(c.locale);};
-// Returns YYYY-MM-DD in LOCAL timezone (avoids toISOString UTC-shift bug for UTC+ users)
-const _localDateStr=(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+// ══ IST DATE UTILITIES — Flow is India-only (Asia/Kolkata, UTC+5:30) ═══════
+// All date logic is hardcoded to IST regardless of device timezone setting
+const _IST_MS=19800000; // 5.5 * 60 * 60 * 1000 ms = UTC+5:30
+// Returns a Date whose getUTC* methods give the IST wall-clock values
+function _istNow(d){return new Date((d||new Date()).getTime()+_IST_MS);}
+// Returns {year,month(0-idx),date,day(0=Sun),hours,minutes} all in IST
+function _istParts(d){const n=_istNow(d);return{year:n.getUTCFullYear(),month:n.getUTCMonth(),date:n.getUTCDate(),day:n.getUTCDay(),hours:n.getUTCHours(),minutes:n.getUTCMinutes()};}
+// Returns YYYY-MM-DD in IST — replaces all toISOString().split('T')[0] calls
+const _localDateStr=(d)=>{const n=_istNow(d);return n.getUTCFullYear()+'-'+String(n.getUTCMonth()+1).padStart(2,'0')+'-'+String(n.getUTCDate()).padStart(2,'0');};
 const fmtC = (n,cur)=>{const c=CURRENCIES[cur||BASE_CURRENCY]||CURRENCIES.INR;return c.sym+Math.abs(n||0).toLocaleString(c.locale);};
 const fmtN = n=>(n<0?'−':'')+fmt(n);
 const key  = ()=>`${selM()}_${selY()}`;
@@ -3418,12 +3425,12 @@ function toggleDark(){
 (function(){
   const ms=document.getElementById('selMonth'),ys=document.getElementById('selYear');
   MONTHS.forEach((m,i)=>{const o=document.createElement('option');o.value=i;o.textContent=m;ms.appendChild(o)});
-  const cy=new Date().getFullYear();
+  const {year:cy,month:_rcm}=_istParts();
   for(let y=cy-3;y<=cy+2;y++){const o=document.createElement('option');o.value=y;o.textContent=y;ys.appendChild(o)}
-  ms.value=new Date().getMonth();ys.value=cy;
+  ms.value=_rcm;ys.value=cy;
   const reset=()=>{incFilter='';expFilter='';render();};
   ms.addEventListener('change',reset);ys.addEventListener('change',reset);
-  document.getElementById('fDate').textContent=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+  const _fd=_istParts();document.getElementById('fDate').textContent=_fd.date+' '+['January','February','March','April','May','June','July','August','September','October','November','December'][_fd.month]+' '+_fd.year;
 })();
 
 // ══ CATEGORY COLORS ════════════════════════════════════════
@@ -3598,12 +3605,12 @@ function cancelBillEdit(){
   document.getElementById('billForm').style.display='none';
 }
 function billStatus(bill){
-  const now=new Date(),m=now.getMonth(),y=now.getFullYear(),mk=`${m}_${y}`;
+  const {month:m,year:y}=_istParts();const mk=`${m}_${y}`;
   if(bill.paidMonths.includes(mk))return'paid';
-  const due=new Date(y,m,bill.dueDay),diff=Math.ceil((due-now)/864e5);
+  const due=new Date(y,m,bill.dueDay),diff=Math.ceil((due-new Date())/864e5);
   return diff<0?'overdue':diff<=7?'soon':'upcoming';
 }
-function markBillPaid(id){const b=BILLS.find(x=>x.id===id);if(!b)return;const now=new Date(),mk=`${now.getMonth()}_${now.getFullYear()}`;if(!b.paidMonths.includes(mk))b.paidMonths.push(mk);saveBills();renderBills()}
+function markBillPaid(id){const b=BILLS.find(x=>x.id===id);if(!b)return;const {month:_bm,year:_by}=_istParts();const mk=`${_bm}_${_by}`;if(!b.paidMonths.includes(mk))b.paidMonths.push(mk);saveBills();renderBills()}
 function deleteBill(id){if(!confirm('Delete this bill?'))return;BILLS=BILLS.filter(b=>b.id!==id);saveBills();renderBills()}
 function renderBills(){
   const groups={overdue:[],soon:[],upcoming:[],paid:[]};
@@ -3618,7 +3625,7 @@ function renderBills(){
   function bCard(b){
     const paid=b._s==='paid';
     const cls=b._s==='overdue'?'overdue':b._s==='soon'?'due-soon':paid?'paid':'';
-    const diffDays=Math.ceil((new Date(new Date().getFullYear(),new Date().getMonth(),b.dueDay)-new Date())/864e5);
+    const {month:_dm,year:_dy}=_istParts();const diffDays=Math.ceil((new Date(_dy,_dm,b.dueDay)-new Date())/864e5);
     const statusTag=paid?`<span class="bill-tag" style="color:var(--surplus)">✓ Paid</span>`:b._s==='overdue'?`<span class="bill-tag" style="color:var(--deficit)">Overdue</span>`:b._s==='soon'?`<span class="bill-tag" style="color:var(--amber)">Due in ${diffDays}d</span>`:'';
     return`<div class="bill-card ${cls}">
       <div><div class="bill-name">${esc(b.name)}</div>
@@ -4456,7 +4463,7 @@ function toggleAnnualSummary(){
     const sr=inc>0?Math.round(net/inc*100):0;
     totalInc+=inc;totalExp+=exp;
     return`<tr>
-      <td style="font-weight:${i===new Date().getMonth()&&parseInt(yr)===new Date().getFullYear()?'500':'400'};color:${i===new Date().getMonth()&&parseInt(yr)===new Date().getFullYear()?'var(--text)':'var(--muted)'}">${m}</td>
+      <td style="font-weight:${i===_istParts().month&&parseInt(yr)===_istParts().year?'500':'400'};color:${i===_istParts().month&&parseInt(yr)===_istParts().year?'var(--text)':'var(--muted)'}">${m}</td>
       <td class="right ${inc>0?'green':''}">${inc>0?fmt(inc):'—'}</td>
       <td class="right ${exp>0?'red':''}">${exp>0?fmt(exp):'—'}</td>
       <td class="right" style="color:${net>=0?'var(--surplus)':'var(--deficit)'}">${inc||exp?(net>=0?'':'-')+fmt(net):'—'}</td>
@@ -4510,13 +4517,13 @@ function initToolsSelectors(){
   const ms=document.getElementById('repMonth'),ys=document.getElementById('repYear');
   if(!ms||ms.options.length>0)return;
   MONTHS.forEach((m,i)=>{const o=document.createElement('option');o.value=i;o.textContent=m;ms.appendChild(o)});
-  const cy=new Date().getFullYear();
+  const {year:cy,month:_tcm}=_istParts();
   for(let y=cy-3;y<=cy+2;y++){const o=document.createElement('option');o.value=y;o.textContent=y;ys.appendChild(o)}
-  ms.value=new Date().getMonth();ys.value=cy;
+  ms.value=_tcm;ys.value=cy;
 }
 
 // ══ FINANCIAL CALENDAR ════════════════════════════════════
-let calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
+let {year:calYear,month:calMonth}=_istParts();
 function renderCalendar(){
   document.getElementById('calMonthLbl').textContent=MONTHS[calMonth]+' '+calYear;
   const first=new Date(calYear,calMonth,1).getDay();
@@ -4568,9 +4575,8 @@ function renderCalendar(){
   let html='';
   // Blanks before first
   for(let i=0;i<first;i++)html+=`<div class="cal-day other-month"></div>`;
-  const today=new Date();
   for(let d=1;d<=days;d++){
-    const isToday=today.getDate()===d&&today.getMonth()===calMonth&&today.getFullYear()===calYear;
+    const isToday=_td===d&&_tm===calMonth&&_ty===calYear;
     const dayEvts=(evts[d]||[]).slice(0,4);
     html+=`<div class="cal-day${isToday?' today':''}">
       <div class="cal-day-num">${d}</div>
@@ -4593,8 +4599,8 @@ function renderEmfund(){
   // Auto monthly expenses (average last 3 months)
   let monthlyExp=EMFUND.expOverride||0;
   if(!monthlyExp){
-    const now=new Date();let total=0,cnt=0;
-    for(let i=1;i<=3;i++){let m=now.getMonth()-i,y=now.getFullYear();if(m<0){m+=12;y--}const md=DB[`${m}_${y}`];if(md){total+=md.expense.reduce((s,x)=>s+(parseFloat(x.amt)||0),0);cnt++}}
+    const {month:_efm,year:_efy}=_istParts();let total=0,cnt=0;
+    for(let i=1;i<=3;i++){let m=_efm-i,y=_efy;if(m<0){m+=12;y--}const md=DB[`${m}_${y}`];if(md){total+=md.expense.reduce((s,x)=>s+(parseFloat(x.amt)||0),0);cnt++}}
     monthlyExp=cnt?Math.round(total/cnt):0;
   }
   const targetAmt=monthlyExp*target;
@@ -4635,7 +4641,7 @@ function addLoan(){
   const emi=principal*mr*Math.pow(1+mr,tenure)/(Math.pow(1+mr,tenure)-1);
   // Calculate months elapsed from start date
   let monthsPaid=0;
-  if(start){const sd=new Date(start),now=new Date();monthsPaid=Math.max(0,(now.getFullYear()-sd.getFullYear())*12+(now.getMonth()-sd.getMonth()))}
+  if(start){const sd=new Date(start),now=new Date();monthsPaid=Math.max(0,(_istParts().year-sd.getFullYear())*12+(_istParts().month-sd.getMonth()))}
   LOANS.push({id:uid(),name,type,principal,rate,tenure,start,emi:Math.round(emi),monthsPaid:Math.min(monthsPaid,tenure)});
   saveLoans();
   ['lnName','lnPrincipal','lnRate','lnTenure','lnStart'].forEach(id=>document.getElementById(id).value='');
@@ -5473,14 +5479,14 @@ function editSub(id){
 function markSubPaid(id){
   const s=SUBS.find(x=>x.id===id);if(!s)return;
   if(!s.paidMonths)s.paidMonths=[];
-  const now=new Date(),mk=`${now.getMonth()}_${now.getFullYear()}`;
+  const {month:_spm,year:_spy}=_istParts();const mk=`${_spm}_${_spy}`;
   if(!s.paidMonths.includes(mk))s.paidMonths.push(mk);
   saveSubs();renderSubs();
 }
 
 function unmarkSubPaid(id){
   const s=SUBS.find(x=>x.id===id);if(!s)return;
-  const now=new Date(),mk=`${now.getMonth()}_${now.getFullYear()}`;
+  const {month:_upm,year:_upy}=_istParts();const mk=`${_upm}_${_upy}`;
   s.paidMonths=(s.paidMonths||[]).filter(m=>m!==mk);
   saveSubs();renderSubs();
 }
@@ -5502,7 +5508,7 @@ function renderSubs(){
   el.innerHTML=SUBS.map(s=>{
     const mAmt=s.cost*(mults[s.cycle]||1);
     const statCls=s.status==='Active'?'':'paused cancelled'.split(' ').find(x=>x===s.status.toLowerCase())||'';
-    const now=new Date(),mk=`${now.getMonth()}_${now.getFullYear()}`;
+    const {month:_rsm,year:_rsy}=_istParts();const mk=`${_rsm}_${_rsy}`;
     const paidThisMonth=(s.paidMonths||[]).includes(mk);
     const daysToRenewal=s.renewal?Math.ceil((new Date(s.renewal)-new Date())/86400000):null;
     const renewDate=s.renewal?new Date(s.renewal).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'';
@@ -5534,11 +5540,11 @@ function renderSubs(){
 let nwChartInst=null;
 function logNetWorthNow(){
   const nw=calcCurrentNetWorth();
-  const today=new Date();
-  const key=`${today.getFullYear()}_${today.getMonth()}`;
+  const {year:_nwy,month:_nwm}=_istParts();
+  const key=`${_nwy}_${_nwm}`;
   const existing=NW_HISTORY.find(x=>x.key===key);
   if(existing){
-    if(!confirm(`Net Worth for ${MONTHS[today.getMonth()]} ${today.getFullYear()} already logged (${fmt(existing.val)}). Overwrite?`))return;
+    if(!confirm(`Net Worth for ${MONTHS[_nwm]} ${_nwy} already logged (${fmt(existing.val)}). Overwrite?`))return;
     existing.val=nw;existing.date=_localDateStr(today);
   }else{
     NW_HISTORY.push({key,val:nw,date:_localDateStr(today)});
@@ -5561,7 +5567,7 @@ function calcCurrentNetWorth(){
 function renderNWChart(){
   const ctx=document.getElementById('nwChart');if(!ctx)return;
   // Auto-add current month if data exists but not yet logged
-  const now=new Date(),ky=`${now.getFullYear()}_${now.getMonth()}`;
+  const {year:_nwy,month:_nwm}=_istParts();const ky=`${_nwy}_${_nwm}`;
   const entries=[...NW_HISTORY];
   if(!entries.find(x=>x.key===ky)){
     const nw=calcCurrentNetWorth();
@@ -6192,10 +6198,7 @@ function renderFlowRecap(){
   const body=document.getElementById('recapBody');
   if(!body)return;
 
-  const today=new Date();
-  const day=today.getDate();
-  const m=today.getMonth();          // 0-indexed — matches DB key format
-  const y=today.getFullYear();
+  const {date:day,month:m,year:y}=_istParts();
   const monthName=MONTHS[m];
   const lastDayOfMonth=new Date(y,m+1,0).getDate(); // 28/29/30/31 depending on month
 
@@ -6411,7 +6414,7 @@ function renderFlowRecap(){
   const billsList=BILLS||[];
   let billsSectionHTML='';
   if(billsList.length){
-    const mk=`${m}_${y}`, todayDay=today.getDate();
+    const mk=`${m}_${y}`, todayDay=day;
     const suf=n=>n===1?'st':n===2?'nd':n===3?'rd':'th';
     const withStatus=billsList.map(b=>{
       let status;
@@ -6490,10 +6493,7 @@ function renderFlowRecap(){
 
 // ── Recap Banner logic ──────────────────────────────────────
 function checkRecapBanner(){
-  const today=new Date();
-  const day=today.getDate();
-  const m=today.getMonth()+1;   // 1-indexed: used for localStorage key only
-  const y=today.getFullYear();
+  const {date:day,month:_cbm,year:y}=_istParts();const m=_cbm+1;
   const lastDay=new Date(y,m,0).getDate(); // last day of current month
   const dismissedKey=`flow_recap_dismissed_${m}_${y}`;
   if(day<25||day>lastDay) return;    // window: 25th–last day of month
@@ -6509,8 +6509,8 @@ function checkRecapBanner(){
 }
 
 function dismissRecapBanner(){
-  const today=new Date();
-  const m=today.getMonth()+1, y=today.getFullYear();
+  const {month:_dm,year:_dy}=_istParts();
+  const m=_dm+1, y=_dy;
   localStorage.setItem(`flow_recap_dismissed_${m}_${y}`,'1');
   document.getElementById('recapBanner').classList.remove('show');
 }
@@ -6528,16 +6528,16 @@ function openFlowRecap(){
 // ══ ANNUAL WRAPPED ══════════════════════════════════════════
 
 function isWrappedWindow(){
-  const today=new Date();
-  const m=today.getMonth()+1, d=today.getDate();
-  return (m===12&&d>=25)||(m===1&&d<=5);
+  const {month:_wm,date:_wd}=_istParts();
+  const m=_wm+1;
+  return (m===12&&_wd>=25)||(m===1&&_wd<=5);
 }
 
 function getWrappedYear(){
-  const today=new Date();
-  const m=today.getMonth()+1;
+  const {month:_gm,year:_gy}=_istParts();
+  const m=_gm+1;
   // Jan 1–5: still showing previous year's wrapped
-  return m===1?today.getFullYear()-1:today.getFullYear();
+  return m===1?_gy-1:_gy;
 }
 
 function checkWrappedBanner(){
@@ -6576,7 +6576,7 @@ function renderAnnualWrapped(){
 
   // Outside window — locked state
   if(!isWrappedWindow()){
-    const nextYear=new Date().getFullYear();
+    const nextYear=_istParts().year;
     el.innerHTML=`<div class="recap-empty">
       <div style="font-size:32px;margin-bottom:12px">🎁</div>
       <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">Annual Wrapped is Locked</div>
@@ -6715,10 +6715,10 @@ function dismissNotifBar(){
 
 function scheduleSmartNotifications(){
   // Fire in-app toasts for urgent events, and browser notifications if permitted
-  const today=new Date();
-  today.setHours(0,0,0,0);
+  const _ist=_istParts();
+  const today=new Date(_ist.year,_ist.month,_ist.date,0,0,0);
   const toastsSent=JSON.parse(localStorage.getItem('flow_notif_sent')||'{}');
-  const todayStr=today.toISOString().slice(0,10);
+  const todayStr=_localDateStr(today);
 
   // Clean old sent records
   Object.keys(toastsSent).forEach(k=>{if(k<todayStr) delete toastsSent[k];});
@@ -6732,7 +6732,7 @@ function scheduleSmartNotifications(){
     if(due<today) due.setMonth(due.getMonth()+1);
     const diff=Math.round((due-today)/(1000*60*60*24));
     if(diff<=3&&diff>=0){
-      const k=`bill_${bill.id||bill.name}_${due.toISOString().slice(0,7)}`;
+      const k=`bill_${bill.id||bill.name}_${due.getFullYear()}-${String(due.getMonth()+1).padStart(2,'0')}`;
       if(!toastsSent[k]){
         queue.push({key:k,title:`Bill Due${diff===0?' Today':diff===1?' Tomorrow':` in ${diff} days`}`,body:`${bill.name} — ${fmt(bill.amt||0)}`});
       }
@@ -6747,7 +6747,7 @@ function scheduleSmartNotifications(){
       if(due<today) due.setMonth(due.getMonth()+1);
       const diff=Math.round((due-today)/(1000*60*60*24));
       if(diff<=1&&diff>=0){
-        const k=`sip_${fund.schemeCode}_${due.toISOString().slice(0,7)}`;
+        const k=`sip_${fund.schemeCode}_${due.getFullYear()}-${String(due.getMonth()+1).padStart(2,'0')}`;
         if(!toastsSent[k]){
           queue.push({key:k,title:`SIP ${diff===0?'Today':'Tomorrow'}`,body:`${(fund.schemeName||'').slice(0,30)} — ${fmt(fund.sip.monthlyAmt)}`});
         }
@@ -6774,9 +6774,8 @@ function scheduleSmartNotifications(){
   }
 
   // 4. Flow Recap available
-  const nowDay=new Date().getDate();
-  const nowM=new Date().getMonth()+1;
-  const nowY=new Date().getFullYear();
+  const {date:nowDay,month:_snm,year:nowY}=_istParts();
+  const nowM=_snm+1;
   if(nowDay>=25&&nowDay<=30){
     const recapNotifKey=`recap_notif_${nowM}_${nowY}`;
     if(!toastsSent[recapNotifKey]){
@@ -6956,11 +6955,9 @@ function openUPIPay(upiId,payeeName,amount,title,fromName){
 // ══ FLOWSNAP PDF EXPORT ══════════════════════════════════════
 function exportFlowSnapPDF(){
   const btn=document.getElementById('snapPDFBtn');
-  const today=new Date();
-  const m=today.getMonth();
-  const y=today.getFullYear();
+  const {month:m,year:y,date:_rcDay}=_istParts();
   const monthName=MONTHS[m];
-  const day=today.getDate();
+  const day=_istParts().date;
 
   const lastDay=new Date(y,m+1,0).getDate();
   if(day<25||day>lastDay){
@@ -6981,7 +6978,7 @@ function exportFlowSnapPDF(){
   const lw=w=>pdf.setLineWidth(w),ft=f=>pdf.setFont('courier',f||'normal'),fs=s=>pdf.setFontSize(s);
   const C={black:[8,8,8],text:[25,25,25],muted:[85,85,85],label:[110,110,110],border:[185,185,185],bg:[248,248,247],surplus:[18,80,46],deficit:[120,22,32],accent:[40,80,140]};
   const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const todayStr=today.getDate()+' '+MN[today.getMonth()]+' '+today.getFullYear();
+  const todayStr=_ntd+' '+MN[m]+' '+y;
   let yy=0;
 
   // Helper: check page overflow and add page if needed
@@ -7156,7 +7153,7 @@ function exportFlowSnapPDF(){
 
     if(billsList.length){
       secHdr(`BILLS THIS MONTH (${billsList.length})`);
-      const mk=`${m}_${y}`,todayDay=today.getDate();
+      const mk=`${m}_${y}`,todayDay=_istParts().date;
       billsList.forEach((b,i)=>{
         chk(7);
         const paid=b.paidMonths&&b.paidMonths.includes(mk);
@@ -7270,9 +7267,9 @@ function initRepSelectors(){
   const rm=document.getElementById('repMonth'),ry=document.getElementById('repYear');
   if(!rm||!ry)return;
   rm.innerHTML=MONTHS.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
-  const now=new Date(),y=now.getFullYear();
+  const y=_istParts().year;
   ry.innerHTML='';for(let yr=y;yr>=y-4;yr--){const o=document.createElement('option');o.value=yr;o.textContent=yr;ry.appendChild(o);}
-  rm.value=now.getMonth();ry.value=y;
+  rm.value=_istParts().month;ry.value=y;
 }
 function renderReport(){
   const body=document.getElementById('repBody');const acts=document.getElementById('repActions');
@@ -7393,7 +7390,7 @@ function exportRepPDF(){
 }
 function exportRepCSV(){
   const m=parseInt(document.getElementById('repMonth')?.value||0);
-  const y=parseInt(document.getElementById('repYear')?.value||new Date().getFullYear());
+  const y=parseInt(document.getElementById('repYear')?.value||_istParts().year);
   let csv='',filename='Flow_Report.csv';
   const C2=(n,cur)=>{const c=CURRENCIES[cur||BASE_CURRENCY]||CURRENCIES.INR;return c.sym+Math.abs(n||0).toFixed(2);};
   const q=s=>'"'+(String(s||'').replace(/"/g,'""'))+'"';
@@ -7651,12 +7648,12 @@ function bnSwitch(id,btn){
 function updateBnBillsDot(){
   const dot=document.getElementById('bnBillsDot');
   if(!dot) return;
-  const today=new Date(),m=today.getMonth(),y=today.getFullYear();
+  const {month:m,year:y}=_istParts();
   const overdue=BILLS.some(b=>{
     const mk=m+'_'+y;
     if(b.paidMonths&&b.paidMonths.includes(mk)) return false;
     const due=new Date(y,m,b.dueDay);
-    return due<today;
+    return due<new Date();
   });
   dot.classList.toggle('show', overdue);
 }
@@ -7705,8 +7702,7 @@ function renderNotifList(){
   const perm=('Notification' in window)?Notification.permission:'denied';
   if(permRow) permRow.style.display=(perm==='default')?'block':'none';
 
-  const today=new Date();
-  const m=today.getMonth(),y=today.getFullYear();
+  const {month:m,year:y,date:_ntd}=_istParts();
   const mk=m+'_'+y;
   const items=[];
 
@@ -7714,7 +7710,7 @@ function renderNotifList(){
   BILLS.forEach(b=>{
     if(b.paidMonths&&b.paidMonths.includes(mk)) return;
     const due=new Date(y,m,b.dueDay);
-    const diff=Math.ceil((due-today)/86400000);
+    const diff=Math.ceil((due-new Date())/86400000);
     if(diff<0) items.push({type:'urgent',title:'⚠ Overdue: '+b.name,body:fmt(b.amt)+' was due on '+b.dueDay+' '+MONTHS[m]});
     else if(diff<=3) items.push({type:'warn',title:'⏰ Due soon: '+b.name,body:fmt(b.amt)+' due in '+(diff===0?'today':diff+' day'+(diff!==1?'s':''))});
   });
@@ -7722,12 +7718,12 @@ function renderNotifList(){
   // SIP reminders
   (INVEST.mf||[]).forEach(fund=>{
     if(!fund.sip||!fund.sip.active||!fund.sip.sipDay) return;
-    const diff=fund.sip.sipDay-today.getDate();
+    const diff=fund.sip.sipDay-_std;
     if(diff>=0&&diff<=3) items.push({type:'info',title:'📈 SIP Due: '+(fund.schemeName||'MF Fund').split('—')[0].trim(),body:fmt(fund.sip.monthlyAmt)+'/mo on '+fund.sip.sipDay+'th'+(diff===0?' — today':' — in '+diff+' day'+(diff!==1?'s':''))});
   });
 
   // FlowSnap ready
-  const day=today.getDate();
+  const day=_ntd;
   const lastDay=new Date(y,m+1,0).getDate();
   if(day>=25&&day<=lastDay&&Object.keys(DB).some(k=>{const d=DB[k];return d&&((d.income&&d.income.length)||(d.expense&&d.expense.length));})){
     items.push({type:'info',title:'✦ '+MONTHS[m]+' FlowSnap is ready',body:'Your monthly financial story is available under Planner → FlowSnap'});
@@ -7767,8 +7763,8 @@ async function requestNotifPermission(){
 
 function sendNotifsViaServiceWorker(){
   if(Notification.permission!=='granted') return;
-  const today=new Date();
-  const m=today.getMonth(),y=today.getFullYear(),mk=m+'_'+y;
+  const {month:m,year:y,date:_cbd}=_istParts();
+  const mk=m+'_'+y;
   BILLS.forEach(b=>{
     if(b.paidMonths&&b.paidMonths.includes(mk)) return;
     const due=new Date(y,m,b.dueDay);
@@ -7785,11 +7781,11 @@ function sendNotifsViaServiceWorker(){
 }
 
 function checkAndShowNotifBadge(){
-  const today=new Date(),m=today.getMonth(),y=today.getFullYear(),mk=m+'_'+y;
+  const {month:m,year:y}=_istParts();const mk=m+'_'+y;
   const hasAlert=BILLS.some(b=>{
     if(b.paidMonths&&b.paidMonths.includes(mk)) return false;
     const due=new Date(y,m,b.dueDay);
-    const diff=Math.ceil((due-today)/86400000);
+    const diff=Math.ceil((due-new Date())/86400000);
     return diff<=3&&diff>=0;
   });
   if(hasAlert){
@@ -7950,7 +7946,7 @@ function clearDemoAndStart(){
   render();
 }
 function loadDemoData(){
-  const now=new Date(),cM=now.getMonth(),cY=now.getFullYear();
+  const {month:cM,year:cY}=_istParts();
   const pM=cM===0?11:cM-1,pY=cM===0?cY-1:cY;
   const d2=n=>String(n).padStart(2,'0');
   const ds=(y,m,dy)=>y+'-'+d2(m+1)+'-'+d2(dy);
@@ -8066,7 +8062,8 @@ function renderDailyView(){
   const m=parseInt(selM()),y=parseInt(selY());
   const dailyLimit=getDailyLimit();
   const today=new Date();
-  const isCurrentMonth=(m===today.getMonth()&&y===today.getFullYear());
+  const {month:_istM,year:_istY,date:_istD}=_istParts();
+  const isCurrentMonth=(m===_istM&&y===_istY);
 
   // ── Filter DAILY_EXPENSES for selected month ─────────────
   const monthEntries=DAILY_EXPENSES.filter(e=>{
@@ -8086,7 +8083,7 @@ function renderDailyView(){
 
   // ── Derived stats ────────────────────────────────────────
   const activeDays=Object.keys(dayMap).length;
-  const daysElapsed=isCurrentMonth?today.getDate():new Date(y,m+1,0).getDate();
+  const daysElapsed=isCurrentMonth?_istD:new Date(y,m+1,0).getDate();
   const zeroDays=Math.max(0,daysElapsed-activeDays);
   const totalExp=monthEntries.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
   const avgDay=activeDays>0?totalExp/activeDays:0;
@@ -8119,7 +8116,7 @@ function renderDailyView(){
   // ── 7-day strip ──────────────────────────────────────────
   const stripEl=document.getElementById('dailyStrip');
   if(stripEl){
-    const refDate=isCurrentMonth?new Date():new Date(y,m+1,0);
+    const refDate=isCurrentMonth?_istNow():new Date(y,m+1,0);
     const days7=[];
     for(let i=6;i>=0;i--){
       const d2=new Date(refDate);d2.setDate(refDate.getDate()-i);
@@ -8131,7 +8128,7 @@ function renderDailyView(){
       const key=day.getFullYear()+'-'+String(day.getMonth()+1).padStart(2,'0')+'-'+String(day.getDate()).padStart(2,'0');
       const dm=dayMap[key]||null;
       const amt=dm?dm.total:0;
-      const isToday=isCurrentMonth&&day.toDateString()===today.toDateString();
+      const isToday=isCurrentMonth&&day.getUTCFullYear()===_istY&&day.getUTCMonth()===_istM&&day.getUTCDate()===_istD;
       const isZero=!dm&&day<=(isCurrentMonth?today:new Date(y,m+1,0));
       const barPct=maxDay>0?Math.round((amt/maxDay)*100):0;
       return`<div class="ds-day${isToday?' today':''}${isZero?' zero':''}" onclick="openDayDetail('${key}')" style="cursor:pointer">
@@ -8175,7 +8172,7 @@ function renderDailyView(){
     const d2=new Date(dateKey+'T00:00:00');
     const isToday=isCurrentMonth&&d2.toDateString()===today.toDateString();
     const isYest=isCurrentMonth&&d2.toDateString()===new Date(today.getTime()-86400000).toDateString();
-    const dateLabel=isToday?'Today':isYest?'Yesterday':d2.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:d2.getFullYear()!==today.getFullYear()?'numeric':undefined});
+    const dateLabel=isToday?'Today':isYest?'Yesterday':d2.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:d2.getUTCFullYear()!==_oty?'numeric':undefined});
     const weekday=FULL_DAYS[d2.getDay()];
     const dayTotal=dm.total;
     const isOver=dailyLimit>0&&dayTotal>dailyLimit;
@@ -8210,10 +8207,11 @@ function toggleDayGroup(dateKey){
 // ── Day Detail Panel — tap date strip card to see expenses ─
 function openDayDetail(dateKey){
   const d2=new Date(dateKey+'T00:00:00');
-  const today=new Date();
-  const isToday=d2.toDateString()===today.toDateString();
-  const isYest=d2.toDateString()===new Date(today.getTime()-86400000).toDateString();
-  const dateLabel=isToday?'Today':isYest?'Yesterday':d2.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const {year:_oty,month:_otm,date:_otd}=_istParts();
+  const isToday=d2.getUTCFullYear()===_oty&&d2.getUTCMonth()===_otm&&d2.getUTCDate()===_otd;
+  const _yest=_istParts(new Date(Date.now()-86400000));
+  const isYest=d2.getUTCFullYear()===_yest.year&&d2.getUTCMonth()===_yest.month&&d2.getUTCDate()===_yest.date;
+  const dateLabel=isToday?'Today':isYest?'Yesterday':d2.getUTCDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d2.getUTCMonth()]+' '+d2.getUTCFullYear();
 
   const entries=DAILY_EXPENSES.filter(e=>e.date&&e.date.slice(0,10)===dateKey);
   const total=entries.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
