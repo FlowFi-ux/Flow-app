@@ -366,6 +366,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 /* ── FOOTER ───────────────────────────────────────────── */
 .footer{text-align:center;padding:14px;color:var(--faint);font-size:10px;letter-spacing:.4px;border-top:1px solid var(--border)}
 .footer-inner{display:flex;justify-content:center;align-items:center;gap:20px;flex-wrap:wrap}
+.footer-privacy{font-size:9.5px;color:var(--faint);cursor:default;opacity:.75}
 .btn-clear-all{background:transparent;color:var(--faint);border:1px solid var(--border);padding:5px 14px;font-size:10px}
 .btn-clear-all:hover{color:var(--deficit);border-color:var(--deficit)}
 
@@ -668,6 +669,16 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .settings-pill button.active{background:var(--text);color:var(--bg);font-weight:500}
 .settings-danger{color:var(--deficit)!important}
 .settings-version{text-align:center;padding:20px 0 8px;font-size:10.5px;color:var(--faint)}
+/* ══ SMART ENTRY SUGGESTIONS ════════════════════════════════ */
+.smart-suggest-wrap{position:relative}
+.smart-suggest-dropdown{position:fixed;z-index:9999;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 8px 28px rgba(0,0,0,.18);overflow:hidden;min-width:200px;max-width:360px}
+.smart-suggest-item{display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;transition:background .12s;border-bottom:1px solid var(--border)}
+.smart-suggest-item:last-child{border-bottom:none}
+.smart-suggest-item:hover,.smart-suggest-item:focus{background:var(--surface-alt);outline:none}
+.ss-cat{font-size:10px;padding:2px 7px;border-radius:10px;background:var(--surface-alt);color:var(--muted);white-space:nowrap;border:1px solid var(--border)}
+.ss-desc{flex:1;font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ss-amt{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap}
+.ss-freq{font-size:9px;color:var(--faint);white-space:nowrap}
 /* ══ LOCK SCREEN ════════════════════════════════════════════ */
 .lock-screen{position:fixed;inset:0;background:var(--bg);z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;overflow-y:auto}
 .lock-screen.hidden{display:none}
@@ -1435,6 +1446,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 <div id="lockScreen" class="lock-screen hidden">
   <img id="lockLogo" alt="Flow" style="width:56px;height:56px;border-radius:14px;margin-bottom:4px">
   <div class="lock-brand">Flow</div>
+  <div id="lockAutoMsg" style="font-size:11px;color:var(--amber);background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.25);border-radius:6px;padding:5px 14px;display:none;text-align:center;max-width:260px;line-height:1.5">Flow locked itself to protect your finances</div>
   <div class="lock-sub" id="lockSubText">Enter your PIN to continue</div>
   <div class="pin-display" id="pinDotRow">
     <div class="pin-dot" id="pd0"></div>
@@ -3235,7 +3247,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <div class="settings-row-right"><button class="btn-ghost btn-sm" onclick="switchTab('new',null)" style="font-size:11px">View &rarr;</button></div>
     </div><div class="settings-row">
       <div class="settings-row-left"><div class="settings-row-label">Privacy</div><div class="settings-row-desc">All data stays on this device — nothing sent to any server</div></div>
-      <div class="settings-row-right"><span style="font-size:11px;color:var(--surplus)">🔒 Local only</span></div>
+      <div class="settings-row-right" style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:11px;color:var(--surplus)">🔒 Local only</span><span style="font-size:9.5px;color:var(--faint)" id="settStorageBytes">0 bytes sent to any server</span></div>
     </div>
     <div class="settings-row">
       <div class="settings-row-left"><div class="settings-row-label">Install App</div><div class="settings-row-desc">Add to home screen for offline use</div></div>
@@ -3253,6 +3265,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 <footer class="footer">
   <div class="footer-inner">
     <span>Flow &nbsp;·&nbsp; <span id="fDate"></span></span>
+    <span class="footer-privacy" id="footerPrivacy" title="All data lives only on this device. Nothing is sent to any server.">🔒 <span id="footerStorageInfo">All data on this device</span></span>
   </div>
 </footer>
 
@@ -3356,7 +3369,7 @@ function switchTab(id,btn){
   }
   if(id==='invest'){renderHoldingsTable();renderDividendTable();renderGoals();renderMFTable();renderFDTable();calcSIP();updateInvestSummary();updateAllocChart();setTimeout(renderNWChart,200);}
   if(id==='tools'){initToolsSelectors();renderCalendar();}
-  if(id==='settings'){loadSettingsUI();}
+  if(id==='settings'){loadSettingsUI();updateStorageBadge();}
   // ── Sync bottom nav active state ────────────────────────
   document.querySelectorAll('.bn-btn').forEach(b=>b.classList.remove('active'));
   const bn=document.getElementById('bn-'+id);
@@ -5122,6 +5135,8 @@ function pinKey(k){
       document.getElementById('lockScreen').classList.add('hidden');
       const fb=document.getElementById('forgotPinBtn');if(fb)fb.style.display='none';
       const sub=document.getElementById('lockSubText');if(sub)sub.textContent='Enter your PIN to continue';
+      // Hide auto-lock message for next time
+      const am=document.getElementById('lockAutoMsg');if(am)am.style.display='none';
       pinEntry='';updatePinDots('','pd');
     }else{
       // Wrong PIN
@@ -6006,6 +6021,32 @@ function addSwipeDel(el,type,idx){
   },{passive:true});
 }
 
+function _triggerAutoLock(reason){
+  var ls=document.getElementById('lockScreen');
+  if(!ls||!ls.classList.contains('hidden'))return;
+  ls.classList.remove('hidden');
+  pinEntry='';
+  document.querySelectorAll('.pin-dot').forEach(function(d){d.classList.remove('filled');});
+  var pe=document.getElementById('pinError');if(pe)pe.textContent='';
+  // Show auto-lock message
+  var msg=document.getElementById('lockAutoMsg');
+  if(msg){
+    msg.textContent=reason||'Flow locked itself to protect your finances';
+    msg.style.display='block';
+  }
+}
+function _triggerManualLock(){
+  var ls=document.getElementById('lockScreen');
+  if(!ls||!ls.classList.contains('hidden'))return;
+  ls.classList.remove('hidden');
+  pinEntry='';
+  document.querySelectorAll('.pin-dot').forEach(function(d){d.classList.remove('filled');});
+  var pe=document.getElementById('pinError');if(pe)pe.textContent='';
+  // Hide auto-lock message on manual lock
+  var msg=document.getElementById('lockAutoMsg');
+  if(msg)msg.style.display='none';
+}
+
 // ══ LOCK ON BACKGROUND & AUTO-RELOCK ════════════════════
 var RELOCK_MS=3*60*1000; // fallback 3-min relock if PIN set (but lock_bg OFF)
 var _bgTime=null;
@@ -6016,26 +6057,14 @@ document.addEventListener('visibilitychange',function(){
     try{localStorage.setItem('flow_bg_t',String(_bgTime));}catch(e){}
     // Lock immediately if "Lock on Background" is enabled
     if(localStorage.getItem('flow_lock_bg')==='1'){
-      var ls=document.getElementById('lockScreen');
-      if(ls&&ls.classList.contains('hidden')){
-        ls.classList.remove('hidden');
-        pinEntry='';
-        document.querySelectorAll('.pin-dot').forEach(function(d){d.classList.remove('filled');});
-        var pe=document.getElementById('pinError');if(pe)pe.textContent='';
-      }
+      _triggerAutoLock('Flow locked itself to protect your finances');
     }
   }else{
     var stored=parseInt(localStorage.getItem('flow_bg_t')||'0');
     var elapsed=Date.now()-(stored||_bgTime||0);
     // Also relock after 3 min even if lock_bg is OFF (safety net)
     if(elapsed>RELOCK_MS&&localStorage.getItem('flow_lock_bg')!=='1'){
-      var ls=document.getElementById('lockScreen');
-      if(ls&&ls.classList.contains('hidden')){
-        ls.classList.remove('hidden');
-        pinEntry='';
-        document.querySelectorAll('.pin-dot').forEach(function(d){d.classList.remove('filled');});
-        var pe=document.getElementById('pinError');if(pe)pe.textContent='';
-      }
+      _triggerAutoLock('Flow locked after '+Math.round(elapsed/60000)+' minutes of inactivity');
     }
     _bgTime=null;
     try{localStorage.removeItem('flow_bg_t');}catch(e){}
@@ -6048,12 +6077,7 @@ window.addEventListener('pagehide',function(){
 window.addEventListener('pageshow',function(){
   var stored=parseInt(localStorage.getItem('flow_bg_t')||'0');
   if(stored&&Date.now()-stored>RELOCK_MS&&localStorage.getItem('flow_pin')){
-    var ls=document.getElementById('lockScreen');
-    if(ls&&ls.classList.contains('hidden')){
-      ls.classList.remove('hidden');
-      pinEntry='';
-      document.querySelectorAll('.pin-dot').forEach(function(d){d.classList.remove('filled');});
-    }
+    _triggerAutoLock('Flow locked itself to protect your finances');
   }
   try{localStorage.removeItem('flow_bg_t');}catch(e){}
 });
@@ -7879,6 +7903,173 @@ function clearAllData(){
   loadSettingsUI();
 }
 
+// ══ SMART ENTRY SUGGESTIONS ═══════════════════════════════
+function _buildSuggestionDB(){
+  const idx={};
+  // From monthly ledger (DB)
+  Object.values(DB||{}).forEach(md=>{
+    ['income','expense'].forEach(type=>{
+      (md[type]||[]).forEach(e=>{
+        const d=(e.desc||'').trim(); if(!d||d.length<2) return;
+        const k=d.toLowerCase();
+        if(!idx[k]) idx[k]={desc:d,cats:{},amts:{}};
+        const c=e.cat||'';
+        idx[k].cats[c]=(idx[k].cats[c]||0)+1;
+        const a=parseFloat(e.amt)||0;
+        if(a>0){const ak=String(Math.round(a));idx[k].amts[ak]=(idx[k].amts[ak]||0)+1;}
+      });
+    });
+  });
+  // From Daily tracker
+  (DAILY_EXPENSES||[]).forEach(e=>{
+    const d=(e.desc||'').trim(); if(!d||d.length<2) return;
+    const k=d.toLowerCase();
+    if(!idx[k]) idx[k]={desc:d,cats:{},amts:{}};
+    const c=e.cat||'';
+    idx[k].cats[c]=(idx[k].cats[c]||0)+1;
+    const a=parseFloat(e.amt)||0;
+    if(a>0){const ak=String(Math.round(a));idx[k].amts[ak]=(idx[k].amts[ak]||0)+1;}
+  });
+  return idx;
+}
+
+function _getSuggestions(query){
+  if(!query||query.trim().length<2) return [];
+  const lower=query.trim().toLowerCase();
+  const idx=_buildSuggestionDB();
+  const results=[];
+  Object.entries(idx).forEach(([k,v])=>{
+    if(!k.includes(lower)) return;
+    const totalCount=Object.values(v.cats).reduce((s,n)=>s+n,0);
+    const bestCat=Object.entries(v.cats).sort((a,b)=>b[1]-a[1])[0];
+    const bestAmt=Object.entries(v.amts).sort((a,b)=>b[1]-a[1])[0];
+    results.push({desc:v.desc,cat:bestCat?bestCat[0]:'',amt:bestAmt?parseFloat(bestAmt[0]):0,count:totalCount});
+  });
+  return results.sort((a,b)=>b.count-a.count).slice(0,5);
+}
+
+function _showSuggestDropdown(inp,suggestions,onSelect){
+  _hideSuggestDropdown();
+  if(!suggestions.length) return;
+  const rect=inp.getBoundingClientRect();
+  const dd=document.createElement('div');
+  dd.className='smart-suggest-dropdown';
+  dd.id='smartSuggestDropdown';
+  // Position below the input, handle screen edge
+  const top=rect.bottom+2;
+  const left=Math.min(rect.left, window.innerWidth-240);
+  const w=Math.max(rect.width,220);
+  dd.style.cssText='top:'+top+'px;left:'+left+'px;width:'+w+'px;';
+  suggestions.forEach(s=>{
+    const item=document.createElement('div');
+    item.className='smart-suggest-item';
+    item.setAttribute('tabindex','-1');
+    item.innerHTML=
+      '<span class="ss-cat">'+(s.cat?esc(s.cat):'—')+'</span>'+
+      '<span class="ss-desc">'+esc(s.desc)+'</span>'+
+      (s.amt>0?'<span class="ss-amt">'+fmt(s.amt)+'</span>':'')+
+      '<span class="ss-freq">'+s.count+'×</span>';
+    item.addEventListener('mousedown',function(e){
+      e.preventDefault(); // prevent blur
+      onSelect(s);
+      _hideSuggestDropdown();
+    });
+    dd.appendChild(item);
+  });
+  document.body.appendChild(dd);
+}
+
+function _hideSuggestDropdown(){
+  const d=document.getElementById('smartSuggestDropdown');
+  if(d) d.remove();
+}
+
+function _attachSmartSuggest(inp,onSelect){
+  if(!inp||inp._ssInit) return;
+  inp._ssInit=true;
+  inp.addEventListener('input',function(){
+    const s=_getSuggestions(this.value);
+    _showSuggestDropdown(this,s,onSelect);
+  });
+  inp.addEventListener('blur',function(){setTimeout(_hideSuggestDropdown,180);});
+  inp.addEventListener('keydown',function(e){
+    if(e.key==='Escape') _hideSuggestDropdown();
+    if(e.key==='ArrowDown'){
+      const first=document.querySelector('#smartSuggestDropdown .smart-suggest-item');
+      if(first){e.preventDefault();first.focus();}
+    }
+  });
+}
+
+// Hook into Daily Expense form
+function initSmartSuggestDaily(){
+  const dqDesc=document.getElementById('dqDesc');
+  if(dqDesc){
+    _attachSmartSuggest(dqDesc,function(s){
+      dqDesc.value=s.desc;
+      const amt=document.getElementById('dqAmt');if(amt&&s.amt>0)amt.value=String(s.amt);
+      const cat=document.getElementById('dqCat');if(cat&&s.cat&&!cat.value)cat.value=s.cat;
+    });
+  }
+  const edDesc=document.getElementById('edqDesc');
+  if(edDesc){
+    _attachSmartSuggest(edDesc,function(s){
+      edDesc.value=s.desc;
+      const amt=document.getElementById('edqAmt');if(amt&&s.amt>0)amt.value=String(s.amt);
+      const cat=document.getElementById('edqCat');if(cat&&s.cat&&!cat.value)cat.value=s.cat;
+    });
+  }
+}
+
+// Event delegation for Monthly Ledger entries (.e-desc inputs)
+(function(){
+  document.addEventListener('input',function(e){
+    if(!e.target.classList.contains('e-desc')) return;
+    const inp=e.target;
+    if(inp._ssInit) return; // already handled (re-fires because _ssInit added)
+    // Not using _attachSmartSuggest here to avoid double-attach on dynamic rows
+    // Instead handle directly via event delegation
+    const s=_getSuggestions(inp.value);
+    if(!s.length){_hideSuggestDropdown();return;}
+    _showSuggestDropdown(inp,s,function(suggestion){
+      inp.value=suggestion.desc;
+      const row=inp.closest('.entry');
+      if(row){
+        const a=row.querySelector('.e-amt');if(a&&suggestion.amt>0)a.value=String(suggestion.amt);
+        const c=row.querySelector('.e-cat');if(c&&suggestion.cat&&!c.value)c.value=suggestion.cat;
+        // Trigger saves
+        [a,c,inp].forEach(function(el){if(el)el.dispatchEvent(new Event('change',{bubbles:true}));});
+      }
+    });
+  });
+  document.addEventListener('focusout',function(e){
+    if(e.target.classList.contains('e-desc'))setTimeout(_hideSuggestDropdown,180);
+  });
+})();
+
+// ══ DATA TRANSPARENCY BADGE ════════════════════════════════
+function updateStorageBadge(){
+  // Calculate localStorage bytes used by Flow
+  let bytes=0;
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k&&k.startsWith('flow')){
+        bytes+=(localStorage.getItem(k)||'').length*2; // UTF-16
+      }
+    }
+  }catch(e){}
+  const kb=(bytes/1024).toFixed(1);
+  const display=bytes<1024?bytes+' bytes':(bytes<1048576?kb+' KB':((bytes/1048576).toFixed(1))+' MB');
+  // Footer badge
+  const fi=document.getElementById('footerStorageInfo');
+  if(fi) fi.textContent=display+' · local only · 0 bytes sent to any server';
+  // Settings privacy row
+  const sb=document.getElementById('settStorageBytes');
+  if(sb) sb.textContent='Using '+display+' — 0 bytes sent to any server';
+}
+
+// ══ DEMO MODE ═════════════════════════════════════════════
 // ══ DEMO MODE ═════════════════════════════════════════════
 const DEMO_KEY='flow_demo_active';
 function enterDemoMode(){
@@ -8270,7 +8461,7 @@ function quickDailyAdd(){
 function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();renderHeatmap();if(_dailyViewActive)renderDailyView();}
 applyDark();render();applyAllEyes();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();initRecapSelectors();initCurrencyUI();initNWToggle();
 // Notification badge + bottom nav bills dot on load
-setTimeout(()=>{checkAndShowNotifBadge();updateBnBillsDot();updateBackupStatus();checkBackupReminder();},1500);
+setTimeout(()=>{checkAndShowNotifBadge();updateBnBillsDot();updateBackupStatus();checkBackupReminder();updateStorageBadge();initSmartSuggestDaily();},1500);
 if(localStorage.getItem('flow_demo_active')==='1'){const db=document.getElementById('demoBanner');if(db)db.classList.add('show');}
 
 // Banners & notifications (after a brief settle)
