@@ -3194,7 +3194,10 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     </div>
     <div class="settings-row">
       <div class="settings-row-left"><div class="settings-row-label">Backup Now</div><div class="settings-row-desc" id="settBackupDesc">Export all your data as a JSON file</div></div>
-      <div class="settings-row-right"><button class="btn-primary btn-sm" onclick="backupData()" style="font-size:11px">&#x2B07; Backup</button></div>
+      <div class="settings-row-right" style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <button class="btn-primary btn-sm" onclick="backupData()" style="font-size:11px">&#x2B07; Backup</button>
+        <span id="backupStatusLbl" style="font-size:9.5px;color:var(--faint)"></span>
+      </div>
     </div>
     <div class="settings-row">
       <div class="settings-row-left"><div class="settings-row-label">Restore from Backup</div><div class="settings-row-desc">Replace all data with a saved backup file</div></div>
@@ -4085,16 +4088,6 @@ function calcSIP(){
 }
 
 // ══ CLEAR ALL DATA ═════════════════════════════════════════
-function clearAllData(){
-  if(!confirm('Delete ALL data — tracker, bills, investments?\nThis cannot be undone.'))return;
-  if(!confirm('Are you absolutely sure?'))return;
-  ['flow_v3','flow_bills','flow_invest','flow_visited'].forEach(k=>localStorage.removeItem(k));
-  DB={};BILLS=[];INVEST={goals:[],mf:[],holdings:[],dividends:[],fds:[]};LOANS=[];SPLITS=[];TEMPLATES=[];EMFUND={amount:0,targetMonths:6,expOverride:0};SUBS=[];NOTES=[];NW_HISTORY=[];BUDGETS={};allMFSchemes=null;
-  ['flow_loans','flow_splits','flow_templates','flow_emfund','flow_subs','flow_notes','flow_nw_history','flow_budgets'].forEach(k=>localStorage.removeItem(k));
-  render();renderBills();renderGoals();renderMFTable();renderHoldingsTable();renderDividendTable();renderFDTable();renderSplits();renderTemplates();renderLoans();renderSubs();renderNotes();updateInvestSummary();
-  alert('All data cleared.');
-}
-
 // ══ PDF EXPORT ═════════════════════════════════════════════
 function exportPDF(){
   const btn=document.getElementById('pdfBtn');btn.innerHTML='…';btn.disabled=true;
@@ -5057,6 +5050,29 @@ function restoreData(input){
   input.value='';
 }
 
+function updateBackupStatus(){
+  const last=parseInt(localStorage.getItem('flow_last_backup')||'0');
+  const el=document.getElementById('backupStatusLbl');
+  if(!el)return;
+  if(!last){el.textContent='Never backed up';el.style.color='var(--deficit)';return;}
+  const days=Math.floor((Date.now()-last)/86400000);
+  el.textContent=days===0?'Last backup: today':days===1?'Last backup: yesterday':'Last backup: '+days+'d ago';
+  el.style.color=days>=14?'var(--deficit)':days>=7?'var(--amber)':'var(--surplus)';
+}
+function checkBackupReminder(){
+  const last=parseInt(localStorage.getItem('flow_last_backup')||'0');
+  const freq=localStorage.getItem('flow_backup_freq')||'weekly';
+  if(freq==='off')return;
+  const days=last?Math.floor((Date.now()-last)/86400000):null;
+  const threshold=freq==='monthly'?30:7;
+  if(!last||days>=threshold){
+    setTimeout(()=>{
+      const msg=!last?'You have never backed up your Flow data. Create a backup in Settings → Data & Backup.':'Your last backup was '+days+' days ago. Back up from Settings → Data & Backup.';
+      showToast('💾 Backup Reminder',msg);
+    },4000);
+  }
+}
+
 // ══ PASSWORD / PIN LOCK ════════════════════════════════════
 let pinEntry='', setupPinEntry='', setupStage=0, firstPin='';
 
@@ -5170,9 +5186,8 @@ function closePinSetup(){
   }
 }
 function skipPinFirstTime(){
+  // closePinSetup fires _pinAfterCallback (=startOnboarding) automatically
   closePinSetup();
-  // Start tour even if PIN was skipped
-  setTimeout(startTour, 400);
 }
 function setupPinKey(k){
   const err=document.getElementById('setupPinError');
@@ -5302,7 +5317,7 @@ const TOUR_STEPS=[
    title:'Notes — Inside Planner',
    desc:'Write financial goals, reminders or anything. Pin important notes to the top. Find under Planner → Notes sub-tab.'},
   // 14 — SETTINGS
-  {tab:'settings',target:'#tab-settings .settings-page',chip:'Settings',
+  {tab:'settings',target:'#desktopSettingsBtn',chip:'Settings',
    title:'⚙ Settings — Your Control Centre',
    desc:'On desktop tap the ⚙ icon (top-right, next to the bell). Profile, theme, PIN lock, backup, notifications, Import CSV and Track preferences — everything in one place.'},
   // 15 — FINAL
@@ -5324,14 +5339,16 @@ const startOnboarding=startTour;
 
 function _showTourStep(){
   const step=TOUR_STEPS[_tourStep];
-  // ── Switch to correct tab — works on both desktop (tab-btn) and mobile (bottom nav)
+  // ── Switch to correct tab (desktop: tab-btn or direct; mobile: bottom nav)
   const isMobile=window.innerWidth<=768;
   if(isMobile){
     const bnBtn=document.getElementById('bn-'+step.tab);
     if(bnBtn&&!bnBtn.classList.contains('active'))bnSwitch(step.tab,bnBtn);
+    else if(!bnBtn&&step.tab) switchTab(step.tab,null); // settings or unmapped
   } else {
-    const tabBtn=document.querySelector('.tab-btn[onclick*=\'\''+step.tab+'\'\']');
-    if(tabBtn&&!tabBtn.classList.contains('active'))tabBtn.click();
+    const tabBtn=document.querySelector('.tab-btn[onclick*="\''+step.tab+'\'"]');
+    if(tabBtn&&!tabBtn.classList.contains('active')) tabBtn.click();
+    else if(!tabBtn&&step.tab) switchTab(step.tab,null); // settings (gear icon only)
   }
   // ── Switch sub-tab after tab settles
   if(step.subtab){
@@ -5340,12 +5357,11 @@ function _showTourStep(){
       else if(step.tab==='invest'){const b=document.querySelector('#tab-invest .sub-tab[onclick*="\''+step.subtab+'\'"]');if(b)switchSubTab(step.subtab,b);}
       else if(step.tab==='tools'){const b=document.querySelector('#tab-tools .sub-tab[onclick*="\''+step.subtab+'\'"]');if(b)switchToolsTab(step.subtab,b);}
       _positionTour(step);
-    },260);
+    },300);
   } else {
-    setTimeout(()=>_positionTour(step),110);
+    setTimeout(()=>_positionTour(step),150);
   }
 }
-
 
 function _positionTour(step){
   document.getElementById('tourTabChip').textContent=step.chip;
@@ -5365,15 +5381,18 @@ function _positionTour(step){
   setTimeout(()=>card.classList.remove('entering'),300);
   const doPosition=()=>{
     let target=document.querySelector(step.target);
-    // Mobile: .tab-bar is hidden — fall back to .bottom-nav for nav steps
+    // Mobile: .tab-bar hidden → fall back to .bottom-nav
     if(target&&getComputedStyle(target).display==='none'&&
        (step.target==='.tab-bar'||step.target.includes('.tab-btn'))){
       target=document.querySelector('.bottom-nav');
     }
+    // If target has zero dimensions (e.g. hidden tab), skip highlight
     if(!target){hl.style.display='none';return;}
     if(step.scroll)target.scrollIntoView({behavior:'smooth',block:'nearest'});
     setTimeout(()=>{
       const r=target.getBoundingClientRect();
+      // If element is not visible (zero size or off-screen), skip highlight
+      if(r.width===0&&r.height===0){hl.style.display='none';return;}
       const pad=7;
       hl.style.cssText='display:block;top:'+(r.top-pad)+'px;left:'+(r.left-pad)+'px;width:'+(r.width+pad*2)+'px;height:'+(r.height+pad*2)+'px;';
     },step.scroll?420:90);
@@ -6678,19 +6697,6 @@ function dismissNotifBar(){
   document.getElementById('notifPermBar').classList.remove('show');
 }
 
-function requestNotifPermission(){
-  if(!('Notification' in window)){showToast('Not Supported','Your browser does not support notifications.');return;}
-  Notification.requestPermission().then(perm=>{
-    document.getElementById('notifPermBar').classList.remove('show');
-    if(perm==='granted'){
-      showToast('Notifications On 🔔','Flow will remind you about upcoming bills and SIPs.');
-      scheduleSmartNotifications();
-    } else {
-      localStorage.setItem('flow_notif_bar_dismissed','1');
-    }
-  });
-}
-
 function scheduleSmartNotifications(){
   // Fire in-app toasts for urgent events, and browser notifications if permitted
   const today=new Date();
@@ -6862,11 +6868,21 @@ function toggleHidePortfolio(){
 }
 
 function _mv(el,val){
-  if(!el)return;
+  if(!el) return;
+  // Eye masking — if value is masked (starts with •) show mask class
   if(typeof val==='string'&&(val.startsWith('•')||val===MASK)){
-    el.textContent=MASK; el.classList.add('card-val-masked');
-  }else{
-    el.textContent=val; el.classList.remove('card-val-masked');
+    el.textContent=MASK;
+    el.classList.add('card-val-masked');
+    return;
+  }
+  el.classList.remove('card-val-masked');
+  // Count-up animation for card values showing ₹ amounts
+  const isCardVal=el.classList&&el.classList.contains('card-val');
+  const looksLikeAmount=typeof val==='string'&&!!(val.match(/^[₹−\d,]+$/));
+  if(isCardVal&&looksLikeAmount&&typeof animateValue==='function'){
+    animateValue(el,val,500);
+  } else {
+    el.textContent=val;
   }
 }
 
@@ -7611,9 +7627,10 @@ function createQuickSplit(channel){
 
 
 // ══ BOTTOM NAV ═════════════════════════════════════════════
-function bnSwitch(id, btn){
+function bnSwitch(id,btn){
+  if(id==='settings'){switchTab('settings',null);return;}
   const topBtn=document.querySelector('.tab-btn[onclick*="\''+id+'\'"]');
-  switchTab(id, topBtn||btn);
+  switchTab(id,topBtn||btn||null);
 }
 function updateBnBillsDot(){
   const dot=document.getElementById('bnBillsDot');
@@ -7652,18 +7669,6 @@ function animateValue(el, targetStr, duration=550){
 }
 // Override _mv to animate summary cards
 const _origMv=typeof _mv==='function'?_mv:null;
-function _mv(el,val){
-  if(!el) return;
-  // Only animate numeric ₹ values in summary cards (has card-val class)
-  const isCardVal=el.classList&&el.classList.contains('card-val');
-  const looksLikeAmount=typeof val==='string'&&(val.match(/^[₹−\d,]+$/))||false;
-  if(isCardVal&&looksLikeAmount&&!val.includes('•')){
-    animateValue(el, val, 500);
-  } else {
-    el.textContent=val;
-  }
-}
-
 // ══ NOTIFICATIONS ═════════════════════════════════════════
 function openNotifPanel(){
   renderNotifList();
@@ -7729,15 +7734,17 @@ function renderNotifList(){
 async function requestNotifPermission(){
   if(!('Notification' in window)){showToast('Not supported','Browser notifications not supported');return;}
   const p=await Notification.requestPermission();
+  // Always dismiss the permission bar regardless of outcome
+  const bar=document.getElementById('notifPermBar');if(bar)bar.classList.remove('show');
   if(p==='granted'){
     localStorage.setItem('flow_notif_enabled','1');
     showToast('Notifications on','You\'ll get bill and SIP reminders');
-    // Send a test notification
     new Notification('Flow',{body:'Notifications enabled! You\'ll get bill and SIP reminders.',icon:'./icon-192.png',tag:'flow-welcome'});
     renderNotifList();
-    // Schedule background check via SW
     sendNotifsViaServiceWorker();
+    scheduleSmartNotifications();
   } else {
+    localStorage.setItem('flow_notif_bar_dismissed','1');
     showToast('Permission denied','Enable notifications in browser settings');
   }
 }
@@ -8263,7 +8270,7 @@ function quickDailyAdd(){
 function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();renderHeatmap();if(_dailyViewActive)renderDailyView();}
 applyDark();render();applyAllEyes();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();initRecapSelectors();initCurrencyUI();initNWToggle();
 // Notification badge + bottom nav bills dot on load
-setTimeout(()=>{checkAndShowNotifBadge();updateBnBillsDot();},1500);
+setTimeout(()=>{checkAndShowNotifBadge();updateBnBillsDot();updateBackupStatus();checkBackupReminder();},1500);
 if(localStorage.getItem('flow_demo_active')==='1'){const db=document.getElementById('demoBanner');if(db)db.classList.add('show');}
 
 // Banners & notifications (after a brief settle)
