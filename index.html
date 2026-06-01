@@ -51,7 +51,20 @@
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-tap-highlight-color:transparent;overflow-x:hidden;scroll-behavior:smooth}
-body{font-family:'IBM Plex Mono','Courier New',monospace;background:var(--bg);color:var(--text);font-size:13px;line-height:1.55;transition:background .2s,color .2s;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+/* ── Smooth theme transition — class applied briefly by toggleDark/setThemeMode ─ */
+html.dark-transitioning,
+html.dark-transitioning *,
+html.dark-transitioning *::before,
+html.dark-transitioning *::after{
+  transition:
+    background-color .35s ease,
+    border-color .32s ease,
+    color .32s ease,
+    box-shadow .35s ease,
+    fill .32s ease,
+    stroke .32s ease !important;
+}
+body{font-family:'IBM Plex Mono','Courier New',monospace;background:var(--bg);color:var(--text);font-size:13px;line-height:1.55;overflow-x:hidden;-webkit-overflow-scrolling:touch}
 
 /* ── HOME SCREEN — Professional ──────────────────────── */
 .home-screen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;flex-direction:column;overflow-y:auto}
@@ -612,8 +625,46 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 }
 /* ── Update banner safe area ────────────────────────────── */
 #updateBanner{padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px)) !important}
+/* ── Settings responsive ─────────────────────────────────── */
+@media(max-width:520px){
+  .settings-row{flex-wrap:wrap;gap:10px}
+  .settings-row-right{width:100%}
+  .settings-row-right select,.settings-row-right input[type=text]{max-width:100%;width:100%}
+  .settings-pill{flex:1}
+  .settings-pill button{flex:1;padding:6px 8px}
+}
+/* ── Sub-tabs responsive — prevent overflow on 360px ────── */
+@media(max-width:480px){
+  .sub-tabs{gap:0}
+  .sub-tab{padding:8px 10px;font-size:11px}
+}
+@media(max-width:360px){
+  .sub-tab{padding:7px 8px;font-size:10.5px}
+  .hdr{padding:8px 10px;padding-top:calc(8px + env(safe-area-inset-top,0px))}
+}
+/* ── Tour card above bottom nav on mobile ─────────────────── */
+@media(max-width:768px){
+  .tour-card{bottom:calc(56px + env(safe-area-inset-bottom,0px)) !important;border-radius:14px !important}
+}
 
 
+/* ══ SETTINGS TAB ════════════════════════════════════════════ */
+.settings-page{max-width:600px;margin:0 auto;padding-bottom:24px}
+.settings-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px;overflow:hidden}
+.settings-section-hdr{padding:10px 16px 6px;font-size:9.5px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);background:var(--surface-alt)}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border);gap:12px;min-height:48px}
+.settings-row:last-child{border-bottom:none}
+.settings-row-left{flex:1;min-width:0}
+.settings-row-label{font-size:12.5px;color:var(--text);font-weight:500}
+.settings-row-desc{font-size:10.5px;color:var(--faint);margin-top:2px;line-height:1.4}
+.settings-row-right{flex-shrink:0;display:flex;align-items:center;gap:8px}
+.settings-row-right select,.settings-row-right input[type=text]{font-size:11.5px;padding:5px 8px;max-width:160px;background:var(--surface-alt)}
+.settings-row-right input[type=text]{width:150px}
+.settings-pill{display:flex;border:1px solid var(--border);border-radius:20px;overflow:hidden}
+.settings-pill button{background:none;border:none;padding:5px 12px;font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--muted);cursor:pointer;transition:background .16s,color .16s;border-radius:0}
+.settings-pill button.active{background:var(--text);color:var(--bg);font-weight:500}
+.settings-danger{color:var(--deficit)!important}
+.settings-version{text-align:center;padding:20px 0 8px;font-size:10.5px;color:var(--faint)}
 /* ══ LOCK SCREEN ════════════════════════════════════════════ */
 .lock-screen{position:fixed;inset:0;background:var(--bg);z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;overflow-y:auto}
 .lock-screen.hidden{display:none}
@@ -1627,70 +1678,24 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <select id="selYear"></select>
     <button class="btn-copy" onclick="copyLastMonth()" title="Copy last month">
       <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M8 1H3a1 1 0 00-1 1v7M9 3H5a1 1 0 00-1 1v6a1 1 0 001 1h4a1 1 0 001-1V4a1 1 0 00-1-1z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      <span class="btn-copy-lbl">Copy Last Month</span>
+      <span class="btn-copy-lbl">Copy</span>
     </button>
     <button class="btn-ghost" onclick="document.getElementById('importModal').style.display='flex'" title="Import CSV" style="padding:5px 9px;display:flex;align-items:center;gap:4px;font-size:11px"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 8V1M3 5.5l3 3 3-3M1 9.5v1a.5.5 0 00.5.5h9a.5.5 0 00.5-.5v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>Import</button>
-    <button class="btn-ghost" onclick="openGlobalSearch()" title="Global Search" style="padding:5px 9px;display:flex;align-items:center;gap:4px;font-size:11px"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4" stroke="currentColor" stroke-width="1.3"/><path d="M9.5 9.5L12 12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Search</button>
+    <button class="btn-ghost" onclick="openGlobalSearch()" title="Search" style="padding:5px 9px;display:flex;align-items:center;gap:4px;font-size:11px"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4" stroke="currentColor" stroke-width="1.3"/><path d="M9.5 9.5L12 12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Search</button>
     <div class="sep"></div>
-    <button class="toggle-wrap" onclick="toggleDark()">
-      <div class="track" id="track"><div class="knob"></div></div>
-      <span id="darkLbl">Dark</span>
-    </button>
-    <div class="sep"></div>
-    <select id="currSel" onchange="setCurrency(this.value)" title="Base Currency" style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:var(--r);padding:4px 6px;cursor:pointer">
-      <option value="INR">&#8377; INR</option>
-      <option value="USD">$ USD</option>
-      <option value="CAD">C$ CAD</option>
-      <option value="GBP">&#163; GBP</option>
-      <option value="EUR">&#8364; EUR</option>
-      <option value="AED">AED</option>
-      <option value="SGD">S$ SGD</option>
-      <option value="AUD">A$ AUD</option>
-    </select>
-    <div class="sep"></div>
-    <button class="btn-csv" onclick="exportCSV()">
-      <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 9.5h8M6 1v7M3 5.5l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>CSV
-    </button>
-    <button class="btn-ghost" onclick="shareRecapCard()" title="Share monthly recap card" style="padding:5px 9px;display:flex;align-items:center;gap:4px;font-size:11px">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>Card
-    </button>
-    <button class="btn-pdf" id="pdfBtn" onclick="exportPDF()">
-      <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5.5l3 3 3-3M1 9.5v1a.5.5 0 00.5.5h9a.5.5 0 00.5-.5v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>PDF
-    </button>
+    <button class="btn-csv" onclick="exportCSV()"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 9.5h8M6 1v7M3 5.5l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>CSV</button>
+    <button class="btn-ghost" onclick="shareRecapCard()" title="Share recap card" style="padding:5px 9px;display:flex;align-items:center;gap:4px;font-size:11px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>Card</button>
+    <button class="btn-pdf" id="pdfBtn" onclick="exportPDF()"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5.5l3 3 3-3M1 9.5v1a.5.5 0 00.5.5h9a.5.5 0 00.5-.5v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>PDF</button>
     <div class="sep"></div>
     <button class="notif-btn" id="notifBell" onclick="openNotifPanel()" title="Notifications">
       <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
       <div class="notif-badge" id="notifBadge"></div>
     </button>
-    <button class="btn-whats-new" onclick="switchTab('new',document.querySelector('.tab-btn:last-child'))" title="What's New">
-      &#x2726;<span class="wn-btn-lbl"> What's New</span>
-    </button>
   </div>
   <div class="hdr-controls" id="otherControls" style="display:none">
-    <button class="btn-ghost" onclick="openInstallModal()" title="Install App" style="padding:5px 9px;font-size:11px">&#x2B07; Install</button>
-    <button class="notif-btn" onclick="openNotifPanel()" title="Notifications" style="margin-left:4px">
+    <button class="notif-btn" onclick="openNotifPanel()" title="Notifications">
       <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
       <div class="notif-badge" id="notifBadge2"></div>
-    </button>
-   <button class="btn-ghost" onclick="openPinSetup()" title="PIN Lock" style="padding:5px 9px;font-size:11px;display:flex;align-items:center;gap:4px">&#x1F512; Lock</button>
-    <button class="toggle-wrap" onclick="toggleDark()">
-      <div class="track" id="track2"><div class="knob"></div></div>
-      <span id="darkLbl2">Dark</span>
-    </button>
-    <div class="sep"></div>
-    <select id="currSel2" onchange="setCurrency(this.value)" title="Base Currency" style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:var(--r);padding:4px 6px;cursor:pointer">
-      <option value="INR">&#8377; INR</option>
-      <option value="USD">$ USD</option>
-      <option value="CAD">C$ CAD</option>
-      <option value="GBP">&#163; GBP</option>
-      <option value="EUR">&#8364; EUR</option>
-      <option value="AED">AED</option>
-      <option value="SGD">S$ SGD</option>
-      <option value="AUD">A$ AUD</option>
-    </select>
-    <div class="sep"></div>
-    <button class="btn-whats-new" onclick="switchTab('new',document.querySelector('.tab-btn:last-child'))" title="What's New">
-      &#x2726;<span class="wn-btn-lbl"> What's New</span>
     </button>
   </div>
 </header>
@@ -1710,7 +1715,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   <button class="tab-btn" onclick="switchTab('bills',this)">Bills</button>
   <button class="tab-btn" onclick="switchTab('invest',this)">Portfolio</button>
   <button class="tab-btn" onclick="switchTab('tools',this)">Planner</button>
-  <button class="tab-btn" onclick="switchTab('notes',this)">Notes</button>
+  <button class="tab-btn" onclick="switchTab('settings',this)">⚙ Settings</button>
 </nav>
 
 <!-- ══ BOTTOM NAV (mobile) ══════════════════════════════════ -->
@@ -1733,9 +1738,9 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <div class="bn-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
       <span class="bn-label">Planner</span>
     </button>
-    <button class="bn-btn" id="bn-notes" onclick="bnSwitch('notes',this)">
-      <div class="bn-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
-      <span class="bn-label">Notes</span>
+    <button class="bn-btn" id="bn-settings" onclick="bnSwitch('settings',this)">
+      <div class="bn-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+      <span class="bn-label">Settings</span>
     </button>
   </div>
 </nav>
@@ -2713,6 +2718,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <button class="sub-tab" id="recapSubTabBtn" onclick="switchToolsTab('recap',this)">&#x2736; FlowSnap</button>
     <button class="sub-tab" id="wrappedSubTabBtn" onclick="switchToolsTab('wrapped',this)" style="display:none">&#x1F381; Annual Wrapped</button>
     <button class="sub-tab" onclick="switchToolsTab('reports',this)">Reports</button>
+    <button class="sub-tab" onclick="switchToolsTab('notes',this)">&#x1F4DD; Notes</button>
   </div>
   <!-- FINANCIAL CALENDAR -->
   <div id="tsub-calendar" class="sub-pane active">
@@ -2823,29 +2829,27 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       </button>
     </div>
   </div>
-</div>
-</div>
 
-
-
-<!-- ══ NOTES TAB ═══════════════════════════════════════════ -->
-<div id="tab-notes" class="tab-pane">
-<div class="main">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-    <div style="display:flex;align-items:center;gap:7px">
-      <span class="sec-title">Notes</span>
-      <button class="info-btn" onclick="toggleInfo('tip-notes')" title="About Notes">i</button>
+  <!-- ── NOTES (moved from standalone tab) ───────────────── -->
+  <div id="tsub-notes" class="sub-pane">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:7px">
+        <span class="sec-title">Notes</span>
+        <button class="info-btn" onclick="toggleInfo('tip-notes')" title="About Notes">i</button>
+      </div>
+      <div style="display:flex;gap:6px">
+        <input type="text" id="noteSearch" placeholder="Search notes…" style="font-size:11px;padding:5px 10px" oninput="renderNotes()">
+        <button class="btn-primary btn-sm" onclick="openNewNote()">+ New Note</button>
+      </div>
     </div>
-    <div style="display:flex;gap:6px">
-      <input type="text" id="noteSearch" placeholder="Search notes…" style="font-size:11px;padding:5px 10px" oninput="renderNotes()">
-      <button class="btn-primary btn-sm" onclick="openNewNote()">+ New Note</button>
-    </div>
+    <div class="info-tip" id="tip-notes"><div class="info-tip-hd">Notes</div>Capture financial notes, reminders, and observations. Pin important notes to keep them at the top. Tap any note to edit. Use the search to filter by title or content.<button class="info-tip-close" onclick="toggleInfo('tip-notes')">×</button></div>
+    <div id="notesList"><div class="empty-msg">No notes yet. Click + New Note to create one.</div></div>
   </div>
-  <div class="info-tip" id="tip-notes"><div class="info-tip-hd">Notes</div>Capture financial notes, reminders, and observations. Pin important notes to keep them at the top. Tap any note to edit. Use the search to filter by title or content.<button class="info-tip-close" onclick="toggleInfo('tip-notes')">×</button></div>
 
-  <div id="notesList"><div class="empty-msg">No notes yet. Click + New Note to create one.</div></div>
 </div>
 </div>
+
+
 
 <!-- ══ WHAT'S NEW TAB ════════════════════════════════════════ -->
 <div id="tab-new" class="tab-pane">
@@ -2854,6 +2858,19 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="wn-hero-icon">&#x2726;</div>
     <div class="wn-hero-title">Flow &mdash; Release Notes</div>
     <div class="wn-hero-sub">Every feature, fix and improvement &mdash; from the beginning.</div>
+  </div>
+
+  <div class="wn-version-block">
+    <div class="wn-version-header">
+      <span class="wn-version-num">v2.4</span>
+      <span class="wn-version-date">Jun 2026</span>
+      <span class="wn-version-label wn-label-minor">Update</span>
+    </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">⚙ Settings Tab</div><div class="wn-entry-desc">A dedicated Settings tab (5th in desktop bar, gear icon in mobile nav). Profile — display name, currency, financial year. Appearance — Light/Auto/Dark theme with smooth transition. Security — PIN lock and lock-on-background. Notifications — bill reminders, SIP alerts, FlowSnap ping. Track preferences, backup frequency, storage usage and Clear All Data.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">📝 Notes Moved to Planner</div><div class="wn-entry-desc">Notes is now a sub-tab inside Planner — keeping the bottom nav focused on the 5 core areas: Track, Bills, Portfolio, Planner, Settings. Access via Planner → Notes. All existing notes are preserved.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-improved">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">Clean Header</div><div class="wn-entry-desc">The Track tab header now shows only what you need: month/year selector, Copy, Import, Search, CSV, Card, PDF and the notification bell. Dark mode, currency, PIN and Install moved to Settings — less clutter, same access.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-improved">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">Smooth Dark/Light Transition</div><div class="wn-entry-desc">Switching between light and dark mode now transitions every element smoothly — cards, borders, inputs, icons — at 350ms ease. Previously only the body background transitioned; everything else snapped.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-improved">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">Onboarding Tour Updated</div><div class="wn-entry-desc">The 16-step interactive tour now covers the Settings tab, Notes in Planner, the cleaned header and the mobile bottom nav. Steps are platform-aware — highlights the bottom bar on iOS/Android and the top bar on desktop.</div></div></div>
   </div>
 
   <div class="wn-version-block">
@@ -3033,6 +3050,191 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 </div>
 </div>
 
+<!-- ══ SETTINGS TAB ═════════════════════════════════════════ -->
+<div id="tab-settings" class="tab-pane">
+<div class="main">
+<div class="settings-page">
+
+  <div style="font-size:16px;font-weight:600;letter-spacing:-.3px;margin-bottom:18px">⚙ Settings</div>
+
+  <!-- ── PROFILE ──────────────────────────────────────────── -->
+  <div class="settings-section">
+    <div class="settings-section-hdr">Profile</div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Display Name</div><div class="settings-row-desc">Shown on FlowSnap recap cards</div></div>
+      <div class="settings-row-right"><input type="text" id="settName" placeholder="Your name" oninput="saveSett('flow_display_name',this.value)" autocomplete="off"></div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Currency</div><div class="settings-row-desc">All amounts shown in this currency</div></div>
+      <div class="settings-row-right">
+        <select id="settCurr" onchange="setCurrency(this.value);saveSett('flow_currency',this.value)">
+          <option value="INR">₹ INR</option>
+          <option value="USD">$ USD</option>
+          <option value="GBP">£ GBP</option>
+          <option value="EUR">€ EUR</option>
+          <option value="AED">AED</option>
+          <option value="SGD">S$ SGD</option>
+          <option value="AUD">A$ AUD</option>
+          <option value="CAD">C$ CAD</option>
+        </select>
+      </div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Financial Year Start</div><div class="settings-row-desc">Used in Annual Summary reports</div></div>
+      <div class="settings-row-right">
+        <select id="settFYStart" onchange="saveSett('flow_fy_start',this.value)">
+          <option value="4">April (India)</option>
+          <option value="1">January</option>
+          <option value="7">July</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── APPEARANCE ───────────────────────────────────────── -->
+  <div class="settings-section">
+    <div class="settings-section-hdr">Appearance</div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Theme</div><div class="settings-row-desc">Light, Dark, or follow system</div></div>
+      <div class="settings-row-right">
+        <div class="settings-pill" id="settThemePill">
+          <button onclick="setThemeMode('light',this)">Light</button>
+          <button onclick="setThemeMode('system',this)">Auto</button>
+          <button onclick="setThemeMode('dark',this)">Dark</button>
+        </div>
+      </div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Hide Amounts</div><div class="settings-row-desc">Mask all numbers with ••••</div></div>
+      <div class="settings-row-right"><label class="toggle-lbl"><div class="track" id="settEyeTrack" onclick="toggleAllEyes();updateSettEyeTrack()"><div class="knob" id="settEyeKnob"></div></div></label></div>
+    </div>
+  </div>
+
+  <!-- ── SECURITY ─────────────────────────────────────────── -->
+  <div class="settings-section">
+    <div class="settings-section-hdr">Security</div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">PIN Lock</div><div class="settings-row-desc">Require PIN to open Flow</div></div>
+      <div class="settings-row-right"><button class="btn-ghost btn-sm" onclick="openPinSetup(false)" style="font-size:11px" id="settPinBtn">Set PIN</button></div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Lock on Background</div><div class="settings-row-desc">Lock immediately when app is minimised</div></div>
+      <div class="settings-row-right"><label class="toggle-lbl"><div class="track" id="settLockBgTrack" onclick="toggleSett('flow_lock_bg','settLockBgTrack')"><div class="knob" id="settLockBgKnob"></div></div></label></div>
+    </div>
+  </div>
+
+  <!-- ── NOTIFICATIONS ────────────────────────────────────── -->
+  <div class="settings-section">
+    <div class="settings-section-hdr">Notifications &amp; Reminders</div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Bill Reminders</div><div class="settings-row-desc">Alert for upcoming bill due dates</div></div>
+      <div class="settings-row-right"><label class="toggle-lbl"><div class="track" id="settBillNotifTrack" onclick="toggleSett('flow_notif_bills','settBillNotifTrack')"><div class="knob" id="settBillNotifKnob"></div></div></label></div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Remind Days Before</div><div class="settings-row-desc">How early to show bill alerts</div></div>
+      <div class="settings-row-right">
+        <div class="settings-pill" id="settBillDaysPill">
+          <button onclick="setSettPill('flow_notif_bill_days','1','settBillDaysPill',this)">1d</button>
+          <button onclick="setSettPill('flow_notif_bill_days','3','settBillDaysPill',this)">3d</button>
+          <button onclick="setSettPill('flow_notif_bill_days','7','settBillDaysPill',this)">7d</button>
+        </div>
+      </div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">SIP Reminders</div><div class="settings-row-desc">Alert on SIP investment date</div></div>
+      <div class="settings-row-right"><label class="toggle-lbl"><div class="track" id="settSIPTrack" onclick="toggleSett('flow_notif_sip','settSIPTrack')"><div class="knob" id="settSIPKnob"></div></div></label></div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">FlowSnap Alert</div><div class="settings-row-desc">Notify on the 25th when FlowSnap is ready</div></div>
+      <div class="settings-row-right"><label class="toggle-lbl"><div class="track" id="settSnapTrack" onclick="toggleSett('flow_notif_snap','settSnapTrack')"><div class="knob" id="settSnapKnob"></div></div></label></div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Browser Notifications</div><div class="settings-row-desc">Allow OS-level alerts (required for all above)</div></div>
+      <div class="settings-row-right"><button class="btn-ghost btn-sm" onclick="requestNotifPermission()" style="font-size:11px" id="settNotifPermBtn">Allow</button></div>
+    </div>
+  </div>
+
+  <!-- ── TRACK PREFERENCES ────────────────────────────────── -->
+  <div class="settings-section">
+    <div class="settings-section-hdr">Track Tab Preferences</div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Default View</div><div class="settings-row-desc">View shown when opening Track tab</div></div>
+      <div class="settings-row-right">
+        <div class="settings-pill" id="settTrackViewPill">
+          <button onclick="setSettPill('flow_default_track','ledger','settTrackViewPill',this)">Monthly</button>
+          <button onclick="setSettPill('flow_default_track','daily','settTrackViewPill',this)">Daily</button>
+        </div>
+      </div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Budget Warning At</div><div class="settings-row-desc">Show warning when category reaches this %</div></div>
+      <div class="settings-row-right">
+        <div class="settings-pill" id="settBudgetWarnPill">
+          <button onclick="setSettPill('flow_budget_warn','70','settBudgetWarnPill',this)">70%</button>
+          <button onclick="setSettPill('flow_budget_warn','80','settBudgetWarnPill',this)">80%</button>
+          <button onclick="setSettPill('flow_budget_warn','90','settBudgetWarnPill',this)">90%</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DATA & BACKUP ─────────────────────────────────────── -->
+  <div class="settings-section">
+    <div class="settings-section-hdr">Data &amp; Backup</div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Backup Now</div><div class="settings-row-desc" id="settBackupDesc">Export all your data as a JSON file</div></div>
+      <div class="settings-row-right"><button class="btn-primary btn-sm" onclick="backupData()" style="font-size:11px">&#x2B07; Backup</button></div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Restore from Backup</div><div class="settings-row-desc">Replace all data with a saved backup file</div></div>
+      <div class="settings-row-right"><label class="btn-ghost btn-sm" style="font-size:11px;cursor:pointer;padding:5px 10px;border:1px solid var(--border);border-radius:var(--r)">&#x2191; Restore<input type="file" accept=".json" onchange="restoreData(this)" style="display:none"></label></div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Backup Reminder</div><div class="settings-row-desc">How often to remind you to back up</div></div>
+      <div class="settings-row-right">
+        <div class="settings-pill" id="settBackupFreqPill">
+          <button onclick="setSettPill('flow_backup_freq','weekly','settBackupFreqPill',this)">Weekly</button>
+          <button onclick="setSettPill('flow_backup_freq','monthly','settBackupFreqPill',this)">Monthly</button>
+          <button onclick="setSettPill('flow_backup_freq','off','settBackupFreqPill',this)">Off</button>
+        </div>
+      </div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Storage Used</div><div class="settings-row-desc">Total localStorage used by Flow</div></div>
+      <div class="settings-row-right" style="font-size:12px;color:var(--muted)" id="settStorageSize">—</div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label settings-danger">Clear All Data</div><div class="settings-row-desc">Permanently delete everything — cannot be undone</div></div>
+      <div class="settings-row-right"><button class="btn-ghost btn-sm settings-danger" onclick="clearAllData()" style="font-size:11px;border-color:var(--deficit)">Clear All</button></div>
+    </div>
+  </div>
+
+  <!-- ── ABOUT ─────────────────────────────────────────────── -->
+  <div class="settings-section">
+    <div class="settings-section-hdr">About</div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">App Version</div></div>
+      <div class="settings-row-right" style="font-size:12px;color:var(--muted)">Flow v2.3</div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">What's New</div><div class="settings-row-desc">See latest features and changes</div></div>
+      <div class="settings-row-right"><button class="btn-ghost btn-sm" onclick="switchTab('new',document.querySelector('.tab-btn[onclick*=\"new\"]'))" style="font-size:11px">View →</button></div>
+    </div><div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Privacy</div><div class="settings-row-desc">All data stays on this device — nothing sent to any server</div></div>
+      <div class="settings-row-right"><span style="font-size:11px;color:var(--surplus)">🔒 Local only</span></div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Install App</div><div class="settings-row-desc">Add to home screen for offline use</div></div>
+      <div class="settings-row-right"><button class="btn-ghost btn-sm" onclick="openInstallModal()" style="font-size:11px">&#x2B07; Install</button></div>
+    </div>
+  </div>
+
+  <div class="settings-version">Flow — Personal Finance</div>
+
+</div>
+</div>
+</div>
+
 <!-- ══ FOOTER ═══════════════════════════════════════════════ -->
 <footer class="footer">
   <div class="footer-inner">
@@ -3134,9 +3336,16 @@ function switchTab(id,btn){
   if(id==='track'){tc.style.display='flex';oc.style.display='none'}
   else{tc.style.display='none';oc.style.display='flex'}
   if(id==='bills'){renderBills();calcAnnualBillCost();renderLoans();renderSubs();renderSplits();}
-  if(id==='notes'){renderNotes();}
+  if(id==='notes'){
+    // Notes moved to Planner sub-tab — redirect transparently
+    const toolsBtn=document.querySelector('.tab-btn[onclick*="\'tools\'"]');
+    switchTab('tools',toolsBtn);
+    setTimeout(()=>{const nb=document.querySelector('#tab-tools .sub-tab[onclick*="\'notes\'"]');if(nb)switchToolsTab('notes',nb);},50);
+    return;
+  }
   if(id==='invest'){renderHoldingsTable();renderDividendTable();renderGoals();renderMFTable();renderFDTable();calcSIP();updateInvestSummary();updateAllocChart();setTimeout(renderNWChart,200);}
   if(id==='tools'){initToolsSelectors();renderCalendar();}
+  if(id==='settings'){loadSettingsUI();}
   // ── Sync bottom nav active state ────────────────────────
   document.querySelectorAll('.bn-btn').forEach(b=>b.classList.remove('active'));
   const bn=document.getElementById('bn-'+id);
@@ -3152,11 +3361,13 @@ function switchSubTab(id,btn){
   if(id==='mf'){loadAllSchemes();renderMFSIPSummary();}
   if(id==='fdtracker'){renderFDTable();}
   if(id==='goals'){renderGoals();}
+  if(id==='notes'){renderNotes();}
 }
 function switchToolsTab(id,btn){
   const tabPane=btn.closest('.tab-pane');
   if(tabPane){tabPane.querySelectorAll('.sub-pane').forEach(p=>p.classList.remove('active'));tabPane.querySelectorAll('.sub-tab').forEach(b=>b.classList.remove('active'));}
-  document.getElementById('tsub-'+id).classList.add('active');
+  const pane=document.getElementById('tsub-'+id);
+  if(pane)pane.classList.add('active');
   btn.classList.add('active');
   if(id==='calendar')renderCalendar();
   if(id==='emfund')renderEmfund();
@@ -3164,6 +3375,7 @@ function switchToolsTab(id,btn){
   if(id==='recap')renderFlowRecap();
   if(id==='wrapped')renderAnnualWrapped();
   if(id==='reports'){initRepSelectors();switchRepType('track',document.getElementById('repTabTrack'));}
+  if(id==='notes')renderNotes();
 }
 
 // ══ DARK MODE ══════════════════════════════════════════════
@@ -3171,10 +3383,22 @@ function applyDark(){
   document.documentElement.setAttribute('data-theme',dark?'dark':'');
   ['track','track2'].forEach(id=>{const t=document.getElementById(id);if(t)t.className='track'+(dark?' on':'')});
   ['darkLbl','darkLbl2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=dark?'Light':'Dark'});
+  // Update settings theme pill if open
+  const sp=document.getElementById('settThemePill');
+  if(sp){const mode=localStorage.getItem('flow_theme_mode')||'dark';_activatePillByVal&&_activatePillByVal('settThemePill',mode);}
   localStorage.setItem('flow_dark',dark);
   updateCharts();
 }
-function toggleDark(){dark=!dark;applyDark()}
+function toggleDark(){
+  dark=!dark;
+  // Add class first — double rAF ensures browser paints ONE frame with the
+  // transition rule active before data-theme flips, so elements can interpolate
+  document.documentElement.classList.add('dark-transitioning');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    applyDark();
+    setTimeout(()=>document.documentElement.classList.remove('dark-transitioning'),420);
+  }));
+}
 
 // ══ INIT SELECTORS ═════════════════════════════════════════
 (function(){
@@ -5012,66 +5236,70 @@ document.addEventListener('keydown', function(e){
 
 // ══ INTERACTIVE TOUR ════════════════════════════════════════
 const TOUR_STEPS=[
-  // 1 — TRACK: overview
+  // 1 — NAVIGATION
   {tab:'track',target:'.tab-bar',chip:'Navigation',
-   title:'5 Tabs — Everything in one app',
-   desc:'Flow has 5 tabs. We\'ll walk you through each one live. Tap Next to go tab by tab.'},
-  // 2 — TRACK: month selector
+   title:'5 Tabs — Everything in one place',
+   desc:'Flow has 5 tabs: Track, Bills, Portfolio, Planner and Settings. On mobile they appear as a bottom nav bar. Tap Next to explore each one live.'},
+  // 2 — TRACK: month controls
   {tab:'track',target:'#trackControls',chip:'Track',
-   title:'Select Month & Export',
-   desc:'Change the month from the selector above. Export your data as PDF, CSV, or a shareable recap card anytime.'},
+   title:'Month Selector & Exports',
+   desc:'Switch month and year from the top bar. Export as PDF, CSV, or a shareable recap card. Use Search to find any entry across all months.'},
   // 3 — TRACK: summary cards
   {tab:'track',target:'.summary',chip:'Track',
-   title:'Monthly Summary — Live Totals',
-   desc:'Income, Expenses and Net Flow update the instant you add an entry. Your savings rate is always visible here.'},
-  // 4 — TRACK: ledger
+   title:'Live Summary — Income · Expenses · Net',
+   desc:'Cards animate as you add entries. Your savings rate is always visible. Hide all amounts with the eye toggle inside Settings → Appearance.'},
+  // 4 — TRACK: daily view
+  {tab:'track',target:'.view-toggle',chip:'Track',
+   title:'Monthly or Daily Tracker',
+   desc:'Switch between the full monthly ledger and the Daily Expense Tracker. Daily is independent — small daily purchases tracked separately, never mixed with monthly budget.'},
+  // 5 — TRACK: ledger
   {tab:'track',target:'.ledger',chip:'Track',scroll:true,
-   title:'Your Ledger — Add Entries Here',
-   desc:'Tap "+ Add income entry" or "+ Add expense entry" below to log money. Add category, description and tag. Drag rows to reorder.'},
-  // 5 — TRACK: charts
-  {tab:'track',target:'.chart-card',chip:'Track',scroll:true,
-   title:'Charts — Auto-Generated',
-   desc:'Bar chart (income vs expenses) and pie chart (spend by category) build themselves as you add entries. No setup needed.'},
+   title:'Your Ledger — Add Entries',
+   desc:'Tap "+ Add income entry" or "+ Add expense entry" to log money. Add category, description and tag. Drag rows to reorder. Save recurring entries as templates.'},
   // 6 — BILLS: tab
   {tab:'bills',target:'.tab-btn:nth-child(2)',chip:'Bills',
-   title:'Bills Tab — Reminders & Splits',
-   desc:'Track recurring bills with due dates, split expenses with friends, monitor loans and subscriptions — all here.'},
+   title:'Bills — Reminders, Splits & Loans',
+   desc:'Four sub-tabs: Bill Reminders, Bill Split, Loan Tracker and Subscriptions. A red dot on Bills in the nav bar means an overdue payment.'},
   // 7 — BILLS: reminders
   {tab:'bills',target:'#bsub-reminders',chip:'Bill Reminders',
    title:'Bill Reminders',
-   desc:'Add recurring bills — rent, credit card, loan EMI, insurance. Flow shows what\'s due this week and what\'s overdue in red.'},
-  // 8 — BILLS: split up
+   desc:'Add recurring bills with due dates. Overdue shows in red. Flow sends browser notifications 3 days before each due date — enable in Settings → Notifications.'},
+  // 8 — BILLS: split
   {tab:'bills',subtab:'split',target:'#bsub-split .sec-hdr',chip:'Bill Split',
    title:'⚡ Split Up — Notify via WhatsApp',
-   desc:'Split any shared expense instantly. Enter total → auto-divides equally → tap 💬 to notify each person via WhatsApp or SMS.'},
+   desc:'Split any shared expense instantly. Enter total → auto-divides equally → notify each person via WhatsApp or SMS. Track who settled; nudge after 3 days.'},
   // 9 — PORTFOLIO: tab
   {tab:'invest',target:'.tab-btn:nth-child(3)',chip:'Portfolio',
-   title:'Portfolio Tab — All Investments',
-   desc:'Track equity, mutual funds, gold, FD, PPF, NPS, crypto and more. Set savings goals and use financial calculators.'},
-  // 10 — PORTFOLIO: sub-tabs
-  {tab:'invest',target:'#tab-invest .sub-tabs',chip:'Portfolio',
-   title:'Holdings, MF, Goals & Calculators',
-   desc:'Four sections: Holdings for all assets, Mutual Funds with live NAV, Savings Goals with progress, and Financial Calculators (SIP, EMI, FD, Loan Prepayment, Inflation).'},
-  // 11 — PORTFOLIO: mutual funds
+   title:'Portfolio — All Your Investments',
+   desc:'Track equity, mutual funds, gold, FD, PPF, NPS, crypto. Set savings goals with progress bars. Use SIP, EMI, FD and inflation calculators. Live NAV from AMFI.'},
+  // 10 — PORTFOLIO: mutual funds
   {tab:'invest',subtab:'mf',target:'#mfSearch',chip:'Mutual Funds',scroll:true,
    title:'16,000+ Mutual Fund Schemes',
-   desc:'Search any AMFI-registered fund by name or AMC. Live NAV fetched automatically. Set up SIP schedules and track XIRR returns.'},
-  // 12 — PLANNER: tab
+   desc:'Search any AMFI-registered fund. Live NAV updated automatically. Set monthly SIP amount and date. XIRR calculated per fund.'},
+  // 11 — PLANNER: tab
   {tab:'tools',target:'.tab-btn:nth-child(4)',chip:'Planner',
-   title:'Planner Tab — Tools & Calendar',
-   desc:'Financial calendar, emergency fund tracker, debt payoff planner, monthly FlowSnap recap, and detailed reports — all here.'},
+   title:'Planner — 7 Tools in One Tab',
+   desc:'Financial Calendar, Emergency Fund, Debt Payoff, FlowSnap monthly recap, Annual Wrapped, Reports and Notes — all here as sub-tabs.'},
+  // 12 — PLANNER: FlowSnap
+  {tab:'tools',target:'#recapSubTabBtn',chip:'FlowSnap',
+   title:'✦ FlowSnap — Monthly Recap (25th–end)',
+   desc:'Available 25th to last day of every month. Shows savings grade A–F, income vs expenses, top spend categories and a narrative. Export as PDF.'},
   // 13 — PLANNER: calendar
   {tab:'tools',target:'#tsub-calendar',chip:'Calendar',
    title:'Financial Calendar',
-   desc:'Every bill due date and SIP day plotted on one calendar. Green = paid, amber = due soon, red = overdue. Never miss a payment.'},
-  // 14 — NOTES: tab
-  {tab:'notes',target:'#tab-notes .main',chip:'Notes',
-   title:'Notes — Quick Financial Jots',
-   desc:'Write financial goals, budget notes, or reminders. Pin important notes to the top. Lightweight and always available offline.'},
-  // 15 — FINAL
-  {tab:'track',target:'.ledger .btn-add',chip:'Ready!',scroll:true,
+   desc:'Every bill due date and SIP day on one calendar. Green = paid, amber = due soon, red = overdue. Never miss a payment.'},
+  // 14 — PLANNER: notes
+  {tab:'tools',subtab:'notes',target:'#tsub-notes',chip:'Notes',
+   title:'📝 Notes — Inside Planner',
+   desc:'Write financial goals, reminders or anything. Pin important notes to the top. Find under Planner → Notes sub-tab.'},
+  // 15 — SETTINGS
+  {tab:'settings',target:'#tab-settings .settings-page',chip:'Settings',
+   title:'⚙ Settings — Your Control Centre',
+   desc:'Set currency, theme (Light/Auto/Dark), display name and financial year. Configure PIN lock, notifications, backup reminders and Track view preferences — all here.'},
+  // 16 — FINAL
+  {tab:'track',target:'.ledger',chip:'Ready!',scroll:true,
    title:'You\'re all set! 🎉',
-   desc:'Tap "+ Add income entry" to log your first transaction. All your data stays on this device — private, offline, yours.'},
+   desc:'Tap "+ Add income entry" to log your first transaction. All data stays on this device — private, offline, always yours.'},
 ];
 
 let _tourStep=0;
@@ -5087,55 +5315,59 @@ const startOnboarding=startTour;
 
 function _showTourStep(){
   const step=TOUR_STEPS[_tourStep];
-  const total=TOUR_STEPS.length;
-  // ── Switch tab
-  const tabBtn=document.querySelector('.tab-btn[onclick*="\''+step.tab+'\'"]');
-  if(tabBtn&&!tabBtn.classList.contains('active'))tabBtn.click();
-  // ── Switch sub-tab after a tick
+  // ── Switch to correct tab — works on both desktop (tab-btn) and mobile (bottom nav)
+  const isMobile=window.innerWidth<=768;
+  if(isMobile){
+    const bnBtn=document.getElementById('bn-'+step.tab);
+    if(bnBtn&&!bnBtn.classList.contains('active'))bnSwitch(step.tab,bnBtn);
+  } else {
+    const tabBtn=document.querySelector('.tab-btn[onclick*=\'\''+step.tab+'\'\']');
+    if(tabBtn&&!tabBtn.classList.contains('active'))tabBtn.click();
+  }
+  // ── Switch sub-tab after tab settles
   if(step.subtab){
-    const stBtn=document.getElementById('btab-'+step.subtab)||document.querySelector('[onclick*="switchSubTab(\''+step.subtab+'\'"]');
     setTimeout(()=>{
       if(step.tab==='bills'){const b=document.getElementById('btab-'+step.subtab);if(b)switchBillsTab(step.subtab,b);}
-      else if(stBtn)stBtn.click();
+      else if(step.tab==='invest'){const b=document.querySelector('#tab-invest .sub-tab[onclick*="\''+step.subtab+'\'"]');if(b)switchSubTab(step.subtab,b);}
+      else if(step.tab==='tools'){const b=document.querySelector('#tab-tools .sub-tab[onclick*="\''+step.subtab+'\'"]');if(b)switchToolsTab(step.subtab,b);}
       _positionTour(step);
-    },200);
+    },260);
   } else {
-    _positionTour(step);
+    setTimeout(()=>_positionTour(step),110);
   }
 }
 
+
 function _positionTour(step){
-  // ── Update card content
   document.getElementById('tourTabChip').textContent=step.chip;
   document.getElementById('tourTitle').textContent=step.title;
   document.getElementById('tourDesc').textContent=step.desc;
   document.getElementById('tourStepCount').textContent=(_tourStep+1)+' / '+TOUR_STEPS.length;
   const nb=document.getElementById('tourNextBtn');
   if(nb)nb.textContent=_tourStep===TOUR_STEPS.length-1?'Start Tracking →':'Next →';
-  // Dots
   const dotsEl=document.getElementById('tourDots');
   dotsEl.innerHTML=TOUR_STEPS.map((_,i)=>'<div class="tour-dot'+(i<_tourStep?' done':i===_tourStep?' active':'')+'"></div>').join('');
-  // ── Show overlay + card
   const overlay=document.getElementById('tourOverlay');
   const card=document.getElementById('tourCard');
   const hl=document.getElementById('tourHighlight');
   overlay.style.display='block';
   card.style.display='block';
-  card.classList.toggle('entering',true);
+  card.classList.add('entering');
   setTimeout(()=>card.classList.remove('entering'),300);
-  // ── Position highlight
   const doPosition=()=>{
-    const target=document.querySelector(step.target);
+    let target=document.querySelector(step.target);
+    // Mobile: .tab-bar is hidden — fall back to .bottom-nav for nav steps
+    if(target&&getComputedStyle(target).display==='none'&&
+       (step.target==='.tab-bar'||step.target.includes('.tab-btn'))){
+      target=document.querySelector('.bottom-nav');
+    }
     if(!target){hl.style.display='none';return;}
     if(step.scroll)target.scrollIntoView({behavior:'smooth',block:'nearest'});
     setTimeout(()=>{
       const r=target.getBoundingClientRect();
       const pad=7;
-      // Account for card height so highlight is visible above card
-      const cardH=card.offsetHeight;
-      const finalTop=Math.min(r.top-pad, window.innerHeight-cardH-r.height-30);
       hl.style.cssText='display:block;top:'+(r.top-pad)+'px;left:'+(r.left-pad)+'px;width:'+(r.width+pad*2)+'px;height:'+(r.height+pad*2)+'px;';
-    },step.scroll?400:80);
+    },step.scroll?420:90);
   };
   doPosition();
 }
@@ -7509,6 +7741,100 @@ function checkAndShowNotifBadge(){
   if(localStorage.getItem('flow_notif_enabled')==='1'&&Notification.permission==='granted'){
     sendNotifsViaServiceWorker();
   }
+}
+
+
+// ══ SETTINGS TAB ══════════════════════════════════════════
+function saveSett(key,val){localStorage.setItem(key,val);}
+
+function loadSettingsUI(){
+  const nm=document.getElementById('settName');if(nm)nm.value=localStorage.getItem('flow_display_name')||'';
+  const cu=document.getElementById('settCurr');if(cu)cu.value=BASE_CURRENCY;
+  const fy=document.getElementById('settFYStart');if(fy)fy.value=localStorage.getItem('flow_fy_start')||'4';
+  const theme=localStorage.getItem('flow_theme_mode')||'dark';
+  _activatePillByVal('settThemePill',theme);
+  updateSettEyeTrack();
+  const pinSet=!!localStorage.getItem('flow_pin');
+  const pb=document.getElementById('settPinBtn');if(pb)pb.textContent=pinSet?'Change PIN':'Set PIN';
+  _setTrackState('settLockBgTrack','settLockBgKnob',localStorage.getItem('flow_lock_bg')==='1');
+  _setTrackState('settBillNotifTrack','settBillNotifKnob',localStorage.getItem('flow_notif_bills')!=='0');
+  _setTrackState('settSIPTrack','settSIPKnob',localStorage.getItem('flow_notif_sip')!=='0');
+  _setTrackState('settSnapTrack','settSnapKnob',localStorage.getItem('flow_notif_snap')!=='0');
+  _activatePillByVal('settBillDaysPill',localStorage.getItem('flow_notif_bill_days')||'3');
+  const np=document.getElementById('settNotifPermBtn');
+  if(np){const p='Notification' in window?Notification.permission:'denied';np.textContent=p==='granted'?'✓ Allowed':p==='denied'?'Blocked':'Allow';np.style.color=p==='granted'?'var(--surplus)':p==='denied'?'var(--deficit)':'';}
+  _activatePillByVal('settTrackViewPill',localStorage.getItem('flow_default_track')||'ledger');
+  _activatePillByVal('settBudgetWarnPill',localStorage.getItem('flow_budget_warn')||'80');
+  const lastBk=parseInt(localStorage.getItem('flow_last_backup')||'0');
+  const bd=document.getElementById('settBackupDesc');
+  if(bd){const days=lastBk?Math.floor((Date.now()-lastBk)/86400000):null;
+    bd.textContent=days===null?'Never backed up — back up now!':days===0?'Last backup: today':days===1?'Last backup: yesterday':'Last backup: '+days+' days ago';
+    bd.style.color=(!lastBk||days>=14)?'var(--deficit)':days>=7?'var(--amber)':'var(--faint)';}
+  _activatePillByVal('settBackupFreqPill',localStorage.getItem('flow_backup_freq')||'weekly');
+  const storEl=document.getElementById('settStorageSize');
+  if(storEl){let bytes=0;for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('flow'))bytes+=(localStorage.getItem(k)||'').length*2;}storEl.textContent=bytes>1048576?(bytes/1048576).toFixed(1)+' MB':Math.round(bytes/1024)+' KB';}
+}
+
+function _setTrackState(trackId,knobId,on){
+  const t=document.getElementById(trackId),k=knobId?document.getElementById(knobId):null;
+  if(t)t.className='track'+(on?' on':'');
+  if(k)k.style.transform=on?'translateX(13px)':'';
+}
+function _activatePillByVal(pillId,val){
+  const pill=document.getElementById(pillId);if(!pill)return;
+  pill.querySelectorAll('button').forEach(b=>{
+    const bval=b.getAttribute('onclick')||'';
+    b.classList.toggle('active',bval.includes("'"+val+"'")||bval.includes('"'+val+'"'));
+  });
+}
+function toggleSett(key,trackId){
+  const curr=localStorage.getItem(key);
+  const defaultOn=key.startsWith('flow_notif');
+  const isOn=curr===null?defaultOn:curr==='1';
+  const newVal=isOn?'0':'1';
+  localStorage.setItem(key,newVal);
+  const knobId=trackId.replace('Track','Knob');
+  _setTrackState(trackId,knobId,newVal==='1');
+}
+function setSettPill(key,val,pillId,btn){
+  localStorage.setItem(key,val);
+  const pill=document.getElementById(pillId);
+  if(pill)pill.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+}
+function setThemeMode(mode,btn){
+  localStorage.setItem('flow_theme_mode',mode);
+  const pill=document.getElementById('settThemePill');
+  if(pill)pill.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  if(mode==='dark') dark=true;
+  else if(mode==='light') dark=false;
+  else dark=!!(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches);
+  document.documentElement.classList.add('dark-transitioning');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    applyDark();
+    setTimeout(()=>document.documentElement.classList.remove('dark-transitioning'),420);
+  }));
+}
+function updateSettEyeTrack(){
+  const eyeOff=localStorage.getItem('flow_eye_all')==='1';
+  _setTrackState('settEyeTrack',null,eyeOff);
+  const knob=document.getElementById('settEyeKnob');
+  if(knob)knob.style.transform=eyeOff?'translateX(13px)':'';
+}
+function clearAllData(){
+  if(!confirm('⚠ This will permanently delete ALL your Flow data — entries, bills, portfolio, notes, everything. This cannot be undone.\n\nAre you absolutely sure?'))return;
+  if(!confirm('Last chance. Press OK to erase all data.'))return;
+  const keep=['flow_dark','flow_currency','flow_theme_mode','flow_display_name','flow_fy_start','flow_notif_bills','flow_notif_sip','flow_notif_snap','flow_notif_bill_days','flow_backup_freq','flow_default_track','flow_budget_warn','flow_pin','flow_lock_bg'];
+  const saved={};keep.forEach(k=>{const v=localStorage.getItem(k);if(v!==null)saved[k]=v;});
+  localStorage.clear();
+  Object.entries(saved).forEach(([k,v])=>localStorage.setItem(k,v));
+  DB={};BILLS=[];LOANS=[];SPLITS=[];SUBS=[];NOTES=[];DAILY_EXPENSES=[];
+  if(typeof INVEST!=='undefined')INVEST={goals:[],mf:[],holdings:[],dividends:[],fds:[]};
+  if(typeof BUDGETS!=='undefined')BUDGETS={};
+  if(typeof TEMPLATES!=='undefined')TEMPLATES=[];
+  render();showToast('All data cleared','Settings and preferences were kept');
+  loadSettingsUI();
 }
 
 // ══ DEMO MODE ═════════════════════════════════════════════
