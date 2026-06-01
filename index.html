@@ -669,16 +669,6 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .settings-pill button.active{background:var(--text);color:var(--bg);font-weight:500}
 .settings-danger{color:var(--deficit)!important}
 .settings-version{text-align:center;padding:20px 0 8px;font-size:10.5px;color:var(--faint)}
-/* ══ SMART ENTRY SUGGESTIONS ════════════════════════════════ */
-.smart-suggest-wrap{position:relative}
-.smart-suggest-dropdown{position:fixed;z-index:9999;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 8px 28px rgba(0,0,0,.18);overflow:hidden;min-width:200px;max-width:360px}
-.smart-suggest-item{display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;transition:background .12s;border-bottom:1px solid var(--border)}
-.smart-suggest-item:last-child{border-bottom:none}
-.smart-suggest-item:hover,.smart-suggest-item:focus{background:var(--surface-alt);outline:none}
-.ss-cat{font-size:10px;padding:2px 7px;border-radius:10px;background:var(--surface-alt);color:var(--muted);white-space:nowrap;border:1px solid var(--border)}
-.ss-desc{flex:1;font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ss-amt{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap}
-.ss-freq{font-size:9px;color:var(--faint);white-space:nowrap}
 /* ══ LOCK SCREEN ════════════════════════════════════════════ */
 .lock-screen{position:fixed;inset:0;background:var(--bg);z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;overflow-y:auto}
 .lock-screen.hidden{display:none}
@@ -3307,6 +3297,8 @@ const CURRENCIES={
 };
 let BASE_CURRENCY=localStorage.getItem('flow_currency')||'INR';
 const fmt  = n=>{const c=CURRENCIES[BASE_CURRENCY]||CURRENCIES.INR;return c.sym+Math.abs(n||0).toLocaleString(c.locale);};
+// Returns YYYY-MM-DD in LOCAL timezone (avoids toISOString UTC-shift bug for UTC+ users)
+const _localDateStr=(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const fmtC = (n,cur)=>{const c=CURRENCIES[cur||BASE_CURRENCY]||CURRENCIES.INR;return c.sym+Math.abs(n||0).toLocaleString(c.locale);};
 const fmtN = n=>(n<0?'−':'')+fmt(n);
 const key  = ()=>`${selM()}_${selY()}`;
@@ -3819,7 +3811,7 @@ function selectMF(code,name){
   document.getElementById('mfResults').style.display='none';
   document.getElementById('mfSelName').textContent=name;
   document.getElementById('mfAddForm').style.display='block';
-  document.getElementById('mfDate').value=new Date().toISOString().split('T')[0];
+  document.getElementById('mfDate').value=_localDateStr();
   document.getElementById('mfUnits').focus();
 }
 document.addEventListener('click',e=>{if(!e.target.closest('.mf-search-wrap'))document.getElementById('mfResults').style.display='none'});
@@ -4909,7 +4901,7 @@ function setSIPForMF(id){
   const dayStr=prompt('SIP day of month (1-28):',(h.sip?.sipDay||5).toString());
   if(dayStr===null)return;
   const day=Math.max(1,Math.min(28,parseInt(dayStr)||5));
-  h.sip={active:true,sipDay:day,monthlyAmt:amt,startDate:h.date||new Date().toISOString().split('T')[0]};
+  h.sip={active:true,sipDay:day,monthlyAmt:amt,startDate:h.date||_localDateStr()};
   saveInvest();renderMFTable();renderMFSIPSummary();
   alert(`SIP set: ₹${fmt(amt)}/month on ${day}th`);
 }
@@ -5033,7 +5025,7 @@ function renderTemplates(){
 function backupData(){
   const data={v:'flow_backup_v1',timestamp:new Date().toISOString(),db:DB,bills:BILLS,invest:INVEST,loans:LOANS,splits:SPLITS,templates:TEMPLATES,emfund:EMFUND,subs:SUBS,notes:NOTES,nwHistory:NW_HISTORY,budgets:BUDGETS,dark};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const fname=`Flow_Backup_${new Date().toISOString().split('T')[0]}.json`;
+  const fname=`Flow_Backup_${_localDateStr()}.json`;
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;a.click();
   // Record backup time and refresh all backup status labels immediately
   localStorage.setItem('flow_last_backup',String(Date.now()));
@@ -5547,9 +5539,9 @@ function logNetWorthNow(){
   const existing=NW_HISTORY.find(x=>x.key===key);
   if(existing){
     if(!confirm(`Net Worth for ${MONTHS[today.getMonth()]} ${today.getFullYear()} already logged (${fmt(existing.val)}). Overwrite?`))return;
-    existing.val=nw;existing.date=today.toISOString().split('T')[0];
+    existing.val=nw;existing.date=_localDateStr(today);
   }else{
-    NW_HISTORY.push({key,val:nw,date:today.toISOString().split('T')[0]});
+    NW_HISTORY.push({key,val:nw,date:_localDateStr(today)});
   }
   NW_HISTORY.sort((a,b)=>a.key.localeCompare(b.key));
   saveNWHistory();renderNWChart();
@@ -7619,7 +7611,7 @@ function createQuickSplit(channel){
     if(name)members.push({id:uid(),name,amount:amt,phone,settled:false});
   });
   if(!members.length){alert('Add at least one person.');return;}
-  const sp={id:uid(),title,total,date:new Date().toISOString().split('T')[0],paidBy,payeeUPI,members,nudgeDays:3};
+  const sp={id:uid(),title,total,date:_localDateStr(),paidBy,payeeUPI,members,nudgeDays:3};
   SPLITS.push(sp);saveSplits();
   closeQuickSplit();
   // Switch to split tab first
@@ -7903,150 +7895,6 @@ function clearAllData(){
   loadSettingsUI();
 }
 
-// ══ SMART ENTRY SUGGESTIONS ═══════════════════════════════
-function _buildSuggestionDB(){
-  const idx={};
-  // From monthly ledger (DB)
-  Object.values(DB||{}).forEach(md=>{
-    ['income','expense'].forEach(type=>{
-      (md[type]||[]).forEach(e=>{
-        const d=(e.desc||'').trim(); if(!d||d.length<2) return;
-        const k=d.toLowerCase();
-        if(!idx[k]) idx[k]={desc:d,cats:{},amts:{}};
-        const c=e.cat||'';
-        idx[k].cats[c]=(idx[k].cats[c]||0)+1;
-        const a=parseFloat(e.amt)||0;
-        if(a>0){const ak=String(Math.round(a));idx[k].amts[ak]=(idx[k].amts[ak]||0)+1;}
-      });
-    });
-  });
-  // From Daily tracker
-  (DAILY_EXPENSES||[]).forEach(e=>{
-    const d=(e.desc||'').trim(); if(!d||d.length<2) return;
-    const k=d.toLowerCase();
-    if(!idx[k]) idx[k]={desc:d,cats:{},amts:{}};
-    const c=e.cat||'';
-    idx[k].cats[c]=(idx[k].cats[c]||0)+1;
-    const a=parseFloat(e.amt)||0;
-    if(a>0){const ak=String(Math.round(a));idx[k].amts[ak]=(idx[k].amts[ak]||0)+1;}
-  });
-  return idx;
-}
-
-function _getSuggestions(query){
-  if(!query||query.trim().length<2) return [];
-  const lower=query.trim().toLowerCase();
-  const idx=_buildSuggestionDB();
-  const results=[];
-  Object.entries(idx).forEach(([k,v])=>{
-    if(!k.includes(lower)) return;
-    const totalCount=Object.values(v.cats).reduce((s,n)=>s+n,0);
-    const bestCat=Object.entries(v.cats).sort((a,b)=>b[1]-a[1])[0];
-    const bestAmt=Object.entries(v.amts).sort((a,b)=>b[1]-a[1])[0];
-    results.push({desc:v.desc,cat:bestCat?bestCat[0]:'',amt:bestAmt?parseFloat(bestAmt[0]):0,count:totalCount});
-  });
-  return results.sort((a,b)=>b.count-a.count).slice(0,5);
-}
-
-function _showSuggestDropdown(inp,suggestions,onSelect){
-  _hideSuggestDropdown();
-  if(!suggestions.length) return;
-  const rect=inp.getBoundingClientRect();
-  const dd=document.createElement('div');
-  dd.className='smart-suggest-dropdown';
-  dd.id='smartSuggestDropdown';
-  // Position below the input, handle screen edge
-  const top=rect.bottom+2;
-  const left=Math.min(rect.left, window.innerWidth-240);
-  const w=Math.max(rect.width,220);
-  dd.style.cssText='top:'+top+'px;left:'+left+'px;width:'+w+'px;';
-  suggestions.forEach(s=>{
-    const item=document.createElement('div');
-    item.className='smart-suggest-item';
-    item.setAttribute('tabindex','-1');
-    item.innerHTML=
-      '<span class="ss-cat">'+(s.cat?esc(s.cat):'—')+'</span>'+
-      '<span class="ss-desc">'+esc(s.desc)+'</span>'+
-      (s.amt>0?'<span class="ss-amt">'+fmt(s.amt)+'</span>':'')+
-      '<span class="ss-freq">'+s.count+'×</span>';
-    item.addEventListener('mousedown',function(e){
-      e.preventDefault(); // prevent blur
-      onSelect(s);
-      _hideSuggestDropdown();
-    });
-    dd.appendChild(item);
-  });
-  document.body.appendChild(dd);
-}
-
-function _hideSuggestDropdown(){
-  const d=document.getElementById('smartSuggestDropdown');
-  if(d) d.remove();
-}
-
-function _attachSmartSuggest(inp,onSelect){
-  if(!inp||inp._ssInit) return;
-  inp._ssInit=true;
-  inp.addEventListener('input',function(){
-    const s=_getSuggestions(this.value);
-    _showSuggestDropdown(this,s,onSelect);
-  });
-  inp.addEventListener('blur',function(){setTimeout(_hideSuggestDropdown,180);});
-  inp.addEventListener('keydown',function(e){
-    if(e.key==='Escape') _hideSuggestDropdown();
-    if(e.key==='ArrowDown'){
-      const first=document.querySelector('#smartSuggestDropdown .smart-suggest-item');
-      if(first){e.preventDefault();first.focus();}
-    }
-  });
-}
-
-// Hook into Daily Expense form
-function initSmartSuggestDaily(){
-  const dqDesc=document.getElementById('dqDesc');
-  if(dqDesc){
-    _attachSmartSuggest(dqDesc,function(s){
-      dqDesc.value=s.desc;
-      const amt=document.getElementById('dqAmt');if(amt&&s.amt>0)amt.value=String(s.amt);
-      const cat=document.getElementById('dqCat');if(cat&&s.cat&&!cat.value)cat.value=s.cat;
-    });
-  }
-  const edDesc=document.getElementById('edqDesc');
-  if(edDesc){
-    _attachSmartSuggest(edDesc,function(s){
-      edDesc.value=s.desc;
-      const amt=document.getElementById('edqAmt');if(amt&&s.amt>0)amt.value=String(s.amt);
-      const cat=document.getElementById('edqCat');if(cat&&s.cat&&!cat.value)cat.value=s.cat;
-    });
-  }
-}
-
-// Event delegation for Monthly Ledger entries (.e-desc inputs)
-(function(){
-  document.addEventListener('input',function(e){
-    if(!e.target.classList.contains('e-desc')) return;
-    const inp=e.target;
-    if(inp._ssInit) return; // already handled (re-fires because _ssInit added)
-    // Not using _attachSmartSuggest here to avoid double-attach on dynamic rows
-    // Instead handle directly via event delegation
-    const s=_getSuggestions(inp.value);
-    if(!s.length){_hideSuggestDropdown();return;}
-    _showSuggestDropdown(inp,s,function(suggestion){
-      inp.value=suggestion.desc;
-      const row=inp.closest('.entry');
-      if(row){
-        const a=row.querySelector('.e-amt');if(a&&suggestion.amt>0)a.value=String(suggestion.amt);
-        const c=row.querySelector('.e-cat');if(c&&suggestion.cat&&!c.value)c.value=suggestion.cat;
-        // Trigger saves
-        [a,c,inp].forEach(function(el){if(el)el.dispatchEvent(new Event('change',{bubbles:true}));});
-      }
-    });
-  });
-  document.addEventListener('focusout',function(e){
-    if(e.target.classList.contains('e-desc'))setTimeout(_hideSuggestDropdown,180);
-  });
-})();
-
 // ══ DATA TRANSPARENCY BADGE ════════════════════════════════
 function updateStorageBadge(){
   // Calculate localStorage bytes used by Flow
@@ -8209,7 +8057,7 @@ function switchTrackView(mode){
     const inp=document.getElementById('dailyLimitInp');
     const lim=getDailyLimit();if(inp&&lim>0)inp.value=lim;
     const dq=document.getElementById('dqDate');
-    if(dq&&!dq.value)dq.value=new Date().toISOString().split('T')[0];
+    if(dq&&!dq.value)dq.value=_localDateStr();
     renderDailyView();
   }
 }
@@ -8278,7 +8126,9 @@ function renderDailyView(){
       if(d2.getMonth()===m&&d2.getFullYear()===y)days7.push(d2);
     }
     stripEl.innerHTML=days7.map(day=>{
-      const key=day.toISOString().split('T')[0];
+      // Use LOCAL date string — toISOString() returns UTC which shifts the date
+      // for users in UTC+ timezones during early morning hours (e.g. IST at 1 AM)
+      const key=day.getFullYear()+'-'+String(day.getMonth()+1).padStart(2,'0')+'-'+String(day.getDate()).padStart(2,'0');
       const dm=dayMap[key]||null;
       const amt=dm?dm.total:0;
       const isToday=isCurrentMonth&&day.toDateString()===today.toDateString();
@@ -8298,7 +8148,7 @@ function renderDailyView(){
   if(limWrap){
     if(dailyLimit>0&&isCurrentMonth){
       limWrap.style.display='flex';
-      const todayKey=today.toISOString().split('T')[0];
+      const todayKey=_localDateStr(today);
       const todaySpend=(dayMap[todayKey]||{total:0}).total;
       const pct=Math.min(Math.round((todaySpend/dailyLimit)*100),100);
       const fill=document.getElementById('dailyLimitFill');
@@ -8419,7 +8269,7 @@ function openEditDailyEntry(id){
   document.getElementById('edqCat').value=e.cat||'';
   document.getElementById('edqAmt').value=e.amt||'';
   document.getElementById('edqDesc').value=e.desc||'';
-  document.getElementById('edqDate').value=e.date||new Date().toISOString().split('T')[0];
+  document.getElementById('edqDate').value=e.date||_localDateStr();
   const modal=document.getElementById('editDailyModal');
   if(modal)modal.classList.add('open');
 }
@@ -8447,13 +8297,13 @@ function quickDailyAdd(){
   const cat=(document.getElementById('dqCat').value||'').trim();
   const desc=(document.getElementById('dqDesc').value||'').trim();
   const amt=parseFloat(document.getElementById('dqAmt').value)||0;
-  const dateVal=document.getElementById('dqDate').value||new Date().toISOString().split('T')[0];
+  const dateVal=document.getElementById('dqDate').value||_localDateStr();
   if(!cat||!amt){showToast('Category and amount required','');return;}
   DAILY_EXPENSES.push({id:uid(),cat,desc,amt:String(amt),note:'',date:dateVal,created:Date.now()});
   saveDaily();renderDailyView();
   ['dqCat','dqDesc','dqAmt'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const dq=document.getElementById('dqDate');
-  if(dq)dq.value=new Date().toISOString().split('T')[0]; // reset to today
+  if(dq)dq.value=_localDateStr(); // reset to today
   showToast('₹'+fmt(amt)+' logged',cat+(desc?' — '+desc:''));
 }
 
@@ -8461,7 +8311,7 @@ function quickDailyAdd(){
 function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();renderHeatmap();if(_dailyViewActive)renderDailyView();}
 applyDark();render();applyAllEyes();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();initRecapSelectors();initCurrencyUI();initNWToggle();
 // Notification badge + bottom nav bills dot on load
-setTimeout(()=>{checkAndShowNotifBadge();updateBnBillsDot();updateBackupStatus();checkBackupReminder();updateStorageBadge();initSmartSuggestDaily();},1500);
+setTimeout(()=>{checkAndShowNotifBadge();updateBnBillsDot();updateBackupStatus();checkBackupReminder();updateStorageBadge();},1500);
 if(localStorage.getItem('flow_demo_active')==='1'){const db=document.getElementById('demoBanner');if(db)db.classList.add('show');}
 
 // Banners & notifications (after a brief settle)
