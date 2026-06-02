@@ -130,6 +130,7 @@ body{font-family:'IBM Plex Mono','Courier New',monospace;background:var(--bg);co
   .tab-bar{display:none}
   .bottom-nav{display:block}
   .main{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  .footer{display:none}  /* bottom-nav replaces footer on mobile */
 }
 @media(min-width:769px){
   .bottom-nav{display:none!important}
@@ -5695,10 +5696,10 @@ function calcRetire(){
   const n=retAge-curAge; // years to retirement
   // Future monthly expense at retirement
   const futureMonthlyExp=monthlyExp*Math.pow(1+inflation,n);
-  const futureAnnualExp=futureMonthlyExp*12;
-  // Corpus needed: PV of annuity for 'duration' years at post-retirement return
-  const r=postReturn;
-  const corpus=r>0?futureAnnualExp*((1-Math.pow(1+r,-duration))/r):futureAnnualExp*duration;
+  // Corpus needed: PV of monthly annuity — monthly discounting is correct for monthly withdrawals
+  const mr_post=postReturn/12;
+  const nm_post=duration*12;
+  const corpus=mr_post>0?futureMonthlyExp*((1-Math.pow(1+mr_post,-nm_post))/mr_post):futureMonthlyExp*nm_post;
   // Current savings grows to
   const existingGrows=currentSavings*Math.pow(1+preReturn,n);
   // Gap
@@ -8324,9 +8325,11 @@ function renderDailyView(){
   groupsEl.innerHTML=sortedDays.map(dateKey=>{
     const dm=dayMap[dateKey];
     const d2=new Date(dateKey+'T00:00:00');
-    const isToday=isCurrentMonth&&d2.toDateString()===today.toDateString();
-    const isYest=isCurrentMonth&&d2.toDateString()===new Date(today.getTime()-86400000).toDateString();
-    const dateLabel=isToday?'Today':isYest?'Yesterday':d2.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:d2.getUTCFullYear()!==_oty?'numeric':undefined});
+    // IST-safe today/yesterday — compare date keys directly
+    const isToday=dateKey===_localDateStr();
+    const isYest=dateKey===_localDateStr(new Date(Date.now()-86400000));
+    // Show year only if not the current IST year
+    const dateLabel=isToday?'Today':isYest?'Yesterday':d2.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:d2.getFullYear()!==_istY?'numeric':undefined});
     const weekday=FULL_DAYS[d2.getDay()];
     const dayTotal=dm.total;
     const isOver=dailyLimit>0&&dayTotal>dailyLimit;
