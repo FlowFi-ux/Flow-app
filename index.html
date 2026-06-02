@@ -785,7 +785,20 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .cal-month-lbl{font-size:14px;font-weight:500}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.cal-day-hdr{font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:var(--faint);text-align:center;padding:5px 2px;font-weight:500}
+.cal-day-hdr{font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--faint);text-align:center;padding:5px 2px;font-weight:500}
+@media(max-width:480px){
+  .cal-day-hdr{font-size:8px;letter-spacing:0;padding:4px 1px}
+  .cal-day{min-height:52px;padding:3px 2px}
+  .cal-day-num{font-size:10px;margin-bottom:2px}
+  .cal-ev{font-size:8px;padding:1px 3px;letter-spacing:0}
+  .cal-grid{gap:2px}
+}
+@media(max-width:360px){
+  .cal-day-hdr{font-size:7px;padding:3px 0}
+  .cal-day{min-height:44px;padding:2px 1px}
+  .cal-day-num{font-size:9px}
+  .cal-ev{font-size:7.5px;padding:1px 2px}
+}
 .cal-day{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);min-height:70px;padding:5px;font-size:10px;transition:background .1s}
 .cal-day.today{border-color:var(--text);border-width:1.5px}
 .cal-day.other-month{opacity:.3}
@@ -2741,13 +2754,13 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <div class="cal-month-lbl" id="calMonthLbl">Month Year</div>
       <button class="btn-ghost btn-sm" onclick="calNext()">Next &#8594;</button>
     </div>
-    <div class="cal-grid">
+    <!-- Single unified grid — headers + day cells in one container = perfect alignment -->
+    <div class="cal-grid" id="calGrid">
       <div class="cal-day-hdr">Sun</div><div class="cal-day-hdr">Mon</div>
       <div class="cal-day-hdr">Tue</div><div class="cal-day-hdr">Wed</div>
       <div class="cal-day-hdr">Thu</div><div class="cal-day-hdr">Fri</div>
       <div class="cal-day-hdr">Sat</div>
     </div>
-    <div class="cal-grid" id="calBody" style="gap:3px"></div>
     <div class="cal-legend">
       <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--deficit-bg);border:1px solid var(--deficit)"></div>Bills / EMI</div>
       <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--surplus-bg);border:1px solid var(--surplus)"></div>FD maturity</div>
@@ -3833,47 +3846,41 @@ function addMFHolding(){
   renderMFTable();renderMFSIPSummary();updateInvestSummary();
 }
 async function fetchNAV(h){
-  try{
-    const ctrl=new AbortController();
-    const timer=setTimeout(()=>ctrl.abort(),10000);
-    const r=await fetch(`https://api.mfapi.in/mf/${h.schemeCode}/latest`,{signal:ctrl.signal});
-    clearTimeout(timer);
-    if(!r.ok) return; // server error — keep existing NAV
-    const d=await r.json();
-    if(d.data&&d.data[0]&&d.data[0].nav){
-      const nav=parseFloat(d.data[0].nav);
-      if(!isNaN(nav)&&nav>0){h.currentNav=nav;h.lastFetched=new Date().toISOString();}
+  // Try up to 2 times with increasing timeout
+  for(let attempt=1;attempt<=2;attempt++){
+    try{
+      const ctrl=new AbortController();
+      const timer=setTimeout(()=>ctrl.abort(),attempt===1?8000:14000);
+      const r=await fetch(`https://api.mfapi.in/mf/${h.schemeCode}/latest`,{signal:ctrl.signal});
+      clearTimeout(timer);
+      if(!r.ok) return;
+      const d=await r.json();
+      if(d.data&&d.data[0]&&d.data[0].nav){
+        const nav=parseFloat(d.data[0].nav);
+        if(!isNaN(nav)&&nav>0){h.currentNav=nav;h.lastFetched=new Date().toISOString();return;}
+      }
+      return; // Got a response but no valid NAV data
+    }catch(e){
+      if(attempt===2) console.warn('[Flow] NAV fetch failed after 2 attempts:',h.schemeName,e.message);
+      // Wait 1s before retry
+      if(attempt===1) await new Promise(res=>setTimeout(res,1000));
     }
-  }catch(e){
-    // Network error, abort or timeout — silently keep existing NAV
-    if(!(e instanceof DOMException&&e.name==='AbortError')) console.warn('[Flow] NAV fetch failed:',h.schemeName,e.message);
   }
 }
 async function refreshAllNAV(){
   const btn=document.querySelector('.refresh-btn');
   if(!btn)return;
   btn.textContent='↻ Fetching…';btn.disabled=true;
-  let ok=0,fail=0;
   try{
-    for(const h of (INVEST.mf||[])){
-      const before=h.currentNav;
-      await fetchNAV(h);
-      if(h.currentNav&&h.currentNav!==before)ok++;
-      else fail++;
-    }
+    for(const h of (INVEST.mf||[]))await fetchNAV(h);
     saveInvest();renderMFTable();renderMFSIPSummary();updateInvestSummary();
-    if(ok>0) showToast('✓ NAV Updated',ok+' fund'+(ok>1?'s':'')+' refreshed'+(fail?' · '+fail+' failed':''));
-    else if(fail>0) showToast('NAV Fetch Failed','Could not reach mfapi.in — check your connection and try again');
-  }catch(e){
-    console.error('NAV refresh error:',e);
-    showToast('NAV Error','Refresh failed: '+e.message);
-  }
+  }catch(e){console.error('NAV refresh error:',e)}
   finally{btn.textContent='↻ Refresh NAV';btn.disabled=false;}
 }
 function deleteMF(id){if(!confirm('Remove holding?'))return;INVEST.mf=INVEST.mf.filter(h=>h.id!==id);saveInvest();renderMFTable();updateInvestSummary()}
 function renderMFTable(){
   const body=document.getElementById('mfBody');
-  if(!INVEST.mf.length){body.innerHTML=`<tr><td colspan="8" style="text-align:center;color:var(--faint);padding:24px;font-size:12px">No MF holdings yet. Search above to add a fund.</td></tr>`;return}
+  if(!INVEST.mf.length){body.innerHTML=`<tr><td colspan="9" style="text-align:center;color:var(--faint);padding:24px;font-size:12px">No MF holdings yet. Search above to add a fund.</td></tr>`;return}
   body.innerHTML=INVEST.mf.map(h=>{
     const inv=h.units*h.navBuy;
     const cv=h.units*(h.currentNav||h.navBuy);
@@ -4540,7 +4547,7 @@ function initToolsSelectors(){
 let {year:calYear,month:calMonth}=_istParts();
 function renderCalendar(){
   document.getElementById('calMonthLbl').textContent=MONTHS[calMonth]+' '+calYear;
-  const {year:_ty,month:_tm,date:_td}=_istParts(); // IST today for today-highlight
+  const {year:_ty,month:_tm,date:_td}=_istParts(); // IST today for highlight
   const first=new Date(calYear,calMonth,1).getDay();
   const days=new Date(calYear,calMonth+1,0).getDate();
   // Build events map: day → [{label,cls}]
@@ -4586,7 +4593,12 @@ function renderCalendar(){
     else if(s.cycle==='Annual'&&diffMonths>=0&&diffMonths%12===0){showThis=true;}
     if(showThis){addEv(rDay,s.name.substring(0,12),'cal-ev-sub');}
   });
-  const body=document.getElementById('calBody');
+  // Get the single unified grid (first 7 children = permanent day headers)
+  const grid=document.getElementById('calGrid');
+  // Remove all day cells (keep the 7 header divs)
+  const allChildren=Array.from(grid.children);
+  allChildren.slice(7).forEach(el=>el.remove());
+
   let html='';
   // Blanks before first
   for(let i=0;i<first;i++)html+=`<div class="cal-day other-month"></div>`;
@@ -4598,7 +4610,7 @@ function renderCalendar(){
       ${dayEvts.map(e=>`<div class="cal-ev ${e.cls}">${esc(e.label)}</div>`).join('')}
     </div>`;
   }
-  body.innerHTML=html;
+  grid.insertAdjacentHTML('beforeend',html);
 }
 function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--}renderCalendar()}
 function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++}renderCalendar()}
@@ -5888,6 +5900,7 @@ function editMF(id){
   document.getElementById('mfEditUnits').value=h.units;
   document.getElementById('mfEditNav').value=h.navBuy;
   document.getElementById('mfEditDate').value=h.date||'';
+  document.getElementById('mfEditCurrentNav').value=h.currentNav?h.currentNav.toFixed(4):'';
   document.getElementById('mfEditModal').style.display='flex';
   setTimeout(()=>document.getElementById('mfEditUnits').select(),80);
 }
@@ -5902,10 +5915,12 @@ function saveMFEdit(){
   const units=parseFloat(document.getElementById('mfEditUnits').value);
   const nav=parseFloat(document.getElementById('mfEditNav').value);
   const date=document.getElementById('mfEditDate').value;
+  const manualNav=parseFloat(document.getElementById('mfEditCurrentNav').value);
   if(isNaN(units)||units<=0){alert('Units must be greater than 0.');return;}
   if(isNaN(nav)||nav<=0){alert('NAV must be greater than 0.');return;}
   h.units=units;h.navBuy=nav;
   if(date)h.date=date;
+  if(!isNaN(manualNav)&&manualNav>0){h.currentNav=manualNav;h.lastFetched=new Date().toISOString()+'(manual)';}
   saveInvest();renderMFTable();updateInvestSummary();closeMFEdit();
 }
 document.addEventListener('click',function(e){
@@ -8401,6 +8416,10 @@ setTimeout(loadAllSchemes, 2000);
         <input type="number" id="mfEditNav" placeholder="e.g. 82.5000" step="0.0001">
       </div>
       <div class="form-field">
+        <span class="form-label">Current NAV (&#8377;) <span style="font-size:9px;color:var(--faint)">optional — manual</span></span>
+        <input type="number" id="mfEditCurrentNav" placeholder="Enter if API fails" step="0.0001">
+      </div>
+      <div class="form-field" style="grid-column:1/-1">
         <span class="form-label">First Purchase Date</span>
         <input type="date" id="mfEditDate">
       </div>
