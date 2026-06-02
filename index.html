@@ -691,8 +691,9 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .daily-view{display:none}
 .daily-view.show{display:block;animation:sub-fade-in .16s ease forwards}
 /* 7-day strip */
-.daily-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px}
-.ds-day{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;background:var(--surface);border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:border-color .16s,background .16s}
+.daily-strip{display:flex;flex-direction:row;gap:4px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.daily-strip::-webkit-scrollbar{display:none}
+.ds-day{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 6px;background:var(--surface);border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:border-color .16s,background .16s;min-width:48px;flex-shrink:0}
 .ds-day:hover{border-color:var(--text)}
 .ds-day.today{border-color:var(--surplus);background:rgba(74,222,128,.06)}
 .ds-day.zero{background:rgba(74,222,128,.04)}
@@ -8150,31 +8151,35 @@ function renderDailyView(){
       {lbl:'Total Entries',val:monthEntries.length,sub:'this period'},
     ].map(s=>`<div class="card"><div class="card-lbl">${s.lbl}</div><div class="card-val" style="font-size:15px${s.clr?';color:'+s.clr:''}">${s.val}</div><div style="font-size:9.5px;color:var(--faint);margin-top:2px">${s.sub}</div></div>`).join('');
 
-  // ── 7-day strip ──────────────────────────────────────────
+  // ── Full-month strip (all days 1→last, correct IST today) ───
   const stripEl=document.getElementById('dailyStrip');
   if(stripEl){
-    const refDate=isCurrentMonth?_istNow():new Date(y,m+1,0);
-    const days7=[];
-    for(let i=6;i>=0;i--){
-      const d2=new Date(refDate);d2.setDate(refDate.getDate()-i);
-      if(d2.getMonth()===m&&d2.getFullYear()===y)days7.push(d2);
-    }
-    stripEl.innerHTML=days7.map(day=>{
-      // Use LOCAL date string — toISOString() returns UTC which shifts the date
-      // for users in UTC+ timezones during early morning hours (e.g. IST at 1 AM)
-      const key=day.getFullYear()+'-'+String(day.getMonth()+1).padStart(2,'0')+'-'+String(day.getDate()).padStart(2,'0');
+    const daysInMonth=new Date(y,m+1,0).getDate();
+    const todayKey=_localDateStr(); // current IST date key — safe for all timezones
+    let html='';
+    for(let d=1;d<=daysInMonth;d++){
+      const stripDate=new Date(y,m,d,12,0,0); // noon prevents DST edge cases
+      const key=_localDateStr(stripDate);      // IST key — consistent with stored entries
       const dm=dayMap[key]||null;
       const amt=dm?dm.total:0;
-      const isToday=isCurrentMonth&&day.getUTCFullYear()===_istY&&day.getUTCMonth()===_istM&&day.getUTCDate()===_istD;
-      const isZero=!dm&&day<=(isCurrentMonth?today:new Date(y,m+1,0));
-      const barPct=maxDay>0?Math.round((amt/maxDay)*100):0;
-      return`<div class="ds-day${isToday?' today':''}${isZero?' zero':''}" onclick="openDayDetail('${key}')" style="cursor:pointer">
-        <span class="ds-day-label">${DAYS_OF_WEEK[day.getDay()]}</span>
-        <span class="ds-day-date">${day.getDate()}</span>
-        <span class="ds-day-amt">${amt>0?fmt(Math.round(amt)):(isZero?'<span class="ds-day-zero">✦</span>':'—')}</span>
+      const isToday=key===todayKey;
+      const isFuture=key>todayKey;
+      const isZero=!dm&&!isFuture;           // past/today with no spend
+      const dayName=DAYS_OF_WEEK[stripDate.getDay()];
+      const barPct=maxDay>0&&amt>0?Math.round((amt/maxDay)*100):0;
+      html+=`<div class="ds-day${isToday?' today':''}${isZero?' zero':''}" onclick="openDayDetail('${key}')" style="cursor:pointer">
+        <span class="ds-day-label">${dayName}</span>
+        <span class="ds-day-date">${d}</span>
+        <span class="ds-day-amt">${amt>0?fmt(Math.round(amt)):isZero?'<span class="ds-day-zero">✦</span>':'<span style="color:var(--faint)">—</span>'}</span>
         <div class="ds-day-bar"><div class="ds-day-bar-fill" style="width:${barPct}%"></div></div>
       </div>`;
-    }).join('');
+    }
+    stripEl.innerHTML=html;
+    // Auto-scroll to today's tile
+    setTimeout(()=>{
+      const todayEl=stripEl.querySelector('.ds-day.today');
+      if(todayEl)todayEl.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+    },60);
   }
 
   // ── Today limit bar ──────────────────────────────────────
