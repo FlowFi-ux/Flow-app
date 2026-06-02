@@ -3835,31 +3835,45 @@ function addMFHolding(){
 async function fetchNAV(h){
   try{
     const ctrl=new AbortController();
-    const timer=setTimeout(()=>ctrl.abort(),8000);
+    const timer=setTimeout(()=>ctrl.abort(),10000);
     const r=await fetch(`https://api.mfapi.in/mf/${h.schemeCode}/latest`,{signal:ctrl.signal});
     clearTimeout(timer);
-    if(!r.ok)return;
+    if(!r.ok) return; // server error — keep existing NAV
     const d=await r.json();
     if(d.data&&d.data[0]&&d.data[0].nav){
       const nav=parseFloat(d.data[0].nav);
       if(!isNaN(nav)&&nav>0){h.currentNav=nav;h.lastFetched=new Date().toISOString();}
     }
-  }catch(e){}
+  }catch(e){
+    // Network error, abort or timeout — silently keep existing NAV
+    if(!(e instanceof DOMException&&e.name==='AbortError')) console.warn('[Flow] NAV fetch failed:',h.schemeName,e.message);
+  }
 }
 async function refreshAllNAV(){
   const btn=document.querySelector('.refresh-btn');
   if(!btn)return;
   btn.textContent='↻ Fetching…';btn.disabled=true;
+  let ok=0,fail=0;
   try{
-    for(const h of (INVEST.mf||[]))await fetchNAV(h);
+    for(const h of (INVEST.mf||[])){
+      const before=h.currentNav;
+      await fetchNAV(h);
+      if(h.currentNav&&h.currentNav!==before)ok++;
+      else fail++;
+    }
     saveInvest();renderMFTable();renderMFSIPSummary();updateInvestSummary();
-  }catch(e){console.error('NAV refresh error:',e)}
+    if(ok>0) showToast('✓ NAV Updated',ok+' fund'+(ok>1?'s':'')+' refreshed'+(fail?' · '+fail+' failed':''));
+    else if(fail>0) showToast('NAV Fetch Failed','Could not reach mfapi.in — check your connection and try again');
+  }catch(e){
+    console.error('NAV refresh error:',e);
+    showToast('NAV Error','Refresh failed: '+e.message);
+  }
   finally{btn.textContent='↻ Refresh NAV';btn.disabled=false;}
 }
 function deleteMF(id){if(!confirm('Remove holding?'))return;INVEST.mf=INVEST.mf.filter(h=>h.id!==id);saveInvest();renderMFTable();updateInvestSummary()}
 function renderMFTable(){
   const body=document.getElementById('mfBody');
-  if(!INVEST.mf.length){body.innerHTML=`<tr><td colspan="9" style="text-align:center;color:var(--faint);padding:24px;font-size:12px">No MF holdings yet. Search above to add a fund.</td></tr>`;return}
+  if(!INVEST.mf.length){body.innerHTML=`<tr><td colspan="8" style="text-align:center;color:var(--faint);padding:24px;font-size:12px">No MF holdings yet. Search above to add a fund.</td></tr>`;return}
   body.innerHTML=INVEST.mf.map(h=>{
     const inv=h.units*h.navBuy;
     const cv=h.units*(h.currentNav||h.navBuy);
@@ -4526,6 +4540,7 @@ function initToolsSelectors(){
 let {year:calYear,month:calMonth}=_istParts();
 function renderCalendar(){
   document.getElementById('calMonthLbl').textContent=MONTHS[calMonth]+' '+calYear;
+  const {year:_ty,month:_tm,date:_td}=_istParts(); // IST today for today-highlight
   const first=new Date(calYear,calMonth,1).getDay();
   const days=new Date(calYear,calMonth+1,0).getDate();
   // Build events map: day → [{label,cls}]
