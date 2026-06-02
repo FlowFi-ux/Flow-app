@@ -3871,16 +3871,23 @@ async function refreshAllNAV(){
   const btn=document.querySelector('.refresh-btn');
   if(!btn)return;
   btn.textContent='↻ Fetching…';btn.disabled=true;
+  let ok=0,fail=0;
   try{
-    for(const h of (INVEST.mf||[]))await fetchNAV(h);
+    for(const h of (INVEST.mf||[])){
+      const before=h.currentNav;
+      await fetchNAV(h);
+      if(h.currentNav&&h.currentNav!==before)ok++;else fail++;
+    }
     saveInvest();renderMFTable();renderMFSIPSummary();updateInvestSummary();
-  }catch(e){console.error('NAV refresh error:',e)}
+    if(ok>0) showToast('✓ NAV Updated',ok+' fund'+(ok>1?'s':'')+' refreshed'+(fail?' · '+fail+' failed':''));
+    else if(fail>0) showToast('NAV Fetch Failed','Could not reach mfapi.in — check your connection or enter NAV manually via the ✏ edit button');
+  }catch(e){console.error('NAV refresh error:',e);showToast('NAV Error','Refresh failed: '+e.message);}
   finally{btn.textContent='↻ Refresh NAV';btn.disabled=false;}
 }
 function deleteMF(id){if(!confirm('Remove holding?'))return;INVEST.mf=INVEST.mf.filter(h=>h.id!==id);saveInvest();renderMFTable();updateInvestSummary()}
 function renderMFTable(){
   const body=document.getElementById('mfBody');
-  if(!INVEST.mf.length){body.innerHTML=`<tr><td colspan="9" style="text-align:center;color:var(--faint);padding:24px;font-size:12px">No MF holdings yet. Search above to add a fund.</td></tr>`;return}
+  if(!INVEST.mf.length){body.innerHTML=`<tr><td colspan="8" style="text-align:center;color:var(--faint);padding:24px;font-size:12px">No MF holdings yet. Search above to add a fund.</td></tr>`;return}
   body.innerHTML=INVEST.mf.map(h=>{
     const inv=h.units*h.navBuy;
     const cv=h.units*(h.currentNav||h.navBuy);
