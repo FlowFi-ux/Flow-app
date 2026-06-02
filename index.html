@@ -5545,9 +5545,9 @@ function logNetWorthNow(){
   const existing=NW_HISTORY.find(x=>x.key===key);
   if(existing){
     if(!confirm(`Net Worth for ${MONTHS[_nwm]} ${_nwy} already logged (${fmt(existing.val)}). Overwrite?`))return;
-    existing.val=nw;existing.date=_localDateStr(today);
+    existing.val=nw;existing.date=_localDateStr();
   }else{
-    NW_HISTORY.push({key,val:nw,date:_localDateStr(today)});
+    NW_HISTORY.push({key,val:nw,date:_localDateStr()});
   }
   NW_HISTORY.sort((a,b)=>a.key.localeCompare(b.key));
   saveNWHistory();renderNWChart();
@@ -6978,7 +6978,7 @@ function exportFlowSnapPDF(){
   const lw=w=>pdf.setLineWidth(w),ft=f=>pdf.setFont('courier',f||'normal'),fs=s=>pdf.setFontSize(s);
   const C={black:[8,8,8],text:[25,25,25],muted:[85,85,85],label:[110,110,110],border:[185,185,185],bg:[248,248,247],surplus:[18,80,46],deficit:[120,22,32],accent:[40,80,140]};
   const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const todayStr=_ntd+' '+MN[m]+' '+y;
+  const todayStr=day+' '+MN[m]+' '+y;
   let yy=0;
 
   // Helper: check page overflow and add page if needed
@@ -7718,7 +7718,7 @@ function renderNotifList(){
   // SIP reminders
   (INVEST.mf||[]).forEach(fund=>{
     if(!fund.sip||!fund.sip.active||!fund.sip.sipDay) return;
-    const diff=fund.sip.sipDay-_std;
+    const diff=fund.sip.sipDay-_ntd;
     if(diff>=0&&diff<=3) items.push({type:'info',title:'📈 SIP Due: '+(fund.schemeName||'MF Fund').split('—')[0].trim(),body:fmt(fund.sip.monthlyAmt)+'/mo on '+fund.sip.sipDay+'th'+(diff===0?' — today':' — in '+diff+' day'+(diff!==1?'s':''))});
   });
 
@@ -7768,7 +7768,7 @@ function sendNotifsViaServiceWorker(){
   BILLS.forEach(b=>{
     if(b.paidMonths&&b.paidMonths.includes(mk)) return;
     const due=new Date(y,m,b.dueDay);
-    const diff=Math.ceil((due-today)/86400000);
+    const diff=Math.ceil((due-new Date())/86400000);
     if(diff>=0&&diff<=3){
       setTimeout(()=>{
         try{new Notification('Flow — Bill Reminder',{
