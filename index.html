@@ -3278,8 +3278,6 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     </div>
   </div>
 
-  <div class="settings-version">Flow — Personal Finance</div>
-
 </div>
 </div>
 </div>
@@ -8351,8 +8349,10 @@ function renderDailyView(){
     // IST-safe today/yesterday — compare date keys directly
     const isToday=dateKey===_localDateStr();
     const isYest=dateKey===_localDateStr(new Date(Date.now()-86400000));
-    // Show year only if not the current IST year
-    const dateLabel=isToday?'Today':isYest?'Yesterday':d2.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:d2.getFullYear()!==_istY?'numeric':undefined});
+    // Manual date format — avoids toLocaleDateString Intl bugs on mobile browsers
+    const MNSHORT2=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const dateLabel=isToday?'Today':isYest?'Yesterday':
+      (d2.getDate()+' '+MNSHORT2[d2.getMonth()]+(d2.getFullYear()!==_istY?' '+d2.getFullYear():''));
     const weekday=FULL_DAYS[d2.getDay()];
     const dayTotal=dm.total;
     const isOver=dailyLimit>0&&dayTotal>dailyLimit;
