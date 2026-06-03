@@ -373,7 +373,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 
 /* ── MOBILE RESPONSIVE ────────────────────────────────── */
 @media(max-width:640px){
-  .main{padding:14px 12px 32px}
+  .main{padding:14px 12px calc(80px + env(safe-area-inset-bottom,0px))}
   .hdr{padding:9px 12px}
   .hdr-brand h1{font-size:15px}
   .tab-bar{padding:0 12px}
@@ -541,7 +541,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   .summary,.invest-summary,.invest-summary-4,.bills-summary{grid-template-columns:1fr 1fr}
   .card-val{font-size:16px}
   .hdr-brand h1{font-size:14px}
-  .main{padding:12px 10px 28px}
+  .main{padding:12px 10px calc(80px + env(safe-area-inset-bottom,0px))}
   .ledger{gap:8px}
   .charts{gap:8px}
   .chart-wrap{height:150px}
