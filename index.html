@@ -1858,8 +1858,6 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <div class="dlb-track"><div class="dlb-fill" id="dailyLimitFill"></div></div>
       <span class="dlb-amt" id="dailyLimitAmt"></span>
     </div>
-    <!-- Day groups — show ABOVE form so entries are always visible without scrolling -->
-    <div id="dailyGroups"></div>
     <!-- Quick add — independent from monthly budget -->
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:14px">
       <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:10px">Add Expense</div>
@@ -1885,6 +1883,8 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         </button>
       </div>
     </div>
+    <!-- Day groups -->
+    <div id="dailyGroups"></div>
   </div>
 
   <div class="ledger" id="ledgerPanel">
@@ -3277,6 +3277,8 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <div class="settings-row-right"><button class="btn-ghost btn-sm" onclick="openInstallModal()" style="font-size:11px">&#x2B07; Install</button></div>
     </div>
   </div>
+
+  <div class="settings-version">Flow — Personal Finance</div>
 
 </div>
 </div>
@@ -8349,10 +8351,8 @@ function renderDailyView(){
     // IST-safe today/yesterday — compare date keys directly
     const isToday=dateKey===_localDateStr();
     const isYest=dateKey===_localDateStr(new Date(Date.now()-86400000));
-    // Manual date format — avoids toLocaleDateString Intl bugs on mobile browsers
-    const MNSHORT2=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const dateLabel=isToday?'Today':isYest?'Yesterday':
-      (d2.getDate()+' '+MNSHORT2[d2.getMonth()]+(d2.getFullYear()!==_istY?' '+d2.getFullYear():''));
+    // Show year only if not the current IST year
+    const dateLabel=isToday?'Today':isYest?'Yesterday':d2.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:d2.getFullYear()!==_istY?'numeric':undefined});
     const weekday=FULL_DAYS[d2.getDay()];
     const dayTotal=dm.total;
     const isOver=dailyLimit>0&&dayTotal>dailyLimit;
