@@ -157,7 +157,7 @@ body{font-family:'IBM Plex Mono','Courier New',monospace;background:var(--bg);co
 .notif-item.warn{border-left:3px solid var(--amber)}
 .notif-item.info{border-left:3px solid var(--surplus)}
 .tab-bar::-webkit-scrollbar{display:none}
-.tab-btn{background:none;border:none;border-bottom:2px solid transparent;padding:10px 14px;font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--muted);cursor:pointer;transition:color .2s,border-color .2s;border-radius:0;margin-bottom:-1px;white-space:nowrap;flex-shrink:0}
+.tab-btn{background:none;border:none;border-bottom:2px solid transparent;padding:10px 14px;font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--muted);cursor:pointer;transition:color .2s,border-color .2s;border-radius:0;margin-bottom:-1px;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent;min-height:40px}
 .tab-btn:hover{color:var(--text)}
 .tab-btn.active{color:var(--text);border-bottom-color:var(--text);font-weight:500}
 .tab-pane{display:none;opacity:0}
@@ -186,7 +186,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .btn-copy{background:transparent;color:var(--muted);padding:5px 9px;display:flex;align-items:center;gap:4px;font-size:11px;white-space:nowrap}
 .btn-add{width:100%;text-align:left;background:transparent;color:var(--faint);padding:8px 10px;border-style:dashed;border-color:var(--border);margin-top:6px;font-weight:300}
 .btn-add:active{background:var(--surface-alt)}
-.btn-del{background:transparent;border:none;color:var(--faint);padding:2px 6px;font-size:16px;line-height:1;border-radius:3px}
+.btn-del{background:transparent;border:none;color:var(--faint);padding:2px 6px;font-size:16px;line-height:1;border-radius:3px;min-width:30px;min-height:30px;display:inline-flex;align-items:center;justify-content:center}
 .btn-del:hover,.btn-del:active{color:var(--deficit);background:var(--deficit-bg)}
 .btn-sm{padding:5px 12px;font-size:11px}
 .btn-primary{background:var(--text);color:var(--bg);border-color:var(--text);padding:7px 16px}
@@ -286,7 +286,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .invest-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
 .sub-tabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:14px;border-bottom:1px solid var(--border);white-space:nowrap}
 .sub-tabs::-webkit-scrollbar{display:none}
-.sub-tab{background:none;border:none;border-bottom:2px solid transparent;padding:9px 14px;font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--muted);cursor:pointer;transition:color .18s,border-color .18s;border-radius:0;margin-bottom:-1px;flex-shrink:0;white-space:nowrap}
+.sub-tab{background:none;border:none;border-bottom:2px solid transparent;padding:9px 14px;font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--muted);cursor:pointer;transition:color .18s,border-color .18s;border-radius:0;margin-bottom:-1px;flex-shrink:0;white-space:nowrap;min-height:40px;-webkit-tap-highlight-color:transparent}
 .sub-tab.active{color:var(--text);border-bottom-color:var(--text);font-weight:500}
 .sub-pane{display:none}
 .sub-pane.active{display:block}
@@ -3558,7 +3558,7 @@ function exportCSV(){
 // ══ CHARTS ═════════════════════════════════════════════════
 let barInst=null,pieInst=null,chartTimer=null;
 let budgetTimer=null;
-function scheduleCharts(){clearTimeout(chartTimer);chartTimer=setTimeout(updateCharts,220);clearTimeout(budgetTimer);budgetTimer=setTimeout(renderBudgetManager,300);clearTimeout(budgetTimer);budgetTimer=setTimeout(function(){renderBudgetManager();renderHeatmap();},300);}
+function scheduleCharts(){clearTimeout(chartTimer);chartTimer=setTimeout(updateCharts,220);clearTimeout(budgetTimer);budgetTimer=setTimeout(function(){renderBudgetManager();renderHeatmap();},300);}
 function chartColors(){return{text:dark?'#666':'#555',grid:dark?'#252525':'#ddd',income:dark?'rgba(74,222,128,.62)':'rgba(26,92,58,.52)',expense:dark?'rgba(248,113,113,.62)':'rgba(139,29,42,.52)',pie:dark?['rgba(248,113,113,.75)','rgba(251,191,36,.75)','rgba(167,139,250,.75)','rgba(96,165,250,.75)','rgba(52,211,153,.75)','rgba(251,146,60,.75)']:['rgba(139,29,42,.65)','rgba(160,110,20,.65)','rgba(90,80,140,.65)','rgba(40,75,140,.65)','rgba(25,95,65,.65)','rgba(140,70,25,.65)']}}
 function updateCharts(){
   const c=chartColors(),yr=selY();
@@ -3566,7 +3566,7 @@ function updateCharts(){
   const labels=MONTHS.map(m=>m.slice(0,3)),incArr=[],expArr=[];
   MONTHS.forEach((_,i)=>{const md=DB[`${i}_${yr}`]||{income:[],expense:[]};incArr.push(md.income.reduce((s,x)=>s+(parseFloat(x.amt)||0),0));expArr.push(md.expense.reduce((s,x)=>s+(parseFloat(x.amt)||0),0))});
   const bCtx=document.getElementById('barChart').getContext('2d');if(barInst)barInst.destroy();
-  barInst=new Chart(bCtx,{type:'bar',data:{labels,datasets:[{label:'Income',data:incArr,backgroundColor:c.income,borderRadius:3,barPercentage:.65},{label:'Expense',data:expArr,backgroundColor:c.expense,borderRadius:3,barPercentage:.65}]},options:{...base,scales:{x:{grid:{color:c.grid,lineWidth:.5},ticks:{color:c.text,font:{family:"'IBM Plex Mono'",size:9.5}}},y:{grid:{color:c.grid,lineWidth:.5},ticks:{color:c.text,font:{family:"'IBM Plex Mono'",size:9.5},callback:v=>v>=100000?'₹'+(v/100000).toFixed(1)+'L':v>=1000?'₹'+(v/1000).toFixed(0)+'k':'₹'+v}}}}});
+  barInst=new Chart(bCtx,{type:'bar',data:{labels,datasets:[{label:'Income',data:incArr,backgroundColor:c.income,borderRadius:3,barPercentage:.65},{label:'Expense',data:expArr,backgroundColor:c.expense,borderRadius:3,barPercentage:.65}]},options:{...base,scales:{x:{grid:{color:c.grid,lineWidth:.5},ticks:{color:c.text,font:{family:"'IBM Plex Mono'",size:9.5}}},y:{grid:{color:c.grid,lineWidth:.5},ticks:{color:c.text,font:{family:"'IBM Plex Mono'",size:9.5},callback:v=>{const _sym=(CURRENCIES[BASE_CURRENCY]||CURRENCIES.INR).sym;const _isINR=BASE_CURRENCY==='INR';return v>=100000&&_isINR?_sym+(v/100000).toFixed(1)+'L':v>=1000?_sym+(v/1000).toFixed(0)+'k':_sym+v}}}}}});
   const cats={};(mdata().expense||[]).forEach(x=>{const k=(x.cat||'Other').trim()||'Other';cats[k]=(cats[k]||0)+(parseFloat(x.amt)||0)});
   const pL=Object.keys(cats).filter(k=>cats[k]>0),pV=pL.map(k=>cats[k]);
   const pCtx=document.getElementById('pieChart').getContext('2d');if(pieInst)pieInst.destroy();
@@ -3871,7 +3871,7 @@ async function fetchNAV(h){
     }catch(e){
       if(attempt===2) console.warn('[Flow] NAV fetch failed after 2 attempts:',h.schemeName,e.message);
       // Wait 1s before retry
-      if(attempt===1) await new Promise(res=>setTimeout(res,1000));
+      // No blocking wait between retries — keeps NAV refresh snappy
     }
   }
 }
@@ -4346,7 +4346,9 @@ function calcPrepay(){
   // With prepay
   const newOutstanding=Math.max(0,outstanding-prepay);
   // New tenure at same EMI
-  const newN=newOutstanding>0?Math.ceil(Math.log(emi/(emi-newOutstanding*r))/Math.log(1+r)):0;
+  // Guard: if emi <= outstanding*r the loan can never be paid — clamp to original tenure
+  const _newBase=emi-newOutstanding*r;
+  const newN=newOutstanding>0&&_newBase>0?Math.ceil(Math.log(emi/_newBase)/Math.log(1+r)):newOutstanding>0?remN:0;
   const totalW=emi*newN;
   const intW=totalW-newOutstanding;
   const intSaved=intWO-intW;
@@ -5071,7 +5073,9 @@ function renderTemplates(){
 
 // ══ BACKUP & RESTORE ══════════════════════════════════════
 function backupData(){
-  const data={v:'flow_backup_v1',timestamp:new Date().toISOString(),db:DB,bills:BILLS,invest:INVEST,loans:LOANS,splits:SPLITS,templates:TEMPLATES,emfund:EMFUND,subs:SUBS,notes:NOTES,nwHistory:NW_HISTORY,budgets:BUDGETS,dark};
+  const _s=k=>localStorage.getItem(k);
+  const settings={currency:_s('flow_currency')||'INR',displayName:_s('flow_display_name')||'',fyStart:_s('flow_fy_start')||'4',themeMode:_s('flow_theme_mode')||'dark',notifBills:_s('flow_notif_bills'),notifSip:_s('flow_notif_sip'),notifSnap:_s('flow_notif_snap'),notifBillDays:_s('flow_notif_bill_days')||'3',backupFreq:_s('flow_backup_freq')||'weekly',defaultTrack:_s('flow_default_track')||'ledger',budgetWarn:_s('flow_budget_warn')||'80',lockBg:_s('flow_lock_bg'),dailyLimit:_s('flow_daily_limit'),nwHidden:_s('flow_nw_hidden'),hideTrack:_s('flow_hide_t'),hideBills:_s('flow_hide_b'),hidePort:_s('flow_hide_p')};
+  const data={v:'flow_backup_v1',timestamp:new Date().toISOString(),db:DB,bills:BILLS,invest:INVEST,loans:LOANS,splits:SPLITS,templates:TEMPLATES,emfund:EMFUND,subs:SUBS,notes:NOTES,nwHistory:NW_HISTORY,budgets:BUDGETS,dailyExpenses:DAILY_EXPENSES,settings,dark};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const fname=`Flow_Backup_${_localDateStr()}.json`;
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;a.click();
@@ -5092,10 +5096,26 @@ function restoreData(input){
       if(data.v!=='flow_backup_v1'){alert('Invalid backup file.');return}
       DB=data.db||{};BILLS=data.bills||[];INVEST=data.invest||{goals:[],mf:[],holdings:[],dividends:[],fds:[]};SUBS=data.subs||[];NOTES=data.notes||[];NW_HISTORY=data.nwHistory||[];BUDGETS=data.budgets||{};
       LOANS=data.loans||[];SPLITS=data.splits||[];TEMPLATES=data.templates||[];EMFUND=data.emfund||{amount:0,targetMonths:6,expOverride:0};
+      DAILY_EXPENSES=data.dailyExpenses||[];
+      // Restore settings (supports both new backups with settings obj and legacy backups)
+      const rs=data.settings||{};
+      const _rs=(k,v)=>{if(v!==null&&v!==undefined&&v!=='')localStorage.setItem(k,v);};
+      _rs('flow_currency',rs.currency);_rs('flow_display_name',rs.displayName);_rs('flow_fy_start',rs.fyStart);
+      _rs('flow_theme_mode',rs.themeMode);_rs('flow_notif_bills',rs.notifBills);_rs('flow_notif_sip',rs.notifSip);
+      _rs('flow_notif_snap',rs.notifSnap);_rs('flow_notif_bill_days',rs.notifBillDays);
+      _rs('flow_backup_freq',rs.backupFreq);_rs('flow_default_track',rs.defaultTrack);
+      _rs('flow_budget_warn',rs.budgetWarn);_rs('flow_lock_bg',rs.lockBg);
+      _rs('flow_daily_limit',rs.dailyLimit);_rs('flow_nw_hidden',rs.nwHidden);
+      _rs('flow_hide_t',rs.hideTrack);_rs('flow_hide_b',rs.hideBills);_rs('flow_hide_p',rs.hidePort);
+      // Re-apply in-memory state from restored settings
+      if(rs.currency&&CURRENCIES&&CURRENCIES[rs.currency])BASE_CURRENCY=rs.currency;
+      _hideTrack=localStorage.getItem('flow_hide_t')==='1';
+      _hideBills=localStorage.getItem('flow_hide_b')==='1';
+      _hidePort=localStorage.getItem('flow_hide_p')==='1';
       dark=data.dark||false;
       localStorage.setItem('flow_v3',JSON.stringify(DB));localStorage.setItem('flow_bills',JSON.stringify(BILLS));localStorage.setItem('flow_invest',JSON.stringify(INVEST));
-      localStorage.setItem('flow_loans',JSON.stringify(LOANS));localStorage.setItem('flow_splits',JSON.stringify(SPLITS));localStorage.setItem('flow_templates',JSON.stringify(TEMPLATES));localStorage.setItem('flow_emfund',JSON.stringify(EMFUND));localStorage.setItem('flow_subs',JSON.stringify(SUBS));localStorage.setItem('flow_notes',JSON.stringify(NOTES));localStorage.setItem('flow_nw_history',JSON.stringify(NW_HISTORY));localStorage.setItem('flow_budgets',JSON.stringify(BUDGETS));
-      applyDark();render();applyAllEyes();renderBills();renderHoldingsTable();renderMFTable();renderGoals();renderFDTable();renderSplits();renderTemplates();updateInvestSummary();
+      localStorage.setItem('flow_loans',JSON.stringify(LOANS));localStorage.setItem('flow_splits',JSON.stringify(SPLITS));localStorage.setItem('flow_templates',JSON.stringify(TEMPLATES));localStorage.setItem('flow_emfund',JSON.stringify(EMFUND));localStorage.setItem('flow_subs',JSON.stringify(SUBS));localStorage.setItem('flow_notes',JSON.stringify(NOTES));localStorage.setItem('flow_nw_history',JSON.stringify(NW_HISTORY));localStorage.setItem('flow_budgets',JSON.stringify(BUDGETS));localStorage.setItem('flow_daily',JSON.stringify(DAILY_EXPENSES));
+      applyDark();render();applyAllEyes();renderBills();renderHoldingsTable();renderMFTable();renderGoals();renderFDTable();renderSplits();renderTemplates();updateInvestSummary();renderDailyView();if(typeof loadSettingsUI==='function')loadSettingsUI();
       alert('Backup restored successfully!');
     }catch(err){alert('Failed to restore: '+err.message)}
   };
@@ -6040,13 +6060,14 @@ function addSwipeDel(el,type,idx){
     var dx=e.touches[0].clientX-sx,dy=e.touches[0].clientY-sy;
     if(!mv&&Math.abs(dy)>Math.abs(dx)+5)return;
     if(dx>=0)return;
+    e.preventDefault(); // block page scroll during confirmed left swipe
     mv=true;sw=true;
     var t=Math.max(dx,-100);
     el.style.transform='translateX('+t+'px)';
     el.style.background='rgba(220,38,38,'+Math.min(.75,-dx/120)+')';
     el.style.borderRadius='var(--r)';
     el.style.color='#fff';
-  },{passive:true});
+  },{passive:false}); // must be false to allow preventDefault on horizontal swipe
   el.addEventListener('touchend',function(e){
     if(!sw)return;
     var dx=sx-e.changedTouches[0].clientX;
@@ -6214,7 +6235,7 @@ function toggleHeatmap(){
 function renderHeatmap(){
   var el=document.getElementById('hmGrid');
   if(!el||!_hmOpen)return;
-  var year=new Date().getFullYear().toString();
+  var year=_istParts().year.toString(); // IST year — avoids wrong year near midnight UTC
   var totals=MONTHS.map(function(m,i){
     var k=i+'_'+year;
     if(!DB[k])return 0;
@@ -8363,12 +8384,12 @@ function toggleDayGroup(dateKey){
 
 // ── Day Detail Panel — tap date strip card to see expenses ─
 function openDayDetail(dateKey){
-  const d2=new Date(dateKey+'T00:00:00');
-  const {year:_oty,month:_otm,date:_otd}=_istParts();
-  const isToday=d2.getUTCFullYear()===_oty&&d2.getUTCMonth()===_otm&&d2.getUTCDate()===_otd;
-  const _yest=_istParts(new Date(Date.now()-86400000));
-  const isYest=d2.getUTCFullYear()===_yest.year&&d2.getUTCMonth()===_yest.month&&d2.getUTCDate()===_yest.date;
-  const dateLabel=isToday?'Today':isYest?'Yesterday':d2.getUTCDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d2.getUTCMonth()]+' '+d2.getUTCFullYear();
+  // Use string comparison with IST date keys — avoids UTC/local timezone mismatch bugs
+  const isToday=dateKey===_localDateStr();
+  const isYest=dateKey===_localDateStr(new Date(Date.now()-86400000));
+  const {year:_oty}=_istParts();
+  const d2=new Date(dateKey+'T12:00:00'); // noon avoids DST edge cases
+  const dateLabel=isToday?'Today':isYest?'Yesterday':d2.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:d2.getFullYear()!==_oty?'numeric':undefined});
 
   const entries=DAILY_EXPENSES.filter(e=>e.date&&e.date.slice(0,10)===dateKey);
   const total=entries.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);

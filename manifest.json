@@ -4,6 +4,7 @@
   "description": "Personal finance tracker — Track, Plan, Invest",
   "start_url": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#0e0e0e",
   "theme_color": "#0e0e0e",
   "orientation": "portrait-primary",
@@ -28,5 +29,7 @@
     }
   ],
   "categories": ["finance", "productivity"],
-  "lang": "en-IN"
+  "lang": "en-IN",
+  "id": "./",
+  "scope": "./"
 }
