@@ -233,11 +233,11 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .filter-inp::placeholder{color:var(--faint)}
 
 /* Entry columns */
-.col-heads{display:grid;grid-template-columns:14px .88fr .95fr .44fr .72fr 22px;gap:4px;padding:0 0 4px 2px}
+.col-heads{display:grid;grid-template-columns:14px .88fr .95fr .44fr 24px .72fr 22px;gap:4px;padding:0 0 4px 2px}
 .col-head{font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:var(--faint);font-weight:500}
 .col-head.right{text-align:right}
 .entries{display:flex;flex-direction:column;gap:3px;min-height:36px}
-.entry{display:grid;grid-template-columns:14px .88fr .95fr .44fr .72fr 22px;gap:4px;align-items:center;border-radius:5px;padding:3px 2px;border-left:3px solid transparent;transition:background .1s}
+.entry{display:grid;grid-template-columns:14px .88fr .95fr .44fr 24px .72fr 22px;gap:4px;align-items:center;border-radius:5px;padding:3px 2px;border-left:3px solid transparent;transition:background .1s}
 .entry:hover{background:var(--surface-alt)}
 .entry.drag-over{border-top:2px solid var(--muted)}
 .entry.dragging{opacity:.4}
@@ -279,7 +279,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .bill-tag{font-size:9.5px;padding:2px 7px;border-radius:12px;background:var(--surface-alt);color:var(--muted);border:1px solid var(--border)}
 .bill-amt{font-size:15px;font-weight:500;text-align:right;margin-bottom:4px;white-space:nowrap}
 .bill-actions{display:flex;gap:6px;justify-content:flex-end}
-.btn-paid{background:var(--surplus-bg);color:var(--surplus);border-color:var(--surplus);padding:5px 10px;font-size:11px}
+.btn-paid{background:var(--surplus-bg);color:var(--surplus);border-color:var(--surplus);padding:5px 10px;font-size:11px;min-height:34px;-webkit-tap-highlight-color:transparent}
 .bills-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px}
 
 /* ── INVEST ───────────────────────────────────────────── */
@@ -346,7 +346,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 
 /* SIP */
 .sip-toggle{display:flex;margin-bottom:16px;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;width:fit-content}
-.sip-toggle-btn{background:transparent;border:none;padding:9px 18px;font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--muted);cursor:pointer;transition:all .14s;border-radius:0}
+.sip-toggle-btn{background:transparent;border:none;padding:9px 18px;font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--muted);cursor:pointer;transition:all .14s;border-radius:0;-webkit-tap-highlight-color:transparent}
 .sip-toggle-btn.active{background:var(--text);color:var(--bg)}
 .sip-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .sip-inputs{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
@@ -391,7 +391,9 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     grid-template-columns:14px 1fr 80px 24px;
     grid-template-rows:auto auto;
     grid-template-areas:"dh cat  amt del"
-                        "dh desc tag  .  ";
+                        "dh desc tag  bnk";
+  }
+  .entry .e-bank{grid-area:bnk;align-self:center;justify-self:center
     gap:3px 5px;
     padding:5px 3px;
   }
@@ -1021,7 +1023,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .cal-ev-sub{background:#ede9f5;color:#5b3fa6;font-size:9px;padding:1px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5}
 [data-theme="dark"] .cal-ev-sub{background:#1a1030;color:#9b7de8}
 /* ── Edit (pencil) button ───────────────────────────────── */
-.btn-edit{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:var(--r);padding:3px 7px;font-size:11px;cursor:pointer;transition:all .12s;font-family:'IBM Plex Mono',monospace}
+.btn-edit{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:var(--r);padding:3px 7px;font-size:11px;cursor:pointer;transition:all .12s;font-family:'IBM Plex Mono',monospace;min-height:32px;min-width:30px;-webkit-tap-highlight-color:transparent}
 .btn-edit:hover{border-color:var(--muted);color:var(--text)}
 
 /* ══ BUDGET MANAGER ═══════════════════════════════════════ */
@@ -1354,6 +1356,103 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .flow-toast-body{font-size:11px;color:var(--muted);line-height:1.5}
 .flow-toast-close{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--faint);font-size:15px;cursor:pointer;line-height:1;padding:0}
 .flow-toast-close:hover{color:var(--text)}
+
+/* ══ BANK ACCOUNTS ══════════════════════════════════════════ */
+.bank-badge-r{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-weight:700;letter-spacing:-.2px;cursor:pointer;flex-shrink:0;border:none;transition:transform .14s,opacity .14s;user-select:none;-webkit-tap-highlight-color:transparent;text-transform:uppercase;line-height:1;padding:0;color:#fff}
+.bank-badge-r:hover,.bank-badge-r:active{transform:scale(1.15)}
+.bpk-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:460}
+.bpk-sheet{background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-width:600px;padding:18px 18px calc(28px + env(safe-area-inset-bottom,0px));max-height:82vh;overflow-y:auto;animation:qs-slide .22s cubic-bezier(.34,1.56,.64,1);position:absolute;bottom:0;left:50%;transform:translateX(-50%)}
+.bpk-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 14px}
+.bpk-title{font-size:15px;font-weight:600;letter-spacing:-.2px;margin-bottom:14px}
+.bpk-sec-lbl{font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:600;margin:12px 0 7px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.bpk-account{display:flex;align-items:center;gap:11px;padding:11px 12px;border:1.5px solid var(--border);border-radius:var(--r);cursor:pointer;transition:background .12s,border-color .12s;margin-bottom:6px;-webkit-tap-highlight-color:transparent;min-height:52px;touch-action:manipulation}
+.bpk-account:active,.bpk-account:hover{background:var(--surface-alt)}
+.bpk-account.bpk-selected{border-color:var(--text);background:var(--surface-alt)}
+.bpk-acc-name{font-size:13px;font-weight:500;color:var(--text)}
+.bpk-acc-sub{font-size:10.5px;color:var(--muted);margin-top:1px}
+.bpk-none-btn{width:100%;padding:10px;border:1.5px dashed var(--border);border-radius:var(--r);background:transparent;color:var(--faint);font-size:12px;font-family:inherit;cursor:pointer;margin-top:6px;-webkit-tap-highlight-color:transparent}
+.bpk-none-btn:active{background:var(--surface-alt)}
+.bpk-empty{text-align:center;padding:24px;color:var(--muted);font-size:12px;line-height:1.6}
+/* Redesigned Account Card */
+.acc-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden}
+.acc-card-main{display:flex;align-items:center;gap:12px;padding:12px 14px}
+.acc-card-logo{border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;letter-spacing:-.2px;flex-shrink:0;text-transform:uppercase;text-align:center;line-height:1.15;color:#fff;width:40px;height:40px}
+.acc-card-info{flex:1;min-width:0}
+.acc-card-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acc-card-meta{font-size:10.5px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.acc-type-badge{font-size:9px;padding:2px 7px;border-radius:10px;background:var(--surface-alt);color:var(--muted);border:1px solid var(--border);display:inline-block}
+.acc-card-footer{border-top:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface-alt)}
+.acc-card-footer .btn-ghost{min-height:36px;-webkit-tap-highlight-color:transparent}
+.acc-bal-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:500;white-space:nowrap}
+.acc-bal-inp{width:140px;padding:5px 9px;font-size:12px;font-family:'IBM Plex Mono',monospace;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);color:var(--text)}
+.acc-bal-inp:focus{outline:none;border-color:var(--text)}
+.acc-bal-display{font-size:13px;font-weight:600;color:var(--text)}
+.acc-stmt-panel{display:none;padding:14px;border-top:1px solid var(--border)}
+.acc-stmt-panel.open{display:block}
+.acc-log-sheet{background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-width:560px;padding:20px 20px calc(28px + env(safe-area-inset-bottom,0px));max-height:72vh;overflow-y:auto;animation:qs-slide .22s cubic-bezier(.34,1.56,.64,1);position:absolute;bottom:0;left:50%;transform:translateX(-50%)}
+.bank-group-lbl{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600;margin:12px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.bank-group-lbl:first-child{margin-top:0}
+.bank-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:7px;margin-bottom:12px}
+.bank-grid-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 5px 7px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:all .14s;background:var(--surface);text-align:center;-webkit-tap-highlight-color:transparent;min-height:60px;touch-action:manipulation}
+.bank-grid-item:hover,.bank-grid-item:active{border-color:var(--muted);transform:translateY(-1px);background:var(--surface-alt)}
+.bank-grid-item.bgsel{border-color:var(--text);border-width:2px;background:var(--surface-alt)}
+.bank-grid-logo{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;letter-spacing:-.2px;text-transform:uppercase;margin:0 auto;line-height:1.15;text-align:center;flex-shrink:0;color:#fff}
+.bank-grid-name{font-size:8.5px;color:var(--muted);line-height:1.2;word-break:break-word}
+.day-bank-tag{font-size:9px;padding:2px 6px;border-radius:7px;white-space:nowrap;flex-shrink:0;font-weight:700;letter-spacing:.1px;color:#fff;cursor:default}
+@media(max-width:640px){.bank-grid{grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:5px}.bank-grid-logo{width:28px;height:28px;font-size:7.5px}.bank-grid-name{font-size:7.5px}}
+@media(max-width:400px){.bank-grid{grid-template-columns:repeat(auto-fill,minmax(60px,1fr))}}
+
+/* ══ ACCOUNT STATEMENT & BALANCE ═══════════════════════════ */
+/* Balance/Statement styles now in acc-card-footer and acc-stmt-panel */
+.stmt-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.stmt-title{font-size:12px;font-weight:600;color:var(--text)}
+.stmt-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stmt-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px;text-align:center}
+.stmt-card-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:500;margin-bottom:4px}
+.stmt-card-val{font-size:13px;font-weight:600}
+.stmt-txn{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.stmt-txn:last-child{border-bottom:none}
+.stmt-txn-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.stmt-txn-dot.credit{background:var(--surplus)}
+.stmt-txn-dot.debit{background:var(--deficit)}
+.stmt-txn-info{flex:1;min-width:0}
+.stmt-txn-cat{font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stmt-txn-meta{font-size:10px;color:var(--muted)}
+.stmt-txn-amt{font-weight:600;flex-shrink:0;white-space:nowrap}
+.stmt-txn-amt.credit{color:var(--surplus)}
+.stmt-txn-amt.debit{color:var(--deficit)}
+/* Pay Confirm Modal */
+.pay-confirm-sheet{background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-width:560px;padding:20px 20px calc(28px + env(safe-area-inset-bottom,0px));max-height:70vh;overflow-y:auto;animation:qs-slide .22s cubic-bezier(.34,1.56,.64,1);position:absolute;bottom:0;left:50%;transform:translateX(-50%)}
+.pay-confirm-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:14px}
+
+/* ── Account Log Modal mobile ──────────────────────── */
+@media(max-width:480px){
+  .acc-log-sheet .sip-toggle-btn{font-size:10.5px;padding:8px 4px}
+  .acc-card-footer{gap:6px;padding:8px 12px}
+  .acc-bal-inp{width:120px}
+}
+@media(max-width:360px){
+  .acc-card-footer{flex-wrap:wrap}
+  .acc-bal-inp{width:100%;max-width:160px}
+}
+
+/* ── Daily Income/Expense type toggle ─────────────────────── */
+.dq-type-toggle{display:flex;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
+.dq-type-btn{flex:1;background:transparent;border:none;padding:8px 12px;font-size:12px;font-family:'IBM Plex Mono',monospace;cursor:pointer;transition:all .16s;-webkit-tap-highlight-color:transparent;font-weight:500;text-align:center}
+.dq-type-btn.exp{color:var(--deficit)}
+.dq-type-btn.inc{color:var(--surplus)}
+.dq-type-btn.exp.active{background:var(--deficit);color:#fff}
+.dq-type-btn.inc.active{background:var(--surplus);color:#fff}
+/* ── Income entry dot already has .day-entry-dot.income CSS ─ */
+.day-entry-amt.income{color:var(--surplus)}
+.ds-day-inc-dot{width:5px;height:5px;border-radius:50%;background:var(--surplus);display:inline-block;margin-left:2px;flex-shrink:0;vertical-align:middle}
+/* Day group income badge */
+.dg-inc-badge{font-size:9px;padding:2px 7px;background:var(--surplus-bg);color:var(--surplus);border:1px solid var(--surplus);border-radius:8px;font-weight:500}
+/* Net flow hero */
+.dh-net-row{display:flex;gap:16px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.15);flex-wrap:wrap}
+.dh-net-item{display:flex;flex-direction:column;gap:2px}
+.dh-net-lbl{font-size:8.5px;opacity:.55;text-transform:uppercase;letter-spacing:.8px}
+.dh-net-val{font-size:13px;font-weight:600}
 </style>
 </head>
 <body>
@@ -1591,7 +1690,10 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         <div style="font-size:11px;color:var(--muted);margin-top:3px" id="dayDetailSub">0 expenses</div>
       </div>
       <div style="display:flex;align-items:center;gap:10px">
-        <span style="font-size:18px;font-weight:600;color:var(--deficit)" id="dayDetailTotal">₹0</span>
+        <div style="text-align:right">
+          <div style="font-size:18px;font-weight:600;color:var(--deficit)" id="dayDetailTotal">₹0</div>
+          <div id="dayDetailIncome" style="display:none;font-size:11px;color:var(--surplus);font-weight:500;margin-top:2px"></div>
+        </div>
         <button class="btn-del" onclick="closeDayDetail()">&#x2715;</button>
       </div>
     </div>
@@ -1603,9 +1705,13 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 <div id="editDailyModal" class="qs-modal" onclick="if(event.target===this)closeEditDailyEntry()">
   <div class="qs-sheet" style="max-height:65vh">
     <div class="qs-handle"></div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <div style="font-size:15px;font-weight:600;letter-spacing:-.2px">Edit Expense</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:15px;font-weight:600;letter-spacing:-.2px" id="edqTitle">Edit Entry</div>
       <button class="btn-del" onclick="closeEditDailyEntry()">&#x2715;</button>
+    </div>
+    <div class="dq-type-toggle" style="margin-bottom:12px">
+      <button class="dq-type-btn exp active" id="edqTypeExp" onclick="setEDQType('expense')">&#8722; Expense</button>
+      <button class="dq-type-btn inc" id="edqTypeInc" onclick="setEDQType('income')">&#43; Income</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
       <div class="form-field"><span class="form-label">Category</span>
@@ -1623,8 +1729,12 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         <input type="date" id="edqDate">
       </div>
     </div>
+    <div style="margin-bottom:14px">
+      <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);font-weight:500;display:block;margin-bottom:7px">Paid From Account</span>
+      <div id="edqBankWrap" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"></div>
+    </div>
     <div style="display:flex;gap:8px">
-      <button class="btn-primary btn-sm" onclick="saveEditDailyEntry()" style="flex:1;justify-content:center;padding:10px">Save Changes</button>
+      <button class="btn-primary btn-sm" onclick="saveEditDailyEntry()" id="edqSaveBtn" style="flex:1;justify-content:center;padding:10px">Save Changes</button>
       <button class="btn-ghost btn-sm" onclick="closeEditDailyEntry()" style="padding:10px 16px">Cancel</button>
     </div>
   </div>
@@ -1848,9 +1958,13 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     </div>
     <!-- Quick add — independent from monthly budget -->
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:14px">
-      <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:10px">Add Expense</div>
+      <!-- Type toggle: Expense / Income -->
+      <div class="dq-type-toggle">
+        <button class="dq-type-btn exp active" id="dqTypeExp" onclick="setDQType('expense')">&#8722; Expense</button>
+        <button class="dq-type-btn inc" id="dqTypeInc" onclick="setDQType('income')">&#43; Income</button>
+      </div>
       <div style="display:grid;grid-template-columns:1.2fr 1fr 0.9fr 0.85fr;gap:8px;margin-bottom:8px" id="dqFormGrid">
-        <div class="form-field" style="margin:0"><span class="form-label">Category</span>
+        <div class="form-field" style="margin:0"><span class="form-label" id="dqCatLabel">Category</span>
           <input type="text" id="dqCat" placeholder="e.g. Chai" autocomplete="off" onfocus="showCatDrop(this)" oninput="showCatDrop(this)" onkeydown="catDropKey(event)" data-t="expense" data-i="-1" data-f="cat">
         </div>
         <div class="form-field" style="margin:0"><span class="form-label">Description</span>
@@ -1863,8 +1977,13 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
           <input type="date" id="dqDate">
         </div>
       </div>
+      <div id="dqBankRow" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+        <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);font-weight:500;white-space:nowrap" id="dqAccLabel">Paid from</span>
+        <div id="dqBankBadgeWrap" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"></div>
+        <button class="btn-ghost btn-sm" onclick="openDQBankPicker()" id="dqBankBtn" style="font-size:11px;padding:4px 10px">+ Select Account</button>
+      </div>
       <div style="display:flex;gap:8px">
-        <button class="btn-primary btn-sm" onclick="quickDailyAdd()" style="flex:1;justify-content:center;padding:9px">+ Add Expense</button>
+        <button class="btn-primary btn-sm" onclick="quickDailyAdd()" id="dqAddBtn" style="flex:1;justify-content:center;padding:9px;transition:background .2s">&#8722; Add Expense</button>
         <button class="btn-ghost btn-sm" onclick="exportDailyPDF()" id="dailyPDFBtn" title="Export daily expenses as PDF" style="padding:9px 12px;display:flex;align-items:center;gap:5px;white-space:nowrap">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5.5l3 3 3-3M1 9.5v1a.5.5 0 00.5.5h9a.5.5 0 00.5-.5v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
           PDF
@@ -1881,7 +2000,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         <span class="panel-title">Income</span>
         <span class="panel-total" id="pInc">₹0</span>
       </div>
-      <div class="col-heads"><span></span><span class="col-head">Category</span><span class="col-head">Description</span><span class="col-head">Tag</span><span class="col-head right">Amount (₹)</span><span></span></div>
+      <div class="col-heads"><span></span><span class="col-head">Category</span><span class="col-head">Description</span><span class="col-head">Tag</span><span class="col-head" title="Paying Account" style="text-align:center">Acct</span><span class="col-head right">Amount (₹)</span><span></span></div>
       <div class="entries" id="incList"></div>
       <button class="btn-add" onclick="addRow('income')">+ Add income entry</button>
     </div>
@@ -1890,7 +2009,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         <span class="panel-title">Expenses</span>
         <span class="panel-total" id="pExp">₹0</span>
       </div>
-      <div class="col-heads"><span></span><span class="col-head">Category</span><span class="col-head">Description</span><span class="col-head">Tag</span><span class="col-head right">Amount (₹)</span><span></span></div>
+      <div class="col-heads"><span></span><span class="col-head">Category</span><span class="col-head">Description</span><span class="col-head">Tag</span><span class="col-head" title="Paying Account" style="text-align:center">Acct</span><span class="col-head right">Amount (₹)</span><span></span></div>
       <div class="entries" id="expList"></div>
       <button class="btn-add" onclick="addRow('expense')">+ Add expense entry</button>
     </div>
@@ -2039,14 +2158,15 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 
   <!-- Bills Sub-tabs -->
   <div class="sub-tabs" style="margin-top:14px">
-    <button class="sub-tab active" id="btab-reminders" onclick="switchBillsTab('reminders',this)">Bill Reminders</button>
+    <button class="sub-tab active" id="btab-accounts" onclick="switchBillsTab('accounts',this)">Accounts</button>
+    <button class="sub-tab" id="btab-reminders" onclick="switchBillsTab('reminders',this)">Bill Reminders</button>
     <button class="sub-tab" id="btab-split" onclick="switchBillsTab('split',this)">Bill Split</button>
     <button class="sub-tab" id="btab-loans" onclick="switchBillsTab('loans',this)">Loan Tracker</button>
     <button class="sub-tab" id="btab-subs" onclick="switchBillsTab('subs',this)">Subscriptions</button>
   </div>
 
   <!-- ── BILL REMINDERS ───────────────────────────────────── -->
-  <div id="bsub-reminders" class="sub-pane active">
+  <div id="bsub-reminders" class="sub-pane">
     <div class="bill-form" id="billForm" style="display:none">
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:12px" id="billFormTitle">New Bill Reminder</div>
       <div class="bill-form-grid">
@@ -2062,6 +2182,10 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         </div>
       </div>
       <div class="form-field" style="margin-bottom:10px"><span class="form-label">Notes (optional)</span><input type="text" id="bNotes" placeholder="e.g. HDFC credit card bill"></div>
+      <div class="form-field" style="margin-bottom:12px">
+        <span class="form-label">Default Payment Account <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></span>
+        <div id="bPayAccWrap" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px"></div>
+      </div>
       <div style="display:flex;gap:8px;margin-top:4px">
         <button class="btn-primary btn-sm" onclick="saveBill()">Save Bill</button>
         <button class="btn-ghost btn-sm" onclick="cancelBillEdit()">Cancel</button>
@@ -2136,6 +2260,10 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         <div class="form-field"><span class="form-label">Tenure (months)</span><input type="number" id="lnTenure" placeholder="240"></div>
         <div class="form-field"><span class="form-label">Start Date</span><input type="date" id="lnStart"></div>
       </div>
+      <div style="margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:500">EMI Debit Account</span>
+        <div id="loanPayAccWrap" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"></div>
+      </div>
       <div style="display:flex;gap:8px">
         <button class="btn-primary btn-sm" onclick="addLoan()">Add Loan</button>
         <button class="btn-ghost btn-sm" onclick="toggleForm('loanForm')">Cancel</button>
@@ -2166,6 +2294,10 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         <div class="form-field"><span class="form-label">Renewal Date</span><input type="date" id="subRenewal"></div>
       </div>
       <div class="form-field" style="margin-bottom:12px"><span class="form-label">Notes</span><input type="text" id="subNotes" placeholder="Optional notes"></div>
+      <div class="form-field" style="margin-bottom:12px">
+        <span class="form-label">Payment Account <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></span>
+        <div id="subPayAccWrap" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px"></div>
+      </div>
       <div style="display:flex;gap:8px">
         <button class="btn-primary btn-sm" onclick="saveSub()">Save Subscription</button>
         <button class="btn-ghost btn-sm" onclick="toggleForm('subForm')">Cancel</button>
@@ -2174,6 +2306,101 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div id="subSummaryBar" style="display:none;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px"></div>
     <div id="subList"></div>
   </div>
+
+  <!-- ── BANK ACCOUNTS ────────────────────────────────────── -->
+  <div id="bsub-accounts" class="sub-pane active">
+    <div class="sec-hdr" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:7px">
+        <span class="sec-title">Bank Accounts</span>
+        <button class="info-btn" onclick="toggleInfo('tip-accounts')" title="About Accounts">i</button>
+      </div>
+      <button class="btn-ghost btn-sm" onclick="toggleForm('accountAddForm')">+ Add Account</button>
+    </div>
+    <div class="info-tip" id="tip-accounts"><div class="info-tip-hd">Bank Accounts</div>Add your bank accounts here. Once added, you can tag any monthly or daily expense/income entry with the account it was paid from. Helps you see which accounts are most active and track per-account spending.<button class="info-tip-close" onclick="toggleInfo('tip-accounts')">&#215;</button></div>
+    <!-- Add Account Form -->
+    <div class="hold-form" id="accountAddForm" style="display:none;margin-bottom:16px">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:14px">Add Bank Account</div>
+      <!-- Step 1: Pick Bank -->
+      <div class="form-field" style="margin-bottom:12px">
+        <span class="form-label">Select Bank <span id="selBankLbl" style="font-weight:600;color:var(--text)"></span></span>
+      </div>
+      <div id="bankPickerGrid"></div>
+      <!-- Step 2: Details -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div class="form-field">
+          <span class="form-label">Account Nickname</span>
+          <input type="text" id="accNickname" placeholder="e.g. My Salary A/c" autocomplete="off">
+        </div>
+        <div class="form-field">
+          <span class="form-label">Account Type</span>
+          <select id="accType">
+            <option value="Savings">Savings</option>
+            <option value="Salary">Salary</option>
+            <option value="Current">Current</option>
+            <option value="Credit Card">Credit Card</option>
+            <option value="Wallet">Wallet / UPI</option>
+            <option value="NRE">NRE</option>
+            <option value="NRO">NRO</option>
+          </select>
+        </div>
+      </div>
+      <!-- Currency field — shown for Foreign + Custom banks -->
+      <div id="accCurrencyRow" style="display:none;margin-bottom:12px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="form-field">
+            <span class="form-label">Account Currency</span>
+            <select id="accCurrency">
+              <option value="INR">₹ INR — Indian Rupee</option>
+              <option value="USD">$ USD — US Dollar</option>
+              <option value="GBP">£ GBP — British Pound</option>
+              <option value="EUR">€ EUR — Euro</option>
+              <option value="AED">AED — UAE Dirham</option>
+              <option value="SGD">S$ SGD — Singapore Dollar</option>
+              <option value="CAD">C$ CAD — Canadian Dollar</option>
+              <option value="AUD">A$ AUD — Australian Dollar</option>
+              <option value="CHF">CHF — Swiss Franc</option>
+              <option value="JPY">¥ JPY — Japanese Yen</option>
+              <option value="HKD">HK$ HKD — Hong Kong Dollar</option>
+              <option value="MYR">RM MYR — Malaysian Ringgit</option>
+              <option value="NZD">NZ$ NZD — New Zealand Dollar</option>
+            </select>
+          </div>
+          <!-- Custom bank name fields -->
+          <div class="form-field" id="accCustomNameRow" style="display:none">
+            <span class="form-label">Bank Name</span>
+            <input type="text" id="accCustomName" placeholder="e.g. My Credit Union" autocomplete="off">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px" id="accCustomRow2" style="display:none">
+          <div class="form-field" id="accCustomShortRow">
+            <span class="form-label">Abbreviation (3–4 letters)</span>
+            <input type="text" id="accCustomShort" placeholder="e.g. MCU" maxlength="4" autocomplete="off">
+          </div>
+          <div class="form-field" id="accCustomColorRow">
+            <span class="form-label">Brand Color</span>
+            <select id="accCustomColor">
+              <option value="#607D8B">Slate Grey</option>
+              <option value="#1565C0">Blue</option>
+              <option value="#004C8F">Dark Blue</option>
+              <option value="#C62828">Red</option>
+              <option value="#2E7D32">Green</option>
+              <option value="#6A0DAD">Purple</option>
+              <option value="#E65100">Orange</option>
+              <option value="#795548">Brown</option>
+              <option value="#1A1A1A">Black</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-primary btn-sm" onclick="addAccount()">Add Account</button>
+        <button class="btn-ghost btn-sm" onclick="toggleForm('accountAddForm');resetBankPicker()">Cancel</button>
+      </div>
+    </div>
+    <!-- Account List -->
+    <div id="accountList"></div>
+  </div>
+
 
 </div><!-- /.main -->
 </div><!-- /#tab-bills -->
@@ -2271,6 +2498,10 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         </div>
       </div>
 
+      <div class="form-field" style="margin-bottom:10px">
+        <span class="form-label">Investment Account <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></span>
+        <div id="holdPayAccWrap" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px"></div>
+      </div>
       <!-- EQUITY fields -->
       <div id="hf-equity" class="hold-type-fields" style="display:grid;grid-template-columns:1.2fr 0.8fr 1fr 1fr auto;gap:10px;align-items:end">
         <div class="form-field"><span class="form-label">Name / Ticker</span><input type="text" id="heqName" placeholder="e.g. Reliance, INFY"></div>
@@ -2411,6 +2642,10 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         <div class="form-field"><span class="form-label">Purchase Date</span><input type="date" id="mfDate"></div>
         <div class="form-field" style="justify-content:flex-end"><button class="btn-primary btn-sm" onclick="addMFHolding()" style="margin-top:auto">Add Holding</button></div>
       </div>
+      <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:500">Investment Account</span>
+        <div id="mfPayAccWrap" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"></div>
+      </div>
     </div>
     <div class="mf-sip-bar" id="mfSipBar" style="display:none">
       <button class="info-btn" onclick="toggleInfo('tip-mfsip')" title="About MF SIP Tracker" style="margin-right:4px">i</button>
@@ -2461,6 +2696,10 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       </div>
       <div class="form-field" style="justify-content:flex-end"><button class="btn-primary btn-sm" onclick="addFD()" style="margin-top:auto">Add FD</button></div>
     </div>
+    <div style="margin-top:-4px;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:500">Investment Account</span>
+      <div id="fdPayAccWrap" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"></div>
+    </div>
   </div>
   <div class="mf-table-wrap">
     <table class="data-table"><thead><tr>
@@ -2486,6 +2725,10 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         <select id="gLinkedSIP" style="font-size:12px" onclick="populateGoalSIPSelect()">
           <option value="">— Not linked to any SIP —</option>
         </select>
+      </div>
+      <div class="form-field" style="margin-bottom:10px">
+        <span class="form-label">Investment Account <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></span>
+        <div id="goalPayAccWrap" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px"></div>
       </div>
       <div style="display:flex;gap:8px">
         <button class="btn-primary btn-sm" onclick="saveGoal()">Save Goal</button>
@@ -2888,6 +3131,31 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="wn-hero-icon">&#x2726;</div>
     <div class="wn-hero-title">Flow &mdash; Release Notes</div>
     <div class="wn-hero-sub">Every feature, fix and improvement &mdash; from the beginning.</div>
+  </div>
+
+  <div class="wn-version-block" id="wn-v26">
+    <div class="wn-version-header">
+      <span class="wn-version-num">v2.6</span>
+      <span class="wn-version-date">Jun 2026</span>
+      <span class="wn-version-label wn-label-major">Feature Update</span>
+    </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">&#9776; Daily Income Tracker</div><div class="wn-entry-desc">Log petty income directly in the Daily tab — freelance earnings, cashback, small receipts. Toggle between <strong>&#8722; Expense</strong> and <strong>&#43; Income</strong>. Income entries show as green, expenses as red. Hero card shows Net Flow when income exists.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">&#127981; Custom Bank &amp; Foreign Currency</div><div class="wn-entry-desc">Add any bank not in the list using the <strong>Custom / Other Bank</strong> option — enter your own name, abbreviation and brand color. Foreign banks (HSBC, JPMorgan, DBS, etc.) show a currency selector: USD, GBP, EUR, AED, SGD and more.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-improved">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">Account Tagging — MF, FD &amp; Loans</div><div class="wn-entry-desc">Investment Account field now works on Mutual Funds, FD Tracker and Loan forms. Tagged account badge appears in the MF table, FD table and loan card. All show up in the per-account Statement view.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-fix">Fix</span><div class="wn-entry-body"><div class="wn-entry-title">Bug Fixes</div><div class="wn-entry-desc">Fixed TypeError in loan prepayment calculator (const reassignment). Custom bank accounts now display correctly across all badge refresh functions, ledger rows, bill cards, and subscription cards.</div></div></div>
+  </div>
+
+  <div class="wn-version-block" id="wn-v25">
+    <div class="wn-version-header">
+      <span class="wn-version-num">v2.5</span>
+      <span class="wn-version-date">Jun 2026</span>
+      <span class="wn-version-label wn-label-major">Feature Update</span>
+    </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">&#127970; Bank Accounts</div><div class="wn-entry-desc">Add your bank accounts (Savings, Salary, Credit Card, Wallet, NRE/NRO) to Flow. Supports all 12 Public Sector banks, 20+ Private banks, 10 Small Finance Banks, 5 Payment Banks, 7 Foreign banks, 9 Digital/Neo wallets — including IDBI, Saraswat and more.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">&#128202; Per-Account Statement</div><div class="wn-entry-desc">Each account has a Statement view showing all transactions tagged to it — monthly entries, daily expenses, bill payments and subscriptions — with totals and source labels.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">&#10003; Bill Pay Confirmation Log</div><div class="wn-entry-desc">Mark Paid now opens a confirmation sheet — edit the amount, date and paying account. Every payment is saved to a log shown on the bill card.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">&#128179; Account Tagging</div><div class="wn-entry-desc">Tag any paying account on Monthly / Daily entries, Bill Reminders, Subscriptions, Holdings and Savings Goals. A colour-coded badge shows which account was used.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-improved">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">&#43; Income Log from Account Card</div><div class="wn-entry-desc">Tap <strong>&#43; Income</strong> on any account card to log a credit transaction directly — creates a monthly income entry tagged to that account.</div></div></div>
   </div>
 
   <div class="wn-version-block">
@@ -3306,6 +3574,107 @@ let allMFSchemes=null;
 let mfLoadingPromise=null;
 
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// ══ BANK DATA ═══════════════════════════════════════════════
+const BANKS=[
+  // PUBLIC SECTOR BANKS
+  {id:'sbi',     name:'State Bank of India',         short:'SBI',  color:'#2351A6',g:'Public'},
+  {id:'bob',     name:'Bank of Baroda',               short:'BOB',  color:'#F05A22',g:'Public'},
+  {id:'pnb',     name:'Punjab National Bank',         short:'PNB',  color:'#0072BC',g:'Public'},
+  {id:'canara',  name:'Canara Bank',                  short:'CNR',  color:'#005CA9',g:'Public'},
+  {id:'union',   name:'Union Bank of India',          short:'UBI',  color:'#1B3F8B',g:'Public'},
+  {id:'boi',     name:'Bank of India',                short:'BOI',  color:'#B71C1C',g:'Public'},
+  {id:'indian',  name:'Indian Bank',                  short:'IB',   color:'#E65100',g:'Public'},
+  {id:'central', name:'Central Bank of India',        short:'CBI',  color:'#C62828',g:'Public'},
+  {id:'iob',     name:'Indian Overseas Bank',         short:'IOB',  color:'#0D47A1',g:'Public'},
+  {id:'uco',     name:'UCO Bank',                     short:'UCO',  color:'#00695C',g:'Public'},
+  {id:'bom',     name:'Bank of Maharashtra',          short:'BOM',  color:'#1A5276',g:'Public'},
+  {id:'psb',     name:'Punjab & Sind Bank',           short:'PSB',  color:'#1B4F8C',g:'Public'},
+  // PRIVATE SECTOR BANKS
+  {id:'hdfc',    name:'HDFC Bank',                    short:'HDFC', color:'#004C8F',g:'Private'},
+  {id:'icici',   name:'ICICI Bank',                   short:'ICICI',color:'#E87120',g:'Private'},
+  {id:'axis',    name:'Axis Bank',                    short:'AXIS', color:'#800000',g:'Private'},
+  {id:'kotak',   name:'Kotak Mahindra Bank',          short:'KMB',  color:'#C8102E',g:'Private'},
+  {id:'yes',     name:'Yes Bank',                     short:'YES',  color:'#0C479D',g:'Private'},
+  {id:'indusind',name:'IndusInd Bank',                short:'IIB',  color:'#00695C',g:'Private'},
+  {id:'idfc',    name:'IDFC FIRST Bank',              short:'IDFC', color:'#6A0DAD',g:'Private'},
+  {id:'federal', name:'Federal Bank',                 short:'FED',  color:'#004F8B',g:'Private'},
+  {id:'rbl',     name:'RBL Bank',                     short:'RBL',  color:'#00205B',g:'Private'},
+  {id:'bandhan', name:'Bandhan Bank',                 short:'BDN',  color:'#E65100',g:'Private'},
+  {id:'sib',     name:'South Indian Bank',            short:'SIB',  color:'#0D47A1',g:'Private'},
+  {id:'karnataka',name:'Karnataka Bank',              short:'KBL',  color:'#1B5E20',g:'Private'},
+  {id:'cityunion',name:'City Union Bank',             short:'CUB',  color:'#006064',g:'Private'},
+  {id:'kvb',     name:'Karur Vysya Bank',             short:'KVB',  color:'#CC0000',g:'Private'},
+  {id:'tmb',     name:'Tamilnad Mercantile Bank',     short:'TMB',  color:'#C41230',g:'Private'},
+  {id:'dcb',     name:'DCB Bank',                     short:'DCB',  color:'#880E4F',g:'Private'},
+  {id:'jkb',     name:'Jammu & Kashmir Bank',         short:'JKB',  color:'#003478',g:'Private'},
+  {id:'csb',     name:'Catholic Syrian Bank',         short:'CSB',  color:'#8B0000',g:'Private'},
+  {id:'dlb',     name:'Dhanlaxmi Bank',               short:'DLB',  color:'#006633',g:'Private'},
+  {id:'nainital',name:'Nainital Bank',                short:'NTB',  color:'#1B5E20',g:'Private'},
+  {id:'dbs',     name:'DBS Bank India',               short:'DBS',  color:'#DA291C',g:'Private'},
+  {id:'idbi',    name:'IDBI Bank',                     short:'IDBI', color:'#0D6C35',g:'Private'},
+  {id:'lakshmi', name:'Lakshmi Vilas Bank',            short:'LVB',  color:'#C0392B',g:'Private'},
+  {id:'saraswat',name:'Saraswat Bank',                 short:'SBL',  color:'#7B3F00',g:'Private'},
+  // SMALL FINANCE BANKS
+  {id:'au',      name:'AU Small Finance Bank',        short:'AU',   color:'#1565C0',g:'SFB'},
+  {id:'ujjivan', name:'Ujjivan Small Finance Bank',   short:'UJJ',  color:'#4A148C',g:'SFB'},
+  {id:'esaf',    name:'ESAF Small Finance Bank',      short:'ESAF', color:'#2E7D32',g:'SFB'},
+  {id:'equitas', name:'Equitas Small Finance Bank',   short:'EQ',   color:'#E65100',g:'SFB'},
+  {id:'jana',    name:'Jana Small Finance Bank',      short:'Jana', color:'#1E88E5',g:'SFB'},
+  {id:'suryoday',name:'Suryoday Small Finance Bank',  short:'SDY',  color:'#FF5722',g:'SFB'},
+  {id:'unity',   name:'Unity Small Finance Bank',     short:'USFB', color:'#7B1FA2',g:'SFB'},
+  {id:'shivalik',name:'Shivalik Small Finance Bank',  short:'SSFB', color:'#1565C0',g:'SFB'},
+  {id:'nesfb',   name:'North East Small Finance Bank',short:'NESFB',color:'#00695C',g:'SFB'},
+  {id:'capital', name:'Capital Small Finance Bank',   short:'CSFB', color:'#E65100',g:'SFB'},
+  // PAYMENT BANKS
+  {id:'paytm',   name:'Paytm Payments Bank',          short:'PTM',  color:'#00BAF2',g:'Payment'},
+  {id:'airtel',  name:'Airtel Payments Bank',         short:'AIR',  color:'#E61D2B',g:'Payment'},
+  {id:'jio',     name:'Jio Payments Bank',            short:'JIO',  color:'#0088CE',g:'Payment'},
+  {id:'ippb',    name:'India Post Payments Bank',     short:'IPPB', color:'#C62828',g:'Payment'},
+  {id:'fino',    name:'Fino Payments Bank',           short:'FINO', color:'#EF6C00',g:'Payment'},
+  // FOREIGN BANKS (India)
+  {id:'hsbc',    name:'HSBC India',                   short:'HSBC', color:'#DB0011',g:'Foreign'},
+  {id:'scb',     name:'Standard Chartered India',     short:'SCBT', color:'#0B7B3E',g:'Foreign'},
+  {id:'deutsche',name:'Deutsche Bank India',          short:'DB',   color:'#0018A8',g:'Foreign'},
+  {id:'barclays',name:'Barclays India',               short:'BARC', color:'#00AEEF',g:'Foreign'},
+  {id:'citi',    name:'Citibank India',               short:'Citi', color:'#003B90',g:'Foreign'},
+  {id:'bnp',     name:'BNP Paribas India',            short:'BNP',  color:'#009E49',g:'Foreign'},
+  {id:'bofai',   name:'Bank of America India',        short:'BofA', color:'#E31837',g:'Foreign'},
+  {id:'jpmi',    name:'JPMorgan Chase India',         short:'JPM',  color:'#003087',g:'Foreign'},
+  {id:'mufg',    name:'MUFG Bank India',              short:'MUFG', color:'#CC0000',g:'Foreign'},
+  {id:'mizuho',  name:'Mizuho Bank India',            short:'MZH',  color:'#0033A0',g:'Foreign'},
+  {id:'sg',      name:'Societe Generale India',       short:'SG',   color:'#E60028',g:'Foreign'},
+  {id:'anz',     name:'ANZ Banking India',            short:'ANZ',  color:'#007B5E',g:'Foreign'},
+  // DIGITAL / NEO & WALLETS
+  {id:'jupiter', name:'Jupiter',                      short:'JUP',  color:'#6B21A8',g:'Digital'},
+  {id:'fi',      name:'Fi Money',                     short:'Fi',   color:'#00796B',g:'Digital'},
+  {id:'slice',   name:'Slice',                        short:'SLC',  color:'#4338CA',g:'Digital'},
+  {id:'onecard', name:'OneCard',                      short:'1C',   color:'#1A1A1A',g:'Digital'},
+  {id:'navi',    name:'Navi',                         short:'NAV',  color:'#1565C0',g:'Digital'},
+  {id:'phonepe', name:'PhonePe',                      short:'PPe',  color:'#5F259F',g:'Digital'},
+  {id:'gpay',    name:'Google Pay',                   short:'GPay', color:'#1A73E8',g:'Digital'},
+  {id:'amzpay',  name:'Amazon Pay',                   short:'AMZ',  color:'#FF9900',g:'Digital'},
+  {id:'cred',    name:'CRED',                         short:'CRED', color:'#1A1A1A',g:'Digital'},
+  // CUSTOM
+  {id:'custom_bank',name:'Custom / Other Bank', short:'?', color:'#607D8B',g:'Custom'},
+];
+const BANK_MAP=Object.fromEntries(BANKS.map(b=>[b.id,b]));
+// Helper: get effective bank data for an account (handles custom banks)
+function getEffBank(a){
+  if(!a)return{short:'?',color:'#888',name:'Unknown',g:''};
+  if(a.bankId==='custom_bank')return{short:a.customShort||'?',color:a.customColor||'#607D8B',name:a.customName||'Custom Bank',g:'Custom'};
+  return BANK_MAP[a.bankId]||{short:'?',color:'#888',name:'Unknown',g:''};
+}
+let ACCOUNTS=JSON.parse(localStorage.getItem('flow_accounts')||'[]');
+function saveAccounts(){localStorage.setItem('flow_accounts',JSON.stringify(ACCOUNTS));}
+function getAccount(id){return ACCOUNTS.find(a=>a.id===id)||null;}
+function bankBadge(accId,size=22){
+  const acc=getAccount(accId);
+  if(!acc){return `<button class="bank-badge unset" title="Tag account" style="width:${size}px;height:${size}px;font-size:${size<20?9:12}px">+</button>`;}
+  const b=getEffBank(acc);
+  return `<button class="bank-badge" style="background:${b.color};width:${size}px;height:${size}px;font-size:${Math.max(5,size*0.3)}px" title="${esc(acc.nickname||b.name)}">${esc(b.short)}</button>`;
+}
+
 const CURRENCIES={
   INR:{sym:'₹',locale:'en-IN'},
   USD:{sym:'$',locale:'en-US'},
@@ -3334,7 +3703,16 @@ const selM = ()=>document.getElementById('selMonth').value;
 const selY = ()=>document.getElementById('selYear').value;
 const esc  = s=>(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 const uid  = ()=>Math.random().toString(36).slice(2,10);
-function toggleForm(id){const e=document.getElementById(id);if(!e)return;e.style.display=(e.style.display==='none'||e.style.display==='')?'block':'none';}
+function toggleForm(id){
+  const e=document.getElementById(id);if(!e)return;
+  const willShow=(e.style.display==='none'||e.style.display==='');
+  e.style.display=willShow?'block':'none';
+  if(id==='accountAddForm'&&willShow){renderBankPickerGrid();}
+  if(id==='holdForm'&&willShow){_holdPayAcct=null;_refreshFormAcctBadge('holdPayAccWrap',null,'openHoldPayAcctPicker');}
+  if(id==='goalForm'&&willShow){_goalPayAcct=null;_refreshFormAcctBadge('goalPayAccWrap',null,'openGoalPayAcctPicker');}
+  if(id==='fdTrackForm'&&willShow){_fdPayAcct=null;_refreshFormAcctBadge('fdPayAccWrap',null,'openFDPayAcctPicker');}
+  if(id==='loanForm'&&willShow){_loanPayAcct=null;_refreshFormAcctBadge('loanPayAccWrap',null,'openLoanPayAcctPicker');}
+}
 
 function mdata(){const k=key();if(!DB[k])DB[k]={income:[],expense:[]};return DB[k]}
 function save(){localStorage.setItem('flow_v3',JSON.stringify(DB))}
@@ -3355,6 +3733,418 @@ function saveEmfund(){
   localStorage.setItem('flow_emfund',JSON.stringify(EMFUND));
 }
 
+
+// ══ BANK ACCOUNT MANAGEMENT ═══════════════════════════════
+let _selectedBankId=null;
+function renderBankPickerGrid(){
+  const el=document.getElementById('bankPickerGrid');if(!el)return;
+  const grps=['Public','Private','SFB','Payment','Foreign','Digital','Custom'];
+  let html='';
+  grps.forEach(g=>{
+    const bb=BANKS.filter(b=>b.g===g);
+    if(!bb.length)return;
+    html+=`<div class="bank-group-lbl">${g}</div><div class="bank-grid">`;
+    bb.forEach(b=>{
+      const sel=_selectedBankId===b.id?' bgsel':'';
+      html+=`<div class="bank-grid-item${sel}" onclick="selectBankInForm('${b.id}')"><div class="bank-grid-logo" style="background:${b.color}">${b.short}</div><span class="bank-grid-name">${b.name}</span></div>`;
+    });
+    html+='</div>';
+  });
+  el.innerHTML=html;
+}
+function selectBankInForm(bankId){
+  _selectedBankId=bankId;
+  const b=BANK_MAP[bankId];
+  const lbl=document.getElementById('selBankLbl');
+  if(lbl&&b)lbl.textContent='— '+b.name;
+  renderBankPickerGrid();
+  // Show currency selector for Foreign or Custom banks
+  const currRow=document.getElementById('accCurrencyRow');
+  const custNameRow=document.getElementById('accCustomNameRow');
+  const custRow2=document.getElementById('accCustomRow2');
+  const isForeign=b&&b.g==='Foreign';
+  const isCustom=bankId==='custom_bank';
+  if(currRow)currRow.style.display=(isForeign||isCustom)?'block':'none';
+  if(custNameRow)custNameRow.style.display=isCustom?'block':'none';
+  if(custRow2)custRow2.style.display=isCustom?'grid':'none';
+  // Default currency for known foreign banks
+  const defCurr={hsbc:'GBP',scb:'GBP',deutsche:'EUR',barclays:'GBP',citi:'USD',bnp:'EUR',bofai:'USD',jpmi:'USD',mufg:'JPY',mizuho:'JPY',sg:'EUR',anz:'AUD'};
+  const sel=document.getElementById('accCurrency');
+  if(sel&&defCurr[bankId])sel.value=defCurr[bankId];
+  else if(sel&&!isCustom)sel.value='INR';
+}
+function resetBankPicker(){_selectedBankId=null;const lbl=document.getElementById('selBankLbl');if(lbl)lbl.textContent='';}
+function addAccount(){
+  if(!_selectedBankId){showToast('Select a bank first','Tap a bank logo above');return;}
+  const nickname=(document.getElementById('accNickname')?.value||'').trim();
+  const type=document.getElementById('accType')?.value||'Savings';
+  const b=BANK_MAP[_selectedBankId];
+  if(!b)return;
+  const isCustom=_selectedBankId==='custom_bank';
+  const isForeign=b.g==='Foreign';
+  const currency=(isForeign||isCustom)?(document.getElementById('accCurrency')?.value||'INR'):'INR';
+  const acc={id:uid(),bankId:_selectedBankId,nickname:nickname||b.name,type,color:b.color,currency};
+  if(isCustom){
+    acc.customName=(document.getElementById('accCustomName')?.value||'').trim()||'Custom Bank';
+    acc.customShort=((document.getElementById('accCustomShort')?.value||'').trim().toUpperCase()||'?').slice(0,4);
+    acc.customColor=document.getElementById('accCustomColor')?.value||'#607D8B';
+    acc.color=acc.customColor;
+    if(!nickname)acc.nickname=acc.customName;
+  }
+  ACCOUNTS.push(acc);
+  saveAccounts();
+  const ni=document.getElementById('accNickname');if(ni)ni.value='';
+  document.getElementById('accountAddForm').style.display='none';
+  const cr=document.getElementById('accCurrencyRow');if(cr)cr.style.display='none';
+  resetBankPicker();
+  renderAccounts();
+  const dispName=acc.customName||nickname||b.name;
+  showToast('Account added',dispName+(currency!=='INR'?' · '+currency:''));
+}
+
+// ── Per-Account Balance & Statement ─────────────────────
+function updateAccBalance(id,val){
+  const a=ACCOUNTS.find(x=>x.id===id);if(!a)return;
+  a.balance=parseFloat(val)||0;
+  saveAccounts();
+}
+function toggleAccStatement(id){
+  const panel=document.getElementById('stmt_'+id);if(!panel)return;
+  const open=panel.classList.contains('open');
+  // Close all others first
+  document.querySelectorAll('.acc-stmt-panel').forEach(p=>p.classList.remove('open'));
+  if(!open){panel.classList.add('open');renderAccStatement(id,panel);}
+}
+function renderAccStatement(accId,panel){
+  const acc=ACCOUNTS.find(a=>a.id===accId);if(!acc||!panel)return;
+  const b=getEffBank(acc);
+  // Gather all transactions tagged to this account
+  const txns=[];
+  // Monthly entries
+  Object.entries(DB).forEach(([key,month])=>{
+    const [mi,yi]=key.split('_');
+    const mName=MONTHS[parseInt(mi)]||mi;
+    (month.income||[]).forEach(e=>{if(e.bank===accId)txns.push({type:'credit',cat:e.cat||'Income',desc:e.desc||'',amt:parseFloat(e.amt)||0,date:`${mName} ${yi}`,src:'monthly'});});
+    (month.expense||[]).forEach(e=>{if(e.bank===accId)txns.push({type:'debit',cat:e.cat||'Expense',desc:e.desc||'',amt:parseFloat(e.amt)||0,date:`${mName} ${yi}`,src:'monthly'});});
+  });
+  // Daily expenses
+  (DAILY_EXPENSES||[]).forEach(e=>{if(e.bank===accId)txns.push({type:e.type==='income'?'credit':'debit',cat:e.cat||'Daily',desc:e.desc||'',amt:parseFloat(e.amt)||0,date:e.date||'',src:'daily'});});
+  // Bill payment log
+  (BILLS||[]).forEach(b2=>{(b2.paymentLog||[]).forEach(p=>{if(p.accId===accId){const [pmi,pyi]=p.mk.split('_');txns.push({type:'debit',cat:b2.name,desc:'Bill Payment',amt:p.paidAmt||b2.amt,date:p.date||`${MONTHS[parseInt(pmi)]} ${pyi}`,src:'bill'});}});});
+  // Sub payment log
+  (SUBS||[]).forEach(s=>{(s.paymentLog||[]).forEach(p=>{if(p.accId===accId){const [pmi,pyi]=p.mk.split('_');txns.push({type:'debit',cat:s.name,desc:'Subscription',amt:p.paidAmt||s.cost,date:p.date||`${MONTHS[parseInt(pmi)]} ${pyi}`,src:'sub'});}});});
+  // MF investments
+  (INVEST.mf||[]).forEach(h=>{if(h.payAccount===accId){txns.push({type:'debit',cat:h.schemeName,desc:'MF Investment',amt:h.units*h.navBuy,date:h.date||'',src:'mf'});}});
+  // FD investments
+  (INVEST.fds||[]).forEach(f=>{if(f.payAccount===accId){txns.push({type:'debit',cat:f.bank,desc:`FD ${f.tenure}mo @ ${f.rate}%`,amt:f.principal,date:f.start||'',src:'fd'});}});
+  // Loan EMI (tagged account)
+  (LOANS||[]).forEach(l=>{if(l.payAccount===accId&&l.emi){txns.push({type:'debit',cat:l.name,desc:`EMI × ${l.monthsPaid} months`,amt:l.emi*l.monthsPaid,date:l.start||'',src:'loan'});}});
+
+  const totalCredit=txns.filter(t=>t.type==='credit').reduce((s,t)=>s+t.amt,0);
+  const totalDebit=txns.filter(t=>t.type==='debit').reduce((s,t)=>s+t.amt,0);
+  const balanceRow=acc.balance!=null&&acc.balance!==0?`<div class="stmt-card"><div class="stmt-card-lbl">Balance</div><div class="stmt-card-val">${fmt(acc.balance)}</div></div>`:'';
+
+  panel.innerHTML=`
+    <div class="stmt-hdr">
+      <div class="stmt-title">Account Statement — ${esc(acc.nickname)}</div>
+      <button class="btn-del" onclick="toggleAccStatement('${accId}')" style="font-size:10px;padding:4px 10px">&#215;</button>
+    </div>
+    <div class="stmt-summary" style="grid-template-columns:repeat(${acc.balance!=null&&acc.balance!==0?4:3},1fr)">
+      <div class="stmt-card"><div class="stmt-card-lbl">Total In</div><div class="stmt-card-val c-green">${fmt(totalCredit)}</div></div>
+      <div class="stmt-card"><div class="stmt-card-lbl">Total Out</div><div class="stmt-card-val c-red">${fmt(totalDebit)}</div></div>
+      <div class="stmt-card"><div class="stmt-card-lbl">Transactions</div><div class="stmt-card-val">${txns.length}</div></div>
+      ${balanceRow}
+    </div>
+    ${!txns.length?'<div class="empty-msg" style="padding:16px 0;text-align:center">No transactions tagged to this account yet.</div>':
+      txns.sort((a,b)=>b.date.localeCompare(a.date)).map(t=>`
+      <div class="stmt-txn">
+        <div class="stmt-txn-dot ${t.type==='credit'?'credit':'debit'}"></div>
+        <div class="stmt-txn-info">
+          <div class="stmt-txn-cat">${esc(t.cat)}</div>
+          <div class="stmt-txn-meta">${esc(t.desc)} · <span style="font-size:9px;padding:1px 5px;border-radius:6px;background:var(--surface);border:1px solid var(--border)">${t.src}</span></div>
+        </div>
+        <div class="stmt-txn-meta" style="flex-shrink:0;font-size:10px;text-align:right;margin-right:6px">${t.date}</div>
+        <div class="stmt-txn-amt ${t.type==='credit'?'credit':'debit'}">${t.type==='credit'?'+':'-'}${fmt(t.amt)}</div>
+      </div>`).join('')}`;
+}
+function deleteAccount(id){
+  if(!confirm('Remove this account? Entries linked to it will lose the account tag.'))return;
+  ACCOUNTS=ACCOUNTS.filter(a=>a.id!==id);
+  saveAccounts();renderAccounts();
+}
+function renderAccounts(){
+  const addForm=document.getElementById('accountAddForm');
+  if(addForm&&addForm.style.display!=='none')renderBankPickerGrid();
+  const list=document.getElementById('accountList');if(!list)return;
+  if(!ACCOUNTS.length){
+    list.innerHTML='<div class="empty-msg" style="padding:28px 0;text-align:center">No accounts yet.<br><span style="font-size:11px;color:var(--faint)">Tap <strong>+ Add Account</strong> to get started.</span></div>';
+    return;
+  }
+  const grps={};
+  ACCOUNTS.forEach(a=>{const b=getEffBank(a);const g=b.g||'Other';if(!grps[g])grps[g]=[];grps[g].push(a);});
+  let html='';
+  ['Public','Private','SFB','Payment','Foreign','Digital','Custom','Other'].forEach(g=>{
+    if(!grps[g])return;
+    html+=`<div class="bank-group-lbl" style="margin-top:12px">${g}</div>`;
+    grps[g].forEach(a=>{
+      const b=getEffBank(a);
+      const _accCurSym=a.currency&&a.currency!=='INR'?(CURRENCIES[a.currency]||CURRENCIES.INR).sym:'₹';
+      const _accFmtBal=v=>_accCurSym+Math.abs(v||0).toLocaleString(a.currency==='INR'?'en-IN':'en-US');
+      const balDisplay=a.balance!=null&&a.balance!==0?`<span class="acc-bal-display" style="color:var(--surplus)">${_accFmtBal(a.balance)}</span>`:'';
+      html+=`<div class="acc-card" id="accard_${a.id}" style="border-left:3px solid ${b.color}">
+        <div class="acc-card-main">
+          <div class="acc-card-logo" style="background:${b.color}">${esc(b.short)}</div>
+          <div class="acc-card-info">
+            <div class="acc-card-name">${esc(a.nickname)}</div>
+            <div class="acc-card-meta">
+              ${esc(b.name)}
+              <span class="acc-type-badge">${esc(a.type)}</span>${a.currency&&a.currency!=='INR'?`<span class="acc-type-badge" style="background:rgba(74,222,128,.12);color:var(--surplus);border-color:var(--surplus)">${esc(a.currency)}</span>`:''}
+            </div>
+          </div>
+          <button class="btn-del" onclick="deleteAccount('${a.id}')" title="Remove account" style="font-size:16px;min-width:32px;min-height:32px;flex-shrink:0">&#215;</button>
+        </div>
+        <div class="acc-card-footer">
+          <span class="acc-bal-lbl">Balance</span>
+          <input type="number" class="acc-bal-inp" value="${a.balance||''}" placeholder="₹ Enter current balance" oninput="updateAccBalance('${a.id}',this.value)" title="Current account balance">
+          ${balDisplay}
+          <div style="flex:1"></div>
+          <button class="btn-ghost btn-sm" onclick="openAccLogModal('${a.id}','credit')" style="font-size:10.5px;padding:5px 10px;color:var(--surplus);border-color:var(--surplus)" title="Log income to this account">&#43; Income</button>
+          <button class="btn-ghost btn-sm" onclick="toggleAccStatement('${a.id}')" style="font-size:10.5px;padding:5px 10px" title="View account statement">Statement &#x25BE;</button>
+        </div>
+        <div class="acc-stmt-panel" id="stmt_${a.id}"></div>
+      </div>`;
+    });
+  });
+  list.innerHTML=html;
+}
+// ── Bank Picker bottom sheet ─────────────────────────────
+let _bpkTarget=null;
+let _dqBank=null;
+let _dqType='expense'; // current type in quick-add form
+let _edqType='expense'; // current type in edit modal
+
+function setDQType(t){
+  _dqType=t;
+  const be=document.getElementById('dqTypeExp'),bi=document.getElementById('dqTypeInc');
+  if(be&&bi){
+    be.classList.toggle('active',t==='expense');
+    bi.classList.toggle('active',t==='income');
+  }
+  const catInp=document.getElementById('dqCat');
+  if(catInp){catInp.placeholder=t==='income'?'e.g. Freelance, Cashback':'e.g. Chai, Auto';catInp.dataset.t=t;}
+  const accLbl=document.getElementById('dqAccLabel');
+  if(accLbl)accLbl.textContent=t==='income'?'Credited to':'Paid from';
+  const addBtn=document.getElementById('dqAddBtn');
+  if(addBtn){
+    addBtn.textContent=(t==='income'?'\u002B Add Income':'\u2212 Add Expense');
+    addBtn.style.background=t==='income'?'var(--surplus)':'';
+    addBtn.style.borderColor=t==='income'?'var(--surplus)':'';
+  }
+}
+function setEDQType(t){
+  _edqType=t;
+  const be=document.getElementById('edqTypeExp'),bi=document.getElementById('edqTypeInc');
+  if(be&&bi){
+    be.classList.toggle('active',t==='expense');
+    bi.classList.toggle('active',t==='income');
+  }
+  const catInp=document.getElementById('edqCat');
+  if(catInp){catInp.placeholder=t==='income'?'e.g. Freelance, Cashback':'e.g. Groceries';}
+  const saveBtn=document.getElementById('edqSaveBtn');
+  if(saveBtn){
+    saveBtn.textContent='Save '+(t==='income'?'Income':'Expense');
+    saveBtn.style.background=t==='income'?'var(--surplus)':'';
+    saveBtn.style.borderColor=t==='income'?'var(--surplus)':'';
+  }
+}
+let _billPayAcct=null;  // for bill form
+let _subPayAcct=null;   // for sub form
+let _holdPayAcct=null;  // for holdings form
+let _goalPayAcct=null;  // for goal form
+let _billPayConfirmId=null; // for bill pay confirm modal
+let _subPayConfirmId=null;  // for sub pay confirm modal
+let _edqBank=null;
+let _mfPayAcct=null;    // for MF add form
+let _fdPayAcct=null;    // for FD tracker form
+let _loanPayAcct=null;  // for loan form
+function openBankPicker(type,idx){_bpkTarget={scope:'monthly',type,idx};_showBpk();}
+function openDailyBankPicker(id){_bpkTarget={scope:'daily',id};_showBpk();}
+function openDQBankPicker(){_bpkTarget={scope:'dqForm'};_showBpk();}
+function openEDQBankPicker(){_bpkTarget={scope:'edqForm'};_showBpk();}
+function openBillPayAcctPicker(){_bpkTarget={scope:'billForm'};_showBpk();}
+function openSubPayAcctPicker(){_bpkTarget={scope:'subForm'};_showBpk();}
+function openHoldPayAcctPicker(){_bpkTarget={scope:'holdForm'};_showBpk();}
+function openGoalPayAcctPicker(){_bpkTarget={scope:'goalForm'};_showBpk();}
+function openBillPayConfirmAcctPicker(){_bpkTarget={scope:'billPayConfirm'};_showBpk();}
+function openSubPayConfirmAcctPicker(){_bpkTarget={scope:'subPayConfirm'};_showBpk();}
+function openMFPayAcctPicker(){_bpkTarget={scope:'mfForm'};_showBpk();}
+function openFDPayAcctPicker(){_bpkTarget={scope:'fdForm'};_showBpk();}
+function openLoanPayAcctPicker(){_bpkTarget={scope:'loanForm'};_showBpk();}
+function _showBpk(){
+  const modal=document.getElementById('bankPickerModal');if(!modal)return;
+  modal.style.display='flex';
+  const list=document.getElementById('bpkAccountList');if(!list)return;
+  if(!ACCOUNTS.length){
+    list.innerHTML='<div class="bpk-empty">No accounts added yet.<br>Go to <strong>Bills → Accounts</strong> to add your banks.</div>';
+    return;
+  }
+  let curId=null;
+  if(_bpkTarget){
+    if(_bpkTarget.scope==='monthly'){const e=(mdata()[_bpkTarget.type]||[])[_bpkTarget.idx];curId=e?e.bank:null;}
+    else if(_bpkTarget.scope==='daily'){const e=DAILY_EXPENSES.find(x=>x.id===_bpkTarget.id);curId=e?e.bank:null;}
+    else if(_bpkTarget.scope==='dqForm'){curId=_dqBank;}
+    else if(_bpkTarget.scope==='edqForm'){curId=_edqBank;}
+  }
+  const grps={};
+  ACCOUNTS.forEach(a=>{const b=getEffBank(a);const g=b.g||'Other';if(!grps[g])grps[g]=[];grps[g].push(a);});
+  let html='';
+  ['Public','Private','SFB','Payment','Foreign','Digital','Custom','Other'].forEach(g=>{
+    if(!grps[g])return;
+    html+=`<div class="bpk-sec-lbl">${g}</div>`;
+    grps[g].forEach(a=>{
+      const b=getEffBank(a);
+      const sel=curId===a.id?' bpk-selected':'';
+      html+=`<div class="bpk-account${sel}" onclick="selectBpkAccount('${a.id}')">
+        <div style="background:${b.color};width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;text-transform:uppercase;flex-shrink:0">${esc(b.short)}</div>
+        <div><div class="bpk-acc-name">${esc(a.nickname)}</div><div class="bpk-acc-sub">${esc(b.name)} · ${esc(a.type)}</div></div>
+      </div>`;
+    });
+  });
+  list.innerHTML=html;
+}
+function closeBankPicker(){const m=document.getElementById('bankPickerModal');if(m)m.style.display='none';_bpkTarget=null;}
+function clearEntryBank(){selectBpkAccount(null);}
+function selectBpkAccount(accId){
+  if(!_bpkTarget){closeBankPicker();return;}
+  const t=_bpkTarget;
+  if(t.scope==='monthly'){
+    const e=(mdata()[t.type]||[])[t.idx];
+    if(e){e.bank=accId||null;save();}
+    renderList(t.type);
+  }else if(t.scope==='daily'){
+    const e=DAILY_EXPENSES.find(x=>x.id===t.id);
+    if(e){e.bank=accId||null;saveDaily();}
+    renderDailyView();
+  }else if(t.scope==='dqForm'){
+    _dqBank=accId||null;_refreshDQBankBadge();
+  }else if(t.scope==='edqForm'){
+    _edqBank=accId||null;_refreshEDQBankBadge();
+  }else if(t.scope==='billForm'){
+    _billPayAcct=accId||null;_refreshFormAcctBadge('bPayAccWrap',_billPayAcct,'openBillPayAcctPicker');
+  }else if(t.scope==='subForm'){
+    _subPayAcct=accId||null;_refreshFormAcctBadge('subPayAccWrap',_subPayAcct,'openSubPayAcctPicker');
+  }else if(t.scope==='holdForm'){
+    _holdPayAcct=accId||null;_refreshFormAcctBadge('holdPayAccWrap',_holdPayAcct,'openHoldPayAcctPicker');
+  }else if(t.scope==='goalForm'){
+    _goalPayAcct=accId||null;_refreshFormAcctBadge('goalPayAccWrap',_goalPayAcct,'openGoalPayAcctPicker');
+  }else if(t.scope==='mfForm'){
+    _mfPayAcct=accId||null;_refreshFormAcctBadge('mfPayAccWrap',_mfPayAcct,'openMFPayAcctPicker');
+  }else if(t.scope==='fdForm'){
+    _fdPayAcct=accId||null;_refreshFormAcctBadge('fdPayAccWrap',_fdPayAcct,'openFDPayAcctPicker');
+  }else if(t.scope==='loanForm'){
+    _loanPayAcct=accId||null;_refreshFormAcctBadge('loanPayAccWrap',_loanPayAcct,'openLoanPayAcctPicker');
+  }else if(t.scope==='billPayConfirm'){
+    _refreshFormAcctBadge('billPayConfirmAccWrap',accId,'openBillPayConfirmAcctPicker');
+    document.getElementById('billPayConfirmAccId').value=accId||'';
+  }else if(t.scope==='subPayConfirm'){
+    _refreshFormAcctBadge('subPayConfirmAccWrap',accId,'openSubPayConfirmAcctPicker');
+    document.getElementById('subPayConfirmAccId').value=accId||'';
+  }
+  closeBankPicker();
+}
+// Generic account badge refresh for forms
+function _refreshFormAcctBadge(wrapId,accId,pickerFn){
+  const wrap=document.getElementById(wrapId);if(!wrap)return;
+  if(accId){
+    const acc=getAccount(accId);const b=acc?getEffBank(acc):null;
+    wrap.innerHTML=b?`<span class="day-bank-tag" style="background:${b.color};margin-right:4px">${esc(b.short)}</span><span style="font-size:11.5px;color:var(--text);font-weight:500">${esc(acc.nickname)}</span> <button class="btn-ghost btn-sm" onclick="${pickerFn}()" style="font-size:10px;padding:3px 8px;margin-left:4px">Change</button> <button class="btn-ghost btn-sm" onclick="selectBpkAccount(null);_bpkTarget=null;_refreshFormAcctBadge('${wrapId}',null,'${pickerFn}')" style="font-size:10px;padding:3px 8px;color:var(--deficit);border-color:var(--deficit)">&#215;</button>`:'';
+  }else{
+    wrap.innerHTML=`<button class="btn-ghost btn-sm" onclick="${pickerFn}()" style="font-size:11px;padding:5px 12px">+ Select Account</button>`;
+  }
+}
+function _refreshDQBankBadge(){
+  const wrap=document.getElementById('dqBankBadgeWrap');
+  const btn=document.getElementById('dqBankBtn');
+  if(!wrap)return;
+  if(_dqBank){
+    const acc=getAccount(_dqBank);
+    const b=acc?getEffBank(acc):null;
+    wrap.innerHTML=b?`<span class="day-bank-tag" style="background:${b.color}">${esc(b.short)}</span><span style="font-size:11.5px;color:var(--text);font-weight:500;margin-left:2px">${esc(acc.nickname)}</span>`:'';
+    if(btn)btn.textContent='Change';
+  }else{
+    wrap.innerHTML='';
+    if(btn)btn.textContent='+ Select Account';
+  }
+}
+function _refreshEDQBankBadge(){
+  const wrap=document.getElementById('edqBankWrap');if(!wrap)return;
+  if(_edqBank){
+    const acc=getAccount(_edqBank);
+    const b=acc?getEffBank(acc):null;
+    wrap.innerHTML=b?`<span class="day-bank-tag" style="background:${b.color};margin-right:5px">${esc(b.short)}</span><span style="font-size:12px;color:var(--text);font-weight:500">${esc(acc.nickname)}</span> <button class="btn-ghost btn-sm" onclick="openEDQBankPicker()" style="font-size:10px;padding:3px 8px;margin-left:6px">Change</button>`:'';
+  }else{
+    wrap.innerHTML=`<button class="btn-ghost btn-sm" onclick="openEDQBankPicker()" style="font-size:11px;padding:5px 12px">+ Select Account</button>`;
+  }
+}
+
+
+// ══ ACCOUNT LOG TRANSACTION ═══════════════════════════════
+let _accLogId=null, _accLogType='credit';
+function openAccLogModal(accId, type){
+  _accLogId=accId; _accLogType=type||'credit';
+  const acc=getAccount(accId); if(!acc)return;
+  const b=getEffBank(acc);
+  document.getElementById('accLogTitle').textContent=(type==='credit'?'Log Income — ':'Log Expense — ')+acc.nickname;
+  document.getElementById('accLogBankBadge').innerHTML=`<span class="day-bank-tag" style="background:${b.color}">${esc(b.short)}</span><span style="font-size:12px;font-weight:500;color:var(--text)">${esc(acc.nickname)}</span><span style="font-size:10.5px;color:var(--muted)">${esc(b.name)}</span>`;
+  setAccLogType(type);
+  // Init month/year selectors
+  const ms=document.getElementById('accLogMonth'),ys=document.getElementById('accLogYear');
+  if(ms&&!ms.options.length){MONTHS.forEach((m,i)=>{const o=document.createElement('option');o.value=i;o.textContent=m;ms.appendChild(o);});
+  const {year:cy,month:cm}=_istParts();
+  for(let y=cy-3;y<=cy+2;y++){const o=document.createElement('option');o.value=y;o.textContent=y;ys.appendChild(o);}
+  ms.value=cm;ys.value=cy;}
+  const {year:cy2,month:cm2}=_istParts();
+  if(ms)ms.value=cm2; if(ys)ys.value=cy2;
+  ['accLogCat','accLogAmt','accLogDesc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const modal=document.getElementById('accLogModal');
+  if(modal)modal.classList.add('open');
+  setTimeout(()=>{const inp=document.getElementById('accLogCat');if(inp)inp.focus();},200);
+}
+function setAccLogType(t){
+  _accLogType=t;
+  const bc=document.getElementById('accLogTypeCredit'),bd=document.getElementById('accLogTypeDebit');
+  if(bc&&bd){
+    bc.classList.toggle('active',t==='credit');
+    bd.classList.toggle('active',t==='debit');
+    bc.style.background=t==='credit'?'var(--surplus)':'transparent';
+    bc.style.color=t==='credit'?'#fff':'var(--surplus)';
+    bd.style.background=t==='debit'?'var(--deficit)':'transparent';
+    bd.style.color=t==='debit'?'#fff':'var(--deficit)';
+  }
+  const title=document.getElementById('accLogTitle');
+  const acc=getAccount(_accLogId);
+  if(title&&acc)title.textContent=(t==='credit'?'Log Income — ':'Log Expense — ')+acc.nickname;
+}
+function closeAccLogModal(){const m=document.getElementById('accLogModal');if(m)m.classList.remove('open');_accLogId=null;}
+function saveAccLog(){
+  const cat=(document.getElementById('accLogCat')?.value||'').trim();
+  const amt=parseFloat(document.getElementById('accLogAmt')?.value)||0;
+  const desc=(document.getElementById('accLogDesc')?.value||'').trim();
+  const m=parseInt(document.getElementById('accLogMonth')?.value)||0;
+  const y=parseInt(document.getElementById('accLogYear')?.value)||2024;
+  if(!cat||!amt){showToast('Category and Amount required','');return;}
+  const k=`${m}_${y}`;
+  if(!DB[k])DB[k]={income:[],expense:[]};
+  const type=_accLogType==='credit'?'income':'expense';
+  DB[k][type].push({cat,desc,tag:'',amt:String(amt),bank:_accLogId});
+  save();
+  closeAccLogModal();
+  // Refresh if same month is visible
+  if(parseInt(selM())===m&&parseInt(selY())===y){render();}
+  const acc=getAccount(_accLogId);
+  const b=acc?getEffBank(acc):null;
+  showToast((_accLogType==='credit'?'+ ':'- ')+fmt(amt)+' logged',cat+(desc?' — '+desc:'')+(b?' · '+b.short:''));
+}
 // ══ HOME SCREEN ════════════════════════════════════════════
 function enterApp(){
   document.getElementById('homeScreen').classList.add('hidden');
@@ -3379,7 +4169,7 @@ function switchTab(id,btn){
   const oc=document.getElementById('otherControls');
   if(id==='track'){tc.style.display='flex';oc.style.display='none'}
   else{tc.style.display='none';oc.style.display='flex'}
-  if(id==='bills'){renderBills();calcAnnualBillCost();renderLoans();renderSubs();renderSplits();}
+  if(id==='bills'){renderAccounts();renderBills();calcAnnualBillCost();renderLoans();renderSubs();renderSplits();}
   if(id==='notes'){
     // Notes moved to Planner sub-tab — redirect transparently
     const toolsBtn=document.querySelector('.tab-btn[onclick*="\'tools\'"]');
@@ -3483,11 +4273,13 @@ function renderList(type){
     row.setAttribute('draggable','true');
     row.addEventListener('dragstart',onDragStart);row.addEventListener('dragover',onDragOver);
     row.addEventListener('dragleave',onDragLeave);row.addEventListener('drop',onDrop);row.addEventListener('dragend',onDragEnd);
+    const _bbHTML=item.bank?bankBadge(item.bank,22):`<button class="bank-badge unset e-bank" onclick="openBankPicker('${type}',${i})" title="Tag account">+</button>`;
     row.innerHTML=`
       <span class="drag-hdl e-dh" title="Drag">⠿</span>
       <input class="e-cat" type="text" value="${esc(item.cat)}" placeholder="Category" data-t="${type}" data-i="${i}" data-f="cat" autocomplete="off" onfocus="showCatDrop(this)" oninput="showCatDrop(this)" onkeydown="catDropKey(event)">
       <input class="e-desc" type="text" value="${esc(item.desc)}" placeholder="Description" data-t="${type}" data-i="${i}" data-f="desc">
       <input class="e-tag tag-inp" type="text" value="${esc(item.tag||'')}" placeholder="#tag" data-t="${type}" data-i="${i}" data-f="tag">
+      <span class="e-bank" onclick="openBankPicker('${type}',${i})" style="display:flex;align-items:center;justify-content:center;cursor:pointer" title="${item.bank?(getAccount(item.bank)?getAccount(item.bank).nickname:'Unknown account'):'Tag paying account'}"><span style="background:${(()=>{const _la=item.bank?getAccount(item.bank):null;return _la?getEffBank(_la).color:'var(--surface-alt)'})()};display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:6.5px;font-weight:700;color:${item.bank&&getAccount(item.bank)?'#fff':'var(--faint)'};text-transform:uppercase;pointer-events:none;border:${item.bank?'none':'1.5px dashed var(--border)'};">${(()=>{const _la=item.bank?getAccount(item.bank):null;return _la?esc(getEffBank(_la).short||'?'):'+'})()}</span></span>
       <input class="e-amt amt ${type==='income'?'amt-inc':''}" type="number" value="${item.amt||''}" placeholder="0" data-t="${type}" data-i="${i}" data-f="amt">
       <button class="btn-del e-del" onclick="delRow('${type}',${i})">×</button>`;
     addSwipeDel(row,type,i);
@@ -3574,7 +4366,7 @@ function updateCharts(){
 }
 
 // ══ BILLS ══════════════════════════════════════════════════
-function toggleBillForm(){const f=document.getElementById('billForm');f.style.display=f.style.display==='none'?'block':'none';if(f.style.display==='block')document.getElementById('bName').focus()}
+function toggleBillForm(){const f=document.getElementById('billForm');f.style.display=f.style.display==='none'?'block':'none';if(f.style.display==='block'){document.getElementById('bName').focus();_billPayAcct=null;_refreshFormAcctBadge('bPayAccWrap',null,'openBillPayAcctPicker');}}
 let _editBillId=null; // null=add mode, id=edit mode
 
 function saveBill(){
@@ -3589,14 +4381,17 @@ function saveBill(){
     autopay:document.getElementById('bAutopay').checked,
     notes:(document.getElementById('bNotes')?.value||'').trim()
   };
+  data.payAccount=_billPayAcct||null;
   if(_editBillId){
     const b=BILLS.find(x=>x.id===_editBillId);
     if(b){Object.assign(b,data);}
     _editBillId=null;
   }else{
-    BILLS.push({id:uid(),...data,paidMonths:[]});
+    BILLS.push({id:uid(),...data,paidMonths:[],paymentLog:[]});
   }
   saveBills();
+  _billPayAcct=null;
+  const bw=document.getElementById('bPayAccWrap');if(bw)bw.innerHTML='';
   ['bName','bAmt','bDay','bNotes'].forEach(id=>document.getElementById(id).value='');
   const ft=document.getElementById('billFormTitle');if(ft)ft.textContent='New Bill Reminder';
   document.getElementById('billForm').style.display='none';
@@ -3614,6 +4409,8 @@ function editBill(id){
   document.getElementById('bFreq').value=b.frequency;
   document.getElementById('bAutopay').checked=b.autopay||false;
   const bnEl=document.getElementById('bNotes');if(bnEl)bnEl.value=b.notes||'';
+  _billPayAcct=b.payAccount||null;
+  _refreshFormAcctBadge('bPayAccWrap',_billPayAcct,'openBillPayAcctPicker');
   const ft=document.getElementById('billFormTitle');if(ft)ft.textContent='Edit Bill Reminder';
   document.getElementById('billForm').style.display='block';
   document.getElementById('billForm').scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -3623,6 +4420,8 @@ function cancelBillEdit(){
   ['bName','bAmt','bDay','bNotes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const ap=document.getElementById('bAutopay');if(ap)ap.checked=false;
   const ft=document.getElementById('billFormTitle');if(ft)ft.textContent='New Bill Reminder';
+  _billPayAcct=null;
+  const bpaw=document.getElementById('bPayAccWrap');if(bpaw)bpaw.innerHTML='';
   document.getElementById('billForm').style.display='none';
 }
 function billStatus(bill){
@@ -3631,7 +4430,42 @@ function billStatus(bill){
   const due=new Date(y,m,bill.dueDay),diff=Math.ceil((due-new Date())/864e5);
   return diff<0?'overdue':diff<=7?'soon':'upcoming';
 }
-function markBillPaid(id){const b=BILLS.find(x=>x.id===id);if(!b)return;const {month:_bm,year:_by}=_istParts();const mk=`${_bm}_${_by}`;if(!b.paidMonths.includes(mk))b.paidMonths.push(mk);saveBills();renderBills()}
+function markBillPaid(id){
+  const b=BILLS.find(x=>x.id===id);if(!b)return;
+  _billPayConfirmId=id;
+  // Pre-fill with bill's default account
+  const preAcc=b.payAccount||null;
+  document.getElementById('billPayConfirmName').textContent=b.name;
+  document.getElementById('billPayConfirmAmt').value=b.amt;
+  document.getElementById('billPayConfirmDate').value=_localDateStr();
+  document.getElementById('billPayConfirmAccId').value=preAcc||'';
+  _refreshFormAcctBadge('billPayConfirmAccWrap',preAcc,'openBillPayConfirmAcctPicker');
+  const modal=document.getElementById('billPayConfirmModal');
+  if(modal)modal.classList.add('open');
+}
+function confirmBillPayment(){
+  const b=BILLS.find(x=>x.id===_billPayConfirmId);if(!b)return;
+  const {month:_bm,year:_by}=_istParts();const mk=`${_bm}_${_by}`;
+  const paidAmt=parseFloat(document.getElementById('billPayConfirmAmt').value)||b.amt;
+  const paidDate=document.getElementById('billPayConfirmDate').value||_localDateStr();
+  const accId=document.getElementById('billPayConfirmAccId').value||null;
+  if(!b.paidMonths.includes(mk))b.paidMonths.push(mk);
+  if(!b.paymentLog)b.paymentLog=[];
+  b.paymentLog.push({mk,accId,paidAmt,date:paidDate});
+  saveBills();
+  const modal=document.getElementById('billPayConfirmModal');
+  if(modal)modal.classList.remove('open');
+  _billPayConfirmId=null;
+  renderBills();
+  const _cbAcc=accId?getAccount(accId):null;
+  const _cbB=_cbAcc?getEffBank(_cbAcc):null;
+  showToast('✓ '+b.name+' paid',_cbB?'via '+_cbAcc.nickname:'Payment recorded');
+}
+function closeBillPayConfirm(){
+  const modal=document.getElementById('billPayConfirmModal');
+  if(modal)modal.classList.remove('open');
+  _billPayConfirmId=null;
+}
 function deleteBill(id){if(!confirm('Delete this bill?'))return;BILLS=BILLS.filter(b=>b.id!==id);saveBills();renderBills()}
 function renderBills(){
   const groups={overdue:[],soon:[],upcoming:[],paid:[]};
@@ -3656,12 +4490,16 @@ function renderBills(){
         <span class="bill-tag" style="${b.autopay?'color:var(--surplus)':''}">${b.autopay?'Autopay ON':'Autopay OFF'}</span>
         ${statusTag}${b.notes?`<span class="bill-tag">${esc(b.notes)}</span>`:''}
       </div></div>
-      <div><div class="bill-amt">${fmt(b.amt)}</div>
-      <div class="bill-actions">
-        ${!paid?`<button class="btn-paid btn-sm" onclick="markBillPaid('${b.id}')">Mark Paid</button>`:''}
-        <button class="btn-edit" onclick="editBill('${b.id}')" title="Edit bill">&#x270F;</button>
-        <button class="btn-del" onclick="deleteBill('${b.id}')">&#x00D7;</button>
-      </div></div></div>`;
+      <div>
+        <div class="bill-amt">${fmt(b.amt)}</div>
+        ${(()=>{const pa=b.payAccount?getAccount(b.payAccount):null;const pb=pa?getEffBank(pa):null;return pb?`<div style="margin-bottom:4px"><span class="day-bank-tag" style="background:${pb.color};font-size:8.5px">${esc(pb.short)}</span> <span style="font-size:10px;color:var(--muted)">${esc(pa.nickname)}</span></div>`:''})()}
+        ${(()=>{const log=(b.paymentLog||[]).slice(-2).reverse();if(!log.length)return'';return'<div style="margin-bottom:4px">'+log.map(p=>{const pa2=p.accId?getAccount(p.accId):null;const pb2=pa2?getEffBank(pa2):null;return`<div style="font-size:9.5px;color:var(--faint);margin-top:2px">${p.date} · ${fmt(p.paidAmt)}${pb2?' · <span class="day-bank-tag" style="background:'+pb2.color+';font-size:7.5px">'+esc(pb2.short)+'</span>':''}</div>`;}).join('')+'</div>';})()}
+        <div class="bill-actions">
+          ${!paid?`<button class="btn-paid btn-sm" onclick="markBillPaid('${b.id}')">Mark Paid</button>`:''}
+          <button class="btn-edit" onclick="editBill('${b.id}')" title="Edit bill">&#x270F;</button>
+          <button class="btn-del" onclick="deleteBill('${b.id}')">&#x00D7;</button>
+        </div>
+      </div></div>`;
   }
   function renderGroup(cid,items,label){const c=document.getElementById(cid);if(!items.length){c.innerHTML='';return}c.innerHTML=`<div class="bill-section-lbl">${label} (${items.length})</div><div class="bill-list">${items.map(bCard).join('')}</div>`}
   renderGroup('billsOverdue',groups.overdue,'⚠ OVERDUE');
@@ -3725,9 +4563,11 @@ function saveGoal(){
   const name=document.getElementById('gName').value.trim(),target=parseFloat(document.getElementById('gTarget').value)||0,current=parseFloat(document.getElementById('gCurrent').value)||0,date=document.getElementById('gDate').value;
   const linkedMFId=document.getElementById('gLinkedSIP').value||null;
   if(!name||!target){alert('Name and target required.');return}
-  INVEST.goals.push({id:uid(),name,target,current,deadline:date,linkedMFId});
+  INVEST.goals.push({id:uid(),name,target,current,deadline:date,linkedMFId,payAccount:_goalPayAcct||null});
   saveInvest();['gName','gTarget','gCurrent','gDate'].forEach(id=>document.getElementById(id).value='');
   const sl=document.getElementById('gLinkedSIP');if(sl)sl.value='';
+  _goalPayAcct=null;
+  const gpw=document.getElementById('goalPayAccWrap');if(gpw)gpw.innerHTML='';
   document.getElementById('goalForm').style.display='none';renderGoals();updateInvestSummary();
 }
 function addToGoal(id){const inp=document.getElementById('gadd_'+id),amt=parseFloat(inp.value)||0;if(!amt)return;const g=INVEST.goals.find(x=>x.id===id);if(!g)return;g.current=Math.min(g.current+amt,g.target);inp.value='';saveInvest();renderGoals();updateInvestSummary()}
@@ -3840,6 +4680,8 @@ function selectMF(code,name){
   document.getElementById('mfSelName').textContent=name;
   document.getElementById('mfAddForm').style.display='block';
   document.getElementById('mfDate').value=_localDateStr();
+  _mfPayAcct=null;
+  _refreshFormAcctBadge('mfPayAccWrap',null,'openMFPayAcctPicker');
   document.getElementById('mfUnits').focus();
 }
 document.addEventListener('click',e=>{if(!e.target.closest('.mf-search-wrap'))document.getElementById('mfResults').style.display='none'});
@@ -3847,7 +4689,8 @@ function addMFHolding(){
   if(!mfSelectedCode){alert('Select a scheme first.');return}
   const units=parseFloat(document.getElementById('mfUnits').value)||0,navBuy=parseFloat(document.getElementById('mfNavBuy').value)||0,date=document.getElementById('mfDate').value;
   if(!units||!navBuy){alert('Units and Purchase NAV required.');return}
-  INVEST.mf.push({id:uid(),schemeCode:mfSelectedCode,schemeName:mfSelectedName,units,navBuy,date,currentNav:null,lastFetched:null});
+  INVEST.mf.push({id:uid(),schemeCode:mfSelectedCode,schemeName:mfSelectedName,units,navBuy,date,currentNav:null,lastFetched:null,payAccount:_mfPayAcct||null});
+  _mfPayAcct=null;
   saveInvest();document.getElementById('mfSearch').value='';document.getElementById('mfAddForm').style.display='none';
   ['mfUnits','mfNavBuy'].forEach(i=>document.getElementById(i).value='');mfSelectedCode=null;mfSelectedName='';
   document.getElementById('mfStatus').textContent=`${allMFSchemes?allMFSchemes.length.toLocaleString()+'+ ':'' }schemes ready — type to search`;
@@ -3904,7 +4747,9 @@ function renderMFTable(){
     const sipInfo=h.sip&&h.sip.active?`<div class="sip-badge">SIP: ${fmt(h.sip.monthlyAmt)}/mo &middot; ${h.sip.sipDay}th</div>`:'';
     const navDisplay=h.currentNav?`&#8377;${h.currentNav.toFixed(4)}`:'<span style="color:var(--faint)">—</span>';
     return`<tr>
-      <td style="max-width:200px;white-space:normal;line-height:1.3">${esc(h.schemeName)}${sipInfo}</td>
+      <td style="max-width:200px;white-space:normal;line-height:1.3">${esc(h.schemeName)}${sipInfo}
+        ${(()=>{const _ma=h.payAccount?getAccount(h.payAccount):null;const _mb=_ma?getEffBank(_ma):null;return _mb?`<span class="day-bank-tag" style="background:${_mb.color};font-size:8px;margin-top:2px;display:inline-block" title="Invested via ${esc(_ma.nickname)}">${esc(_mb.short)}</span>`:''})()}
+      </td>
       <td class="right">${h.units.toFixed(3)}</td>
       <td class="right">&#8377;${h.navBuy.toFixed(4)}</td>
       <td class="right">${navDisplay}</td>
@@ -3966,6 +4811,7 @@ function addHolding(){
     h.buy=parseFloat(g('hotBuy'))||0;h.cur=parseFloat(g('hotCur'))||0;
     if(!h.name){alert('Name required.');return}
   }
+  h.payAccount=_holdPayAcct||null;
   INVEST.holdings.push(h);
   saveInvest();
   // Clear all holding form inputs
@@ -3973,6 +4819,8 @@ function addHolding(){
    'hgQty','hgBuy','hgCur','hppfName','hppfBuy','hppfCur','hnpsName','hnpsBuy','hnpsCur',
    'hcrName','hcrQty','hcrBuy','hcrCur','hreName','hreBuy','hreCur','hotName','hotBuy','hotCur'
   ].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  _holdPayAcct=null;
+  const hpw=document.getElementById('holdPayAccWrap');if(hpw)hpw.innerHTML='';
   document.getElementById('holdForm').style.display='none';
   renderHoldingsTable();updateInvestSummary();
 }
@@ -4263,7 +5111,8 @@ function addFD(){
   if(!rate||rate<0||rate>50){alert('Invalid interest rate (must be 0.1%–50%).');return}
   if(!tenure||tenure<1||tenure>600){alert('Invalid tenure (1–600 months).');return}
   if(!INVEST.fds)INVEST.fds=[];
-  INVEST.fds.push({id:uid(),bank,principal,rate,tenure,start,comp});
+  INVEST.fds.push({id:uid(),bank,principal,rate,tenure,start,comp,payAccount:_fdPayAcct||null});
+  _fdPayAcct=null;
   saveInvest();
   ['fdBank','fdPrincipal','fdRate','fdTenure','fdStart'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
   toggleForm('fdTrackForm');
@@ -4281,8 +5130,11 @@ function renderFDTable(){
     const matDate=startD?new Date(startD.getFullYear(),startD.getMonth()+f.tenure,startD.getDate()):null;
     const matStr=matDate?matDate.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—';
     const startStr=startD?startD.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—';
+    const _fdAcc=f.payAccount?getAccount(f.payAccount):null;
+    const _fdB=_fdAcc?getEffBank(_fdAcc):null;
+    const _fdAccBadge=_fdB?`<span class="day-bank-tag" style="background:${_fdB.color};font-size:8px;margin-left:4px" title="${esc(_fdAcc.nickname)}">${esc(_fdB.short)}</span>`:'';
     return`<tr>
-      <td>${esc(f.bank)}</td>
+      <td>${esc(f.bank)}${_fdAccBadge}</td>
       <td class="right">${fmt(f.principal)}</td>
       <td class="right">${f.rate}%</td>
       <td class="right">${f.tenure}mo</td>
@@ -4333,7 +5185,7 @@ function calcPrepay(){
   const L=parseFloat(document.getElementById('ppLoan').value)||0;
   const r=parseFloat(document.getElementById('ppRate').value)/100/12;
   const N=parseInt(document.getElementById('ppTenure').value)||0;
-  const paid=parseInt(document.getElementById('ppPaid').value)||0;
+  let paid=Math.min(Math.max(parseInt(document.getElementById('ppPaid').value)||0, 0), Math.max(N-1,0)); // clamped: 0..N-1
   const prepay=parseFloat(document.getElementById('ppPrepay').value)||0;
   if(!L||!r||isNaN(r)||!N||N<=0)return;
   const emi=L*r*Math.pow(1+r,N)/(Math.pow(1+r,N)-1);
@@ -4686,7 +5538,8 @@ function addLoan(){
   // Calculate months elapsed from start date
   let monthsPaid=0;
   if(start){const sd=new Date(start),now=new Date();monthsPaid=Math.max(0,(_istParts().year-sd.getFullYear())*12+(_istParts().month-sd.getMonth()))}
-  LOANS.push({id:uid(),name,type,principal,rate,tenure,start,emi:Math.round(emi),monthsPaid:Math.min(monthsPaid,tenure)});
+  LOANS.push({id:uid(),name,type,principal,rate,tenure,start,emi:Math.round(emi),monthsPaid:Math.min(monthsPaid,tenure),payAccount:_loanPayAcct||null});
+  _loanPayAcct=null;
   saveLoans();
   ['lnName','lnPrincipal','lnRate','lnTenure','lnStart'].forEach(id=>document.getElementById(id).value='');
   toggleForm('loanForm');
@@ -4711,11 +5564,15 @@ function renderLoans(){
     totalOutstanding+=out;totalEMI+=l.emi;
     const rem=Math.max(0,l.tenure-l.monthsPaid);
     const intPaid=l.emi*l.monthsPaid-(l.principal-out);
+    const _lAcc=l.payAccount?getAccount(l.payAccount):null;
+    const _lB=_lAcc?getEffBank(_lAcc):null;
+    const _lAccBadge=_lB?`<span class="day-bank-tag" style="background:${_lB.color};font-size:8px;margin-left:6px" title="EMI from ${esc(_lAcc.nickname)}">${esc(_lB.short)} EMI</span>`:'';
+
     const colors={Home:'#5b7fa6',Car:'#6b9e6b',Personal:'#a67c5b',Education:'#7a6ba6','Credit Card':'#a65b7a',Other:'#9e8f50'};
     const col=colors[l.type]||'#888';
     return`<div class="loan-card" style="border-left-color:${col}">
       <div class="loan-header">
-        <div><div class="loan-name">${esc(l.name)}</div>
+        <div><div class="loan-name">${esc(l.name)}${_lAccBadge}</div>
           ${l.start?`<div style="font-size:10px;color:var(--faint);margin-top:2px">Started ${new Date(l.start).toLocaleDateString('en-IN',{month:'short',year:'numeric'})}</div>`:''}
         </div>
         <div style="display:flex;gap:6px;align-items:center">
@@ -5075,7 +5932,7 @@ function renderTemplates(){
 function backupData(){
   const _s=k=>localStorage.getItem(k);
   const settings={currency:_s('flow_currency')||'INR',displayName:_s('flow_display_name')||'',fyStart:_s('flow_fy_start')||'4',themeMode:_s('flow_theme_mode')||'dark',notifBills:_s('flow_notif_bills'),notifSip:_s('flow_notif_sip'),notifSnap:_s('flow_notif_snap'),notifBillDays:_s('flow_notif_bill_days')||'3',backupFreq:_s('flow_backup_freq')||'weekly',defaultTrack:_s('flow_default_track')||'ledger',budgetWarn:_s('flow_budget_warn')||'80',lockBg:_s('flow_lock_bg'),dailyLimit:_s('flow_daily_limit'),nwHidden:_s('flow_nw_hidden'),hideTrack:_s('flow_hide_t'),hideBills:_s('flow_hide_b'),hidePort:_s('flow_hide_p')};
-  const data={v:'flow_backup_v1',timestamp:new Date().toISOString(),db:DB,bills:BILLS,invest:INVEST,loans:LOANS,splits:SPLITS,templates:TEMPLATES,emfund:EMFUND,subs:SUBS,notes:NOTES,nwHistory:NW_HISTORY,budgets:BUDGETS,dailyExpenses:DAILY_EXPENSES,settings,dark};
+  const data={v:'flow_backup_v1',timestamp:new Date().toISOString(),db:DB,bills:BILLS,invest:INVEST,loans:LOANS,splits:SPLITS,templates:TEMPLATES,emfund:EMFUND,subs:SUBS,notes:NOTES,nwHistory:NW_HISTORY,budgets:BUDGETS,dailyExpenses:DAILY_EXPENSES,accounts:ACCOUNTS,settings,dark};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const fname=`Flow_Backup_${_localDateStr()}.json`;
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;a.click();
@@ -5097,6 +5954,8 @@ function restoreData(input){
       DB=data.db||{};BILLS=data.bills||[];INVEST=data.invest||{goals:[],mf:[],holdings:[],dividends:[],fds:[]};SUBS=data.subs||[];NOTES=data.notes||[];NW_HISTORY=data.nwHistory||[];BUDGETS=data.budgets||{};
       LOANS=data.loans||[];SPLITS=data.splits||[];TEMPLATES=data.templates||[];EMFUND=data.emfund||{amount:0,targetMonths:6,expOverride:0};
       DAILY_EXPENSES=data.dailyExpenses||[];
+      ACCOUNTS=data.accounts||[];
+      localStorage.setItem('flow_accounts',JSON.stringify(ACCOUNTS));
       // Restore settings (supports both new backups with settings obj and legacy backups)
       const rs=data.settings||{};
       const _rs=(k,v)=>{if(v!==null&&v!==undefined&&v!=='')localStorage.setItem(k,v);};
@@ -5363,6 +6222,10 @@ const TOUR_STEPS=[
   {tab:'bills',target:'.tab-btn:nth-child(2)',chip:'Bills',
    title:'Bills — Reminders, Splits & Loans',
    desc:'Four sub-tabs: Bill Reminders, Bill Split, Loan Tracker and Subscriptions. A red dot on Bills in the nav bar means an overdue payment.'},
+  // 6b — ACCOUNTS
+  {tab:'bills',subtab:'accounts',target:'#bsub-accounts',chip:'Accounts',
+   title:'🏦 Bank Accounts',
+   desc:'Add your bank accounts here — Savings, Salary, Credit Card, Wallet, and more. Once added, tag any income, expense, bill, or investment to the account it came from. The account card shows your balance and a full statement view.'},
   // 7 — BILLS: reminders
   {tab:'bills',target:'#bsub-reminders',chip:'Bill Reminders',
    title:'Bill Reminders',
@@ -5506,18 +6369,22 @@ function saveSub(){
     renewal:document.getElementById('subRenewal').value,
     notes:document.getElementById('subNotes').value.trim()
   };
+  data.payAccount=_subPayAcct||null;
   if(_editSubId){
     const s=SUBS.find(x=>x.id===_editSubId);
     if(s){Object.assign(s,data);}
     _editSubId=null;
   }else{
-    SUBS.push({id:uid(),...data,paidMonths:[]});
+    SUBS.push({id:uid(),...data,paidMonths:[],paymentLog:[]});
   }
   saveSubs();
+  _subPayAcct=null;
+  const spw=document.getElementById('subPayAccWrap');if(spw)spw.innerHTML='';
   ['subName','subCost','subRenewal','subNotes'].forEach(id=>document.getElementById(id).value='');
   const formTitle=document.getElementById('subFormTitle');
   if(formTitle)formTitle.textContent='Add Subscription';
   toggleForm('subForm');
+  if(document.getElementById('subForm').style.display==='block'){_subPayAcct=null;_refreshFormAcctBadge('subPayAccWrap',null,'openSubPayAcctPicker');}
   renderSubs();
   if(document.getElementById('tsub-calendar')?.classList.contains('active'))renderCalendar();
 }
@@ -5532,6 +6399,8 @@ function editSub(id){
   document.getElementById('subStatus').value=s.status;
   document.getElementById('subRenewal').value=s.renewal||'';
   document.getElementById('subNotes').value=s.notes||'';
+  _subPayAcct=s.payAccount||null;
+  _refreshFormAcctBadge('subPayAccWrap',_subPayAcct,'openSubPayAcctPicker');
   const formTitle=document.getElementById('subFormTitle');
   if(formTitle)formTitle.textContent='Edit Subscription';
   document.getElementById('subForm').style.display='block';
@@ -5540,10 +6409,39 @@ function editSub(id){
 
 function markSubPaid(id){
   const s=SUBS.find(x=>x.id===id);if(!s)return;
+  _subPayConfirmId=id;
+  const preAcc=s.payAccount||null;
+  document.getElementById('subPayConfirmName').textContent=s.name;
+  document.getElementById('subPayConfirmAmt').value=s.cost;
+  document.getElementById('subPayConfirmDate').value=_localDateStr();
+  document.getElementById('subPayConfirmAccId').value=preAcc||'';
+  _refreshFormAcctBadge('subPayConfirmAccWrap',preAcc,'openSubPayConfirmAcctPicker');
+  const modal=document.getElementById('subPayConfirmModal');
+  if(modal)modal.classList.add('open');
+}
+function confirmSubPayment(){
+  const s=SUBS.find(x=>x.id===_subPayConfirmId);if(!s)return;
   if(!s.paidMonths)s.paidMonths=[];
   const {month:_spm,year:_spy}=_istParts();const mk=`${_spm}_${_spy}`;
+  const paidAmt=parseFloat(document.getElementById('subPayConfirmAmt').value)||s.cost;
+  const paidDate=document.getElementById('subPayConfirmDate').value||_localDateStr();
+  const accId=document.getElementById('subPayConfirmAccId').value||null;
   if(!s.paidMonths.includes(mk))s.paidMonths.push(mk);
-  saveSubs();renderSubs();
+  if(!s.paymentLog)s.paymentLog=[];
+  s.paymentLog.push({mk,accId,paidAmt,date:paidDate});
+  saveSubs();
+  const modal=document.getElementById('subPayConfirmModal');
+  if(modal)modal.classList.remove('open');
+  _subPayConfirmId=null;
+  renderSubs();
+  const _csAcc=accId?getAccount(accId):null;
+  const _csB=_csAcc?getEffBank(_csAcc):null;
+  showToast('✓ '+s.name+' paid',_csB?'via '+_csAcc.nickname:'Payment recorded');
+}
+function closeSubPayConfirm(){
+  const modal=document.getElementById('subPayConfirmModal');
+  if(modal)modal.classList.remove('open');
+  _subPayConfirmId=null;
 }
 
 function unmarkSubPaid(id){
@@ -5574,7 +6472,12 @@ function renderSubs(){
     const paidThisMonth=(s.paidMonths||[]).includes(mk);
     const daysToRenewal=s.renewal?Math.ceil((new Date(s.renewal)-new Date())/86400000):null;
     const renewDate=s.renewal?new Date(s.renewal).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'';
-    const renewLbl=daysToRenewal!=null?(daysToRenewal<0?`<span style="color:var(--deficit)">Renewal Overdue</span>`:daysToRenewal<=7?`<span style="color:var(--amber)">Renews in ${daysToRenewal}d</span>`:`Renews ${renewDate}`):'';
+    // Hide 'Renewal Overdue' when already paid this month — overdue just means renewal date passed
+    const renewLbl=daysToRenewal!=null?(
+      daysToRenewal<0?(paidThisMonth?'':s.status!=='Active'?'':`<span style="color:var(--deficit)">Renewal Overdue</span>`):
+      daysToRenewal<=7?`<span style="color:var(--amber)">Renews in ${daysToRenewal}d</span>`:
+      `Renews ${renewDate}`
+    ):'';
     return`<div class="sub-card${paidThisMonth?' paid-sub':''}">
       <div class="sub-card-info">
         <div class="sub-name">${esc(s.name)}
@@ -5585,6 +6488,7 @@ function renderSubs(){
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
         <div class="sub-cost">${fmt(s.cost)}</div>
+        ${(()=>{const _spa=s.payAccount?getAccount(s.payAccount):null;const _spb=_spa?getEffBank(_spa):null;return _spb?`<div style="margin-bottom:4px;text-align:right"><span class="day-bank-tag" style="background:${_spb.color};font-size:8px">${esc(_spb.short)}</span> <span style="font-size:9.5px;color:var(--muted)">${esc(_spa.nickname)}</span></div>`:""})()}
         <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
           ${!paidThisMonth&&s.status==='Active'?`<button class="btn-primary btn-sm" onclick="markSubPaid('${s.id}')" style="font-size:10px">Mark Paid</button>`:''}
           ${paidThisMonth?`<button class="btn-ghost btn-sm" onclick="unmarkSubPaid('${s.id}')" style="font-size:10px;color:var(--faint)">Undo Paid</button>`:''}
@@ -7294,6 +8198,7 @@ function switchBillsTab(id,btn){
   if(id==='split'){renderSplits();}
   if(id==='loans'){renderLoans();}
   if(id==='subs'){renderSubs();}
+  if(id==='accounts'){renderAccounts();}
 }
 
 // ══ NW TIMELINE TOGGLE ══════════════════════════════════════
@@ -7949,7 +8854,7 @@ function clearAllData(){
   const saved={};keep.forEach(k=>{const v=localStorage.getItem(k);if(v!==null)saved[k]=v;});
   localStorage.clear();
   Object.entries(saved).forEach(([k,v])=>localStorage.setItem(k,v));
-  DB={};BILLS=[];LOANS=[];SPLITS=[];SUBS=[];NOTES=[];DAILY_EXPENSES=[];
+  DB={};BILLS=[];LOANS=[];SPLITS=[];SUBS=[];NOTES=[];DAILY_EXPENSES=[];ACCOUNTS=[];localStorage.removeItem('flow_accounts');
   if(typeof INVEST!=='undefined')INVEST={goals:[],mf:[],holdings:[],dividends:[],fds:[]};
   if(typeof BUDGETS!=='undefined')BUDGETS={};
   if(typeof TEMPLATES!=='undefined')TEMPLATES=[];
@@ -7998,6 +8903,9 @@ function exportDailyPDF(){
   const fs=s=>pdf.setFontSize(s);
   const C={black:[8,8,8],muted:[85,85,85],label:[100,100,100],border:[190,190,190],border2:[215,215,215],bg:[247,247,246]};
   const entries=DAILY_EXPENSES.filter(e=>{if(!e.date)return false;const d=new Date(e.date+'T00:00:00');return d.getMonth()===m&&d.getFullYear()===y;});
+  const expPDFEntries=entries.filter(e=>e.type!=='income');
+  const incPDFEntries=entries.filter(e=>e.type==='income');
+  const totalIncomePDF=incPDFEntries.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
   const dayMap={};
   entries.forEach(e=>{if(!dayMap[e.date])dayMap[e.date]={entries:[],total:0};dayMap[e.date].entries.push(e);dayMap[e.date].total+=(parseFloat(e.amt)||0);});
   const sortedDays=Object.keys(dayMap).sort();
@@ -8223,6 +9131,8 @@ function switchTrackView(mode){
     const lim=getDailyLimit();if(inp&&lim>0)inp.value=lim;
     const dq=document.getElementById('dqDate');
     if(dq&&!dq.value)dq.value=_localDateStr();
+    _refreshDQBankBadge();
+    setDQType('expense'); // reset to expense on every daily view open
     renderDailyView();
   }
 }
@@ -8245,41 +9155,60 @@ function renderDailyView(){
   const dayMap={};
   monthEntries.forEach(e=>{
     const day=e.date.slice(0,10);
-    if(!dayMap[day])dayMap[day]={entries:[],total:0};
+    if(!dayMap[day])dayMap[day]={entries:[],total:0,totalExp:0,totalInc:0};
     dayMap[day].entries.push(e);
-    dayMap[day].total+=(parseFloat(e.amt)||0);
+    const isInc=(e.type==='income');
+    const eAmt=parseFloat(e.amt)||0;
+    if(isInc)dayMap[day].totalInc+=eAmt;
+    else dayMap[day].totalExp+=eAmt;
+    dayMap[day].total=dayMap[day].totalExp; // strip bar = expense only
   });
 
   // ── Derived stats ────────────────────────────────────────
   const activeDays=Object.keys(dayMap).length;
   const daysElapsed=isCurrentMonth?_istD:new Date(y,m+1,0).getDate();
-  const zeroDays=Math.max(0,daysElapsed-activeDays);
-  const totalExp=monthEntries.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+  const expEntries=monthEntries.filter(e=>e.type!=='income');
+  const incEntries=monthEntries.filter(e=>e.type==='income');
+  const zeroDays=Math.max(0,daysElapsed-Object.values(dayMap).filter(d=>d.totalExp>0).length);
+  const totalExp=expEntries.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+  const totalInc=incEntries.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+  const netFlow=totalInc-totalExp;
   const avgDay=activeDays>0?totalExp/activeDays:0;
-  const maxDay=Object.values(dayMap).reduce((mx,d)=>Math.max(mx,d.total),0);
-  const highestEntry=Object.entries(dayMap).sort((a,b)=>b[1].total-a[1].total)[0];
+  const maxDay=Object.values(dayMap).reduce((mx,d)=>Math.max(mx,d.totalExp),0);
+  const highestEntry=Object.entries(dayMap).sort((a,b)=>b[1].totalExp-a[1].totalExp)[0];
 
   // ── Stats — hero Total Spent + 4 mini cards ──────────────
   const statsEl=document.getElementById('dailyStats');
+  const _hasInc=totalInc>0;
+  const _heroNetClr=_hasInc?(netFlow>=0?'#4ade80':'#f87171'):'var(--bg)';
   if(statsEl)statsEl.innerHTML=
     `<div class="card daily-hero" style="background:var(--text);color:var(--bg);border-color:var(--text)">
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
         <div>
-          <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:1.1px;font-weight:500;opacity:.6;margin-bottom:5px">Total Spent — ${MONTHS[m]||''} ${y}</div>
-          <div style="font-size:28px;font-weight:600;letter-spacing:-.5px">${fmt(totalExp)}</div>
-          <div style="font-size:10px;opacity:.55;margin-top:3px">${monthEntries.length} expense${monthEntries.length!==1?'s':''} · ${activeDays} active day${activeDays!==1?'s':''}</div>
+          <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:1.1px;font-weight:500;opacity:.6;margin-bottom:5px">${_hasInc?'Net Flow':'Total Spent'} — ${MONTHS[m]||''} ${y}</div>
+          <div style="font-size:28px;font-weight:600;letter-spacing:-.5px;color:${_heroNetClr}">${_hasInc?((netFlow>=0?'+':'-')+fmt(Math.abs(netFlow))):fmt(totalExp)}</div>
+          <div style="font-size:10px;opacity:.55;margin-top:3px">${expEntries.length} expense${expEntries.length!==1?'s':''}${_hasInc?' · '+incEntries.length+' income':''} · ${activeDays} active day${activeDays!==1?'s':''}</div>
         </div>
         <div style="text-align:right;opacity:.65">
-          <div style="font-size:9px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px">Daily Avg</div>
-          <div style="font-size:17px;font-weight:500">${fmt(Math.round(avgDay))}</div>
+          ${_hasInc?
+          `<div class="dh-net-row">
+            <div class="dh-net-item"><div class="dh-net-lbl">Spent</div><div class="dh-net-val" style="color:#f87171">${fmt(totalExp)}</div></div>
+            <div class="dh-net-item"><div class="dh-net-lbl">Earned</div><div class="dh-net-val" style="color:#4ade80">${fmt(totalInc)}</div></div>
+          </div>`
+          :
+          `<div style="font-size:9px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px">Daily Avg</div>
+          <div style="font-size:17px;font-weight:500">${fmt(Math.round(avgDay))}</div>`
+          }
         </div>
       </div>
     </div>`+
     [
-      {lbl:'Zero-Spend Days',val:zeroDays+' ✦',sub:'clean days this period',clr:'var(--surplus)'},
-      {lbl:'Avg Daily',val:fmt(Math.round(avgDay)),sub:'per active day'},
-      {lbl:'Highest Day',val:fmt(Math.round(maxDay)),sub:highestEntry?new Date(highestEntry[0]+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'—'},
-      {lbl:'Total Entries',val:monthEntries.length,sub:'this period'},
+      {lbl:'Zero-Spend Days',val:zeroDays+' ✦',sub:'no expense days',clr:'var(--surplus)'},
+      {lbl:'Avg Daily Spend',val:fmt(Math.round(avgDay)),sub:'per active day'},
+      {lbl:'Highest Spend',val:fmt(Math.round(maxDay)),sub:highestEntry?new Date(highestEntry[0]+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'—'},
+      totalInc>0
+        ?{lbl:'Total Earned',val:fmt(totalInc),sub:incEntries.length+' income entr'+(incEntries.length!==1?'ies':'y'),clr:'var(--surplus)'}
+        :{lbl:'Total Entries',val:monthEntries.length,sub:'this period'},
     ].map(s=>`<div class="card"><div class="card-lbl">${s.lbl}</div><div class="card-val" style="font-size:15px${s.clr?';color:'+s.clr:''}">${s.val}</div><div style="font-size:9.5px;color:var(--faint);margin-top:2px">${s.sub}</div></div>`).join('');
 
   // ── Full-month strip (all days 1→last, correct IST today) ───
@@ -8301,10 +9230,11 @@ function renderDailyView(){
       const isZero=!dm&&!isFuture;           // past/today with no spend
       const dayName=DAYS_OF_WEEK[stripDate.getDay()];
       const barPct=maxDay>0&&amt>0?Math.round((amt/maxDay)*100):0;
+      const dayInc=(dayMap[key]||{totalInc:0}).totalInc;
       html+=`<div class="ds-day${isToday?' today':''}${isZero?' zero':''}" onclick="openDayDetail('${key}')" style="cursor:pointer">
         <span class="ds-day-label">${dayName}</span>
-        <span class="ds-day-date">${d}</span>
-        <span class="ds-day-amt">${amt>0?fmt(Math.round(amt)):isZero?'<span class="ds-day-zero">✦</span>':'<span style="color:var(--faint)">—</span>'}</span>
+        <span class="ds-day-date">${d}${dayInc>0?'<span class="ds-day-inc-dot"></span>':''}</span>
+        <span class="ds-day-amt">${amt>0?fmt(Math.round(amt)):dayInc>0?'<span style="color:var(--surplus);font-size:9.5px">+'+fmt(Math.round(dayInc))+'</span>':isZero?'<span class="ds-day-zero">✦</span>':'<span style="color:var(--faint)">—</span>'}</span>
         <div class="ds-day-bar"><div class="ds-day-bar-fill" style="width:${barPct}%"></div></div>
       </div>`;
     }
@@ -8352,26 +9282,33 @@ function renderDailyView(){
     // Show year only if not the current IST year
     const dateLabel=isToday?'Today':isYest?'Yesterday':d2.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:d2.getFullYear()!==_istY?'numeric':undefined});
     const weekday=FULL_DAYS[d2.getDay()];
-    const dayTotal=dm.total;
-    const isOver=dailyLimit>0&&dayTotal>dailyLimit;
+    const dayTotalExp=dm.totalExp||0;
+    const dayTotalInc=dm.totalInc||0;
+    const isOver=dailyLimit>0&&dayTotalExp>dailyLimit;
+    const _dgNet=dayTotalInc-dayTotalExp;
     return`<div class="day-group" id="dg_${dateKey}">
       <div class="day-group-hdr" onclick="toggleDayGroup('${dateKey}')">
         <div class="day-group-hdr-left">
           <span class="day-group-date">${dateLabel}</span>
           <span class="day-group-weekday">${weekday}</span>
           ${isToday?'<span class="day-group-zero-badge">Today</span>':''}
+          ${dayTotalInc>0?`<span class="dg-inc-badge">+${fmt(dayTotalInc)}</span>`:''}
         </div>
-        <span class="day-group-total${isOver?' day-group-over':''}">${fmt(dayTotal)}${isOver?' ↑':''}</span>
+        <span class="day-group-total${isOver?' day-group-over':''}"
+          style="${dayTotalInc>0&&_dgNet>=0?'color:var(--surplus)':''}"
+          title="${dayTotalInc>0?'Expense: '+fmt(dayTotalExp)+' · Income: '+fmt(dayTotalInc):''}"
+        >${dayTotalInc>0?((_dgNet>=0?'+':'-')+fmt(Math.abs(_dgNet))):fmt(dayTotalExp)}${isOver?' ↑':''}</span>
       </div>
       <div class="day-entries" id="de_${dateKey}">
-        ${dm.entries.map(e=>`<div class="day-entry-row">
-          <div class="day-entry-dot expense"></div>
+        ${dm.entries.map(e=>{const _isInc=e.type==='income';const _ba=e.bank?getAccount(e.bank):null;const _eb=_ba?getEffBank(_ba):null;const _bb=_eb?`<span class="day-bank-tag" style="background:${_eb.color}" title="${esc(_ba.nickname)}">${esc(_eb.short)}</span>`:'';return`<div class="day-entry-row">
+          <div class="day-entry-dot ${_isInc?'income':'expense'}"></div>
           <span class="day-entry-cat">${esc(e.cat||'—')}</span>
           <span class="day-entry-desc">${esc(e.desc||'')}</span>
-          <span class="day-entry-amt expense">${fmt(parseFloat(e.amt)||0)}</span>
+          ${_bb}
+          <span class="day-entry-amt ${_isInc?'income':'expense'}">${_isInc?'+':''}${fmt(parseFloat(e.amt)||0)}</span>
           <button class="btn-ghost btn-sm" onclick="openEditDailyEntry('${e.id}')" title="Edit" style="padding:3px 7px;font-size:10px;flex-shrink:0">&#x270F;&#xFE0F;</button>
           <button class="btn-del" onclick="deleteDailyEntry('${e.id}')" title="Delete" style="margin-left:2px;flex-shrink:0">&#x2715;</button>
-        </div>`).join('')}
+        </div>`}).join('')}
       </div>
     </div>`;
   }).join('');
@@ -8392,24 +9329,34 @@ function openDayDetail(dateKey){
   const dateLabel=isToday?'Today':isYest?'Yesterday':d2.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:d2.getFullYear()!==_oty?'numeric':undefined});
 
   const entries=DAILY_EXPENSES.filter(e=>e.date&&e.date.slice(0,10)===dateKey);
-  const total=entries.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+  const expAmt=entries.filter(e=>e.type!=='income').reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+  const incAmt=entries.filter(e=>e.type==='income').reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+  const expCount=entries.filter(e=>e.type!=='income').length;
+  const incCount=entries.filter(e=>e.type==='income').length;
 
   document.getElementById('dayDetailDate').textContent=dateLabel;
-  document.getElementById('dayDetailSub').textContent=entries.length+' expense'+(entries.length!==1?'s':'');
-  document.getElementById('dayDetailTotal').textContent=fmt(total);
+  const _subParts=[];
+  if(expCount)_subParts.push(expCount+' expense'+(expCount!==1?'s':''));
+  if(incCount)_subParts.push(incCount+' income'+(incCount!==1?' entries':' entry'));
+  document.getElementById('dayDetailSub').textContent=_subParts.join(' · ')||'No entries';
+  document.getElementById('dayDetailTotal').textContent=fmt(expAmt);
+  document.getElementById('dayDetailTotal').style.color=incAmt>expAmt?'var(--surplus)':'var(--deficit)';
+  const incEl=document.getElementById('dayDetailIncome');
+  if(incEl){if(incAmt>0){incEl.textContent='+'+fmt(incAmt)+' earned';incEl.style.display='block';}else{incEl.style.display='none';}}
 
   const entriesEl=document.getElementById('dayDetailEntries');
   if(!entries.length){
     entriesEl.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--muted);font-size:12px">No expenses recorded for this day.</div>';
   } else {
-    entriesEl.innerHTML=entries.map(e=>`<div class="day-entry-row" style="padding:10px 0">
-      <div class="day-entry-dot expense"></div>
+    entriesEl.innerHTML=entries.map(e=>{const _isInc=e.type==='income';const _ba=e.bank?getAccount(e.bank):null;const _eb=_ba?getEffBank(_ba):null;const _bb=_eb?`<span class="day-bank-tag" style="background:${_eb.color}" title="${esc(_ba.nickname)}">${esc(_eb.short)}</span>`:'';return`<div class="day-entry-row" style="padding:10px 0">
+      <div class="day-entry-dot ${_isInc?'income':'expense'}"></div>
       <span class="day-entry-cat" style="min-width:90px">${esc(e.cat||'—')}</span>
       <span class="day-entry-desc">${esc(e.desc||'')}</span>
-      <span class="day-entry-amt expense" style="min-width:70px;text-align:right">${fmt(parseFloat(e.amt)||0)}</span>
+      ${_bb}
+      <span class="day-entry-amt ${_isInc?'income':'expense'}" style="min-width:70px;text-align:right">${_isInc?'+':''}${fmt(parseFloat(e.amt)||0)}</span>
       <button class="btn-ghost btn-sm" onclick="openEditFromDetail('${e.id}')" title="Edit" style="padding:3px 7px;font-size:10px;flex-shrink:0">&#x270F;&#xFE0F;</button>
       <button class="btn-del" onclick="deleteDailyEntryFromDetail('${e.id}','${dateKey}')" title="Delete" style="margin-left:2px;flex-shrink:0">&#x2715;</button>
-    </div>`).join('');
+    </div>`}).join('');
   }
   const modal=document.getElementById('dayDetailModal');
   if(modal)modal.classList.add('open');
@@ -8446,11 +9393,16 @@ function openEditDailyEntry(id){
   document.getElementById('edqAmt').value=e.amt||'';
   document.getElementById('edqDesc').value=e.desc||'';
   document.getElementById('edqDate').value=e.date||_localDateStr();
+  _edqBank=e.bank||null;
+  _edqType=e.type||'expense';
+  _refreshEDQBankBadge();
+  setEDQType(_edqType);
   const modal=document.getElementById('editDailyModal');
   if(modal)modal.classList.add('open');
 }
 function closeEditDailyEntry(){
   _editingDailyId=null;
+  _edqBank=null;
   const modal=document.getElementById('editDailyModal');
   if(modal)modal.classList.remove('open');
 }
@@ -8463,7 +9415,7 @@ function saveEditDailyEntry(){
   const desc=(document.getElementById('edqDesc').value||'').trim();
   const date=document.getElementById('edqDate').value||e.date;
   if(!cat||!amt){showToast('Category and amount required','');return;}
-  e.cat=cat;e.amt=String(amt);e.desc=desc;e.date=date;
+  e.cat=cat;e.amt=String(amt);e.desc=desc;e.date=date;e.bank=_edqBank||null;e.type=_edqType||'expense';
   saveDaily();closeEditDailyEntry();renderDailyView();
   showToast('Entry updated','Changes saved');
 }
@@ -8475,12 +9427,17 @@ function quickDailyAdd(){
   const amt=parseFloat(document.getElementById('dqAmt').value)||0;
   const dateVal=document.getElementById('dqDate').value||_localDateStr();
   if(!cat||!amt){showToast('Category and amount required','');return;}
-  DAILY_EXPENSES.push({id:uid(),cat,desc,amt:String(amt),note:'',date:dateVal,created:Date.now()});
+  DAILY_EXPENSES.push({id:uid(),cat,desc,amt:String(amt),note:'',date:dateVal,bank:_dqBank||null,type:_dqType||'expense',created:Date.now()});
   saveDaily();renderDailyView();
   ['dqCat','dqDesc','dqAmt'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const dq=document.getElementById('dqDate');
   if(dq)dq.value=_localDateStr(); // reset to today
-  showToast('₹'+fmt(amt)+' logged',cat+(desc?' — '+desc:''));
+  // Keep _dqBank selected for next entry (convenience)
+  _refreshDQBankBadge();
+  const acc=_dqBank?getAccount(_dqBank):null;
+  const bankStr=acc?(' · '+getEffBank(acc).short):'';
+  const typeLabel=_dqType==='income'?'Earned':'Spent';
+  showToast((_dqType==='income'?'+':'-')+'₹'+fmt(amt)+' '+typeLabel,cat+(desc?' — '+desc:'')+bankStr);
 }
 
 // ══ INIT ═══════════════════════════════════════════════════
@@ -8499,6 +9456,20 @@ setTimeout(function(){
 
 // Pre-load MF schemes silently in background after 2s
 setTimeout(loadAllSchemes, 2000);
+
+// ── What's New auto-show on new version ─────────────────
+const FLOW_CURRENT_VER='2.6';
+(function(){
+  const lastSeen=localStorage.getItem('flow_last_ver');
+  if(lastSeen!==FLOW_CURRENT_VER){
+    setTimeout(()=>{
+      if(localStorage.getItem('flow_visited')){
+        showToast('✦ Flow v2.6 is here','Daily Income, Custom Bank & more bug fixes — tap to see what\'s new',6000);
+      }
+      localStorage.setItem('flow_last_ver',FLOW_CURRENT_VER);
+    },2500);
+  }
+})();
 </script>
 
 <!-- ── Service Worker Registration ───────────────────── -->
@@ -8579,5 +9550,128 @@ setTimeout(loadAllSchemes, 2000);
   </div>
 </div>
 <div id="catDrop" style="display:none"></div>
+
+<!-- ══ BANK PICKER BOTTOM SHEET ════════════════════════════ -->
+<div id="bankPickerModal" style="display:none;position:fixed;inset:0;z-index:460" onclick="if(event.target===this)closeBankPicker()">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,.55)" onclick="closeBankPicker()"></div>
+  <div class="bpk-sheet" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:600px">
+    <div class="bpk-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="bpk-title">Select Account</div>
+      <button class="btn-del" onclick="closeBankPicker()" style="font-size:18px">&#215;</button>
+    </div>
+    <div id="bpkAccountList"></div>
+    <button class="bpk-none-btn" onclick="clearEntryBank()">&#215; No Account / Clear Selection</button>
+  </div>
+</div>
+
+
+<!-- ══ BILL PAY CONFIRM MODAL ══════════════════════════════ -->
+<div id="billPayConfirmModal" class="qs-modal" onclick="if(event.target===this)closeBillPayConfirm()">
+  <div class="pay-confirm-sheet">
+    <div class="qs-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div style="font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px">Confirm Payment</div>
+      <button class="btn-del" onclick="closeBillPayConfirm()">&#215;</button>
+    </div>
+    <div class="pay-confirm-name" id="billPayConfirmName"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div class="form-field">
+        <span class="form-label">Amount Paid (&#8377;)</span>
+        <input type="number" id="billPayConfirmAmt" placeholder="0" style="width:100%">
+      </div>
+      <div class="form-field">
+        <span class="form-label">Payment Date</span>
+        <input type="date" id="billPayConfirmDate" style="width:100%">
+      </div>
+    </div>
+    <div class="form-field" style="margin-bottom:14px">
+      <span class="form-label">Paid From Account</span>
+      <input type="hidden" id="billPayConfirmAccId">
+      <div id="billPayConfirmAccWrap" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:5px"></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-primary btn-sm" onclick="confirmBillPayment()" style="flex:1;padding:10px;justify-content:center">&#10003; Confirm Paid</button>
+      <button class="btn-ghost btn-sm" onclick="closeBillPayConfirm()" style="padding:10px 16px">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SUBSCRIPTION PAY CONFIRM MODAL ══════════════════════ -->
+<div id="subPayConfirmModal" class="qs-modal" onclick="if(event.target===this)closeSubPayConfirm()">
+  <div class="pay-confirm-sheet">
+    <div class="qs-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div style="font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px">Confirm Payment</div>
+      <button class="btn-del" onclick="closeSubPayConfirm()">&#215;</button>
+    </div>
+    <div class="pay-confirm-name" id="subPayConfirmName"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div class="form-field">
+        <span class="form-label">Amount Paid (&#8377;)</span>
+        <input type="number" id="subPayConfirmAmt" placeholder="0" style="width:100%">
+      </div>
+      <div class="form-field">
+        <span class="form-label">Payment Date</span>
+        <input type="date" id="subPayConfirmDate" style="width:100%">
+      </div>
+    </div>
+    <div class="form-field" style="margin-bottom:14px">
+      <span class="form-label">Paid From Account</span>
+      <input type="hidden" id="subPayConfirmAccId">
+      <div id="subPayConfirmAccWrap" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:5px"></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-primary btn-sm" onclick="confirmSubPayment()" style="flex:1;padding:10px;justify-content:center">&#10003; Confirm Paid</button>
+      <button class="btn-ghost btn-sm" onclick="closeSubPayConfirm()" style="padding:10px 16px">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ ACCOUNT LOG TRANSACTION MODAL ═══════════════════════ -->
+<div id="accLogModal" class="qs-modal" onclick="if(event.target===this)closeAccLogModal()">
+  <div class="acc-log-sheet">
+    <div class="qs-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div style="font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px" id="accLogTitle">Log Transaction</div>
+      <button class="btn-del" onclick="closeAccLogModal()" style="min-width:28px;min-height:28px">&#215;</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px" id="accLogBankBadge"></div>
+    <!-- Type toggle: Credit / Debit -->
+    <div style="display:flex;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;width:100%;margin-bottom:14px">
+      <button class="sip-toggle-btn active" id="accLogTypeCredit" onclick="setAccLogType('credit')" style="flex:1;padding:9px;font-size:12px;font-family:inherit;text-align:center;color:var(--surplus)">&#43; Credit (Income)</button>
+      <button class="sip-toggle-btn" id="accLogTypeDebit" onclick="setAccLogType('debit')" style="flex:1;padding:9px;font-size:12px;font-family:inherit;text-align:center;color:var(--deficit)">&#8722; Debit (Expense)</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div class="form-field">
+        <span class="form-label">Category</span>
+        <input type="text" id="accLogCat" placeholder="e.g. Salary, Rent" style="width:100%" autocomplete="off" onfocus="showCatDrop(this)" oninput="showCatDrop(this)" data-t="income" data-i="-3" data-f="cat">
+      </div>
+      <div class="form-field">
+        <span class="form-label">Amount (&#8377;)</span>
+        <input type="number" id="accLogAmt" placeholder="0" style="width:100%">
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:10px;margin-bottom:14px">
+      <div class="form-field">
+        <span class="form-label">Description</span>
+        <input type="text" id="accLogDesc" placeholder="What was this?" style="width:100%">
+      </div>
+      <div class="form-field">
+        <span class="form-label">Month / Year</span>
+        <div style="display:flex;gap:4px">
+          <select id="accLogMonth" style="flex:1;font-size:11px"></select>
+          <select id="accLogYear" style="flex:1;font-size:11px"></select>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-primary btn-sm" onclick="saveAccLog()" style="flex:1;padding:10px;justify-content:center" id="accLogSaveBtn">Save Entry</button>
+      <button class="btn-ghost btn-sm" onclick="closeAccLogModal()" style="padding:10px 16px">Cancel</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
