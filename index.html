@@ -970,11 +970,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .sub-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
 
 
-/* ══ XIRR / CAGR ════════════════════════════════════════════ */
-.xirr-badge{font-size:9.5px;padding:2px 7px;border-radius:10px;font-weight:500;white-space:nowrap;display:inline-block}
-.xirr-pos{background:var(--surplus-bg);color:var(--surplus)}
-.xirr-neg{background:var(--deficit-bg);color:var(--deficit)}
-.xirr-neutral{background:var(--surface-alt);color:var(--muted)}
+/* ══ CAGR ════════════════════════════════════════════════ */
 
 /* ══ RETIREMENT CALCULATOR ══════════════════════════════════ */
 .retire-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
@@ -2363,6 +2359,15 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
               <option value="HKD">HK$ HKD — Hong Kong Dollar</option>
               <option value="MYR">RM MYR — Malaysian Ringgit</option>
               <option value="NZD">NZ$ NZD — New Zealand Dollar</option>
+              <option value="THB">฿ THB — Thai Baht</option>
+              <option value="CNY">CN¥ CNY — Chinese Yuan</option>
+              <option value="KRW">₩ KRW — South Korean Won</option>
+              <option value="ZAR">R ZAR — South African Rand</option>
+              <option value="SAR">SAR — Saudi Riyal</option>
+              <option value="QAR">QAR — Qatari Riyal</option>
+              <option value="IDR">Rp IDR — Indonesian Rupiah</option>
+              <option value="PHP">₱ PHP — Philippine Peso</option>
+              <option value="VND">₫ VND — Vietnamese Dong</option>
             </select>
           </div>
           <!-- Custom bank name fields -->
@@ -2494,6 +2499,20 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
             <option value="AED">AED</option>
             <option value="SGD">S$ SGD</option>
             <option value="AUD">A$ AUD</option>
+            <option value="THB">&#3647; THB</option>
+            <option value="MYR">RM MYR</option>
+            <option value="JPY">&#165; JPY</option>
+            <option value="NZD">NZ$ NZD</option>
+            <option value="CHF">CHF</option>
+            <option value="HKD">HK$ HKD</option>
+            <option value="CNY">CN&#165; CNY</option>
+            <option value="KRW">&#8361; KRW</option>
+            <option value="ZAR">R ZAR</option>
+            <option value="SAR">SAR</option>
+            <option value="QAR">QAR</option>
+            <option value="IDR">Rp IDR</option>
+            <option value="PHP">&#8369; PHP</option>
+            <option value="VND">&#8363; VND</option>
           </select>
         </div>
       </div>
@@ -3299,7 +3318,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <span class="wn-version-date">May 2026</span>
       <span class="wn-version-label wn-label-minor">Update</span>
     </div>
-    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Mutual Funds &mdash; Live NAV &amp; XIRR</div><div class="wn-entry-desc">Search 16,000+ AMFI-registered schemes. Fetches today's NAV from mfapi.in. XIRR calculated per fund using Newton-Raphson for accurate annualised returns.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Mutual Funds &mdash; Live NAV</div><div class="wn-entry-desc">Search 16,000+ AMFI-registered schemes. Fetches today's NAV from mfapi.in. Track units, average cost, current value and profit/loss per fund.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">FD Tracker</div><div class="wn-entry-desc">Track all fixed deposits. Auto-calculates maturity date and maturity amount using compound interest formula with quarterly, monthly, half-yearly, or yearly compounding.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Financial Calculators</div><div class="wn-entry-desc">Six calculators &mdash; SIP with step-up and inflation adjustment, EMI reducing-balance, FD maturity, Loan Prepayment savings, Retirement corpus, and Goal Planner.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">Savings Goals with 3-Way Projection</div><div class="wn-entry-desc">Set a target with a deadline. See three routes to reach it &mdash; Regular SIP, Step-Up SIP, or a Lumpsum today.</div></div></div>
@@ -3366,14 +3385,28 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <div class="settings-row-left"><div class="settings-row-label">Currency</div><div class="settings-row-desc">All amounts shown in this currency</div></div>
       <div class="settings-row-right">
         <select id="settCurr" onchange="setCurrency(this.value);saveSett('flow_currency',this.value)">
-          <option value="INR">₹ INR</option>
-          <option value="USD">$ USD</option>
-          <option value="GBP">£ GBP</option>
-          <option value="EUR">€ EUR</option>
-          <option value="AED">AED</option>
-          <option value="SGD">S$ SGD</option>
-          <option value="AUD">A$ AUD</option>
-          <option value="CAD">C$ CAD</option>
+          <option value="INR">₹ INR — Indian Rupee</option>
+          <option value="USD">$ USD — US Dollar</option>
+          <option value="GBP">£ GBP — British Pound</option>
+          <option value="EUR">€ EUR — Euro</option>
+          <option value="AED">AED — UAE Dirham</option>
+          <option value="SGD">S$ SGD — Singapore Dollar</option>
+          <option value="AUD">A$ AUD — Australian Dollar</option>
+          <option value="CAD">C$ CAD — Canadian Dollar</option>
+          <option value="THB">฿ THB — Thai Baht</option>
+          <option value="MYR">RM MYR — Malaysian Ringgit</option>
+          <option value="JPY">¥ JPY — Japanese Yen</option>
+          <option value="NZD">NZ$ NZD — New Zealand Dollar</option>
+          <option value="CHF">CHF — Swiss Franc</option>
+          <option value="HKD">HK$ HKD — Hong Kong Dollar</option>
+          <option value="CNY">CN¥ CNY — Chinese Yuan</option>
+          <option value="KRW">₩ KRW — South Korean Won</option>
+          <option value="ZAR">R ZAR — South African Rand</option>
+          <option value="SAR">SAR — Saudi Riyal</option>
+          <option value="QAR">QAR — Qatari Riyal</option>
+          <option value="IDR">Rp IDR — Indonesian Rupiah</option>
+          <option value="PHP">₱ PHP — Philippine Peso</option>
+          <option value="VND">₫ VND — Vietnamese Dong</option>
         </select>
       </div>
     </div>
@@ -3519,7 +3552,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="settings-section-hdr">About</div>
     <div class="settings-row">
       <div class="settings-row-left"><div class="settings-row-label">App Version</div></div>
-      <div class="settings-row-right" style="font-size:12px;color:var(--muted)">Flow v2.4</div>
+      <div class="settings-row-right" style="font-size:12px;color:var(--muted)">Flow v2.6</div>
     </div>
     <div class="settings-row">
       <div class="settings-row-left"><div class="settings-row-label">What's New</div><div class="settings-row-desc">See latest features and changes</div></div>
@@ -3684,6 +3717,20 @@ const CURRENCIES={
   AED:{sym:'AED ',locale:'en-AE'},
   SGD:{sym:'S$',locale:'en-SG'},
   AUD:{sym:'A$',locale:'en-AU'},
+  THB:{sym:'฿',locale:'th-TH'},
+  MYR:{sym:'RM ',locale:'ms-MY'},
+  JPY:{sym:'¥',locale:'ja-JP'},
+  NZD:{sym:'NZ$',locale:'en-NZ'},
+  CHF:{sym:'CHF ',locale:'de-CH'},
+  HKD:{sym:'HK$',locale:'zh-HK'},
+  CNY:{sym:'CN¥',locale:'zh-CN'},
+  KRW:{sym:'₩',locale:'ko-KR'},
+  ZAR:{sym:'R ',locale:'en-ZA'},
+  SAR:{sym:'SAR ',locale:'ar-SA'},
+  QAR:{sym:'QAR ',locale:'ar-QA'},
+  IDR:{sym:'Rp ',locale:'id-ID'},
+  PHP:{sym:'₱',locale:'en-PH'},
+  VND:{sym:'₫',locale:'vi-VN'},
 };
 let BASE_CURRENCY=localStorage.getItem('flow_currency')||'INR';
 const fmt  = n=>{const c=CURRENCIES[BASE_CURRENCY]||CURRENCIES.INR;return c.sym+Math.abs(n||0).toLocaleString(c.locale);};
@@ -4669,7 +4716,7 @@ function searchMF(q){
     const matches=allMFSchemes.filter(s=>s.schemeName.toLowerCase().includes(fl));
     if(!matches.length){res.innerHTML='<div class="mf-result-item" style="color:var(--faint)">No schemes found</div>';res.style.display='block';return}
     status.textContent=`${matches.length.toLocaleString()} results — showing top 50`;
-    res.innerHTML=matches.slice(0,50).map(s=>`<div class="mf-result-item" onclick="selectMF(${s.schemeCode},'${esc(s.schemeName)}')"><div class="mf-result-name">${esc(s.schemeName)}</div><div class="mf-result-code">Code: ${s.schemeCode}</div></div>`).join('');
+    res.innerHTML=matches.slice(0,50).map(s=>{const _jsName=esc(s.schemeName).replace(/\\/g,'\\\\').replace(/'/g,"\\'");return`<div class="mf-result-item" onclick="selectMF(${s.schemeCode},'${_jsName}')"><div class="mf-result-name">${esc(s.schemeName)}</div><div class="mf-result-code">Code: ${s.schemeCode}</div></div>`}).join('');
     res.style.display='block';
   },150);
 }
@@ -4697,41 +4744,46 @@ function addMFHolding(){
   renderMFTable();renderMFSIPSummary();updateInvestSummary();
 }
 async function fetchNAV(h){
-  // Try up to 2 times with increasing timeout
+  // Try up to 2 times with increasing timeout. Runs in parallel across funds
+  // (see refreshAllNAV) so total refresh time ≈ slowest single fund, not the sum.
   for(let attempt=1;attempt<=2;attempt++){
     try{
       const ctrl=new AbortController();
-      const timer=setTimeout(()=>ctrl.abort(),attempt===1?8000:14000);
-      const r=await fetch(`https://api.mfapi.in/mf/${h.schemeCode}/latest`,{signal:ctrl.signal});
+      const timer=setTimeout(()=>ctrl.abort(),attempt===1?6000:9000);
+      const r=await fetch(`https://api.mfapi.in/mf/${h.schemeCode}/latest`,{signal:ctrl.signal,cache:'no-store'});
       clearTimeout(timer);
-      if(!r.ok) return;
+      if(!r.ok) return false;
       const d=await r.json();
       if(d.data&&d.data[0]&&d.data[0].nav){
         const nav=parseFloat(d.data[0].nav);
-        if(!isNaN(nav)&&nav>0){h.currentNav=nav;h.lastFetched=new Date().toISOString();return;}
+        if(!isNaN(nav)&&nav>0){h.currentNav=nav;h.lastFetched=new Date().toISOString();return true;}
       }
-      return; // Got a response but no valid NAV data
+      return false; // Got a response but no valid NAV data
     }catch(e){
-      if(attempt===2) console.warn('[Flow] NAV fetch failed after 2 attempts:',h.schemeName,e.message);
-      // Wait 1s before retry
-      // No blocking wait between retries — keeps NAV refresh snappy
+      if(attempt===2){console.warn('[Flow] NAV fetch failed after 2 attempts:',h.schemeName,e.message);return false;}
     }
   }
+  return false;
 }
 async function refreshAllNAV(){
   const btn=document.querySelector('.refresh-btn');
   if(!btn)return;
+  const funds=(INVEST.mf||[]).filter(h=>h.schemeCode);
+  if(!funds.length){showToast('No funds','Add a mutual fund first to fetch NAV.');return;}
   btn.textContent='↻ Fetching…';btn.disabled=true;
   let ok=0,fail=0;
   try{
-    for(const h of (INVEST.mf||[])){
+    // Fetch every fund concurrently — total time ≈ the slowest single request,
+    // not the sum of all of them. This is the key fix for the slow/failing refresh.
+    const results=await Promise.allSettled(funds.map(async h=>{
       const before=h.currentNav;
-      await fetchNAV(h);
-      if(h.currentNav&&h.currentNav!==before)ok++;else fail++;
-    }
+      const got=await fetchNAV(h);
+      return got && h.currentNav && h.currentNav!==before;
+    }));
+    results.forEach(r=>{ if(r.status==='fulfilled' && r.value) ok++; else fail++; });
     saveInvest();renderMFTable();renderMFSIPSummary();updateInvestSummary();
-    if(ok>0) showToast('✓ NAV Updated',ok+' fund'+(ok>1?'s':'')+' refreshed'+(fail?' · '+fail+' failed':''));
-    else if(fail>0) showToast('NAV Fetch Failed','Could not reach mfapi.in — check your connection or enter NAV manually via the ✏ edit button');
+    if(ok>0) showToast('✓ NAV Updated',ok+' fund'+(ok>1?'s':'')+' refreshed'+(fail?' · '+fail+' unchanged/failed':''));
+    else if(fail>0) showToast('NAV Fetch Failed','Could not update — check your connection, or enter NAV manually via the ✏ edit button');
   }catch(e){console.error('NAV refresh error:',e);showToast('NAV Error','Refresh failed: '+e.message);}
   finally{btn.textContent='↻ Refresh NAV';btn.disabled=false;}
 }
@@ -6241,7 +6293,7 @@ const TOUR_STEPS=[
   // 10 — PORTFOLIO: mutual funds
   {tab:'invest',subtab:'mf',target:'#mfSearch',chip:'Mutual Funds',scroll:true,
    title:'16,000+ Mutual Fund Schemes',
-   desc:'Search any AMFI-registered fund. Live NAV updated automatically. Set monthly SIP amount and date. XIRR calculated per fund.'},
+   desc:'Search any AMFI-registered fund. Live NAV updated automatically. Set monthly SIP amount and date. Track units, cost and P&L per fund.'},
   // 11 — PLANNER: tab
   {tab:'tools',target:'.tab-btn:nth-child(4)',chip:'Planner',
    title:'Planner — 7 Tools in One Tab',
@@ -6567,38 +6619,7 @@ function renderNWChart(){
 }
 function deleteNWEntry(key){if(!confirm('Remove this entry?'))return;NW_HISTORY=NW_HISTORY.filter(x=>x.key!==key);saveNWHistory();renderNWChart();}
 
-// ══ XIRR / CAGR FOR MF ═══════════════════════════════════
-function calcXIRR(cashflows){
-  // cashflows: [{amount, days}] where days = days from first cashflow
-  // Solve: Σ C_i / (1+r)^(d_i/365) = 0
-  let r=0.15;
-  for(let iter=0;iter<200;iter++){
-    let f=0,df=0;
-    for(const {amount,days} of cashflows){
-      const t=days/365;
-      const factor=Math.pow(1+r,t);
-      f+=amount/factor;
-      df+=-t*amount/((1+r)*factor);
-    }
-    if(Math.abs(df)<1e-12)break;
-    const rNew=r-f/df;
-    if(Math.abs(rNew-r)<1e-8)break;
-    r=rNew;
-    if(r<=-1)r=-0.999;
-  }
-  return isNaN(r)||!isFinite(r)?null:r;
-}
-function calcMFXIRR(h){
-  if(!h.date||!h.units||!h.navBuy)return null;
-  const purchaseDate=new Date(h.date);
-  const today=new Date();
-  if(isNaN(purchaseDate.getTime()))return null;
-  const days=Math.max(1,Math.round((today-purchaseDate)/86400000));
-  const invested=h.units*h.navBuy;
-  const currentVal=h.units*(h.currentNav||h.navBuy);
-  const cashflows=[{amount:-invested,days:0},{amount:currentVal,days}];
-  return calcXIRR(cashflows);
-}
+// ══ CAGR FOR MF ══════════════════════════════════════════
 function calcCAGR(invested,current,days){
   if(!invested||!days||days<1)return null;
   const yrs=days/365;
@@ -6670,53 +6691,10 @@ function calcGoalPlan(){
   if(line){const name=document.getElementById('gpName').value.trim();line.textContent=name?`Goal: ${name} — ₹${(target/1e5).toFixed(1)}L in ${yrs} years`:`Target ₹${(target/1e5).toFixed(1)}L in ${yrs} years`;}
 }
 
-// ══ ENHANCED renderMFTable WITH XIRR/CAGR ════════════════
-const _origRenderMFTable=renderMFTable;
-renderMFTable=function(){
-  _origRenderMFTable();
-  // Inject XIRR/CAGR after table renders
-  const body=document.getElementById('mfBody');if(!body||!INVEST.mf.length)return;
-  const rows=body.querySelectorAll('tr');
-  INVEST.mf.forEach((h,i)=>{
-    const row=rows[i];if(!row)return;
-    const today=new Date();
-    const purchaseDate=h.date?new Date(h.date):null;
-    const days=purchaseDate&&!isNaN(purchaseDate.getTime())?Math.round((today-purchaseDate)/86400000):0;
-    let badge='';
-    if(days>=30){
-      const xirr=calcMFXIRR(h);
-      if(xirr!==null){
-        const xirrPct=(xirr*100).toFixed(1);
-        const cls=xirr>0?'xirr-pos':xirr<0?'xirr-neg':'xirr-neutral';
-        badge=`<div class="xirr-badge ${cls}" title="XIRR">XIRR ${xirrPct>0?'+':''}${xirrPct}%</div>`;
-      }
-    }
-    if(badge){
-      const firstTd=row.querySelector('td');
-      if(firstTd)firstTd.innerHTML+=badge;
-    }
-  });
-};
+// ══ renderMFTable — (XIRR display removed per requirement) ═
+// The previous build injected a per-fund XIRR badge here. XIRR has been removed
+// from the app; renderMFTable now renders without any XIRR/annualised-return badge.
 
-// ══ PORTFOLIO OVERVIEW — show XIRR on Portfolio tab ═══════
-function calcPortfolioXIRR(){
-  const cf=[];
-  let totalCurrent=0;
-  (INVEST.mf||[]).forEach(h=>{
-    if(!h.date||!h.units||!h.navBuy)return;
-    const d=new Date(h.date);if(isNaN(d.getTime()))return;
-    const days=Math.round((new Date()-d)/86400000);
-    cf.push({amount:-(h.units*h.navBuy),days:0,date:d});
-    totalCurrent+=h.units*(h.currentNav||h.navBuy);
-  });
-  if(!cf.length)return null;
-  // Normalize days from earliest investment
-  const earliest=Math.min(...cf.map(x=>x.date.getTime()));
-  cf.forEach(x=>x.days=Math.round((x.date.getTime()-earliest)/86400000));
-  const totalDays=Math.round((new Date()-earliest)/86400000);
-  cf.push({amount:totalCurrent,days:totalDays});
-  return calcXIRR(cf);
-}
 
 // ══ NOTES ════════════════════════════════════════════════
 let editingNoteId=null;
@@ -6860,7 +6838,11 @@ function saveMFEdit(){
   h.units=units;h.navBuy=nav;
   if(date)h.date=date;
   if(!isNaN(manualNav)&&manualNav>0){h.currentNav=manualNav;h.lastFetched=new Date().toISOString()+'(manual)';}
-  saveInvest();renderMFTable();updateInvestSummary();closeMFEdit();
+  // Mark this fund as updated for the current month so the post-SIP "update your
+  // units" reminder is cleared until next month's instalment.
+  {const _p=_istParts();h.sipUpdatedKey=_p.year+'-'+String(_p.month+1).padStart(2,'0');}
+  saveInvest();renderMFTable();renderMFSIPSummary();updateInvestSummary();closeMFEdit();
+  if(typeof checkAndShowNotifBadge==='function')checkAndShowNotifBadge();
 }
 document.addEventListener('click',function(e){
   const m=document.getElementById('mfEditModal');
@@ -7274,8 +7256,6 @@ function renderFlowRecap(){
       const inv=(h.units||0)*(h.navBuy||0), cur=(h.units||0)*(h.currentNav||h.navBuy||0);
       const pnl=cur-inv, pnlPct=inv>0?(pnl/inv*100):0, pnlCls=pnl>=0?'c-green':'c-red';
       const name=(h.schemeName||'Fund').length>42?(h.schemeName||'Fund').slice(0,40)+'…':(h.schemeName||'Fund');
-      const xirr=calcMFXIRR(h);
-      const xirrBadge=xirr!==null?`<span style="font-size:9.5px;padding:2px 7px;border-radius:10px;background:${xirr>=0?'var(--surplus-bg)':'var(--deficit-bg)'};color:${xirr>=0?'var(--surplus)':'var(--deficit)'}">XIRR ${xirr>=0?'+':''}${(xirr*100).toFixed(1)}%</span>`:'';
       const sipBadge=h.sip&&h.sip.active?`<span style="font-size:10px;color:var(--muted)">SIP ${fmt(h.sip.monthlyAmt)}/mo${h.sip.sipDay?' on '+h.sip.sipDay+'th':''}</span>`:'';
       return `<div class="recap-fund-item">
         <div class="recap-fund-name">${esc(name)}</div>
@@ -7284,7 +7264,7 @@ function renderFlowRecap(){
           <span>Invested: ${fmt(inv)}</span>
           <span>Current: ${fmt(cur)}</span>
           <span class="recap-fund-pnl ${pnlCls}">${pnl>=0?'+':''}${fmtN(pnl)} (${pnlPct>=0?'+':''}${pnlPct.toFixed(1)}%)</span>
-          ${xirrBadge}${sipBadge}
+          ${sipBadge}
         </div>
       </div>`;
     }).join('');
@@ -7721,6 +7701,22 @@ function scheduleSmartNotifications(){
         if(!toastsSent[k]){
           queue.push({key:k,title:`SIP ${diff===0?'Today':'Tomorrow'}`,body:`${(fund.schemeName||'').slice(0,30)} — ${fmt(fund.sip.monthlyAmt)}`});
         }
+      }
+    });
+  }
+
+  // 2b. Post-SIP "update your units" — fires once per month per fund, the day
+  // after the SIP date, prompting the user to update units / avg cost / holdings.
+  if(INVEST&&INVEST.mf&&localStorage.getItem('flow_notif_sip')!=='0'){
+    const _ist2=_istParts();
+    const _sipUpdMonthKey=_ist2.year+'-'+String(_ist2.month+1).padStart(2,'0');
+    INVEST.mf.forEach(fund=>{
+      if(!fund.sip||!fund.sip.active||!fund.sip.sipDay) return;
+      if(_ist2.date<=fund.sip.sipDay) return;
+      if(fund.sipUpdatedKey===_sipUpdMonthKey) return;
+      const k=`sipupdate_${fund.schemeCode}_${_sipUpdMonthKey}`;
+      if(!toastsSent[k]){
+        queue.push({key:k,title:'✏ Update SIP Units',body:`${(fund.schemeName||'').split('—')[0].trim().slice(0,30)} — enter this month's units & avg cost`});
       }
     });
   }
@@ -8665,6 +8661,7 @@ function closeNotifPanel(){
   document.getElementById('notifPanel').classList.remove('open');
   document.getElementById('notifOverlay').classList.remove('open');
 }
+function ordSuffix(n){n=parseInt(n)||0;const s=n%100;if(s>=11&&s<=13)return'th';switch(n%10){case 1:return'st';case 2:return'nd';case 3:return'rd';default:return'th';}}
 function renderNotifList(){
   const list=document.getElementById('notifList');
   const permRow=document.getElementById('notifPermRow');
@@ -8686,12 +8683,29 @@ function renderNotifList(){
     else if(diff<=3) items.push({type:'warn',title:'⏰ Due soon: '+b.name,body:fmt(b.amt)+' due in '+(diff===0?'today':diff+' day'+(diff!==1?'s':''))});
   });
 
-  // SIP reminders
+  // SIP reminders (before/on the SIP date)
   (INVEST.mf||[]).forEach(fund=>{
     if(!fund.sip||!fund.sip.active||!fund.sip.sipDay) return;
     const diff=fund.sip.sipDay-_ntd;
     if(diff>=0&&diff<=3) items.push({type:'info',title:'📈 SIP Due: '+(fund.schemeName||'MF Fund').split('—')[0].trim(),body:fmt(fund.sip.monthlyAmt)+'/mo on '+fund.sip.sipDay+'th'+(diff===0?' — today':' — in '+diff+' day'+(diff!==1?'s':''))});
   });
+
+  // Post-SIP "update your units" reminders — after the SIP instalment has been
+  // debited this month, prompt the user to update units / avg cost / holdings so
+  // the current-month view is accurate. Suppressed once units are updated for the
+  // month (see saveMFEdit). Respects the SIP notification toggle.
+  const _sipUpdMonthKey=y+'-'+String(m+1).padStart(2,'0');
+  if(localStorage.getItem('flow_notif_sip')!=='0'){
+    (INVEST.mf||[]).forEach(fund=>{
+      if(!fund.sip||!fund.sip.active||!fund.sip.sipDay) return;
+      if(_ntd<=fund.sip.sipDay) return;            // SIP date not yet passed this month
+      if(fund.sipUpdatedKey===_sipUpdMonthKey) return; // already updated this month
+      const fname=(fund.schemeName||'MF Fund').split('—')[0].trim();
+      const daysAgo=_ntd-fund.sip.sipDay;
+      items.push({type:'warn',title:'✏ Update SIP units: '+fname,
+        body:'Your '+fund.sip.sipDay+ordSuffix(fund.sip.sipDay)+' SIP of '+fmt(fund.sip.monthlyAmt)+' was due '+daysAgo+' day'+(daysAgo!==1?'s':'')+' ago. Tap the ✏ edit button on this fund to update units & average cost for '+MONTHS[m]+'.'});
+    });
+  }
 
   // FlowSnap ready
   const day=_ntd;
@@ -8752,14 +8766,19 @@ function sendNotifsViaServiceWorker(){
 }
 
 function checkAndShowNotifBadge(){
-  const {month:m,year:y}=_istParts();const mk=m+'_'+y;
+  const {month:m,year:y,date:_ntd}=_istParts();const mk=m+'_'+y;
   const hasAlert=BILLS.some(b=>{
     if(b.paidMonths&&b.paidMonths.includes(mk)) return false;
     const due=new Date(y,m,b.dueDay);
     const diff=Math.ceil((due-new Date())/86400000);
     return diff<=3&&diff>=0;
   });
-  if(hasAlert){
+  // Pending post-SIP "update your units" reminder?
+  const _sipUpdMonthKey=y+'-'+String(m+1).padStart(2,'0');
+  const hasSipUpdate=localStorage.getItem('flow_notif_sip')!=='0' && (INVEST.mf||[]).some(f=>
+    f.sip&&f.sip.active&&f.sip.sipDay&&_ntd>f.sip.sipDay&&f.sipUpdatedKey!==_sipUpdMonthKey
+  );
+  if(hasAlert||hasSipUpdate){
     ['notifBadge','notifBadge2'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('show');});
   }
   // Fire notifications if permission granted
@@ -9073,16 +9092,16 @@ function loadDemoData(){
   localStorage.setItem('flow_notes',JSON.stringify(NOTES));
   INVEST={
     holdings:[
-      {id:uid(),name:'Infosys Ltd',type:'Equity',units:50,buyPrice:1420,currency:'INR',date:ds(cY-1,5,12),notes:'Long-term hold'},
-      {id:uid(),name:'HDFC Bank',type:'Equity',units:30,buyPrice:1560,currency:'INR',date:ds(cY-1,8,20),notes:''},
-      {id:uid(),name:'Digital Gold',type:'Gold',units:10,buyPrice:6450,currency:'INR',date:ds(cY,1,15),notes:'10g @ ₹6450/g'},
-      {id:uid(),name:'PPF — SBI',type:'PPF',units:1,buyPrice:552000,currency:'INR',date:ds(cY-5,3,1),notes:'Annual ₹1.5L'},
-      {id:uid(),name:'NPS Tier-1 (Equity)',type:'NPS',units:1,buyPrice:285000,currency:'INR',date:ds(cY-3,6,1),notes:'Employer + self'},
+      {id:uid(),name:'Infosys Ltd',type:'Equity',qty:50,buy:1420,cur:1880,currency:'INR',date:ds(cY-1,5,12),notes:'Long-term hold'},
+      {id:uid(),name:'HDFC Bank',type:'Equity',qty:30,buy:1560,cur:1710,currency:'INR',date:ds(cY-1,8,20),notes:''},
+      {id:uid(),name:'Digital Gold',type:'Gold',goldSubtype:'Digital',qty:10,buy:6450,cur:9200,currency:'INR',date:ds(cY,1,15),notes:'10g @ ₹6450/g'},
+      {id:uid(),name:'PPF — SBI',type:'PPF',qty:1,buy:552000,cur:552000,currency:'INR',date:ds(cY-5,3,1),notes:'Annual ₹1.5L'},
+      {id:uid(),name:'NPS Tier-1 (Equity)',type:'NPS',tier:'Tier-1',qty:1,buy:285000,cur:339000,currency:'INR',date:ds(cY-3,6,1),notes:'Employer + self'},
     ],
     mf:[
-      {id:uid(),schemeCode:'119598',schemeName:'Mirae Asset Large Cap Fund — Direct Growth',units:520,buyNav:89.5,date:ds(cY-2,0,10),sip:{active:true,sipDay:7,monthlyAmt:10000,startDate:ds(cY-2,0,10)},currentNav:null},
-      {id:uid(),schemeCode:'119551',schemeName:'Axis Bluechip Fund — Direct Growth',units:310,buyNav:46.2,date:ds(cY-1,4,5),sip:{active:true,sipDay:10,monthlyAmt:5000,startDate:ds(cY-1,4,5)},currentNav:null},
-      {id:uid(),schemeCode:'135781',schemeName:'Parag Parikh Flexi Cap Fund — Direct Growth',units:180,buyNav:58.4,date:ds(cY-1,9,15),sip:{active:false,sipDay:null,monthlyAmt:0,startDate:null},currentNav:null},
+      {id:uid(),schemeCode:'119598',schemeName:'Mirae Asset Large Cap Fund — Direct Growth',units:520,navBuy:89.5,date:ds(cY-2,0,10),sip:{active:true,sipDay:7,monthlyAmt:10000,startDate:ds(cY-2,0,10)},currentNav:null},
+      {id:uid(),schemeCode:'119551',schemeName:'Axis Bluechip Fund — Direct Growth',units:310,navBuy:46.2,date:ds(cY-1,4,5),sip:{active:true,sipDay:10,monthlyAmt:5000,startDate:ds(cY-1,4,5)},currentNav:null},
+      {id:uid(),schemeCode:'135781',schemeName:'Parag Parikh Flexi Cap Fund — Direct Growth',units:180,navBuy:58.4,date:ds(cY-1,9,15),sip:{active:false,sipDay:null,monthlyAmt:0,startDate:null},currentNav:null},
     ],
     fds:[
       {id:uid(),bank:'HDFC Bank FD',principal:200000,rate:7.1,tenureMonths:12,compounding:4,startDate:ds(cY-1,cM,10),notes:'Tax-saver FD'},
@@ -9524,7 +9543,7 @@ const FLOW_CURRENT_VER='2.6';
       <button class="btn-del" onclick="closeMFEdit()" style="font-size:16px">&#215;</button>
     </div>
     <div id="mfEditName" style="font-size:11px;color:var(--muted);margin-bottom:16px;line-height:1.4;font-weight:500"></div>
-    <div style="background:var(--surface-alt);border-radius:var(--r);padding:10px 12px;margin-bottom:16px;font-size:11px;color:var(--muted);line-height:1.5"><strong style="color:var(--text)">Monthly SIP update:</strong> After your SIP instalment hits each month, open your broker app, check your latest total units, and enter the updated total here. The app will recalculate your P&amp;L and XIRR automatically.</div>
+    <div style="background:var(--surface-alt);border-radius:var(--r);padding:10px 12px;margin-bottom:16px;font-size:11px;color:var(--muted);line-height:1.5"><strong style="color:var(--text)">Monthly SIP update:</strong> After your SIP instalment hits each month, open your broker app, check your latest total units, and enter the updated total here. The app will recalculate your P&amp;L automatically.</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
       <div class="form-field" style="grid-column:1/-1">
         <span class="form-label">Total Units Held</span>
