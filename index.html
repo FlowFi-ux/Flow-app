@@ -970,8 +970,6 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .sub-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
 
 
-/* ══ CAGR ════════════════════════════════════════════════ */
-
 /* ══ RETIREMENT CALCULATOR ══════════════════════════════════ */
 .retire-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 .retire-result-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center}
@@ -2159,6 +2157,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <button class="sub-tab" id="btab-split" onclick="switchBillsTab('split',this)">Bill Split</button>
     <button class="sub-tab" id="btab-loans" onclick="switchBillsTab('loans',this)">Loan Tracker</button>
     <button class="sub-tab" id="btab-subs" onclick="switchBillsTab('subs',this)">Subscriptions</button>
+    <button class="sub-tab" id="btab-insurance" onclick="switchBillsTab('insurance',this)">Insurance</button>
   </div>
 
   <!-- ── BILL REMINDERS ───────────────────────────────────── -->
@@ -2301,6 +2300,37 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     </div>
     <div id="subSummaryBar" style="display:none;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px"></div>
     <div id="subList"></div>
+  </div>
+
+  <!-- ── INSURANCE & RENEWALS ─────────────────────────────── -->
+  <div id="bsub-insurance" class="sub-pane">
+    <div class="sec-hdr" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:7px">
+        <span class="sec-title">Insurance &amp; Renewals</span>
+        <button class="info-btn" onclick="toggleInfo('tip-insurance')" title="About Insurance">i</button>
+      </div>
+      <button class="btn-ghost btn-sm" onclick="toggleForm('insForm')">+ Add Policy</button>
+    </div>
+    <div class="info-tip" id="tip-insurance"><div class="info-tip-hd">Insurance Tracker</div>Track your insurance policies — life, health, motor, term and more. Record the premium, payment frequency and the next renewal date. Flow reminds you in the notification bell before each policy is due for renewal so a lapse never catches you out.<button class="info-tip-close" onclick="toggleInfo('tip-insurance')">&#215;</button></div>
+    <div class="hold-form" id="insForm" style="display:none;margin-bottom:14px">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:12px" id="insFormTitle">Add Policy</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px">
+        <div class="form-field"><span class="form-label">Policy Name</span><input type="text" id="insName" placeholder="e.g. HDFC Click 2 Protect"></div>
+        <div class="form-field"><span class="form-label">Insurer</span><input type="text" id="insInsurer" placeholder="e.g. HDFC Life"></div>
+        <div class="form-field"><span class="form-label">Type</span><select id="insType"><option>Term Life</option><option>Life (Endowment/ULIP)</option><option>Health</option><option>Motor</option><option>Home</option><option>Travel</option><option>Personal Accident</option><option>Other</option></select></div>
+        <div class="form-field"><span class="form-label">Premium (&#8377;)</span><input type="number" id="insPremium" placeholder="0"></div>
+        <div class="form-field"><span class="form-label">Frequency</span><select id="insCycle"><option>Annual</option><option>Half-Yearly</option><option>Quarterly</option><option>Monthly</option><option>Single / One-time</option></select></div>
+        <div class="form-field"><span class="form-label">Next Renewal Date</span><input type="date" id="insRenewal"></div>
+        <div class="form-field"><span class="form-label">Sum Assured (&#8377;) <span style="font-size:9px;color:var(--faint)">optional</span></span><input type="number" id="insSumAssured" placeholder="0"></div>
+        <div class="form-field" style="grid-column:span 2"><span class="form-label">Notes</span><input type="text" id="insNotes" placeholder="Policy number, nominee, etc."></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-primary btn-sm" onclick="saveInsurancePolicy()">Save Policy</button>
+        <button class="btn-ghost btn-sm" onclick="toggleForm('insForm')">Cancel</button>
+      </div>
+    </div>
+    <div id="insSummaryBar" style="display:none;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px"></div>
+    <div id="insList"></div>
   </div>
 
   <!-- ── BANK ACCOUNTS ────────────────────────────────────── -->
@@ -3158,6 +3188,9 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <span class="wn-version-date">Jun 2026</span>
       <span class="wn-version-label wn-label-major">Feature Update</span>
     </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">&#128203; SIP Transaction Ledger</div><div class="wn-entry-desc">Log every SIP or lumpsum instalment per fund with date, amount and units — enter any two of Amount / Units / NAV and the third is computed. Flow maintains an accurate <strong>weighted-average cost</strong> and total units from your actual instalments. Open it from the &#128203; button on any fund in the Mutual Funds table.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">&#128276; FD Maturity &amp; Insurance Renewal Alerts</div><div class="wn-entry-desc">A new <strong>Insurance</strong> tab under Bills tracks life, health, motor and other policies with premium, cover and renewal date. The notification bell now reminds you when a Fixed Deposit is about to mature and before any insurance policy is due for renewal — so nothing lapses.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-improved">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">Simplified Fund Returns</div><div class="wn-entry-desc">The annualised return estimate has been removed from the Mutual Funds view. Each fund now shows a clean, unambiguous breakdown — invested amount, current value and gain/loss — so figures are always easy to read and verify.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">&#9776; Daily Income Tracker</div><div class="wn-entry-desc">Log petty income directly in the Daily tab — freelance earnings, cashback, small receipts. Toggle between <strong>&#8722; Expense</strong> and <strong>&#43; Income</strong>. Income entries show as green, expenses as red. Hero card shows Net Flow when income exists.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">&#127981; Custom Bank &amp; Foreign Currency</div><div class="wn-entry-desc">Add any bank not in the list using the <strong>Custom / Other Bank</strong> option — enter your own name, abbreviation and brand color. Foreign banks (HSBC, JPMorgan, DBS, etc.) show a currency selector: USD, GBP, EUR, AED, SGD and more.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-improved">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">Account Tagging — MF, FD &amp; Loans</div><div class="wn-entry-desc">Investment Account field now works on Mutual Funds, FD Tracker and Loan forms. Tagged account badge appears in the MF table, FD table and loan card. All show up in the per-account Statement view.</div></div></div>
@@ -3590,6 +3623,7 @@ let SPLITS= JSON.parse(localStorage.getItem('flow_splits')||'[]');
 let TEMPLATES=JSON.parse(localStorage.getItem('flow_templates')||'[]');
 let EMFUND= JSON.parse(localStorage.getItem('flow_emfund')||'{"amount":0,"targetMonths":6,"expOverride":0}');
 let SUBS  = JSON.parse(localStorage.getItem('flow_subs')||'[]');
+let INSURANCE = JSON.parse(localStorage.getItem('flow_insurance')||'[]');
 let NOTES = JSON.parse(localStorage.getItem('flow_notes')||'[]');
 let NW_HISTORY=JSON.parse(localStorage.getItem('flow_nw_history')||'[]');
 let BILLS = JSON.parse(localStorage.getItem('flow_bills')||'[]');
@@ -3770,6 +3804,7 @@ function saveLoans(){localStorage.setItem('flow_loans',JSON.stringify(LOANS))}
 function saveSplits(){localStorage.setItem('flow_splits',JSON.stringify(SPLITS))}
 function saveTemplates(){localStorage.setItem('flow_templates',JSON.stringify(TEMPLATES))}
 function saveSubs(){localStorage.setItem('flow_subs',JSON.stringify(SUBS))}
+function saveInsurance(){localStorage.setItem('flow_insurance',JSON.stringify(INSURANCE))}
 function saveNotes(){localStorage.setItem('flow_notes',JSON.stringify(NOTES))}
 function saveBudgets(){localStorage.setItem('flow_budgets',JSON.stringify(BUDGETS))}
 function saveNWHistory(){localStorage.setItem('flow_nw_history',JSON.stringify(NW_HISTORY))}
@@ -4810,6 +4845,7 @@ function renderMFTable(){
       <td class="right ${pnl>=0?'green':'red'}">${pnl>=0?'+':''}${fmt(pnl)} (${pp||'0.00'}%)</td>
       <td style="white-space:nowrap">
         <button class="btn-ghost" onclick="editMF('${h.id}')" style="font-size:10px;padding:3px 7px;margin-right:2px" title="Edit units / NAV">&#x270F;</button>
+        <button class="btn-ghost" onclick="openSIPLedger('${h.id}')" style="font-size:10px;padding:3px 7px;margin-right:2px" title="SIP transaction ledger">&#128203;${h.txns&&h.txns.length?'<span style="font-size:8px;color:var(--surplus)"> '+h.txns.length+'</span>':''}</button>
         <button class="btn-ghost" onclick="setSIPForMF('${h.id}')" style="font-size:10px;padding:3px 7px;margin-right:2px" title="Set SIP">SIP</button>
         <button class="btn-del" onclick="deleteMF('${h.id}')">&#215;</button>
       </td></tr>`;
@@ -5984,7 +6020,7 @@ function renderTemplates(){
 function backupData(){
   const _s=k=>localStorage.getItem(k);
   const settings={currency:_s('flow_currency')||'INR',displayName:_s('flow_display_name')||'',fyStart:_s('flow_fy_start')||'4',themeMode:_s('flow_theme_mode')||'dark',notifBills:_s('flow_notif_bills'),notifSip:_s('flow_notif_sip'),notifSnap:_s('flow_notif_snap'),notifBillDays:_s('flow_notif_bill_days')||'3',backupFreq:_s('flow_backup_freq')||'weekly',defaultTrack:_s('flow_default_track')||'ledger',budgetWarn:_s('flow_budget_warn')||'80',lockBg:_s('flow_lock_bg'),dailyLimit:_s('flow_daily_limit'),nwHidden:_s('flow_nw_hidden'),hideTrack:_s('flow_hide_t'),hideBills:_s('flow_hide_b'),hidePort:_s('flow_hide_p')};
-  const data={v:'flow_backup_v1',timestamp:new Date().toISOString(),db:DB,bills:BILLS,invest:INVEST,loans:LOANS,splits:SPLITS,templates:TEMPLATES,emfund:EMFUND,subs:SUBS,notes:NOTES,nwHistory:NW_HISTORY,budgets:BUDGETS,dailyExpenses:DAILY_EXPENSES,accounts:ACCOUNTS,settings,dark};
+  const data={v:'flow_backup_v1',timestamp:new Date().toISOString(),db:DB,bills:BILLS,invest:INVEST,loans:LOANS,splits:SPLITS,templates:TEMPLATES,emfund:EMFUND,subs:SUBS,insurance:INSURANCE,notes:NOTES,nwHistory:NW_HISTORY,budgets:BUDGETS,dailyExpenses:DAILY_EXPENSES,accounts:ACCOUNTS,settings,dark};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const fname=`Flow_Backup_${_localDateStr()}.json`;
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;a.click();
@@ -6003,7 +6039,7 @@ function restoreData(input){
     try{
       const data=JSON.parse(e.target.result);
       if(data.v!=='flow_backup_v1'){alert('Invalid backup file.');return}
-      DB=data.db||{};BILLS=data.bills||[];INVEST=data.invest||{goals:[],mf:[],holdings:[],dividends:[],fds:[]};SUBS=data.subs||[];NOTES=data.notes||[];NW_HISTORY=data.nwHistory||[];BUDGETS=data.budgets||{};
+      DB=data.db||{};BILLS=data.bills||[];INVEST=data.invest||{goals:[],mf:[],holdings:[],dividends:[],fds:[]};SUBS=data.subs||[];INSURANCE=data.insurance||[];NOTES=data.notes||[];NW_HISTORY=data.nwHistory||[];BUDGETS=data.budgets||{};
       LOANS=data.loans||[];SPLITS=data.splits||[];TEMPLATES=data.templates||[];EMFUND=data.emfund||{amount:0,targetMonths:6,expOverride:0};
       DAILY_EXPENSES=data.dailyExpenses||[];
       ACCOUNTS=data.accounts||[];
@@ -6025,8 +6061,8 @@ function restoreData(input){
       _hidePort=localStorage.getItem('flow_hide_p')==='1';
       dark=data.dark||false;
       localStorage.setItem('flow_v3',JSON.stringify(DB));localStorage.setItem('flow_bills',JSON.stringify(BILLS));localStorage.setItem('flow_invest',JSON.stringify(INVEST));
-      localStorage.setItem('flow_loans',JSON.stringify(LOANS));localStorage.setItem('flow_splits',JSON.stringify(SPLITS));localStorage.setItem('flow_templates',JSON.stringify(TEMPLATES));localStorage.setItem('flow_emfund',JSON.stringify(EMFUND));localStorage.setItem('flow_subs',JSON.stringify(SUBS));localStorage.setItem('flow_notes',JSON.stringify(NOTES));localStorage.setItem('flow_nw_history',JSON.stringify(NW_HISTORY));localStorage.setItem('flow_budgets',JSON.stringify(BUDGETS));localStorage.setItem('flow_daily',JSON.stringify(DAILY_EXPENSES));
-      applyDark();render();applyAllEyes();renderBills();renderHoldingsTable();renderMFTable();renderGoals();renderFDTable();renderSplits();renderTemplates();updateInvestSummary();renderDailyView();if(typeof loadSettingsUI==='function')loadSettingsUI();
+      localStorage.setItem('flow_loans',JSON.stringify(LOANS));localStorage.setItem('flow_splits',JSON.stringify(SPLITS));localStorage.setItem('flow_templates',JSON.stringify(TEMPLATES));localStorage.setItem('flow_emfund',JSON.stringify(EMFUND));localStorage.setItem('flow_subs',JSON.stringify(SUBS));localStorage.setItem('flow_insurance',JSON.stringify(INSURANCE));localStorage.setItem('flow_notes',JSON.stringify(NOTES));localStorage.setItem('flow_nw_history',JSON.stringify(NW_HISTORY));localStorage.setItem('flow_budgets',JSON.stringify(BUDGETS));localStorage.setItem('flow_daily',JSON.stringify(DAILY_EXPENSES));
+      applyDark();render();applyAllEyes();renderBills();renderHoldingsTable();renderMFTable();renderGoals();renderFDTable();renderSplits();renderTemplates();updateInvestSummary();renderDailyView();if(typeof renderInsurance==='function')renderInsurance();if(typeof loadSettingsUI==='function')loadSettingsUI();
       alert('Backup restored successfully!');
     }catch(err){alert('Failed to restore: '+err.message)}
   };
@@ -6554,6 +6590,89 @@ function renderSubs(){
   }).join('');
 }
 
+// ══ INSURANCE & RENEWALS ══════════════════════════════════
+let _editInsId=null;
+function saveInsurancePolicy(){
+  const name=document.getElementById('insName').value.trim();
+  const insurer=document.getElementById('insInsurer').value.trim();
+  const type=document.getElementById('insType').value;
+  const premium=parseFloat(document.getElementById('insPremium').value)||0;
+  const cycle=document.getElementById('insCycle').value;
+  const renewal=document.getElementById('insRenewal').value;
+  const sumAssured=parseFloat(document.getElementById('insSumAssured').value)||0;
+  const notes=document.getElementById('insNotes').value.trim();
+  if(!name){alert('Policy name is required.');return;}
+  if(premium<0){alert('Premium cannot be negative.');return;}
+  if(_editInsId){
+    const p=INSURANCE.find(x=>x.id===_editInsId);
+    if(p){p.name=name;p.insurer=insurer;p.type=type;p.premium=premium;p.cycle=cycle;p.renewal=renewal;p.sumAssured=sumAssured;p.notes=notes;}
+    _editInsId=null;
+  }else{
+    INSURANCE.push({id:uid(),name,insurer,type,premium,cycle,renewal,sumAssured,notes});
+  }
+  saveInsurance();
+  ['insName','insInsurer','insPremium','insRenewal','insSumAssured','insNotes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const ft=document.getElementById('insFormTitle');if(ft)ft.textContent='Add Policy';
+  toggleForm('insForm');
+  renderInsurance();
+  if(typeof checkAndShowNotifBadge==='function')checkAndShowNotifBadge();
+}
+function editInsurance(id){
+  const p=INSURANCE.find(x=>x.id===id);if(!p)return;
+  _editInsId=id;
+  document.getElementById('insName').value=p.name||'';
+  document.getElementById('insInsurer').value=p.insurer||'';
+  document.getElementById('insType').value=p.type||'Term Life';
+  document.getElementById('insPremium').value=p.premium||'';
+  document.getElementById('insCycle').value=p.cycle||'Annual';
+  document.getElementById('insRenewal').value=p.renewal||'';
+  document.getElementById('insSumAssured').value=p.sumAssured||'';
+  document.getElementById('insNotes').value=p.notes||'';
+  const ft=document.getElementById('insFormTitle');if(ft)ft.textContent='Edit Policy';
+  const f=document.getElementById('insForm');f.style.display='block';f.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function deleteInsurance(id){if(!confirm('Delete this policy?'))return;INSURANCE=INSURANCE.filter(p=>p.id!==id);saveInsurance();renderInsurance();}
+function renderInsurance(){
+  const el=document.getElementById('insList');if(!el)return;
+  // Annual premium outlay across all policies
+  const annMult={'Monthly':12,'Quarterly':4,'Half-Yearly':2,'Annual':1,'Single / One-time':0};
+  const annual=INSURANCE.reduce((t,p)=>t+(p.premium||0)*(annMult[p.cycle]!=null?annMult[p.cycle]:1),0);
+  const totalCover=INSURANCE.reduce((t,p)=>t+(p.sumAssured||0),0);
+  const bar=document.getElementById('insSummaryBar');
+  if(bar){
+    if(INSURANCE.length){bar.style.display='grid';bar.innerHTML=`
+      <div class="card"><div class="card-lbl">Policies</div><div class="card-val">${INSURANCE.length}</div></div>
+      <div class="card"><div class="card-lbl">Annual Premium</div><div class="card-val">${fmt(annual)}</div></div>
+      <div class="card"><div class="card-lbl">Total Cover</div><div class="card-val">${fmt(totalCover)}</div></div>`;}
+    else bar.style.display='none';
+  }
+  if(!INSURANCE.length){el.innerHTML=mkES('&#x1F6E1;','No policies yet','Add your life, health, motor and other insurance policies to track premiums and get renewal reminders.','+ Add Policy',"toggleForm('insForm')");return;}
+  el.innerHTML=INSURANCE.slice().sort((a,b)=>(a.renewal||'9999').localeCompare(b.renewal||'9999')).map(p=>{
+    const days=p.renewal?Math.ceil((new Date(p.renewal)-new Date())/86400000):null;
+    const renewDate=p.renewal?new Date(p.renewal).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'';
+    let renewLbl='';
+    if(days!=null){
+      if(days<0)renewLbl=`<span style="color:var(--deficit)">Renewal overdue (${renewDate})</span>`;
+      else if(days===0)renewLbl=`<span style="color:var(--deficit)">Renews today</span>`;
+      else if(days<=30)renewLbl=`<span style="color:var(--amber)">Renews in ${days}d · ${renewDate}</span>`;
+      else renewLbl=`Renews ${renewDate}`;
+    }
+    return`<div class="sub-card">
+      <div class="sub-card-info">
+        <div class="sub-name">${esc(p.name)}</div>
+        <div class="sub-meta">${esc(p.type||'')}${p.insurer?' &nbsp;·&nbsp; '+esc(p.insurer):''} &nbsp;·&nbsp; ${esc(p.cycle||'')} ${renewLbl?'&nbsp;·&nbsp; '+renewLbl:''}${p.sumAssured?' &nbsp;·&nbsp; Cover '+fmt(p.sumAssured):''}${p.notes?' &nbsp;·&nbsp; '+esc(p.notes):''}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <div class="sub-cost">${fmt(p.premium||0)}</div>
+        <div style="display:flex;gap:4px">
+          <button class="btn-edit" onclick="editInsurance('${p.id}')" title="Edit policy">&#x270F;</button>
+          <button class="btn-del" onclick="deleteInsurance('${p.id}')">&#215;</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 // ══ NET WORTH TIMELINE ════════════════════════════════════
 let nwChartInst=null;
 function logNetWorthNow(){
@@ -6618,14 +6737,6 @@ function renderNWChart(){
   }).join('');
 }
 function deleteNWEntry(key){if(!confirm('Remove this entry?'))return;NW_HISTORY=NW_HISTORY.filter(x=>x.key!==key);saveNWHistory();renderNWChart();}
-
-// ══ CAGR FOR MF ══════════════════════════════════════════
-function calcCAGR(invested,current,days){
-  if(!invested||!days||days<1)return null;
-  const yrs=days/365;
-  const cagr=Math.pow(current/invested,1/yrs)-1;
-  return isNaN(cagr)||!isFinite(cagr)?null:cagr;
-}
 
 // ══ RETIREMENT CALCULATOR ════════════════════════════════
 function calcRetire(){
@@ -6818,6 +6929,10 @@ function editMF(id){
   document.getElementById('mfEditNav').value=h.navBuy;
   document.getElementById('mfEditDate').value=h.date||'';
   document.getElementById('mfEditCurrentNav').value=h.currentNav?h.currentNav.toFixed(4):'';
+  // If this fund is maintained via the SIP ledger, flag that manual edits to units
+  // / avg cost will be overwritten the next time the ledger changes.
+  const _note=document.getElementById('mfEditLedgerNote');
+  if(_note)_note.style.display=(h.txns&&h.txns.length)?'block':'none';
   document.getElementById('mfEditModal').style.display='flex';
   setTimeout(()=>document.getElementById('mfEditUnits').select(),80);
 }
@@ -6848,6 +6963,101 @@ document.addEventListener('click',function(e){
   const m=document.getElementById('mfEditModal');
   if(m&&e.target===m)closeMFEdit();
 });
+
+// ══ SIP TRANSACTION LEDGER ═══════════════════════════════
+// Each MF holding may carry an optional txns array: [{id,date,amount,units,nav}].
+// When present, total units and average cost (navBuy) are DERIVED from the ledger
+// (weighted-average cost), so manual figures stay in sync with actual instalments.
+let _sipLedgerId=null;
+function recomputeMFFromTxns(h){
+  if(!h||!h.txns||!h.txns.length)return;
+  let tu=0,ti=0;
+  h.txns.forEach(t=>{tu+=(+t.units||0);ti+=(+t.amount||0);});
+  h.units=+tu.toFixed(4);
+  if(tu>0)h.navBuy=+(ti/tu).toFixed(4);          // weighted-average cost per unit
+  const dates=h.txns.map(t=>t.date).filter(Boolean).sort();
+  if(dates.length)h.date=dates[0];               // first purchase = earliest instalment
+}
+function openSIPLedger(id){
+  const h=(INVEST.mf||[]).find(x=>x.id===id);if(!h)return;
+  _sipLedgerId=id;
+  if(!h.txns)h.txns=[];
+  document.getElementById('sipLedgerName').textContent=h.schemeName||'Mutual Fund';
+  document.getElementById('sipTxnDate').value=_localDateStr();
+  ['sipTxnAmount','sipTxnUnits','sipTxnNav'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
+  renderSIPLedger();
+  document.getElementById('sipLedgerModal').style.display='flex';
+}
+function closeSIPLedger(){document.getElementById('sipLedgerModal').style.display='none';_sipLedgerId=null;}
+function sipTxnAutoCalc(){
+  // Live preview only — fills the empty third field when the other two are valid.
+  const A=parseFloat(document.getElementById('sipTxnAmount').value);
+  const U=parseFloat(document.getElementById('sipTxnUnits').value);
+  const N=parseFloat(document.getElementById('sipTxnNav').value);
+  const hasA=!isNaN(A)&&A>0,hasU=!isNaN(U)&&U>0,hasN=!isNaN(N)&&N>0;
+  // Don't overwrite a field the user is actively typing into.
+  const active=document.activeElement?document.activeElement.id:'';
+  if(hasA&&hasU&&active!=='sipTxnNav')document.getElementById('sipTxnNav').value=(A/U).toFixed(4);
+  else if(hasA&&hasN&&active!=='sipTxnUnits')document.getElementById('sipTxnUnits').value=(A/N).toFixed(4);
+  else if(hasU&&hasN&&active!=='sipTxnAmount')document.getElementById('sipTxnAmount').value=(U*N).toFixed(2);
+}
+function renderSIPLedger(){
+  const h=(INVEST.mf||[]).find(x=>x.id===_sipLedgerId);if(!h)return;
+  const list=document.getElementById('sipLedgerList');
+  const totals=document.getElementById('sipLedgerTotals');
+  const txns=(h.txns||[]).slice().sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  if(!txns.length){
+    list.innerHTML='<div style="text-align:center;padding:20px 0;color:var(--faint);font-size:11.5px">No instalments logged yet.<br>Add your SIP/lumpsum purchases above to build an accurate cost basis.</div>';
+    totals.style.display='none';
+    return;
+  }
+  let tu=0,ti=0;txns.forEach(t=>{tu+=(+t.units||0);ti+=(+t.amount||0);});
+  const avg=tu>0?ti/tu:0;
+  totals.style.display='block';
+  totals.innerHTML=`<strong style="color:var(--text)">${txns.length}</strong> instalment${txns.length!==1?'s':''} &nbsp;·&nbsp; Total invested <strong style="color:var(--text)">${fmt(ti)}</strong> &nbsp;·&nbsp; Total units <strong style="color:var(--text)">${tu.toFixed(3)}</strong><br>Weighted avg cost <strong style="color:var(--text)">&#8377;${avg.toFixed(4)}</strong>/unit`;
+  list.innerHTML='<div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--faint);display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr auto;gap:6px;padding:0 2px 6px">'
+    +'<span>Date</span><span style="text-align:right">Amount</span><span style="text-align:right">Units</span><span style="text-align:right">NAV</span><span></span></div>'
+    +txns.map(t=>{
+      const d=t.date?new Date(t.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'}):'—';
+      return`<div style="display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr auto;gap:6px;align-items:center;padding:7px 2px;border-top:1px solid var(--border);font-size:11.5px">
+        <span>${d}</span>
+        <span style="text-align:right">${fmt(t.amount)}</span>
+        <span style="text-align:right">${(+t.units||0).toFixed(3)}</span>
+        <span style="text-align:right">&#8377;${(+t.nav||0).toFixed(4)}</span>
+        <button class="btn-del" onclick="deleteSIPTxn('${t.id}')" title="Remove instalment" style="font-size:13px">&#215;</button>
+      </div>`;
+    }).join('');
+}
+function addSIPTxn(){
+  const h=(INVEST.mf||[]).find(x=>x.id===_sipLedgerId);if(!h)return;
+  const dt=document.getElementById('sipTxnDate').value;
+  let A=parseFloat(document.getElementById('sipTxnAmount').value);
+  let U=parseFloat(document.getElementById('sipTxnUnits').value);
+  let N=parseFloat(document.getElementById('sipTxnNav').value);
+  const hasA=!isNaN(A)&&A>0,hasU=!isNaN(U)&&U>0,hasN=!isNaN(N)&&N>0;
+  if(!dt){alert('Please select the instalment date.');return;}
+  if(((hasA?1:0)+(hasU?1:0)+(hasN?1:0))<2){alert('Enter at least two of: Amount, Units, NAV.');return;}
+  if(!hasA)A=U*N; else if(!hasU)U=A/N; else if(!hasN)N=A/U;
+  if(!(A>0)||!(U>0)||!(N>0)){alert('Amount, Units and NAV must all be greater than 0.');return;}
+  if(!h.txns)h.txns=[];
+  h.txns.push({id:uid(),date:dt,amount:+A.toFixed(2),units:+U.toFixed(4),nav:+N.toFixed(4)});
+  recomputeMFFromTxns(h);
+  // Logging an instalment counts as updating this month — clears the SIP reminder.
+  {const _p=_istParts();h.sipUpdatedKey=_p.year+'-'+String(_p.month+1).padStart(2,'0');}
+  saveInvest();
+  ['sipTxnAmount','sipTxnUnits','sipTxnNav'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
+  renderSIPLedger();renderMFTable();renderMFSIPSummary();updateInvestSummary();
+  if(typeof checkAndShowNotifBadge==='function')checkAndShowNotifBadge();
+  showToast('Instalment logged',fmt(A)+' · '+U.toFixed(3)+' units @ ₹'+N.toFixed(4));
+}
+function deleteSIPTxn(txnId){
+  const h=(INVEST.mf||[]).find(x=>x.id===_sipLedgerId);if(!h||!h.txns)return;
+  if(!confirm('Remove this instalment from the ledger?'))return;
+  h.txns=h.txns.filter(t=>t.id!==txnId);
+  recomputeMFFromTxns(h);
+  saveInvest();renderSIPLedger();renderMFTable();renderMFSIPSummary();updateInvestSummary();
+}
+
 
 
 // Budget Manager
@@ -7721,6 +7931,38 @@ function scheduleSmartNotifications(){
     });
   }
 
+  // 2c. FD maturity — fires once per FD when within 14 days of maturity.
+  if(INVEST&&INVEST.fds){
+    INVEST.fds.forEach(fd=>{
+      if(!fd.start||!fd.tenure) return;
+      const sd=new Date(fd.start);if(isNaN(sd.getTime())) return;
+      const md=new Date(sd.getFullYear(),sd.getMonth()+fd.tenure,sd.getDate());
+      const dleft=Math.round((md-today)/(1000*60*60*24));
+      if(dleft>=0&&dleft<=14){
+        const k=`fdmat_${fd.id}_${md.getFullYear()}-${String(md.getMonth()+1).padStart(2,'0')}`;
+        if(!toastsSent[k]){
+          const matAmt=fdMaturity(fd.principal,fd.rate,fd.tenure,fd.comp);
+          queue.push({key:k,title:'🏦 FD Maturing',body:`${(fd.bank||'FD').slice(0,28)} — ${fmt(matAmt)} ${dleft===0?'matures today':'in '+dleft+'d'}`});
+        }
+      }
+    });
+  }
+
+  // 2d. Insurance renewal — fires once per policy when within 30 days of renewal.
+  if(typeof INSURANCE!=='undefined'&&INSURANCE){
+    INSURANCE.forEach(p=>{
+      if(!p.renewal) return;
+      const rd=new Date(p.renewal);if(isNaN(rd.getTime())) return;
+      const dleft=Math.round((rd-today)/(1000*60*60*24));
+      if(dleft>=0&&dleft<=30){
+        const k=`insrenew_${p.id}_${rd.getFullYear()}-${String(rd.getMonth()+1).padStart(2,'0')}`;
+        if(!toastsSent[k]){
+          queue.push({key:k,title:'🛡 Insurance Renewal',body:`${(p.name||'Policy').slice(0,28)} — ${p.premium?fmt(p.premium)+' ':''}${dleft===0?'due today':'in '+dleft+'d'}`});
+        }
+      }
+    });
+  }
+
   // 3. Budget overruns — always check CURRENT calendar month, not the selected Track tab month
   const nowDate=new Date();
   const mk=`${nowDate.getMonth()}_${nowDate.getFullYear()}`;
@@ -8194,6 +8436,7 @@ function switchBillsTab(id,btn){
   if(id==='split'){renderSplits();}
   if(id==='loans'){renderLoans();}
   if(id==='subs'){renderSubs();}
+  if(id==='insurance'){renderInsurance();}
   if(id==='accounts'){renderAccounts();}
 }
 
@@ -8707,6 +8950,30 @@ function renderNotifList(){
     });
   }
 
+  // FD maturity alerts — warn when a tracked FD is within 14 days of maturity,
+  // or has just matured (reinvest reminder). Maturity = start date + tenure months.
+  (INVEST.fds||[]).forEach(fd=>{
+    if(!fd.start||!fd.tenure) return;
+    const sd=new Date(fd.start);if(isNaN(sd.getTime())) return;
+    const md=new Date(sd.getFullYear(),sd.getMonth()+fd.tenure,sd.getDate());
+    const dleft=Math.ceil((md-new Date())/86400000);
+    const matAmt=fdMaturity(fd.principal,fd.rate,fd.tenure,fd.comp);
+    const mdStr=md.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    if(dleft>=0&&dleft<=14) items.push({type:'warn',title:'🏦 FD maturing: '+(fd.bank||'Fixed Deposit'),body:fmt(matAmt)+' matures '+(dleft===0?'today':'in '+dleft+' day'+(dleft!==1?'s':''))+' ('+mdStr+')'});
+    else if(dleft<0&&dleft>=-30) items.push({type:'info',title:'🏦 FD matured: '+(fd.bank||'Fixed Deposit'),body:fmt(matAmt)+' matured on '+mdStr+' — reinvest or withdraw'});
+  });
+
+  // Insurance renewal alerts — warn when a policy is within 30 days of renewal,
+  // or the renewal date has passed (lapse risk).
+  (INSURANCE||[]).forEach(p=>{
+    if(!p.renewal) return;
+    const rd=new Date(p.renewal);if(isNaN(rd.getTime())) return;
+    const dleft=Math.ceil((rd-new Date())/86400000);
+    const rdStr=rd.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    if(dleft<0&&dleft>=-30) items.push({type:'urgent',title:'🛡 Insurance overdue: '+(p.name||'Policy'),body:'Renewal was due '+rdStr+(p.premium?' · premium '+fmt(p.premium):'')+' — renew to avoid lapse'});
+    else if(dleft>=0&&dleft<=30) items.push({type:'warn',title:'🛡 Insurance renewal: '+(p.name||'Policy'),body:(p.premium?fmt(p.premium)+' ':'')+'due '+(dleft===0?'today':'in '+dleft+' day'+(dleft!==1?'s':''))+' ('+rdStr+')'});
+  });
+
   // FlowSnap ready
   const day=_ntd;
   const lastDay=new Date(y,m+1,0).getDate();
@@ -8778,7 +9045,22 @@ function checkAndShowNotifBadge(){
   const hasSipUpdate=localStorage.getItem('flow_notif_sip')!=='0' && (INVEST.mf||[]).some(f=>
     f.sip&&f.sip.active&&f.sip.sipDay&&_ntd>f.sip.sipDay&&f.sipUpdatedKey!==_sipUpdMonthKey
   );
-  if(hasAlert||hasSipUpdate){
+  // FD maturing within 14 days, or matured in the last 30 days?
+  const hasFD=(INVEST.fds||[]).some(fd=>{
+    if(!fd.start||!fd.tenure) return false;
+    const sd=new Date(fd.start);if(isNaN(sd.getTime())) return false;
+    const md=new Date(sd.getFullYear(),sd.getMonth()+fd.tenure,sd.getDate());
+    const dleft=Math.ceil((md-new Date())/86400000);
+    return dleft<=14&&dleft>=-30;
+  });
+  // Insurance renewal within 30 days, or overdue in the last 30 days?
+  const hasIns=(typeof INSURANCE!=='undefined'?INSURANCE:[]).some(p=>{
+    if(!p.renewal) return false;
+    const rd=new Date(p.renewal);if(isNaN(rd.getTime())) return false;
+    const dleft=Math.ceil((rd-new Date())/86400000);
+    return dleft<=30&&dleft>=-30;
+  });
+  if(hasAlert||hasSipUpdate||hasFD||hasIns){
     ['notifBadge','notifBadge2'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('show');});
   }
   // Fire notifications if permission granted
@@ -8873,7 +9155,7 @@ function clearAllData(){
   const saved={};keep.forEach(k=>{const v=localStorage.getItem(k);if(v!==null)saved[k]=v;});
   localStorage.clear();
   Object.entries(saved).forEach(([k,v])=>localStorage.setItem(k,v));
-  DB={};BILLS=[];LOANS=[];SPLITS=[];SUBS=[];NOTES=[];DAILY_EXPENSES=[];ACCOUNTS=[];localStorage.removeItem('flow_accounts');
+  DB={};BILLS=[];LOANS=[];SPLITS=[];SUBS=[];INSURANCE=[];NOTES=[];DAILY_EXPENSES=[];ACCOUNTS=[];localStorage.removeItem('flow_accounts');
   if(typeof INVEST!=='undefined')INVEST={goals:[],mf:[],holdings:[],dividends:[],fds:[]};
   if(typeof BUDGETS!=='undefined')BUDGETS={};
   if(typeof TEMPLATES!=='undefined')TEMPLATES=[];
@@ -9030,13 +9312,13 @@ function enterDemoMode(){
 }
 function exitDemoMode(){
   if(!confirm('Exit demo mode? All sample data will be removed.'))return;
-  ['flow_v3','flow_bills','flow_loans','flow_splits','flow_subs','flow_invest','flow_notes','flow_nw_history','flow_budgets','flow_templates','flow_emfund',DEMO_KEY,'flow_visited'].forEach(k=>localStorage.removeItem(k));
+  ['flow_v3','flow_bills','flow_loans','flow_splits','flow_subs','flow_insurance','flow_invest','flow_notes','flow_nw_history','flow_budgets','flow_templates','flow_emfund',DEMO_KEY,'flow_visited'].forEach(k=>localStorage.removeItem(k));
   location.reload();
 }
 function clearDemoAndStart(){
   if(!confirm('Clear sample data and start fresh with your own entries?'))return;
-  ['flow_v3','flow_bills','flow_loans','flow_splits','flow_subs','flow_invest','flow_notes','flow_nw_history','flow_budgets','flow_templates','flow_emfund',DEMO_KEY].forEach(k=>localStorage.removeItem(k));
-  DB={};BILLS=[];LOANS=[];SPLITS=[];SUBS=[];NOTES=[];
+  ['flow_v3','flow_bills','flow_loans','flow_splits','flow_subs','flow_insurance','flow_invest','flow_notes','flow_nw_history','flow_budgets','flow_templates','flow_emfund',DEMO_KEY].forEach(k=>localStorage.removeItem(k));
+  DB={};BILLS=[];LOANS=[];SPLITS=[];SUBS=[];INSURANCE=[];NOTES=[];
   if(typeof INVEST!=='undefined')INVEST={goals:[],mf:[],holdings:[],dividends:[],fds:[]};
   document.getElementById('demoBanner').classList.remove('show');
   render();
@@ -9461,7 +9743,7 @@ function quickDailyAdd(){
 
 // ══ INIT ═══════════════════════════════════════════════════
 function render(){renderList('income');renderList('expense');updateSummary();updateCharts();renderBudgetManager();renderHeatmap();if(_dailyViewActive)renderDailyView();}
-applyDark();render();applyAllEyes();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();initRecapSelectors();initCurrencyUI();initNWToggle();
+applyDark();render();applyAllEyes();calcSIP();calcEMI();calcFD();calcPrepay();calcRetire();calcGoalPlan();initPinLock();renderSplits();renderTemplates();initSplitMembers();renderLoans();renderSubs();renderNotes();initRecapSelectors();initCurrencyUI();initNWToggle();if(typeof renderInsurance==='function')renderInsurance();
 // Notification badge + bottom nav bills dot on load
 setTimeout(()=>{checkAndShowNotifBadge();updateBnBillsDot();updateBackupStatus();checkBackupReminder();updateStorageBadge();},1500);
 if(localStorage.getItem('flow_demo_active')==='1'){const db=document.getElementById('demoBanner');if(db)db.classList.add('show');}
@@ -9544,6 +9826,7 @@ const FLOW_CURRENT_VER='2.6';
     </div>
     <div id="mfEditName" style="font-size:11px;color:var(--muted);margin-bottom:16px;line-height:1.4;font-weight:500"></div>
     <div style="background:var(--surface-alt);border-radius:var(--r);padding:10px 12px;margin-bottom:16px;font-size:11px;color:var(--muted);line-height:1.5"><strong style="color:var(--text)">Monthly SIP update:</strong> After your SIP instalment hits each month, open your broker app, check your latest total units, and enter the updated total here. The app will recalculate your P&amp;L automatically.</div>
+    <div id="mfEditLedgerNote" style="display:none;background:var(--surface-alt);border-left:3px solid var(--amber);border-radius:var(--r);padding:9px 12px;margin-bottom:16px;font-size:10.5px;color:var(--muted);line-height:1.5">&#128203; This fund uses the <strong style="color:var(--text)">SIP Ledger</strong>. Units &amp; average cost are derived from logged instalments and will be recalculated if you change the ledger.</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
       <div class="form-field" style="grid-column:1/-1">
         <span class="form-label">Total Units Held</span>
@@ -9568,6 +9851,36 @@ const FLOW_CURRENT_VER='2.6';
     </div>
   </div>
 </div>
+
+<!-- ══ SIP TRANSACTION LEDGER MODAL ════════════════════════ -->
+<div id="sipLedgerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:505;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeSIPLedger()">
+  <div style="background:var(--surface);border-radius:10px;padding:22px;max-width:480px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.22)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <span style="font-size:14px;font-weight:500">&#128203; SIP Transaction Ledger</span>
+      <button class="btn-del" onclick="closeSIPLedger()" style="font-size:16px">&#215;</button>
+    </div>
+    <div id="sipLedgerName" style="font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.4;font-weight:500"></div>
+
+    <!-- Add instalment form -->
+    <div class="hold-form" style="margin-bottom:14px;padding:12px">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:10px">Log an Instalment</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div class="form-field" style="grid-column:1/-1"><span class="form-label">Date</span><input type="date" id="sipTxnDate"></div>
+        <div class="form-field"><span class="form-label">Amount (&#8377;)</span><input type="number" id="sipTxnAmount" placeholder="e.g. 10000" step="0.01" oninput="sipTxnAutoCalc()"></div>
+        <div class="form-field"><span class="form-label">Units Allotted</span><input type="number" id="sipTxnUnits" placeholder="e.g. 112.084" step="0.0001" oninput="sipTxnAutoCalc()"></div>
+        <div class="form-field" style="grid-column:1/-1"><span class="form-label">NAV on date (&#8377;) <span style="font-size:9px;color:var(--faint)">optional — auto-fills</span></span><input type="number" id="sipTxnNav" placeholder="e.g. 89.2200" step="0.0001" oninput="sipTxnAutoCalc()"></div>
+      </div>
+      <div style="font-size:10px;color:var(--faint);margin-bottom:10px;line-height:1.4">Enter any <strong>two</strong> of Amount / Units / NAV — the third is computed automatically.</div>
+      <button class="btn-primary btn-sm" onclick="addSIPTxn()" style="width:100%;padding:9px;justify-content:center">+ Add Instalment</button>
+    </div>
+
+    <div id="sipLedgerTotals" style="display:none;background:var(--surface-alt);border-radius:var(--r);padding:10px 12px;margin-bottom:12px;font-size:11.5px;color:var(--text);line-height:1.7"></div>
+    <div id="sipLedgerList"></div>
+
+    <div style="margin-top:14px"><button class="btn-ghost" onclick="closeSIPLedger()" style="width:100%;padding:9px;font-size:12px;justify-content:center">Done</button></div>
+  </div>
+</div>
+
 <div id="catDrop" style="display:none"></div>
 
 <!-- ══ BANK PICKER BOTTOM SHEET ════════════════════════════ -->
