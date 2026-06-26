@@ -1820,6 +1820,15 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);font-weight:500;display:block;margin-bottom:7px">Paid From Account</span>
       <div id="edqBankWrap" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"></div>
     </div>
+    <div style="margin-bottom:16px">
+      <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);font-weight:500;display:block;margin-bottom:7px">Receipt</span>
+      <div id="edqReceiptWrap" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <input type="file" id="edqReceiptCam" accept="image/*" capture="environment" style="display:none" onchange="handleEdqReceipt(this)">
+        <input type="file" id="edqReceiptFile" accept="image/*,application/pdf" style="display:none" onchange="handleEdqReceipt(this)">
+        <button type="button" class="btn-ghost btn-sm" onclick="document.getElementById('edqReceiptCam').click()" style="font-size:11px;padding:6px 11px;display:flex;align-items:center;gap:5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Scan</button>
+        <button type="button" class="btn-ghost btn-sm" onclick="document.getElementById('edqReceiptFile').click()" style="font-size:11px;padding:6px 11px;display:flex;align-items:center;gap:5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>Attach</button>
+      </div>
+    </div>
     <div style="display:flex;gap:8px">
       <button class="btn-primary btn-sm" onclick="saveEditDailyEntry()" id="edqSaveBtn" style="flex:1;justify-content:center;padding:10px">Save Changes</button>
       <button class="btn-ghost btn-sm" onclick="closeEditDailyEntry()" style="padding:10px 16px">Cancel</button>
@@ -4190,6 +4199,8 @@ function openSubPayConfirmAcctPicker(){_bpkTarget={scope:'subPayConfirm'};_showB
 function openMFPayAcctPicker(){_bpkTarget={scope:'mfForm'};_showBpk();}
 function openFDPayAcctPicker(){_bpkTarget={scope:'fdForm'};_showBpk();}
 function openLoanPayAcctPicker(){_bpkTarget={scope:'loanForm'};_showBpk();}
+let _fabBank=null;      // for FAB quick-add form
+function openFABAcctPicker(){_bpkTarget={scope:'fabForm'};_showBpk();}
 function _showBpk(){
   const modal=document.getElementById('bankPickerModal');if(!modal)return;
   modal.style.display='flex';
@@ -4204,6 +4215,7 @@ function _showBpk(){
     else if(_bpkTarget.scope==='daily'){const e=DAILY_EXPENSES.find(x=>x.id===_bpkTarget.id);curId=e?e.bank:null;}
     else if(_bpkTarget.scope==='dqForm'){curId=_dqBank;}
     else if(_bpkTarget.scope==='edqForm'){curId=_edqBank;}
+    else if(_bpkTarget.scope==='fabForm'){curId=_fabBank;}
   }
   const grps={};
   ACCOUNTS.forEach(a=>{const b=getEffBank(a);const g=b.g||'Other';if(!grps[g])grps[g]=[];grps[g].push(a);});
@@ -4239,6 +4251,8 @@ function selectBpkAccount(accId){
     _dqBank=accId||null;_refreshDQBankBadge();
   }else if(t.scope==='edqForm'){
     _edqBank=accId||null;_refreshEDQBankBadge();
+  }else if(t.scope==='fabForm'){
+    _fabBank=accId||null;_refreshFormAcctBadge('fabBankWrap',_fabBank,'openFABAcctPicker');
   }else if(t.scope==='billForm'){
     _billPayAcct=accId||null;_refreshFormAcctBadge('bPayAccWrap',_billPayAcct,'openBillPayAcctPicker');
   }else if(t.scope==='subForm'){
@@ -6564,6 +6578,9 @@ function endTour(){
   document.getElementById('tourCard').style.display='none';
   document.getElementById('tourHighlight').style.display='none';
   localStorage.setItem('flow_onboarded','1');
+  // The tour navigates across tabs/sub-tabs, which the tab-memory feature
+  // records. Clear that residue so the user starts on clean defaults.
+  try{localStorage.removeItem('flow_tab_mem');}catch(e){}
 }
 // keep skipOnboard as alias
 const skipOnboard=endTour;
@@ -9284,6 +9301,8 @@ function clearAllData(){
   localStorage.clear();
   Object.entries(saved).forEach(([k,v])=>localStorage.setItem(k,v));
   DB={};BILLS=[];LOANS=[];SPLITS=[];SUBS=[];INSURANCE=[];NOTES=[];DAILY_EXPENSES=[];ACCOUNTS=[];localStorage.removeItem('flow_accounts');
+  // Wipe stored receipt attachments (IndexedDB)
+  try{_rcptDBP=null;if(window.indexedDB)indexedDB.deleteDatabase(_RCPT_DB);}catch(e){}
   if(typeof INVEST!=='undefined')INVEST={goals:[],mf:[],holdings:[],dividends:[],fds:[]};
   if(typeof BUDGETS!=='undefined')BUDGETS={};
   if(typeof TEMPLATES!=='undefined')TEMPLATES=[];
@@ -9440,12 +9459,12 @@ function enterDemoMode(){
 }
 function exitDemoMode(){
   if(!confirm('Exit demo mode? All sample data will be removed.'))return;
-  ['flow_v3','flow_bills','flow_loans','flow_splits','flow_subs','flow_insurance','flow_invest','flow_notes','flow_nw_history','flow_budgets','flow_templates','flow_emfund',DEMO_KEY,'flow_visited'].forEach(k=>localStorage.removeItem(k));
+  ['flow_v3','flow_bills','flow_loans','flow_splits','flow_subs','flow_insurance','flow_invest','flow_notes','flow_nw_history','flow_budgets','flow_templates','flow_emfund',DEMO_KEY,'flow_visited','flow_tab_mem'].forEach(k=>localStorage.removeItem(k));
   location.reload();
 }
 function clearDemoAndStart(){
   if(!confirm('Clear sample data and start fresh with your own entries?'))return;
-  ['flow_v3','flow_bills','flow_loans','flow_splits','flow_subs','flow_insurance','flow_invest','flow_notes','flow_nw_history','flow_budgets','flow_templates','flow_emfund',DEMO_KEY].forEach(k=>localStorage.removeItem(k));
+  ['flow_v3','flow_bills','flow_loans','flow_splits','flow_subs','flow_insurance','flow_invest','flow_notes','flow_nw_history','flow_budgets','flow_templates','flow_emfund',DEMO_KEY,'flow_tab_mem'].forEach(k=>localStorage.removeItem(k));
   DB={};BILLS=[];LOANS=[];SPLITS=[];SUBS=[];INSURANCE=[];NOTES=[];
   if(typeof INVEST!=='undefined')INVEST={goals:[],mf:[],holdings:[],dividends:[],fds:[]};
   document.getElementById('demoBanner').classList.remove('show');
@@ -9735,6 +9754,7 @@ function renderDailyView(){
           <span class="day-entry-desc">${esc(e.desc||'')}</span>
           ${_bb}
           <span class="day-entry-amt ${_isInc?'income':'expense'}">${_isInc?'+':''}${fmt(parseFloat(e.amt)||0)}</span>
+          ${e.hasReceipt?`<button class="btn-ghost btn-sm" onclick="viewReceipt('${e.id}')" title="View receipt" style="padding:3px 6px;font-size:11px;flex-shrink:0">&#128206;</button>`:''}
           <button class="btn-ghost btn-sm" onclick="openEditDailyEntry('${e.id}')" title="Edit" style="padding:3px 7px;font-size:10px;flex-shrink:0">&#x270F;&#xFE0F;</button>
           <button class="btn-del" onclick="deleteDailyEntry('${e.id}')" title="Delete" style="margin-left:2px;flex-shrink:0">&#x2715;</button>
         </div>`}).join('')}
@@ -9783,6 +9803,7 @@ function openDayDetail(dateKey){
       <span class="day-entry-desc">${esc(e.desc||'')}</span>
       ${_bb}
       <span class="day-entry-amt ${_isInc?'income':'expense'}" style="min-width:70px;text-align:right">${_isInc?'+':''}${fmt(parseFloat(e.amt)||0)}</span>
+      ${e.hasReceipt?`<button class="btn-ghost btn-sm" onclick="viewReceipt('${e.id}')" title="View receipt" style="padding:3px 6px;font-size:11px;flex-shrink:0">&#128206;</button>`:''}
       <button class="btn-ghost btn-sm" onclick="openEditFromDetail('${e.id}')" title="Edit" style="padding:3px 7px;font-size:10px;flex-shrink:0">&#x270F;&#xFE0F;</button>
       <button class="btn-del" onclick="deleteDailyEntryFromDetail('${e.id}','${dateKey}')" title="Delete" style="margin-left:2px;flex-shrink:0">&#x2715;</button>
     </div>`}).join('');
@@ -9799,6 +9820,8 @@ function openEditFromDetail(id){
   setTimeout(()=>openEditDailyEntry(id),200);
 }
 function deleteDailyEntryFromDetail(id,dateKey){
+  const _del=DAILY_EXPENSES.find(e=>e.id===id);
+  if(_del&&_del.hasReceipt)deleteReceipt(id).catch(()=>{});
   DAILY_EXPENSES=DAILY_EXPENSES.filter(e=>e.id!==id);
   saveDaily();
   // Refresh day detail
@@ -9814,6 +9837,8 @@ function deleteDailyEntry(id){
 
 // ── Edit Daily Entry ─────────────────────────────────────
 let _editingDailyId=null;
+// Edit-modal receipt staging: null = unchanged, false = remove, {…} = new
+let _edqReceipt=null;
 function openEditDailyEntry(id){
   const e=DAILY_EXPENSES.find(x=>x.id===id);
   if(!e)return;
@@ -9824,7 +9849,9 @@ function openEditDailyEntry(id){
   document.getElementById('edqDate').value=e.date||_localDateStr();
   _edqBank=e.bank||null;
   _edqType=e.type||'expense';
+  _edqReceipt=null;
   _refreshEDQBankBadge();
+  renderEdqReceiptPreview(!!e.hasReceipt);
   setEDQType(_edqType);
   const modal=document.getElementById('editDailyModal');
   if(modal)modal.classList.add('open');
@@ -9832,8 +9859,39 @@ function openEditDailyEntry(id){
 function closeEditDailyEntry(){
   _editingDailyId=null;
   _edqBank=null;
+  _edqReceipt=null;
   const modal=document.getElementById('editDailyModal');
   if(modal)modal.classList.remove('open');
+}
+async function handleEdqReceipt(inp){
+  if(!inp.files||!inp.files[0])return;
+  try{_edqReceipt=await _fileToReceipt(inp.files[0]);renderEdqReceiptPreview(false);}
+  catch(e){const msg=e.message==='too-large'?'File too large (max 12MB)':e.message==='unsupported'?'Use an image or PDF':'Could not read file';showToast('Receipt error',msg);}
+  inp.value='';
+}
+function removeEdqReceipt(){_edqReceipt=false;renderEdqReceiptPreview(false);}
+function renderEdqReceiptPreview(existing){
+  const wrap=document.getElementById('edqReceiptWrap');if(!wrap)return;
+  const old=wrap.querySelector('.edq-rcpt-chip');if(old)old.remove();
+  // Decide what to show: a freshly-picked file, an existing stored one, or nothing
+  let chipHTML=null;
+  if(_edqReceipt&&_edqReceipt!==false){
+    const isPdf=_edqReceipt.type==='application/pdf';
+    chipHTML=(isPdf?'<span style="font-size:15px">📄</span>':`<img src="${_edqReceipt.data}" style="width:30px;height:30px;object-fit:cover;border-radius:5px;flex-shrink:0">`)
+      +`<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)">${esc(_edqReceipt.name)} <span style="color:var(--surplus)">(new)</span></span>`
+      +`<button type="button" class="btn-del" onclick="removeEdqReceipt()" title="Remove">&#x2715;</button>`;
+  }else if(existing&&_edqReceipt!==false){
+    chipHTML=`<span style="font-size:15px">📎</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)">Receipt attached</span>`
+      +`<button type="button" class="btn-ghost btn-sm" onclick="viewReceipt('${_editingDailyId}')" style="font-size:10px;padding:3px 9px">View</button>`
+      +`<button type="button" class="btn-del" onclick="removeEdqReceipt()" title="Remove">&#x2715;</button>`;
+  }
+  if(chipHTML){
+    const chip=document.createElement('div');
+    chip.className='edq-rcpt-chip';
+    chip.style.cssText='display:flex;align-items:center;gap:7px;padding:5px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface-alt);font-size:11px;width:100%;margin-top:2px';
+    chip.innerHTML=chipHTML;
+    wrap.appendChild(chip);
+  }
 }
 function saveEditDailyEntry(){
   if(!_editingDailyId)return;
@@ -9845,6 +9903,10 @@ function saveEditDailyEntry(){
   const date=document.getElementById('edqDate').value||e.date;
   if(!cat||!amt){showToast('Category and amount required','');return;}
   e.cat=cat;e.amt=String(amt);e.desc=desc;e.date=date;e.bank=_edqBank||null;e.type=_edqType||'expense';
+  // Apply receipt change
+  const eid=_editingDailyId;
+  if(_edqReceipt===false){e.hasReceipt=false;deleteReceipt(eid).catch(()=>{});}
+  else if(_edqReceipt){e.hasReceipt=true;saveReceipt(eid,_edqReceipt).catch(()=>{});}
   saveDaily();closeEditDailyEntry();renderDailyView();
   showToast('Entry updated','Changes saved');
 }
@@ -9953,6 +10015,129 @@ function renderDashBar(){
 // hook renderDashBar into render() flow
 const _origRender=typeof render==='function'?render:null;
 
+// ══ RECEIPTS — photo / image / PDF attachments (IndexedDB) ═══
+// Receipt blobs are stored in IndexedDB (NOT localStorage) so large
+// images/PDFs don't blow the 5MB localStorage quota. The entry only
+// carries a lightweight  hasReceipt:true  flag; the binary lives here.
+const _RCPT_DB='flow_receipts_db';
+const _RCPT_STORE='receipts';
+let _rcptDBP=null;
+function _openRcptDB(){
+  if(_rcptDBP)return _rcptDBP;
+  _rcptDBP=new Promise((resolve,reject)=>{
+    if(!window.indexedDB){reject(new Error('no-idb'));return;}
+    const req=indexedDB.open(_RCPT_DB,1);
+    req.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains(_RCPT_STORE))db.createObjectStore(_RCPT_STORE);};
+    req.onsuccess=e=>resolve(e.target.result);
+    req.onerror=e=>reject(e.target.error||new Error('idb-open-fail'));
+  });
+  return _rcptDBP;
+}
+// rec = {type:'image/png'|'application/pdf', name:'…', data:'<dataURL>'}
+async function saveReceipt(id,rec){
+  try{const db=await _openRcptDB();return await new Promise((res,rej)=>{const tx=db.transaction(_RCPT_STORE,'readwrite');tx.objectStore(_RCPT_STORE).put(rec,id);tx.oncomplete=()=>res(true);tx.onerror=()=>rej(tx.error);});}
+  catch(e){console.warn('[Flow Receipt] save failed',e);showToast('Receipt not saved','Storage unavailable on this device');return false;}
+}
+async function getReceipt(id){
+  try{const db=await _openRcptDB();return await new Promise((res,rej)=>{const tx=db.transaction(_RCPT_STORE,'readonly');const rq=tx.objectStore(_RCPT_STORE).get(id);rq.onsuccess=()=>res(rq.result||null);rq.onerror=()=>rej(rq.error);});}
+  catch(e){return null;}
+}
+async function deleteReceipt(id){
+  try{const db=await _openRcptDB();return await new Promise((res)=>{const tx=db.transaction(_RCPT_STORE,'readwrite');tx.objectStore(_RCPT_STORE).delete(id);tx.oncomplete=()=>res(true);tx.onerror=()=>res(false);});}
+  catch(e){return false;}
+}
+// Read a File into {type,name,data(dataURL)} — downscales large images to keep size sane
+function _fileToReceipt(file){
+  return new Promise((resolve,reject)=>{
+    if(!file){reject(new Error('no-file'));return;}
+    const isImg=/^image\//.test(file.type);
+    const isPdf=file.type==='application/pdf';
+    if(!isImg&&!isPdf){reject(new Error('unsupported'));return;}
+    // 12MB hard cap
+    if(file.size>12*1024*1024){reject(new Error('too-large'));return;}
+    const fr=new FileReader();
+    fr.onerror=()=>reject(new Error('read-fail'));
+    fr.onload=()=>{
+      const dataURL=fr.result;
+      if(isPdf){resolve({type:'application/pdf',name:file.name||'receipt.pdf',data:dataURL});return;}
+      // Downscale image: cap longest edge at 1600px, re-encode JPEG q0.82
+      const img=new Image();
+      img.onload=()=>{
+        try{
+          const max=1600;let{width:w,height:h}=img;
+          if(w>max||h>max){const s=max/Math.max(w,h);w=Math.round(w*s);h=Math.round(h*s);}
+          const cv=document.createElement('canvas');cv.width=w;cv.height=h;
+          cv.getContext('2d').drawImage(img,0,0,w,h);
+          const out=cv.toDataURL('image/jpeg',0.82);
+          resolve({type:'image/jpeg',name:file.name||'receipt.jpg',data:out});
+        }catch(err){resolve({type:file.type,name:file.name||'receipt',data:dataURL});}
+      };
+      img.onerror=()=>resolve({type:file.type,name:file.name||'receipt',data:dataURL});
+      img.src=dataURL;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+// ── FAB receipt staging (held until the entry is created) ──
+let _fabReceipt=null;
+async function handleFabReceipt(inp){
+  if(!inp.files||!inp.files[0])return;
+  try{
+    _fabReceipt=await _fileToReceipt(inp.files[0]);
+    renderFabReceiptPreview();
+  }catch(e){
+    const msg=e.message==='too-large'?'File too large (max 12MB)':e.message==='unsupported'?'Use an image or PDF':'Could not read file';
+    showToast('Receipt error',msg);
+  }
+  inp.value='';
+}
+function clearFabReceipt(){_fabReceipt=null;renderFabReceiptPreview();}
+function renderFabReceiptPreview(){
+  const wrap=document.getElementById('fabReceiptWrap');if(!wrap)return;
+  const old=wrap.querySelector('.fab-rcpt-chip');if(old)old.remove();
+  if(!_fabReceipt)return;
+  const isPdf=_fabReceipt.type==='application/pdf';
+  const chip=document.createElement('div');
+  chip.className='fab-rcpt-chip';
+  chip.style.cssText='display:flex;align-items:center;gap:7px;padding:5px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface-alt);font-size:11px;width:100%;margin-top:2px';
+  chip.innerHTML=(isPdf
+      ?'<span style="font-size:15px">📄</span>'
+      :`<img src="${_fabReceipt.data}" style="width:30px;height:30px;object-fit:cover;border-radius:5px;flex-shrink:0">`)
+    +`<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)">${esc(_fabReceipt.name)}</span>`
+    +`<button type="button" class="btn-del" onclick="clearFabReceipt()" title="Remove" style="flex-shrink:0">&#x2715;</button>`;
+  wrap.appendChild(chip);
+}
+
+// ══ RECEIPT VIEWER MODAL ════════════════════════════════════
+async function viewReceipt(id){
+  const rec=await getReceipt(id);
+  if(!rec){showToast('No receipt','This entry has no attachment');return;}
+  let modal=document.getElementById('receiptViewerModal');
+  if(!modal){
+    modal=document.createElement('div');
+    modal.id='receiptViewerModal';
+    modal.style.cssText='position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:18px';
+    modal.onclick=e=>{if(e.target===modal)closeReceiptViewer();};
+    document.body.appendChild(modal);
+  }
+  const isPdf=rec.type==='application/pdf';
+  const body=isPdf
+    ? `<iframe src="${rec.data}" style="width:100%;height:78vh;border:none;border-radius:8px;background:#fff"></iframe>`
+    : `<img src="${rec.data}" style="max-width:100%;max-height:78vh;object-fit:contain;border-radius:8px;display:block;margin:0 auto">`;
+  modal.innerHTML=`<div style="max-width:760px;width:100%;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <span style="color:#eee;font-size:12px;font-family:'IBM Plex Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📎 ${esc(rec.name||'Receipt')}</span>
+      <div style="display:flex;gap:8px">
+        <a href="${rec.data}" download="${esc(rec.name||'receipt')}" style="background:transparent;color:#eee;border:1px solid #555;padding:6px 12px;border-radius:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;text-decoration:none;cursor:pointer">Download</a>
+        <button onclick="closeReceiptViewer()" style="background:#eee;color:#111;border:none;padding:6px 14px;border-radius:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;font-weight:600">Close</button>
+      </div>
+    </div>
+    ${body}
+  </div>`;
+  modal.style.display='flex';
+}
+function closeReceiptViewer(){const m=document.getElementById('receiptViewerModal');if(m)m.style.display='none';}
+
 // ══ FAB — FLOATING QUICK-ADD ════════════════════════════════
 let _fabType='expense';
 let _fabOpen=false;
@@ -9964,6 +10149,10 @@ function openFAB(){
   if(date)date.value=_localDateStr();
   if(bg)bg.classList.add('show');
   if(body)body.classList.add('show');
+  _fabBank=null;
+  _fabReceipt=null;
+  _refreshFormAcctBadge('fabBankWrap',null,'openFABAcctPicker');
+  renderFabReceiptPreview();
   setFABType('expense');
   setTimeout(()=>{const nl=document.getElementById('fabNL');if(nl)nl.focus();},200);
 }
@@ -9976,6 +10165,8 @@ function closeFAB(){
   // clear fields
   ['fabNL','fabCat','fabAmt','fabDesc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   const p=document.getElementById('nlPreview');if(p){p.className='nl-preview';p.innerHTML='';}
+  _fabBank=null;
+  _fabReceipt=null;
 }
 function setFABType(t){
   _fabType=t;
@@ -10022,12 +10213,18 @@ function submitFAB(){
   const desc=(document.getElementById('fabDesc').value||'').trim();
   const dateVal=document.getElementById('fabDate').value||_localDateStr();
   if(!cat||!amt){showToast('Category and amount required','');return;}
-  const entry={id:uid(),cat,desc,amt:String(amt),note:'',date:dateVal,bank:null,type:_fabType,created:Date.now()};
+  const entry={id:uid(),cat,desc,amt:String(amt),note:'',date:dateVal,bank:_fabBank||null,type:_fabType,created:Date.now()};
+  if(_fabReceipt)entry.hasReceipt=true;
   DAILY_EXPENSES.push(entry);
   saveDaily();
+  if(_fabReceipt){saveReceipt(entry.id,_fabReceipt).catch(()=>{});}
+  const acc=_fabBank?getAccount(_fabBank):null;
+  const bankStr=acc?(' · '+getEffBank(acc).short):'';
   const sym=_fabType==='income'?'+':'-';
-  showUndoToast(sym+'₹'+fmt(amt)+' added',cat+(desc?' — '+desc:''),()=>{
-    DAILY_EXPENSES=DAILY_EXPENSES.filter(e=>e.id!==entry.id);
+  const _rid=entry.id,_rrec=_fabReceipt;
+  showUndoToast(sym+'₹'+fmt(amt)+' added',cat+(desc?' — '+desc:'')+bankStr,()=>{
+    DAILY_EXPENSES=DAILY_EXPENSES.filter(e=>e.id!==_rid);
+    if(_rrec)deleteReceipt(_rid).catch(()=>{});
     saveDaily();if(typeof renderDailyView==='function')renderDailyView();renderDashBar();
   });
   closeFAB();
@@ -10037,6 +10234,31 @@ function submitFAB(){
 
 // ══ NATURAL LANGUAGE PARSER ════════════════════════════════
 let _nlParsed=null;
+// Match a user account from free text — looks for an explicit "from <x>"
+// segment first, then falls back to any account nickname / bank short / bank
+// name appearing anywhere in the sentence. Returns {id,label} or null.
+function _matchAccountFromText(txt){
+  if(!ACCOUNTS.length)return null;
+  const lc=' '+txt.toLowerCase()+' ';
+  // Prefer the words that follow "from" / "via" / "using" / "thru"
+  let scope=lc;
+  const fm=lc.match(/\b(?:from|via|using|thru|through)\s+(.+)$/);
+  if(fm)scope=' '+fm[1]+' ';
+  let best=null,bestLen=0;
+  ACCOUNTS.forEach(a=>{
+    const b=getEffBank(a);
+    const cands=[a.nickname,b.name,b.short].filter(Boolean);
+    cands.forEach(c=>{
+      const k=String(c).toLowerCase().trim();
+      if(k.length<2)return;
+      // word-ish match inside the scope (or whole text as fallback)
+      const hay=(fm?scope:lc);
+      if(hay.includes(k)&&k.length>bestLen){best=a;bestLen=k.length;}
+    });
+  });
+  if(best){const b=getEffBank(best);return{id:best.id,label:(best.nickname||b.name)};}
+  return null;
+}
 function parseNL(raw){
   const prev=document.getElementById('nlPreview');
   if(!raw.trim()){if(prev){prev.className='nl-preview';prev.innerHTML=''}; _nlParsed=null;return;}
@@ -10051,23 +10273,34 @@ function parseNL(raw){
   const catMap={food:['food','meal','lunch','dinner','breakfast','snack','restaurant','eat','chai','tea','coffee','biryani','swiggy','zomato','pizza'],transport:['auto','uber','ola','cab','bus','train','metro','petrol','fuel','rapido','rickshaw'],shopping:['amazon','flipkart','mall','clothes','shirt','shoes','buy','purchase','myntra'],groceries:['grocery','groceries','vegetables','fruits','milk','dmart','bigbasket','zepto','blinkit','instamart'],rent:['rent','house','pg','hostel','room'],entertainment:['movie','netflix','hotstar','amazon prime','spotify','concert','game'],health:['medicine','doctor','pharmacy','hospital','clinic','apollo','pharmeasy'],salary:['salary','income','earned'],investment:['sip','invest','mutual','fund'],utilities:['electricity','bill','phone','recharge','water','gas','wifi','internet'],dining:['dining','dine','hotel']};
   let cat='Other';
   for(const[c,kws]of Object.entries(catMap)){if(kws.some(k=>txt.includes(k))){cat=c.charAt(0).toUpperCase()+c.slice(1);break;}}
-  // description — strip amount and common filler words
-  let desc=raw.replace(/\b\d+(?:\.\d{1,2})?\b/,'').replace(/paid|spent|bought|for|to|at|on|rs|inr|₹/gi,'').trim();
+  // match a paid-from account ("...from ABC bank")
+  const acctMatch=_matchAccountFromText(txt);
+  const bank=acctMatch?acctMatch.id:null;
+  // description — strip amount, the "from <bank>" segment, and common filler words
+  let desc=raw.replace(/\b\d+(?:\.\d{1,2})?\b/,'');
+  desc=desc.replace(/\b(?:from|via|using|thru|through)\s+.*$/i,'');
+  desc=desc.replace(/paid|spent|bought|for|to|at|on|rs|inr|₹/gi,'').trim();
   desc=desc.replace(/\s+/g,' ').trim();
   const type=/salary|income|earned|received|got/.test(txt)?'income':'expense';
-  _nlParsed={amt,cat,desc,date,type};
+  _nlParsed={amt,cat,desc,date,type,bank};
   if(!prev)return;
   if(!amt){prev.innerHTML='<span style="color:var(--deficit)">No amount found — include a number like <em>250</em></span>';prev.classList.add('show');return;}
   prev.className='nl-preview show';
-  prev.innerHTML=`<span class="nl-tag nl-tag-amt">${type==='income'?'+':'-'}₹${amt}</span> <span class="nl-tag nl-tag-cat">${esc(cat)}</span> ${desc?`<span class="nl-tag nl-tag-desc">${esc(desc)}</span>`:''}  <span class="nl-tag nl-tag-date">${date===_localDateStr()?'today':date}</span> <button onclick="commitNL()" style="float:right;font-size:10px;padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:transparent;color:var(--text);cursor:pointer;font-family:inherit">Add ↵</button>`;
+  const bankTag=acctMatch?` <span class="nl-tag nl-tag-bank" style="background:var(--surface-alt);border:1px solid var(--border)">🏦 ${esc(acctMatch.label)}</span>`:'';
+  prev.innerHTML=`<span class="nl-tag nl-tag-amt">${type==='income'?'+':'-'}₹${amt}</span> <span class="nl-tag nl-tag-cat">${esc(cat)}</span> ${desc?`<span class="nl-tag nl-tag-desc">${esc(desc)}</span>`:''}${bankTag}  <span class="nl-tag nl-tag-date">${date===_localDateStr()?'today':date}</span> <button onclick="commitNL()" style="float:right;font-size:10px;padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:transparent;color:var(--text);cursor:pointer;font-family:inherit">Add ↵</button>`;
 }
 function commitNL(){
   if(!_nlParsed||!_nlParsed.amt){showToast('Could not parse','Include an amount like "paid 250 food"');return;}
-  const {amt,cat,desc,date,type}=_nlParsed;
-  const entry={id:uid(),cat,desc,amt:String(amt),note:'',date,bank:null,type,created:Date.now()};
+  const {amt,cat,desc,date,type,bank}=_nlParsed;
+  const entry={id:uid(),cat,desc,amt:String(amt),note:'',date,bank:bank||null,type,created:Date.now()};
+  if(_fabReceipt)entry.hasReceipt=true;
   DAILY_EXPENSES.push(entry);saveDaily();
-  showUndoToast((type==='income'?'+':'-')+'₹'+fmt(amt)+' added',cat+(desc?' — '+desc:''),()=>{
-    DAILY_EXPENSES=DAILY_EXPENSES.filter(e=>e.id!==entry.id);saveDaily();if(typeof renderDailyView==='function')renderDailyView();renderDashBar();
+  if(_fabReceipt){saveReceipt(entry.id,_fabReceipt).catch(()=>{});}
+  const acc=bank?getAccount(bank):null;
+  const bankStr=acc?(' · '+getEffBank(acc).short):'';
+  const _rid=entry.id,_rrec=_fabReceipt;
+  showUndoToast((type==='income'?'+':'-')+'₹'+fmt(amt)+' added',cat+(desc?' — '+desc:'')+bankStr,()=>{
+    DAILY_EXPENSES=DAILY_EXPENSES.filter(e=>e.id!==_rid);if(_rrec)deleteReceipt(_rid).catch(()=>{});saveDaily();if(typeof renderDailyView==='function')renderDailyView();renderDashBar();
   });
   _nlParsed=null;
   const nl=document.getElementById('fabNL');if(nl)nl.value='';
@@ -10101,9 +10334,12 @@ window.deleteDailyEntry=function(id){
   if(!entry){DAILY_EXPENSES=DAILY_EXPENSES.filter(e=>e.id!==id);saveDaily();if(typeof renderDailyView==='function')renderDailyView();return;}
   DAILY_EXPENSES=DAILY_EXPENSES.filter(e=>e.id!==id);
   saveDaily();if(typeof renderDailyView==='function')renderDailyView();renderDashBar();
+  let _restored=false;
   showUndoToast('Entry deleted',esc(entry.cat)+' — '+fmt(entry.amt),()=>{
-    DAILY_EXPENSES.push(entry);saveDaily();if(typeof renderDailyView==='function')renderDailyView();renderDashBar();
+    _restored=true;DAILY_EXPENSES.push(entry);saveDaily();if(typeof renderDailyView==='function')renderDailyView();renderDashBar();
   });
+  // Clean up the orphaned receipt once the undo window has safely passed
+  if(entry.hasReceipt)setTimeout(()=>{if(!_restored)deleteReceipt(id).catch(()=>{});},6500);
 };
 
 // ══ UNDO ON ROW DELETE (monthly ledger) ═════════════════════
@@ -10217,46 +10453,88 @@ function disableBiometric(){
   bioBtn.style.display='none';
   bioBtn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M12 11c0-1.1.9-2 2-2s2 .9 2 2v2c0 1.1-.9 2-2 2"/><path d="M6 11c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M4.9 9A9 9 0 0 0 4 12a8 8 0 0 0 1.5 4.7"/><path d="M12 21a9 9 0 0 0 7.4-3.9"/><path d="M12 21c-1.7 0-3.2-.5-4.5-1.3"/><path d="M12 14v4"/></svg>Use Biometrics`;
   bioBtn.onclick=async()=>{
+    bioBtn.disabled=true;
     const ok=await tryBiometricUnlock();
+    bioBtn.disabled=false;
     if(ok){const lk=document.getElementById('lockScreen');if(lk)lk.classList.add('hidden');showToast('Unlocked','');}
     else showToast('Failed','Try again or use your PIN');
   };
   ls.appendChild(bioBtn);
-  // show bio button when lock screen is visible
-  const obs=new MutationObserver(()=>{
+  let _autoTried=false;
+  function _syncBioBtn(){
     const visible=!ls.classList.contains('hidden');
-    bioBtn.style.display=visible&&localStorage.getItem('flow_bio')==='1'?'flex':'none';
-  });
+    const bioOn=localStorage.getItem('flow_bio')==='1';
+    bioBtn.style.display=visible&&bioOn?'flex':'none';
+    if(!visible){_autoTried=false;return;}
+    // Lock screen is visible and biometric is set up → auto-prompt once.
+    // (Best-effort: some browsers require a tap, in which case the button
+    //  stays visible for the user to trigger it manually.)
+    if(visible&&bioOn&&!_autoTried){
+      _autoTried=true;
+      setTimeout(async()=>{
+        if(ls.classList.contains('hidden'))return;
+        const ok=await tryBiometricUnlock();
+        if(ok)ls.classList.add('hidden');
+      },350);
+    }
+  }
+  // React to future show/hide transitions…
+  const obs=new MutationObserver(_syncBioBtn);
   obs.observe(ls,{attributes:true,attributeFilter:['class']});
+  // …and evaluate the CURRENT state immediately. initPinLock() may have made
+  // the lock screen visible before this observer was attached, so without this
+  // the button would never appear on a fresh app open (PIN-only — the bug).
+  _syncBioBtn();
 })();
 
 // ══ TAB MEMORY ══════════════════════════════════════════════
+// Remembers (a) the last active MAIN tab and (b) the last sub-tab within
+// Bills / Portfolio / Planner — and restores all of it when the app reopens.
 const _TAB_MEMORY_KEY='flow_tab_mem';
-function _saveTabMem(tab,subtab){
-  const mem=JSON.parse(localStorage.getItem(_TAB_MEMORY_KEY)||'{}');
-  if(subtab)mem[tab]=subtab;
-  localStorage.setItem(_TAB_MEMORY_KEY,JSON.stringify(mem));
+function _readTabMem(){try{return JSON.parse(localStorage.getItem(_TAB_MEMORY_KEY)||'{}');}catch(e){return{};}}
+function _writeTabMem(mem){try{localStorage.setItem(_TAB_MEMORY_KEY,JSON.stringify(mem));}catch(e){}}
+function _saveTabMem(tab,subtab){const mem=_readTabMem();if(subtab)mem[tab]=subtab;_writeTabMem(mem);}
+function _saveMainTab(id){const mem=_readTabMem();mem.__main=id;_writeTabMem(mem);}
+function _restoreTabMem(tab){return _readTabMem()[tab]||null;}
+// Click the saved sub-tab button inside a given main tab pane
+function _restoreSubTab(mainId){
+  const sub=_restoreTabMem(mainId);if(!sub)return;
+  const sel=`#tab-${mainId} .sub-tab[onclick*="'${sub}'"]`;
+  const sb=document.querySelector(sel);
+  if(sb)setTimeout(()=>sb.click(),50);
 }
-function _restoreTabMem(tab){
-  const mem=JSON.parse(localStorage.getItem(_TAB_MEMORY_KEY)||'{}');
-  return mem[tab]||null;
-}
-// Patch switchTab to save + restore subtab memory
+// Patch switchTab — persist the active main tab + restore its sub-tab
 const _origSwitchTab=window.switchTab;
 window.switchTab=function(id,btn){
   if(typeof _origSwitchTab==='function')_origSwitchTab(id,btn);
-  // restore sub-tab for bills and tools
-  const sub=_restoreTabMem(id);
-  if(id==='bills'&&sub){const sb=document.querySelector(`#tab-bills .sub-tab[onclick*="'${sub}'"]`);if(sb)setTimeout(()=>sb.click(),50);}
-  if(id==='tools'&&sub){const sb=document.querySelector(`#tab-tools .sub-tab[onclick*="'${sub}'"]`);if(sb)setTimeout(()=>sb.click(),50);}
+  // 'notes' transparently redirects to tools — don't record it as the main tab
+  if(id!=='notes')_saveMainTab(id);
+  _restoreSubTab(id); // bills / tools / invest all use .sub-tab buttons
   renderDashBar();
 };
-// Patch switchBillsTab
+// Patch sub-tab handlers to remember the last sub-tab per section
 const _origSwitchBillsTab=window.switchBillsTab;
 window.switchBillsTab=function(id,btn){if(typeof _origSwitchBillsTab==='function')_origSwitchBillsTab(id,btn);_saveTabMem('bills',id);};
-// Patch switchToolsTab
 const _origSwitchToolsTab=window.switchToolsTab;
 window.switchToolsTab=function(id,btn){if(typeof _origSwitchToolsTab==='function')_origSwitchToolsTab(id,btn);_saveTabMem('tools',id);};
+const _origSwitchSubTab=window.switchSubTab;
+window.switchSubTab=function(id,btn){if(typeof _origSwitchSubTab==='function')_origSwitchSubTab(id,btn);_saveTabMem('invest',id);};
+// On load, jump back to wherever the user left off
+function _restoreLastSession(){
+  const mem=_readTabMem();
+  const main=mem.__main;
+  if(!main||main==='track'){
+    // Default tab — still restore any remembered sub-tab for completeness
+    return;
+  }
+  const navBtn=document.querySelector(`.tab-btn[onclick*="'${main}'"]`);
+  if(main==='settings'){switchTab('settings',null);}
+  else if(navBtn){switchTab(main,navBtn);}
+  else{switchTab(main,null);}
+}
+// Returning users (past the welcome screen) resume their last tab + sub-tab.
+// First-time users are left on the default Track tab so onboarding is unaffected.
+if(localStorage.getItem('flow_visited')){setTimeout(_restoreLastSession,0);}
 
 // ══ UPI PAYMENT LOG ═════════════════════════════════════════
 function logUPIPayment(amount,upiId,merchant,autoClose){
@@ -10467,6 +10745,19 @@ const FLOW_CURRENT_VER='2.7.1';
       <div class="fab-field" style="margin-bottom:12px">
         <div class="fab-lbl">Date</div>
         <input type="date" id="fabDate">
+      </div>
+      <div class="fab-field" style="margin-bottom:10px">
+        <div class="fab-lbl">Paid From Account <span style="text-transform:none;letter-spacing:0;color:var(--faint)">(optional)</span></div>
+        <div id="fabBankWrap" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:2px"></div>
+      </div>
+      <div class="fab-field" style="margin-bottom:10px">
+        <div class="fab-lbl">Receipt <span style="text-transform:none;letter-spacing:0;color:var(--faint)">(optional)</span></div>
+        <div id="fabReceiptWrap" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:2px">
+          <input type="file" id="fabReceiptCam" accept="image/*" capture="environment" style="display:none" onchange="handleFabReceipt(this)">
+          <input type="file" id="fabReceiptFile" accept="image/*,application/pdf" style="display:none" onchange="handleFabReceipt(this)">
+          <button type="button" class="btn-ghost btn-sm" onclick="document.getElementById('fabReceiptCam').click()" style="font-size:11px;padding:6px 11px;display:flex;align-items:center;gap:5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Scan</button>
+          <button type="button" class="btn-ghost btn-sm" onclick="document.getElementById('fabReceiptFile').click()" style="font-size:11px;padding:6px 11px;display:flex;align-items:center;gap:5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>Attach</button>
+        </div>
       </div>
     </div>
     <!-- Bill quick-pay (shown when type=bill) -->
