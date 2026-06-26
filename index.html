@@ -1454,7 +1454,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 #flowFAB:active{transform:scale(.94)}
 #flowFAB.hidden{opacity:0;pointer-events:none;transform:scale(.8)}
 @media(min-width:768px){#flowFAB{bottom:24px;right:24px}}
-.fab-sheet{position:fixed;inset:0;z-index:195;display:flex;flex-direction:column;justify-content:flex-end;pointer-events:none}
+.fab-sheet{position:fixed;inset:0;z-index:250;display:flex;flex-direction:column;justify-content:flex-end;pointer-events:none}
 .fab-sheet-bg{position:absolute;inset:0;background:rgba(0,0,0,.45);opacity:0;transition:opacity .22s;pointer-events:none}
 .fab-sheet-bg.show{opacity:1;pointer-events:all}
 .fab-sheet-body{position:relative;background:var(--surface);border-radius:14px 14px 0 0;padding:18px 16px 24px;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,0,.67,0);padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));max-height:90vh;overflow-y:auto;pointer-events:all}
@@ -1744,6 +1744,19 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="pin-error" id="setupPinError" style="text-align:center"></div>
     <button class="btn-danger btn-sm" id="removePinBtn" onclick="removePIN()" style="width:100%;margin-top:8px;display:none">Remove PIN Lock</button>
     <button class="btn-ghost btn-sm" id="skipPinBtn" onclick="skipPinFirstTime()" style="width:100%;margin-top:8px;display:none;color:var(--faint);font-size:11px">Skip for now &rarr;</button>
+  </div>
+</div>
+
+<!-- ══ BIOMETRIC ONBOARDING PROMPT ═══════════════════════════ -->
+<div id="bioOnboardModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:820;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--surface);border-radius:14px;max-width:380px;width:100%;padding:26px 22px;box-shadow:0 12px 40px rgba(0,0,0,.3);text-align:center">
+    <div style="width:56px;height:56px;border-radius:50%;background:var(--surface-alt);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="var(--text)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 11c0-1.1.9-2 2-2s2 .9 2 2v2c0 1.1-.9 2-2 2"/><path d="M6 11c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M4.9 9A9 9 0 0 0 4 12a8 8 0 0 0 1.5 4.7"/><path d="M12 21a9 9 0 0 0 7.4-3.9"/><path d="M12 21c-1.7 0-3.2-.5-4.5-1.3"/><path d="M12 14v4"/></svg>
+    </div>
+    <div style="font-size:16px;font-weight:600;letter-spacing:-.2px;margin-bottom:8px">Unlock with Fingerprint / Face ID?</div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:20px">Use your device's fingerprint or Face ID to open Flow instead of typing your PIN each time. Your biometric never leaves your device — Flow only receives a yes/no.</div>
+    <button onclick="_bioOnboardEnable()" style="width:100%;padding:13px;background:var(--text);color:var(--bg);border:none;border-radius:8px;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:9px">Enable Biometric Unlock</button>
+    <button onclick="_bioOnboardSkip()" style="width:100%;padding:10px;background:transparent;border:1px solid var(--border);border-radius:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);cursor:pointer">Maybe later</button>
   </div>
 </div>
 
@@ -2084,6 +2097,14 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);font-weight:500;white-space:nowrap" id="dqAccLabel">Paid from</span>
         <div id="dqBankBadgeWrap" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"></div>
         <button class="btn-ghost btn-sm" onclick="openDQBankPicker()" id="dqBankBtn" style="font-size:11px;padding:4px 10px">+ Select Account</button>
+      </div>
+      <div id="dqReceiptRow" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+        <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);font-weight:500;white-space:nowrap">Receipt</span>
+        <input type="file" id="dqReceiptCam" accept="image/*" capture="environment" style="display:none" onchange="handleDqReceipt(this)">
+        <input type="file" id="dqReceiptFile" accept="image/*,application/pdf" style="display:none" onchange="handleDqReceipt(this)">
+        <button type="button" class="btn-ghost btn-sm" onclick="document.getElementById('dqReceiptCam').click()" style="font-size:11px;padding:4px 10px;display:flex;align-items:center;gap:5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Scan</button>
+        <button type="button" class="btn-ghost btn-sm" onclick="document.getElementById('dqReceiptFile').click()" style="font-size:11px;padding:4px 10px;display:flex;align-items:center;gap:5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>Attach</button>
+        <div id="dqReceiptWrap" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"></div>
       </div>
       <div style="display:flex;gap:8px">
         <button class="btn-primary btn-sm" onclick="quickDailyAdd()" id="dqAddBtn" style="flex:1;justify-content:center;padding:9px;transition:background .2s">&#8722; Add Expense</button>
@@ -6322,7 +6343,7 @@ function openPinSetup(firstTime){
   if(!modal)return;
   const hasPIN=!!localStorage.getItem('flow_pin');
   if(firstTime){
-    _pinAfterCallback=startOnboarding;
+    _pinAfterCallback=_offerBiometricOnboarding;
     document.getElementById('pinSetupTitle').textContent='Secure Your App';
     document.getElementById('pinSetupDesc').textContent='Set a 4-digit PIN to lock the app. You can skip this and set it later from the Lock button in the header.';
     document.getElementById('removePinBtn').style.display='none';
@@ -9912,17 +9933,38 @@ function saveEditDailyEntry(){
 }
 
 // ── Quick Add — writes to DAILY_EXPENSES only ────────────
+let _dqReceipt=null;
+async function handleDqReceipt(inp){
+  if(!inp.files||!inp.files[0])return;
+  try{_dqReceipt=await _fileToReceipt(inp.files[0]);renderDqReceiptPreview();}
+  catch(e){const msg=e.message==='too-large'?'File too large (max 12MB)':e.message==='unsupported'?'Use an image or PDF':'Could not read file';showToast('Receipt error',msg);}
+  inp.value='';
+}
+function clearDqReceipt(){_dqReceipt=null;renderDqReceiptPreview();}
+function renderDqReceiptPreview(){
+  const wrap=document.getElementById('dqReceiptWrap');if(!wrap)return;
+  if(!_dqReceipt){wrap.innerHTML='';return;}
+  const isPdf=_dqReceipt.type==='application/pdf';
+  wrap.innerHTML=`<span style="display:flex;align-items:center;gap:6px;padding:3px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface-alt);font-size:11px;max-width:180px">`
+    +(isPdf?'<span style="font-size:14px">📄</span>':`<img src="${_dqReceipt.data}" style="width:22px;height:22px;object-fit:cover;border-radius:4px;flex-shrink:0">`)
+    +`<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)">${esc(_dqReceipt.name)}</span>`
+    +`<button type="button" class="btn-del" onclick="clearDqReceipt()" title="Remove" style="flex-shrink:0">&#x2715;</button></span>`;
+}
 function quickDailyAdd(){
   const cat=(document.getElementById('dqCat').value||'').trim();
   const desc=(document.getElementById('dqDesc').value||'').trim();
   const amt=parseFloat(document.getElementById('dqAmt').value)||0;
   const dateVal=document.getElementById('dqDate').value||_localDateStr();
   if(!cat||!amt){showToast('Category and amount required','');return;}
-  DAILY_EXPENSES.push({id:uid(),cat,desc,amt:String(amt),note:'',date:dateVal,bank:_dqBank||null,type:_dqType||'expense',created:Date.now()});
+  const entry={id:uid(),cat,desc,amt:String(amt),note:'',date:dateVal,bank:_dqBank||null,type:_dqType||'expense',created:Date.now()};
+  if(_dqReceipt)entry.hasReceipt=true;
+  DAILY_EXPENSES.push(entry);
+  if(_dqReceipt){saveReceipt(entry.id,_dqReceipt).catch(()=>{});}
   saveDaily();renderDailyView();
   ['dqCat','dqDesc','dqAmt'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const dq=document.getElementById('dqDate');
   if(dq)dq.value=_localDateStr(); // reset to today
+  _dqReceipt=null;renderDqReceiptPreview();
   // Keep _dqBank selected for next entry (convenience)
   _refreshDQBankBadge();
   const acc=_dqBank?getAccount(_dqBank):null;
@@ -10442,6 +10484,28 @@ function disableBiometric(){
   localStorage.removeItem('flow_bio');localStorage.removeItem('flow_bio_cred_id');localStorage.removeItem('flow_bio_id');
   const btn=document.getElementById('settBioBtn');if(btn)btn.textContent='Set Up';
   showToast('Biometric removed','Set it up again from Settings → Security');
+}
+
+// ── Onboarding: offer fingerprint / Face ID right after the PIN is set ──
+async function _offerBiometricOnboarding(){
+  // Needs a PIN (skipped PIN = can't use biometric) and a device sensor.
+  if(!localStorage.getItem('flow_pin')){startTour();return;}
+  if(localStorage.getItem('flow_bio')==='1'){startTour();return;}
+  if(!window.PublicKeyCredential){startTour();return;}
+  let supported=false;
+  try{supported=await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();}catch(e){supported=false;}
+  if(!supported){startTour();return;}
+  const modal=document.getElementById('bioOnboardModal');
+  if(modal)modal.style.display='flex'; else startTour();
+}
+async function _bioOnboardEnable(){
+  const m=document.getElementById('bioOnboardModal');if(m)m.style.display='none';
+  try{await setupBiometric();}catch(e){}
+  setTimeout(startTour,300);
+}
+function _bioOnboardSkip(){
+  const m=document.getElementById('bioOnboardModal');if(m)m.style.display='none';
+  setTimeout(startTour,200);
 }
 
 // Hook biometric into lock screen — add button if bio enabled
