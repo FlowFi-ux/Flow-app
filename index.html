@@ -1447,6 +1447,90 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .dh-net-item{display:flex;flex-direction:column;gap:2px}
 .dh-net-lbl{font-size:8.5px;opacity:.55;text-transform:uppercase;letter-spacing:.8px}
 .dh-net-val{font-size:13px;font-weight:600}
+
+/* ══ FAB (Floating Quick-Add) ═══════════════════════════════ */
+#flowFAB{position:fixed;bottom:calc(68px + env(safe-area-inset-bottom,0px));right:16px;z-index:190;width:48px;height:48px;border-radius:50%;background:var(--text);color:var(--bg);border:none;font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.28);transition:transform .15s,opacity .15s;-webkit-tap-highlight-color:transparent;line-height:1;font-family:'IBM Plex Mono',monospace;font-weight:300}
+#flowFAB:hover{transform:scale(1.08)}
+#flowFAB:active{transform:scale(.94)}
+#flowFAB.hidden{opacity:0;pointer-events:none;transform:scale(.8)}
+@media(min-width:768px){#flowFAB{bottom:24px;right:24px}}
+.fab-sheet{position:fixed;inset:0;z-index:195;display:flex;flex-direction:column;justify-content:flex-end;pointer-events:none}
+.fab-sheet-bg{position:absolute;inset:0;background:rgba(0,0,0,.45);opacity:0;transition:opacity .22s;pointer-events:none}
+.fab-sheet-bg.show{opacity:1;pointer-events:all}
+.fab-sheet-body{position:relative;background:var(--surface);border-radius:14px 14px 0 0;padding:18px 16px 24px;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,0,.67,0);padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));max-height:90vh;overflow-y:auto;pointer-events:all}
+.fab-sheet-body.show{transform:translateY(0);transition-timing-function:cubic-bezier(.33,1,.68,1)}
+.fab-sheet-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 14px}
+.fab-sheet-hd{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:500;margin-bottom:12px}
+.fab-nl-row{display:flex;gap:8px;margin-bottom:10px}
+.fab-nl-row input{flex:1;font-size:13px;padding:10px 12px}
+.fab-nl-hint{font-size:10px;color:var(--faint);margin-bottom:14px;line-height:1.5}
+.fab-type-row{display:flex;gap:6px;margin-bottom:10px}
+.fab-type-btn{flex:1;padding:8px 6px;font-size:11px;font-family:'IBM Plex Mono',monospace;border:1.5px solid var(--border);background:transparent;color:var(--muted);border-radius:var(--r);cursor:pointer;font-weight:500;transition:all .12s;-webkit-tap-highlight-color:transparent}
+.fab-type-btn.sel-exp{background:var(--deficit-bg,rgba(248,113,113,.12));color:var(--deficit);border-color:var(--deficit)}
+.fab-type-btn.sel-inc{background:var(--surplus-bg,rgba(74,222,128,.12));color:var(--surplus);border-color:var(--surplus)}
+.fab-type-btn.sel-bill{background:var(--surface-alt);color:var(--text);border-color:var(--text)}
+.fab-fields{display:grid;grid-template-columns:1.3fr 1fr;gap:8px;margin-bottom:10px}
+.fab-field{display:flex;flex-direction:column;gap:3px}
+.fab-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);font-weight:500}
+.fab-add-btn{width:100%;padding:11px;background:var(--text);color:var(--bg);border:none;border-radius:var(--r);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;cursor:pointer;transition:opacity .14s;margin-top:2px;letter-spacing:.2px}
+.fab-add-btn:active{opacity:.8}
+
+/* ══ SMART DASHBOARD (in-app header bar) ════════════════════ */
+.dash-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-shrink:0}
+.dash-bar::-webkit-scrollbar{display:none}
+.dash-chip{flex-shrink:0;display:flex;flex-direction:column;gap:2px;padding:8px 13px;background:var(--surface-alt);border:1px solid var(--border);border-radius:8px;min-width:90px;cursor:default}
+.dash-chip-lbl{font-size:8.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);font-weight:500;white-space:nowrap}
+.dash-chip-val{font-size:14px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap}
+.dash-chip-val.good{color:var(--surplus)}
+.dash-chip-val.warn{color:var(--amber)}
+.dash-chip-val.bad{color:var(--deficit)}
+.dash-chip-sub{font-size:9px;color:var(--faint);white-space:nowrap;line-height:1.3}
+
+/* ══ NL PARSE PREVIEW ═══════════════════════════════════════ */
+.nl-preview{display:none;background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--r);padding:9px 12px;margin-top:6px;font-size:11.5px;line-height:1.55;color:var(--text)}
+.nl-preview.show{display:block}
+.nl-tag{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600;margin-right:4px}
+.nl-tag-amt{background:var(--deficit-bg,rgba(248,113,113,.15));color:var(--deficit)}
+.nl-tag-cat{background:var(--surface);border:1px solid var(--border);color:var(--text)}
+.nl-tag-desc{background:var(--surface);border:1px solid var(--border);color:var(--muted)}
+.nl-tag-date{background:rgba(96,165,250,.12);color:#60a5fa}
+
+/* ══ UNDO TOAST ════════════════════════════════════════════ */
+.undo-toast-btn{background:none;border:1px solid rgba(255,255,255,.25);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:10.5px;padding:3px 10px;border-radius:4px;cursor:pointer;margin-top:6px;display:block;-webkit-tap-highlight-color:transparent;transition:background .12s;letter-spacing:.3px}
+.undo-toast-btn:hover{background:rgba(255,255,255,.1)}
+
+/* ══ COMPACT MODE ══════════════════════════════════════════ */
+[data-compact="1"] body{font-size:11.5px}
+[data-compact="1"] .entry{padding:3px 6px}
+[data-compact="1"] .day-group{margin-bottom:8px}
+[data-compact="1"] .day-entry-row{padding:5px 10px;min-height:32px}
+[data-compact="1"] .daily-stats{gap:6px}
+[data-compact="1"] .ds-card{padding:8px 10px}
+[data-compact="1"] .bill-card{padding:10px 12px;margin-bottom:8px}
+[data-compact="1"] .settings-row{padding:9px 16px;min-height:38px}
+[data-compact="1"] .dash-chip{padding:6px 10px;min-width:78px}
+[data-compact="1"] .dash-chip-val{font-size:12.5px}
+
+/* ══ BIOMETRIC unlock spinner ══════════════════════════════ */
+.bio-btn{display:flex;align-items:center;gap:7px;padding:9px 18px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:var(--r);font-family:'IBM Plex Mono',monospace;font-size:11.5px;cursor:pointer;margin:10px auto 0;-webkit-tap-highlight-color:transparent;transition:all .14s}
+.bio-btn:hover{border-color:var(--muted);color:var(--text)}
+.bio-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+
+/* ══ UPI LOG ENTRY ═════════════════════════════════════════ */
+.upi-log-row{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:11.5px}
+.upi-log-row:last-child{border-bottom:none}
+.upi-log-id{font-size:10px;color:var(--faint);font-variant-numeric:tabular-nums}
+.upi-log-cat{flex:1;color:var(--text)}
+.upi-log-amt{font-weight:600;color:var(--deficit);font-variant-numeric:tabular-nums}
+
+/* ══ STATEMENT IMPORT ══════════════════════════════════════ */
+.stmt-drop{border:2px dashed var(--border);border-radius:var(--r);padding:28px 16px;text-align:center;cursor:pointer;transition:border-color .14s,background .14s;font-size:12px;color:var(--muted)}
+.stmt-drop.drag-over,.stmt-drop:hover{border-color:var(--text);background:var(--surface-alt)}
+.stmt-drop-icon{font-size:24px;margin-bottom:8px;opacity:.5}
+.stmt-preview-row{display:grid;grid-template-columns:90px 1fr 70px 70px;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:10.5px;align-items:center}
+.stmt-preview-row:first-child{font-weight:600;color:var(--muted);font-size:9.5px;text-transform:uppercase;letter-spacing:.5px}
+.stmt-cat-sel{font-size:10.5px;padding:3px 6px;max-width:100%;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'IBM Plex Mono',monospace}
+.stmt-import-btn{width:100%;margin-top:12px;padding:10px;background:var(--text);color:var(--bg);border:none;border-radius:var(--r);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;cursor:pointer;letter-spacing:.2px}
 </style>
 </head>
 <body>
@@ -1845,6 +1929,8 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   <button class="tab-btn" onclick="switchTab('invest',this)">Portfolio</button>
   <button class="tab-btn" onclick="switchTab('tools',this)">Planner</button>
 </nav>
+<!-- ══ SMART DASHBOARD BAR ══════════════════════════════════ -->
+<div class="dash-bar" id="dashBar" style="display:none"></div>
 
 <!-- ══ BOTTOM NAV (mobile) ══════════════════════════════════ -->
 <nav class="bottom-nav" id="bottomNav">
@@ -3182,6 +3268,22 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="wn-hero-sub">Every feature, fix and improvement &mdash; from the beginning.</div>
   </div>
 
+  <div class="wn-version-block" id="wn-v27">
+    <div class="wn-version-header">
+      <span class="wn-version-num">v2.7</span>
+      <span class="wn-version-date">Jun 2026</span>
+      <span class="wn-version-label wn-label-major">Feature Update</span>
+    </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">+ Floating Quick-Add (FAB)</div><div class="wn-entry-desc">A floating <strong>+</strong> button sits above the bottom nav on every tab. Tap it to open a bottom sheet — type a natural language entry like <em>"paid 250 chai swiggy"</em> and Flow parses the amount, category and description automatically. Or use the form fields directly. Supports expense, income and quick bill payment. Closes with a tap outside or after saving.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">&#x1F4CA; Smart Dashboard Bar</div><div class="wn-entry-desc">A scrollable chip bar just below the tab bar shows today's spend, this month's total, savings rate, next bill due (with days countdown), and month-end forecast based on your current pace. Updates live whenever you add or delete an entry.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">&#x21A9; Undo on Delete</div><div class="wn-entry-desc">Every delete — daily entries and monthly ledger rows — now shows a 5-second undo toast. Tap <strong>↩ Undo</strong> to instantly restore the deleted item. No more accidental permanent deletions.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">&#x1F4F1; Biometric Unlock</div><div class="wn-entry-desc">Set up fingerprint or Face ID as an alternative to your PIN. Go to Settings → Security → Biometric Unlock. Requires a PIN to be set first. Uses the WebAuthn platform authenticator — your biometric never leaves the device.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">&#x1F3E6; Bank Statement Import</div><div class="wn-entry-desc">Import your bank statement CSV directly — supports HDFC, ICICI, SBI, Axis, Kotak and most Indian bank CSV formats. Drag-and-drop a file or paste CSV text. Flow auto-detects date, debit/credit and description columns, categorises entries, and lets you review before importing. Available under Settings → Data &amp; Backup.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">&#x1F4BE; Tab Memory</div><div class="wn-entry-desc">Flow now remembers which sub-tab you were on in Bills and Planner. If you were on Subscriptions and switch away, coming back to Bills takes you straight back to Subscriptions — not the default Reminders.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">&#x1F4F2; Compact Mode</div><div class="wn-entry-desc">A new toggle in Settings → Appearance tightens row padding, reduces font size slightly, and fits more information on screen. Ideal for smaller phones or anyone who prefers information density over whitespace.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">&#x1F4B3; UPI Payment Auto-Log</div><div class="wn-entry-desc">When you tap a UPI Pay button in Bill Split, Flow asks if you want to log the payment as a daily expense. One tap to confirm — amount, payee and date are pre-filled automatically.</div></div></div>
+  </div>
+
   <div class="wn-version-block" id="wn-v26">
     <div class="wn-version-header">
       <span class="wn-version-num">v2.6</span>
@@ -3472,6 +3574,10 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <div class="settings-row-left"><div class="settings-row-label">Hide Amounts</div><div class="settings-row-desc">Mask all numbers with ••••</div></div>
       <div class="settings-row-right"><label class="toggle-lbl"><div class="track" id="settEyeTrack" onclick="toggleAllEyes();updateSettEyeTrack()"><div class="knob" id="settEyeKnob"></div></div></label></div>
     </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Compact Mode</div><div class="settings-row-desc">Tighter rows and smaller text for more on screen</div></div>
+      <div class="settings-row-right"><label class="toggle-lbl"><div class="track" id="settCompactTrack" onclick="toggleCompact('settCompactTrack')"><div class="knob" id="settCompactKnob"></div></div></label></div>
+    </div>
   </div>
 
   <!-- ── SECURITY ─────────────────────────────────────────── -->
@@ -3484,6 +3590,10 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="settings-row">
       <div class="settings-row-left"><div class="settings-row-label">Lock on Background</div><div class="settings-row-desc">Lock immediately when app is minimised</div></div>
       <div class="settings-row-right"><label class="toggle-lbl"><div class="track" id="settLockBgTrack" onclick="toggleSett('flow_lock_bg','settLockBgTrack')"><div class="knob" id="settLockBgKnob"></div></div></label></div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Biometric Unlock</div><div class="settings-row-desc">Use fingerprint or Face ID in place of PIN</div></div>
+      <div class="settings-row-right"><button class="btn-ghost btn-sm" onclick="setupBiometric()" style="font-size:11px" id="settBioBtn">Set Up</button></div>
     </div>
   </div>
 
@@ -3548,6 +3658,10 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="settings-row">
       <div class="settings-row-left"><div class="settings-row-label">Import CSV</div><div class="settings-row-desc">Import entries from a CSV file into the ledger</div></div>
       <div class="settings-row-right"><button class="btn-ghost btn-sm" onclick="document.getElementById('importModal').style.display='flex'" style="font-size:11px">&#x2B06; Import</button></div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Bank Statement Import</div><div class="settings-row-desc">Import HDFC, ICICI, SBI, Axis, Kotak CSV statements</div></div>
+      <div class="settings-row-right"><button class="btn-ghost btn-sm" onclick="openStmtModal()" style="font-size:11px">&#x1F3E6; Import</button></div>
     </div>
     <div class="settings-row">
       <div class="settings-row-left"><div class="settings-row-label">Backup Now</div><div class="settings-row-desc" id="settBackupDesc">Export all your data as a JSON file</div></div>
@@ -9755,17 +9869,474 @@ setTimeout(function(){
   initSmartNotifications();
 },800);
 
+// ══ SMART DASHBOARD BAR ════════════════════════════════════
+function renderDashBar(){
+  const bar=document.getElementById('dashBar');if(!bar)return;
+  const {year:cy,month:cm,date:cd}=_istParts();
+  // today's spend from daily
+  const todayKey=_localDateStr();
+  const todaySpend=DAILY_EXPENSES.filter(e=>e.date===todayKey&&(e.type||'expense')==='expense').reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
+  // this month income/expense from DB
+  const md=DB[`${cm}_${cy}`]||{income:[],expense:[]};
+  const mInc=md.income.reduce((s,x)=>s+(parseFloat(x.amt)||0),0);
+  const mExp=md.expense.reduce((s,x)=>s+(parseFloat(x.amt)||0),0);
+  // add daily entries for month
+  let dInc=0,dExp=0;
+  DAILY_EXPENSES.forEach(e=>{if(!e.date)return;const d=new Date(e.date);if(isNaN(d)||d.getFullYear()!==cy||d.getMonth()!==cm)return;const a=parseFloat(e.amt)||0;if((e.type||'expense')==='income')dInc+=a;else dExp+=a;});
+  const totalInc=mInc+dInc,totalExp=mExp+dExp;
+  const sr=totalInc>0?((totalInc-totalExp)/totalInc*100):0;
+  // next bill due
+  const {month:m,year:y}=_istParts();
+  const unpaid=BILLS.filter(b=>{const mk=m+'_'+y;return!(b.paidMonths&&b.paidMonths.includes(mk));}).sort((a,b)=>a.dueDay-b.dueDay);
+  const nextBill=unpaid[0];
+  const daysLeft=nextBill?nextBill.dueDay-cd:null;
+  // forecast
+  const daysInMonth=new Date(cy,cm+1,0).getDate();
+  const pace=cd>0?(totalExp/cd)*daysInMonth:0;
+  bar.innerHTML=`
+    <div class="dash-chip">
+      <div class="dash-chip-lbl">Today</div>
+      <div class="dash-chip-val ${todaySpend>2000?'bad':''}">${fmt(todaySpend)}</div>
+      <div class="dash-chip-sub">spent today</div>
+    </div>
+    <div class="dash-chip">
+      <div class="dash-chip-lbl">Month Spend</div>
+      <div class="dash-chip-val">${fmt(totalExp)}</div>
+      <div class="dash-chip-sub">of ${fmt(totalInc)} earned</div>
+    </div>
+    <div class="dash-chip">
+      <div class="dash-chip-lbl">Savings Rate</div>
+      <div class="dash-chip-val ${sr>=20?'good':sr<0?'bad':'warn'}">${totalInc>0?sr.toFixed(1)+'%':'—'}</div>
+      <div class="dash-chip-sub">this month</div>
+    </div>
+    ${nextBill?`<div class="dash-chip">
+      <div class="dash-chip-lbl">Next Bill</div>
+      <div class="dash-chip-val ${daysLeft<=3?'bad':daysLeft<=7?'warn':''}">${daysLeft===0?'Today':daysLeft<0?'Overdue':daysLeft+'d'}</div>
+      <div class="dash-chip-sub">${esc(nextBill.name)} ${fmt(nextBill.amt)}</div>
+    </div>`:''}
+    <div class="dash-chip">
+      <div class="dash-chip-lbl">Month Forecast</div>
+      <div class="dash-chip-val ${pace>totalInc&&totalInc>0?'bad':''}">${fmt(pace)}</div>
+      <div class="dash-chip-sub">on current pace</div>
+    </div>
+  `;
+  bar.style.display='flex';
+}
+// hook renderDashBar into render() flow
+const _origRender=typeof render==='function'?render:null;
+
+// ══ FAB — FLOATING QUICK-ADD ════════════════════════════════
+let _fabType='expense';
+let _fabOpen=false;
+function openFAB(){
+  _fabOpen=true;
+  const body=document.getElementById('fabBody');
+  const bg=document.getElementById('fabBg');
+  const date=document.getElementById('fabDate');
+  if(date)date.value=_localDateStr();
+  if(bg)bg.classList.add('show');
+  if(body)body.classList.add('show');
+  setFABType('expense');
+  setTimeout(()=>{const nl=document.getElementById('fabNL');if(nl)nl.focus();},200);
+}
+function closeFAB(){
+  _fabOpen=false;
+  const body=document.getElementById('fabBody');
+  const bg=document.getElementById('fabBg');
+  if(bg)bg.classList.remove('show');
+  if(body)body.classList.remove('show');
+  // clear fields
+  ['fabNL','fabCat','fabAmt','fabDesc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const p=document.getElementById('nlPreview');if(p){p.className='nl-preview';p.innerHTML='';}
+}
+function setFABType(t){
+  _fabType=t;
+  ['fabTypeExp','fabTypeInc','fabTypeBill'].forEach(id=>document.getElementById(id)&&document.getElementById(id).classList.remove('sel-exp','sel-inc','sel-bill'));
+  const map={expense:'fabTypeExp',income:'fabTypeInc',bill:'fabTypeBill'};
+  const cls={expense:'sel-exp',income:'sel-inc',bill:'sel-bill'};
+  const btn=document.getElementById(map[t]);if(btn)btn.classList.add(cls[t]);
+  const ef=document.getElementById('fabExpIncFields');
+  const bf=document.getElementById('fabBillFields');
+  const ab=document.getElementById('fabAddBtn');
+  if(ef)ef.style.display=t==='bill'?'none':'block';
+  if(bf){bf.style.display=t==='bill'?'block':'none';if(t==='bill')renderFABBillList();}
+  if(ab)ab.textContent=t==='income'?'+ Add Income':t==='bill'?'Mark Bill Paid':'- Add Expense';
+  // update category label colour
+  const catInp=document.getElementById('fabCat');
+  if(catInp){catInp.dataset.t=t==='income'?'income':'expense';}
+}
+function renderFABBillList(){
+  const wrap=document.getElementById('fabBillList');if(!wrap)return;
+  const {month:m,year:y}=_istParts();
+  const unpaid=BILLS.filter(b=>{const mk=m+'_'+y;return!(b.paidMonths&&b.paidMonths.includes(mk));});
+  if(!unpaid.length){wrap.innerHTML='<div style="font-size:11px;color:var(--faint);padding:8px 0">All bills paid this month ✓</div>';return;}
+  wrap.innerHTML=unpaid.map(b=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px">
+    <span>${esc(b.name)} <span style="color:var(--faint);font-size:10px">due ${b.dueDay}${b.dueDay===1?'st':b.dueDay===2?'nd':b.dueDay===3?'rd':'th'}</span></span>
+    <span style="display:flex;align-items:center;gap:8px"><strong>${fmt(b.amt)}</strong>
+    <button class="btn-ghost btn-sm" style="font-size:10px;padding:3px 9px" onclick="fabPayBill('${b.id}')">Pay</button></span>
+  </div>`).join('');
+}
+function fabPayBill(id){
+  const {month:m,year:y}=_istParts();const mk=m+'_'+y;
+  const b=BILLS.find(x=>x.id===id);if(!b)return;
+  if(!b.paidMonths)b.paidMonths=[];
+  b.paidMonths.push(mk);
+  saveBills();renderFABBillList();
+  showUndoToast('Bill paid ✓','Marked '+b.name+' as paid',()=>{b.paidMonths=b.paidMonths.filter(k=>k!==mk);saveBills();renderFABBillList();if(typeof renderBills==='function')renderBills();});
+  if(typeof renderBills==='function')renderBills();
+  if(typeof updateBnBillsDot==='function')updateBnBillsDot();
+  renderDashBar();
+}
+function submitFAB(){
+  if(_fabType==='bill'){closeFAB();return;}
+  const cat=(document.getElementById('fabCat').value||'').trim();
+  const amt=parseFloat(document.getElementById('fabAmt').value)||0;
+  const desc=(document.getElementById('fabDesc').value||'').trim();
+  const dateVal=document.getElementById('fabDate').value||_localDateStr();
+  if(!cat||!amt){showToast('Category and amount required','');return;}
+  const entry={id:uid(),cat,desc,amt:String(amt),note:'',date:dateVal,bank:null,type:_fabType,created:Date.now()};
+  DAILY_EXPENSES.push(entry);
+  saveDaily();
+  const sym=_fabType==='income'?'+':'-';
+  showUndoToast(sym+'₹'+fmt(amt)+' added',cat+(desc?' — '+desc:''),()=>{
+    DAILY_EXPENSES=DAILY_EXPENSES.filter(e=>e.id!==entry.id);
+    saveDaily();if(typeof renderDailyView==='function')renderDailyView();renderDashBar();
+  });
+  closeFAB();
+  if(typeof renderDailyView==='function')renderDailyView();
+  renderDashBar();
+}
+
+// ══ NATURAL LANGUAGE PARSER ════════════════════════════════
+let _nlParsed=null;
+function parseNL(raw){
+  const prev=document.getElementById('nlPreview');
+  if(!raw.trim()){if(prev){prev.className='nl-preview';prev.innerHTML=''}; _nlParsed=null;return;}
+  const txt=raw.trim().toLowerCase();
+  // extract amount — first number (can be decimal)
+  const amtMatch=txt.match(/\b(\d+(?:\.\d{1,2})?)\b/);
+  const amt=amtMatch?parseFloat(amtMatch[1]):null;
+  // extract date keywords
+  let date=_localDateStr();
+  if(/yesterday/.test(txt)){const d=new Date(_istNow());d.setDate(d.getDate()-1);date=d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0');}
+  // known category keywords map
+  const catMap={food:['food','meal','lunch','dinner','breakfast','snack','restaurant','eat','chai','tea','coffee','biryani','swiggy','zomato','pizza'],transport:['auto','uber','ola','cab','bus','train','metro','petrol','fuel','rapido','rickshaw'],shopping:['amazon','flipkart','mall','clothes','shirt','shoes','buy','purchase','myntra'],groceries:['grocery','groceries','vegetables','fruits','milk','dmart','bigbasket','zepto','blinkit','instamart'],rent:['rent','house','pg','hostel','room'],entertainment:['movie','netflix','hotstar','amazon prime','spotify','concert','game'],health:['medicine','doctor','pharmacy','hospital','clinic','apollo','pharmeasy'],salary:['salary','income','earned'],investment:['sip','invest','mutual','fund'],utilities:['electricity','bill','phone','recharge','water','gas','wifi','internet'],dining:['dining','dine','hotel']};
+  let cat='Other';
+  for(const[c,kws]of Object.entries(catMap)){if(kws.some(k=>txt.includes(k))){cat=c.charAt(0).toUpperCase()+c.slice(1);break;}}
+  // description — strip amount and common filler words
+  let desc=raw.replace(/\b\d+(?:\.\d{1,2})?\b/,'').replace(/paid|spent|bought|for|to|at|on|rs|inr|₹/gi,'').trim();
+  desc=desc.replace(/\s+/g,' ').trim();
+  const type=/salary|income|earned|received|got/.test(txt)?'income':'expense';
+  _nlParsed={amt,cat,desc,date,type};
+  if(!prev)return;
+  if(!amt){prev.innerHTML='<span style="color:var(--deficit)">No amount found — include a number like <em>250</em></span>';prev.classList.add('show');return;}
+  prev.className='nl-preview show';
+  prev.innerHTML=`<span class="nl-tag nl-tag-amt">${type==='income'?'+':'-'}₹${amt}</span> <span class="nl-tag nl-tag-cat">${esc(cat)}</span> ${desc?`<span class="nl-tag nl-tag-desc">${esc(desc)}</span>`:''}  <span class="nl-tag nl-tag-date">${date===_localDateStr()?'today':date}</span> <button onclick="commitNL()" style="float:right;font-size:10px;padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:transparent;color:var(--text);cursor:pointer;font-family:inherit">Add ↵</button>`;
+}
+function commitNL(){
+  if(!_nlParsed||!_nlParsed.amt){showToast('Could not parse','Include an amount like "paid 250 food"');return;}
+  const {amt,cat,desc,date,type}=_nlParsed;
+  const entry={id:uid(),cat,desc,amt:String(amt),note:'',date,bank:null,type,created:Date.now()};
+  DAILY_EXPENSES.push(entry);saveDaily();
+  showUndoToast((type==='income'?'+':'-')+'₹'+fmt(amt)+' added',cat+(desc?' — '+desc:''),()=>{
+    DAILY_EXPENSES=DAILY_EXPENSES.filter(e=>e.id!==entry.id);saveDaily();if(typeof renderDailyView==='function')renderDailyView();renderDashBar();
+  });
+  _nlParsed=null;
+  const nl=document.getElementById('fabNL');if(nl)nl.value='';
+  const prev=document.getElementById('nlPreview');if(prev){prev.className='nl-preview';prev.innerHTML='';}
+  closeFAB();
+  if(typeof renderDailyView==='function')renderDailyView();
+  renderDashBar();
+}
+
+// ══ UNDO TOAST ═════════════════════════════════════════════
+let _undoTimer=null;
+function showUndoToast(title,body,undoFn,duration){
+  duration=duration||5500;
+  const stack=document.getElementById('toastStack');if(!stack)return;
+  const t=document.createElement('div');
+  t.className='flow-toast';
+  t.style.position='relative';
+  t.innerHTML=`<div class="flow-toast-title">${esc(title)}</div><div class="flow-toast-body">${esc(body)}</div><button class="undo-toast-btn" id="undoBtn_${Date.now()}">↩ Undo</button><button class="flow-toast-close" onclick="this.parentElement.remove()">&times;</button>`;
+  stack.appendChild(t);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('in')));
+  const undoBtn=t.querySelector('[id^="undoBtn_"]');
+  if(undoBtn)undoBtn.onclick=()=>{if(undoFn)undoFn();t.classList.remove('in');t.classList.add('out');setTimeout(()=>t.remove(),400);};
+  const timer=setTimeout(()=>{t.classList.remove('in');t.classList.add('out');setTimeout(()=>t.remove(),400);},duration);
+  t.dataset.timer=timer;
+}
+
+// ══ UNDO ON DAILY DELETE ════════════════════════════════════
+const _origDeleteDaily=window.deleteDailyEntry;
+window.deleteDailyEntry=function(id){
+  const entry=DAILY_EXPENSES.find(e=>e.id===id);
+  if(!entry){DAILY_EXPENSES=DAILY_EXPENSES.filter(e=>e.id!==id);saveDaily();if(typeof renderDailyView==='function')renderDailyView();return;}
+  DAILY_EXPENSES=DAILY_EXPENSES.filter(e=>e.id!==id);
+  saveDaily();if(typeof renderDailyView==='function')renderDailyView();renderDashBar();
+  showUndoToast('Entry deleted',esc(entry.cat)+' — '+fmt(entry.amt),()=>{
+    DAILY_EXPENSES.push(entry);saveDaily();if(typeof renderDailyView==='function')renderDailyView();renderDashBar();
+  });
+};
+
+// ══ UNDO ON ROW DELETE (monthly ledger) ═════════════════════
+const _origDelRow=window.delRow;
+window.delRow=function(type,idx){
+  const item=(DB[`${selM()}_${selY()}`]||{income:[],expense:[]})[type]?.[idx];
+  const snapshot=item?JSON.parse(JSON.stringify(item)):null;
+  if(typeof _origDelRow==='function')_origDelRow(type,idx);
+  if(snapshot){showUndoToast('Row deleted',esc(snapshot.cat||type)+' — '+fmt(snapshot.amt),()=>{
+    const md=mdata();md[type].splice(idx,0,snapshot);save();if(typeof renderList==='function'){renderList('income');renderList('expense');}if(typeof updateSummary==='function')updateSummary();
+  });}
+};
+
+// ══ COMPACT MODE ════════════════════════════════════════════
+function toggleCompact(trackId){
+  const isOn=localStorage.getItem('flow_compact')==='1';
+  localStorage.setItem('flow_compact',isOn?'0':'1');
+  _applyCompact();
+  _setTrackState(trackId,'settCompactKnob',!isOn);
+}
+function _applyCompact(){
+  const on=localStorage.getItem('flow_compact')==='1';
+  document.documentElement.setAttribute('data-compact',on?'1':'0');
+}
+_applyCompact();
+
+// ══ BIOMETRIC LOCK ══════════════════════════════════════════
+async function setupBiometric(){
+  if(!window.PublicKeyCredential){showToast('Not supported','Your browser or device does not support biometric authentication');return;}
+  const hasPIN=!!localStorage.getItem('flow_pin');
+  if(!hasPIN){showToast('Set a PIN first','Biometric unlock requires a PIN to be set first');return;}
+  try{
+    const supported=await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    if(!supported){showToast('Not available','No biometric sensor found on this device');return;}
+    const challenge=new Uint8Array(32);crypto.getRandomValues(challenge);
+    const cred=await navigator.credentials.create({publicKey:{challenge,rp:{name:'Flow Finance',id:location.hostname||'localhost'},user:{id:new Uint8Array(16),name:'flow_user',displayName:'Flow User'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required'},timeout:60000}});
+    if(cred){localStorage.setItem('flow_bio_id',cred.id);localStorage.setItem('flow_bio','1');const btn=document.getElementById('settBioBtn');if(btn)btn.textContent='Enabled ✓';showToast('Biometric enabled','Fingerprint / Face ID will unlock Flow');}
+  }catch(e){
+    if(e.name==='NotAllowedError')showToast('Cancelled','Biometric setup was cancelled');
+    else showToast('Error',e.message||'Biometric setup failed');
+  }
+}
+async function tryBiometricUnlock(){
+  if(localStorage.getItem('flow_bio')!=='1')return false;
+  const credId=localStorage.getItem('flow_bio_id');if(!credId)return false;
+  try{
+    const challenge=new Uint8Array(32);crypto.getRandomValues(challenge);
+    const assertion=await navigator.credentials.get({publicKey:{challenge,rpId:location.hostname||'localhost',allowCredentials:[{type:'public-key',id:Uint8Array.from(atob(credId.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0))}],userVerification:'required',timeout:60000}});
+    return !!assertion;
+  }catch(e){return false;}
+}
+
+// Hook biometric into lock screen — add button if bio enabled
+(function(){
+  const ls=document.getElementById('lockScreen');if(!ls)return;
+  const bioBtn=document.createElement('button');
+  bioBtn.className='bio-btn';
+  bioBtn.id='bioUnlockBtn';
+  bioBtn.style.display='none';
+  bioBtn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M12 11c0-1.1.9-2 2-2s2 .9 2 2v2c0 1.1-.9 2-2 2"/><path d="M6 11c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M4.9 9A9 9 0 0 0 4 12a8 8 0 0 0 1.5 4.7"/><path d="M12 21a9 9 0 0 0 7.4-3.9"/><path d="M12 21c-1.7 0-3.2-.5-4.5-1.3"/><path d="M12 14v4"/></svg>Use Biometrics`;
+  bioBtn.onclick=async()=>{
+    const ok=await tryBiometricUnlock();
+    if(ok){const lk=document.getElementById('lockScreen');if(lk)lk.classList.add('hidden');showToast('Unlocked','');}
+    else showToast('Failed','Try again or use your PIN');
+  };
+  ls.appendChild(bioBtn);
+  // show bio button when lock screen is visible
+  const obs=new MutationObserver(()=>{
+    const visible=!ls.classList.contains('hidden');
+    bioBtn.style.display=visible&&localStorage.getItem('flow_bio')==='1'?'flex':'none';
+  });
+  obs.observe(ls,{attributes:true,attributeFilter:['class']});
+})();
+
+// ══ TAB MEMORY ══════════════════════════════════════════════
+const _TAB_MEMORY_KEY='flow_tab_mem';
+function _saveTabMem(tab,subtab){
+  const mem=JSON.parse(localStorage.getItem(_TAB_MEMORY_KEY)||'{}');
+  if(subtab)mem[tab]=subtab;
+  localStorage.setItem(_TAB_MEMORY_KEY,JSON.stringify(mem));
+}
+function _restoreTabMem(tab){
+  const mem=JSON.parse(localStorage.getItem(_TAB_MEMORY_KEY)||'{}');
+  return mem[tab]||null;
+}
+// Patch switchTab to save + restore subtab memory
+const _origSwitchTab=window.switchTab;
+window.switchTab=function(id,btn){
+  if(typeof _origSwitchTab==='function')_origSwitchTab(id,btn);
+  // restore sub-tab for bills and tools
+  const sub=_restoreTabMem(id);
+  if(id==='bills'&&sub){const sb=document.querySelector(`#tab-bills .sub-tab[onclick*="'${sub}'"]`);if(sb)setTimeout(()=>sb.click(),50);}
+  if(id==='tools'&&sub){const sb=document.querySelector(`#tab-tools .sub-tab[onclick*="'${sub}'"]`);if(sb)setTimeout(()=>sb.click(),50);}
+  renderDashBar();
+};
+// Patch switchBillsTab
+const _origSwitchBillsTab=window.switchBillsTab;
+window.switchBillsTab=function(id,btn){if(typeof _origSwitchBillsTab==='function')_origSwitchBillsTab(id,btn);_saveTabMem('bills',id);};
+// Patch switchToolsTab
+const _origSwitchToolsTab=window.switchToolsTab;
+window.switchToolsTab=function(id,btn){if(typeof _origSwitchToolsTab==='function')_origSwitchToolsTab(id,btn);_saveTabMem('tools',id);};
+
+// ══ UPI PAYMENT LOG ═════════════════════════════════════════
+function logUPIPayment(amount,upiId,merchant,autoClose){
+  if(!amount||amount<=0){showToast('Invalid amount','Enter the amount paid');return;}
+  const entry={id:uid(),cat:'UPI Payment',desc:(merchant||upiId||'UPI').trim(),amt:String(amount),note:'upi:'+( upiId||''),date:_localDateStr(),bank:null,type:'expense',created:Date.now()};
+  DAILY_EXPENSES.push(entry);saveDaily();
+  showUndoToast('-₹'+fmt(amount)+' logged','UPI → '+(merchant||upiId||''),()=>{DAILY_EXPENSES=DAILY_EXPENSES.filter(e=>e.id!==entry.id);saveDaily();if(typeof renderDailyView==='function')renderDailyView();renderDashBar();});
+  if(typeof renderDailyView==='function')renderDailyView();
+  renderDashBar();
+  return entry;
+}
+// Patch openUPIPay to auto-log after launch
+const _origOpenUPI=window.openUPIPay;
+window.openUPIPay=function(upiId,payeeName,amount,title,fromName){
+  if(typeof _origOpenUPI==='function')_origOpenUPI(upiId,payeeName,amount,title,fromName);
+  if(amount>0){
+    setTimeout(()=>{
+      if(confirm('Log this UPI payment in Flow?\n\n'+fmt(amount)+' → '+(payeeName||upiId)+'\n\nTap OK to add as a daily expense.')){
+        logUPIPayment(amount,upiId,payeeName);
+      }
+    },800);
+  }
+};
+
+// ══ BANK STATEMENT IMPORT ═══════════════════════════════════
+let _stmtRows=[];
+let _stmtOpen=false;
+function openStmtModal(){
+  _stmtOpen=true;
+  const m=document.getElementById('stmtModal');if(m)m.style.display='flex';
+  _stmtRows=[];
+  document.getElementById('stmtPreview').innerHTML='';
+  document.getElementById('stmtImportWrap').style.display='none';
+  const pa=document.getElementById('stmtPaste');if(pa)pa.value='';
+}
+function closeStmtModal(){
+  _stmtOpen=false;
+  const m=document.getElementById('stmtModal');if(m)m.style.display='none';
+}
+function handleStmtFile(inp){
+  if(!inp.files||!inp.files[0])return;
+  const r=new FileReader();
+  r.onload=e=>parseStmtCSV(e.target.result);
+  r.readAsText(inp.files[0]);
+}
+function handleStmtDrop(e){
+  e.preventDefault();document.getElementById('stmtDrop').classList.remove('drag-over');
+  const f=e.dataTransfer.files[0];if(!f)return;
+  const r=new FileReader();r.onload=ev=>parseStmtCSV(ev.target.result);r.readAsText(f);
+}
+function parseStmtCSV(raw){
+  if(!raw||!raw.trim())return;
+  const lines=raw.trim().split('\n').map(l=>l.trim()).filter(Boolean);
+  if(lines.length<2){document.getElementById('stmtPreview').innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">No data rows found. Paste the CSV content from your bank statement.</div>';return;}
+  // Auto-detect columns: look for date, amount, description headers
+  const header=lines[0].split(',').map(h=>h.replace(/["\r]/g,'').trim().toLowerCase());
+  let dateCol=-1,amtCol=-1,descCol=-1,debitCol=-1,creditCol=-1;
+  header.forEach((h,i)=>{
+    if(/date|dt/.test(h)&&dateCol<0)dateCol=i;
+    if(/(withdrawal|debit|dr|debit amount|withdrawal amount)/.test(h))debitCol=i;
+    if(/(deposit|credit|cr|credit amount|deposit amount)/.test(h))creditCol=i;
+    if(/(amount|amt)/.test(h)&&amtCol<0)amtCol=i;
+    if(/(narration|description|particulars|details|remarks|ref)/.test(h)&&descCol<0)descCol=i;
+  });
+  if(dateCol<0){document.getElementById('stmtPreview').innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">Could not detect a date column. Ensure your CSV has a "Date" header.</div>';return;}
+  // Parse rows
+  const rows=[];
+  for(let i=1;i<lines.length;i++){
+    const cols=lines[i].split(',').map(c=>c.replace(/["\r]/g,'').trim());
+    const rawDate=cols[dateCol]||'';
+    // parse date — supports DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY, MM/DD/YYYY
+    let parsedDate='';
+    const dm=rawDate.match(/(\d{1,4})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+    if(dm){
+      const [,a,b,c]=dm;
+      if(a.length===4){parsedDate=`${a}-${b.padStart(2,'0')}-${c.padStart(2,'0')}`;} // YYYY-MM-DD
+      else if(parseInt(a)<=31&&parseInt(b)<=12){parsedDate=`${c.length===2?'20'+c:c}-${b.padStart(2,'0')}-${a.padStart(2,'0')}`;} // DD/MM/YYYY
+    }
+    if(!parsedDate)continue;
+    // amount
+    let amt=0,type='expense';
+    if(debitCol>=0&&creditCol>=0){
+      const d=parseFloat((cols[debitCol]||'').replace(/,/g,''))||0;
+      const cr=parseFloat((cols[creditCol]||'').replace(/,/g,''))||0;
+      if(d>0){amt=d;type='expense';}
+      else if(cr>0){amt=cr;type='income';}
+    } else {
+      amt=Math.abs(parseFloat((cols[amtCol>=0?amtCol:cols.length-1]||'').replace(/,/g,''))||0);
+      type='expense';
+    }
+    if(!amt)continue;
+    const desc=descCol>=0?(cols[descCol]||''):'';
+    // auto-categorise
+    const dl=desc.toLowerCase();
+    let cat='Other';
+    const cm={Food:['swiggy','zomato','food','restaurant','cafe','chai','lunch','dinner'],Transport:['uber','ola','rapido','auto','petrol','fuel','metro','irctc','flight'],Shopping:['amazon','flipkart','myntra','ajio'],Groceries:['bigbasket','zepto','blinkit','grofers','dmart','grocery'],Entertainment:['netflix','hotstar','spotify','prime','movie'],Health:['pharmacy','apollo','hospital','doctor','medicine'],Utilities:['electricity','airtel','jio','bsnl','recharge','broadband'],Investment:['sip','mutual fund','mf','nse','bse'],Rent:['rent','pg']};
+    for(const[c,kws]of Object.entries(cm)){if(kws.some(k=>dl.includes(k))){cat=c;break;}}
+    rows.push({date:parsedDate,desc,amt,type,cat,sel:true});
+  }
+  _stmtRows=rows;
+  renderStmtPreview();
+}
+function renderStmtPreview(){
+  const wrap=document.getElementById('stmtPreview');const imp=document.getElementById('stmtImportWrap');
+  if(!_stmtRows.length){wrap.innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">No valid rows found. Check that date and amount columns are present.</div>';imp.style.display='none';return;}
+  const cats=[...new Set(DAILY_EXPENSES.map(e=>e.cat)),'Food','Transport','Shopping','Groceries','Entertainment','Health','Utilities','Investment','Rent','Other','Income'].filter(Boolean);
+  let html=`<div style="font-size:10.5px;color:var(--muted);margin-bottom:6px">${_stmtRows.length} row${_stmtRows.length!==1?'s':''} found. Uncheck rows to skip.</div>`;
+  html+='<div class="stmt-preview-row"><span>Date</span><span>Description</span><span>Amount</span><span>Category</span></div>';
+  _stmtRows.forEach((r,i)=>{
+    const catOpts=cats.map(c=>`<option value="${esc(c)}" ${c===r.cat?'selected':''}>${esc(c)}</option>`).join('');
+    html+=`<div class="stmt-preview-row"><span><input type="checkbox" ${r.sel?'checked':''} onchange="_stmtRows[${i}].sel=this.checked" style="margin-right:4px">${r.date}</span><span style="font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.desc)}">${esc(r.desc.slice(0,40))}</span><span style="color:${r.type==='income'?'var(--surplus)':'var(--deficit)'};font-weight:600">${r.type==='income'?'+':'-'}${fmt(r.amt)}</span><span><select class="stmt-cat-sel" onchange="_stmtRows[${i}].cat=this.value">${catOpts}</select></span></div>`;
+  });
+  wrap.innerHTML=html;
+  imp.style.display='block';
+}
+function importStatement(){
+  const toImport=_stmtRows.filter(r=>r.sel&&r.amt>0);
+  if(!toImport.length){showToast('Nothing selected','Check at least one row to import');return;}
+  toImport.forEach(r=>{DAILY_EXPENSES.push({id:uid(),cat:r.cat,desc:r.desc,amt:String(r.amt),note:'imported',date:r.date,bank:null,type:r.type,created:Date.now()});});
+  saveDaily();closeStmtModal();
+  showUndoToast(toImport.length+' entries imported','From bank statement',()=>{
+    const ids=new Set(toImport.map(r=>r.date+r.amt+r.desc));
+    DAILY_EXPENSES=DAILY_EXPENSES.filter(e=>!ids.has(e.date+e.amt+e.desc));
+    saveDaily();if(typeof renderDailyView==='function')renderDailyView();renderDashBar();
+  });
+  if(typeof renderDailyView==='function')renderDailyView();
+  renderDashBar();
+}
+
+// ══ INIT HOOKS ══════════════════════════════════════════════
+// Compact toggle state sync in loadSettingsUI
+const _origLoadSettings=window.loadSettingsUI;
+window.loadSettingsUI=function(){
+  if(typeof _origLoadSettings==='function')_origLoadSettings();
+  _setTrackState('settCompactTrack','settCompactKnob',localStorage.getItem('flow_compact')==='1');
+  const bioBtn=document.getElementById('settBioBtn');
+  if(bioBtn)bioBtn.textContent=localStorage.getItem('flow_bio')==='1'?'Enabled ✓':'Set Up';
+};
+// Render dashboard bar on init
+setTimeout(renderDashBar,600);
+// Hide FAB on home screen, show once in app
+(function(){
+  const fab=document.getElementById('flowFAB');if(!fab)return;
+  if(localStorage.getItem('flow_visited')){fab.classList.remove('hidden');}
+  else{fab.classList.add('hidden');}
+  const origEnter=window.enterApp;
+  window.enterApp=function(){if(typeof origEnter==='function')origEnter();const f=document.getElementById('flowFAB');if(f)f.classList.remove('hidden');renderDashBar();};
+})();
+
 // Pre-load MF schemes silently in background after 2s
 setTimeout(loadAllSchemes, 2000);
 
 // ── What's New auto-show on new version ─────────────────
-const FLOW_CURRENT_VER='2.6';
+const FLOW_CURRENT_VER='2.7';
 (function(){
   const lastSeen=localStorage.getItem('flow_last_ver');
   if(lastSeen!==FLOW_CURRENT_VER){
     setTimeout(()=>{
       if(localStorage.getItem('flow_visited')){
-        showToast('✦ Flow v2.6 is here','Daily Income, Custom Bank & more bug fixes — tap to see what\'s new',6000);
+        showToast('✦ Flow v2.7 is here','FAB, Smart Dashboard, NL Entry, Undo, Biometric & more',6000);
       }
       localStorage.setItem('flow_last_ver',FLOW_CURRENT_VER);
     },2500);
@@ -9773,7 +10344,83 @@ const FLOW_CURRENT_VER='2.6';
 })();
 </script>
 
-<!-- ── Service Worker Registration ───────────────────── -->
+<!-- ══ FLOATING ACTION BUTTON ═══════════════════════════ -->
+<button id="flowFAB" onclick="openFAB()" title="Quick add" aria-label="Quick add expense or income">+</button>
+
+<!-- ══ FAB BOTTOM SHEET ══════════════════════════════════ -->
+<div class="fab-sheet" id="fabSheet">
+  <div class="fab-sheet-bg" id="fabBg" onclick="closeFAB()"></div>
+  <div class="fab-sheet-body" id="fabBody">
+    <div class="fab-sheet-handle"></div>
+    <div class="fab-sheet-hd">Quick Add</div>
+    <!-- Natural Language Row -->
+    <div style="margin-bottom:6px">
+      <div class="fab-nl-row">
+        <input type="text" id="fabNL" placeholder="e.g. paid 250 chai swiggy" autocomplete="off" oninput="parseNL(this.value)" onkeydown="if(event.key==='Enter')commitNL()">
+        <button class="btn-ghost btn-sm" onclick="commitNL()" style="padding:9px 14px;font-size:12px;white-space:nowrap">&#8617; Add</button>
+      </div>
+      <div class="nl-preview" id="nlPreview"></div>
+      <div class="fab-nl-hint">Type amount + category + description &mdash; Flow will parse it. Or fill the form below.</div>
+    </div>
+    <!-- Type selector -->
+    <div class="fab-type-row">
+      <button class="fab-type-btn sel-exp" id="fabTypeExp" onclick="setFABType('expense')">&#8722; Expense</button>
+      <button class="fab-type-btn" id="fabTypeInc" onclick="setFABType('income')">&#43; Income</button>
+      <button class="fab-type-btn" id="fabTypeBill" onclick="setFABType('bill')">&#x1F514; Pay Bill</button>
+    </div>
+    <!-- Expense / Income fields -->
+    <div id="fabExpIncFields">
+      <div class="fab-fields">
+        <div class="fab-field">
+          <div class="fab-lbl">Category</div>
+          <input type="text" id="fabCat" placeholder="e.g. Food" autocomplete="off" onfocus="showCatDrop(this)" oninput="showCatDrop(this)" onkeydown="catDropKey(event)" data-t="expense" data-i="-3" data-f="cat">
+        </div>
+        <div class="fab-field">
+          <div class="fab-lbl">Amount (&#8377;)</div>
+          <input type="number" id="fabAmt" placeholder="0" inputmode="numeric" onkeydown="if(event.key==='Enter')submitFAB()">
+        </div>
+      </div>
+      <div class="fab-field" style="margin-bottom:10px">
+        <div class="fab-lbl">Description</div>
+        <input type="text" id="fabDesc" placeholder="What was this?" autocomplete="off">
+      </div>
+      <div class="fab-field" style="margin-bottom:12px">
+        <div class="fab-lbl">Date</div>
+        <input type="date" id="fabDate">
+      </div>
+    </div>
+    <!-- Bill quick-pay (shown when type=bill) -->
+    <div id="fabBillFields" style="display:none;margin-bottom:12px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Select a bill to mark as paid this month:</div>
+      <div id="fabBillList"></div>
+    </div>
+    <button class="fab-add-btn" id="fabAddBtn" onclick="submitFAB()">&#8722; Add Expense</button>
+  </div>
+</div>
+
+<!-- ══ STATEMENT IMPORT MODAL ════════════════════════════ -->
+<div id="stmtModal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center">
+  <div style="background:var(--surface);border-radius:14px 14px 0 0;padding:20px 16px 28px;width:100%;max-width:600px;max-height:85vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:600">Import Bank Statement</div>
+      <button class="btn-del" onclick="closeStmtModal()">&#x2715;</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.6">Paste CSV text from your bank statement, or drop a <strong>.csv</strong> file. Columns detected automatically — supports HDFC, ICICI, SBI, Axis, Kotak formats.</div>
+    <div class="stmt-drop" id="stmtDrop" onclick="document.getElementById('stmtFileInp').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleStmtDrop(event)">
+      <div class="stmt-drop-icon">&#128196;</div>
+      Drop .csv file here or tap to browse<br>
+      <span style="font-size:10px;opacity:.7">Or paste CSV text in the box below</span>
+    </div>
+    <input type="file" id="stmtFileInp" accept=".csv,text/csv" style="display:none" onchange="handleStmtFile(this)">
+    <textarea id="stmtPaste" placeholder="Paste CSV rows here..." style="width:100%;height:90px;margin-top:10px;font-size:11px;resize:vertical" oninput="parseStmtCSV(this.value)"></textarea>
+    <div id="stmtPreview" style="margin-top:10px;max-height:240px;overflow-y:auto"></div>
+    <div id="stmtImportWrap" style="display:none">
+      <button class="stmt-import-btn" onclick="importStatement()">Import Selected Entries</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SERVICE WORKER REGISTRATION ───────────────────── -->
 <script>
 (function(){
   if(!('serviceWorker' in navigator)) return;
