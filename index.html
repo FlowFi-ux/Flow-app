@@ -1476,8 +1476,17 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .fab-add-btn:active{opacity:.8}
 
 /* ══ SMART DASHBOARD (in-app header bar) ════════════════════ */
-.dash-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-shrink:0}
+.dash-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-shrink:0;transition:padding .22s,height .22s}
 .dash-bar::-webkit-scrollbar{display:none}
+.dash-bar.minimized{padding:0;height:0;overflow:hidden;border-bottom:none}
+.dash-bar-toggle{flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0 4px;cursor:pointer;background:none;border:none;color:var(--faint);font-size:14px;align-self:stretch;-webkit-tap-highlight-color:transparent;transition:color .12s}
+.dash-bar-toggle:hover{color:var(--muted)}
+.dash-minimized-pill{display:none;align-items:center;gap:6px;padding:4px 12px;background:var(--surface);border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .12s}
+.dash-minimized-pill:hover{background:var(--surface-alt)}
+.dash-minimized-pill.show{display:flex}
+.dash-minimized-dot{width:6px;height:6px;border-radius:50%;background:var(--surplus);flex-shrink:0}
+.dash-minimized-dot.warn{background:var(--amber)}
+.dash-minimized-dot.bad{background:var(--deficit)}
 .dash-chip{flex-shrink:0;display:flex;flex-direction:column;gap:2px;padding:8px 13px;background:var(--surface-alt);border:1px solid var(--border);border-radius:8px;min-width:90px;cursor:default}
 .dash-chip-lbl{font-size:8.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);font-weight:500;white-space:nowrap}
 .dash-chip-val{font-size:14px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -1931,6 +1940,11 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 </nav>
 <!-- ══ SMART DASHBOARD BAR ══════════════════════════════════ -->
 <div class="dash-bar" id="dashBar" style="display:none"></div>
+<div class="dash-minimized-pill" id="dashMinPill" onclick="toggleDashBar(false)">
+  <div class="dash-minimized-dot" id="dashMinDot"></div>
+  <span id="dashMinText">Dashboard</span>
+  <span style="margin-left:auto;font-size:9px;letter-spacing:.4px;opacity:.6">TAP TO EXPAND &#x25BE;</span>
+</div>
 
 <!-- ══ BOTTOM NAV (mobile) ══════════════════════════════════ -->
 <nav class="bottom-nav" id="bottomNav">
@@ -3593,7 +3607,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     </div>
     <div class="settings-row">
       <div class="settings-row-left"><div class="settings-row-label">Biometric Unlock</div><div class="settings-row-desc">Use fingerprint or Face ID in place of PIN</div></div>
-      <div class="settings-row-right"><button class="btn-ghost btn-sm" onclick="setupBiometric()" style="font-size:11px" id="settBioBtn">Set Up</button></div>
+      <div class="settings-row-right"><button class="btn-ghost btn-sm" onclick="localStorage.getItem('flow_bio')==='1'?disableBiometric():setupBiometric()" style="font-size:11px" id="settBioBtn">Set Up</button></div>
     </div>
   </div>
 
@@ -9870,29 +9884,40 @@ setTimeout(function(){
 },800);
 
 // ══ SMART DASHBOARD BAR ════════════════════════════════════
+function _isDashMin(){return localStorage.getItem('flow_dash_min')==='1';}
+function toggleDashBar(minimize){
+  const bar=document.getElementById('dashBar');
+  const pill=document.getElementById('dashMinPill');
+  const doMin=minimize===undefined?!_isDashMin():minimize;
+  localStorage.setItem('flow_dash_min',doMin?'1':'0');
+  if(bar){bar.style.display=doMin?'none':'flex';}
+  if(pill)pill.classList.toggle('show',doMin);
+}
 function renderDashBar(){
   const bar=document.getElementById('dashBar');if(!bar)return;
   const {year:cy,month:cm,date:cd}=_istParts();
-  // today's spend from daily
   const todayKey=_localDateStr();
   const todaySpend=DAILY_EXPENSES.filter(e=>e.date===todayKey&&(e.type||'expense')==='expense').reduce((s,e)=>s+(parseFloat(e.amt)||0),0);
-  // this month income/expense from DB
   const md=DB[`${cm}_${cy}`]||{income:[],expense:[]};
   const mInc=md.income.reduce((s,x)=>s+(parseFloat(x.amt)||0),0);
   const mExp=md.expense.reduce((s,x)=>s+(parseFloat(x.amt)||0),0);
-  // add daily entries for month
   let dInc=0,dExp=0;
   DAILY_EXPENSES.forEach(e=>{if(!e.date)return;const d=new Date(e.date);if(isNaN(d)||d.getFullYear()!==cy||d.getMonth()!==cm)return;const a=parseFloat(e.amt)||0;if((e.type||'expense')==='income')dInc+=a;else dExp+=a;});
   const totalInc=mInc+dInc,totalExp=mExp+dExp;
   const sr=totalInc>0?((totalInc-totalExp)/totalInc*100):0;
-  // next bill due
   const {month:m,year:y}=_istParts();
   const unpaid=BILLS.filter(b=>{const mk=m+'_'+y;return!(b.paidMonths&&b.paidMonths.includes(mk));}).sort((a,b)=>a.dueDay-b.dueDay);
   const nextBill=unpaid[0];
   const daysLeft=nextBill?nextBill.dueDay-cd:null;
-  // forecast
   const daysInMonth=new Date(cy,cm+1,0).getDate();
   const pace=cd>0?(totalExp/cd)*daysInMonth:0;
+  // update minimized pill
+  const pill=document.getElementById('dashMinPill');
+  const dot=document.getElementById('dashMinDot');
+  const txt=document.getElementById('dashMinText');
+  const dotCls=sr<0?'bad':sr<10?'warn':'';
+  if(dot)dot.className='dash-minimized-dot'+(dotCls?' '+dotCls:'');
+  if(txt)txt.textContent=fmt(todaySpend)+' today · '+(totalInc>0?sr.toFixed(0)+'% saved':'no income')+(nextBill&&daysLeft<=3?' · Bill due':'');
   bar.innerHTML=`
     <div class="dash-chip">
       <div class="dash-chip-lbl">Today</div>
@@ -9919,8 +9944,11 @@ function renderDashBar(){
       <div class="dash-chip-val ${pace>totalInc&&totalInc>0?'bad':''}">${fmt(pace)}</div>
       <div class="dash-chip-sub">on current pace</div>
     </div>
+    <button class="dash-bar-toggle" onclick="toggleDashBar(true)" title="Minimise dashboard" style="padding:0 8px;font-size:16px;opacity:.55">&#x2715;</button>
   `;
-  bar.style.display='flex';
+  const isMin=_isDashMin();
+  bar.style.display=isMin?'none':'flex';
+  if(pill)pill.classList.toggle('show',isMin);
 }
 // hook renderDashBar into render() flow
 const _origRender=typeof render==='function'?render:null;
@@ -10103,29 +10131,81 @@ function _applyCompact(){
 _applyCompact();
 
 // ══ BIOMETRIC LOCK ══════════════════════════════════════════
+// ══ BIOMETRIC — WebAuthn platform authenticator ════════════
+// Utility: base64url → ArrayBuffer (correct, no corruption)
+function _b64uToAB(b64u){
+  const b64=b64u.replace(/-/g,'+').replace(/_/g,'/');
+  const pad=b64.length%4?'='.repeat(4-b64.length%4):'';
+  const bin=atob(b64+pad);
+  const buf=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++)buf[i]=bin.charCodeAt(i);
+  return buf.buffer;
+}
+// Utility: ArrayBuffer → base64url
+function _abToB64u(buf){
+  const bytes=new Uint8Array(buf);
+  let bin='';bytes.forEach(b=>bin+=String.fromCharCode(b));
+  return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+}
+// Safe rpId — WebAuthn requires a valid eTLD+1; file:// has none
+function _bioRpId(){
+  const h=location.hostname;
+  return (h&&h!=='localhost'&&h!=='127.0.0.1')?h:undefined;
+}
 async function setupBiometric(){
-  if(!window.PublicKeyCredential){showToast('Not supported','Your browser or device does not support biometric authentication');return;}
+  if(!window.PublicKeyCredential){showToast('Not supported','Your browser does not support WebAuthn / biometric auth');return;}
   const hasPIN=!!localStorage.getItem('flow_pin');
-  if(!hasPIN){showToast('Set a PIN first','Biometric unlock requires a PIN to be set first');return;}
+  if(!hasPIN){showToast('Set a PIN first','Biometric unlock needs a PIN set first — use the Lock button in the header');return;}
   try{
     const supported=await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-    if(!supported){showToast('Not available','No biometric sensor found on this device');return;}
+    if(!supported){showToast('No biometric sensor','This device has no fingerprint or Face ID sensor');return;}
     const challenge=new Uint8Array(32);crypto.getRandomValues(challenge);
-    const cred=await navigator.credentials.create({publicKey:{challenge,rp:{name:'Flow Finance',id:location.hostname||'localhost'},user:{id:new Uint8Array(16),name:'flow_user',displayName:'Flow User'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required'},timeout:60000}});
-    if(cred){localStorage.setItem('flow_bio_id',cred.id);localStorage.setItem('flow_bio','1');const btn=document.getElementById('settBioBtn');if(btn)btn.textContent='Enabled ✓';showToast('Biometric enabled','Fingerprint / Face ID will unlock Flow');}
+    // userId must be stable — derive from a stored seed, not random
+    let userSeed=localStorage.getItem('flow_bio_user_seed');
+    if(!userSeed){userSeed=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');localStorage.setItem('flow_bio_user_seed',userSeed);}
+    const userId=new TextEncoder().encode(userSeed);
+    const rpId=_bioRpId();
+    const createOpts={publicKey:{challenge,rp:{name:'Flow Finance',...(rpId?{id:rpId}:{})},user:{id:userId,name:'flow_user',displayName:'Flow User'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'preferred'},timeout:60000,excludeCredentials:[]}};
+    // if already registered, include it so device can re-use same key
+    const existingId=localStorage.getItem('flow_bio_cred_id');
+    if(existingId){try{createOpts.publicKey.excludeCredentials=[{type:'public-key',id:_b64uToAB(existingId)}];}catch(e){}}
+    const cred=await navigator.credentials.create(createOpts);
+    if(cred){
+      // Store credential ID as base64url — the ONLY thing we need to verify later
+      const credIdB64u=_abToB64u(cred.rawId);
+      localStorage.setItem('flow_bio_cred_id',credIdB64u);
+      localStorage.setItem('flow_bio','1');
+      // Clear old broken key if present
+      localStorage.removeItem('flow_bio_id');
+      const btn=document.getElementById('settBioBtn');if(btn)btn.textContent='Enabled ✓';
+      showToast('Biometric enabled','Use fingerprint / Face ID to unlock Flow next time');
+    }
   }catch(e){
-    if(e.name==='NotAllowedError')showToast('Cancelled','Biometric setup was cancelled');
-    else showToast('Error',e.message||'Biometric setup failed');
+    if(e.name==='NotAllowedError')showToast('Cancelled','Biometric setup was cancelled — try again');
+    else if(e.name==='InvalidStateError')showToast('Already registered','This device credential already exists — biometric is active');
+    else showToast('Setup failed',e.message||e.name||'Unknown error');
   }
 }
 async function tryBiometricUnlock(){
   if(localStorage.getItem('flow_bio')!=='1')return false;
-  const credId=localStorage.getItem('flow_bio_id');if(!credId)return false;
+  const credIdB64u=localStorage.getItem('flow_bio_cred_id')||localStorage.getItem('flow_bio_id');
+  if(!credIdB64u)return false;
   try{
     const challenge=new Uint8Array(32);crypto.getRandomValues(challenge);
-    const assertion=await navigator.credentials.get({publicKey:{challenge,rpId:location.hostname||'localhost',allowCredentials:[{type:'public-key',id:Uint8Array.from(atob(credId.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0))}],userVerification:'required',timeout:60000}});
+    const rpId=_bioRpId();
+    const getOpts={publicKey:{challenge,...(rpId?{rpId}:{}),allowCredentials:[{type:'public-key',id:_b64uToAB(credIdB64u)}],userVerification:'required',timeout:60000}};
+    const assertion=await navigator.credentials.get(getOpts);
     return !!assertion;
-  }catch(e){return false;}
+  }catch(e){
+    // NotAllowedError = user cancelled or sensor failed — not a credential mismatch
+    console.warn('[Flow Bio]',e.name,e.message);
+    return false;
+  }
+}
+function disableBiometric(){
+  localStorage.removeItem('flow_bio');localStorage.removeItem('flow_bio_cred_id');localStorage.removeItem('flow_bio_id');
+  const btn=document.getElementById('settBioBtn');if(btn)btn.textContent='Set Up';
+  showToast('Biometric removed','Set it up again from Settings → Security');
 }
 
 // Hook biometric into lock screen — add button if bio enabled
@@ -10313,7 +10393,7 @@ window.loadSettingsUI=function(){
   if(typeof _origLoadSettings==='function')_origLoadSettings();
   _setTrackState('settCompactTrack','settCompactKnob',localStorage.getItem('flow_compact')==='1');
   const bioBtn=document.getElementById('settBioBtn');
-  if(bioBtn)bioBtn.textContent=localStorage.getItem('flow_bio')==='1'?'Enabled ✓':'Set Up';
+  if(bioBtn){const _bon=localStorage.getItem('flow_bio')==='1';bioBtn.textContent=_bon?'Enabled — tap to remove':'Set Up';bioBtn.style.color=_bon?'var(--surplus)':'';};
 };
 // Render dashboard bar on init
 setTimeout(renderDashBar,600);
@@ -10330,13 +10410,13 @@ setTimeout(renderDashBar,600);
 setTimeout(loadAllSchemes, 2000);
 
 // ── What's New auto-show on new version ─────────────────
-const FLOW_CURRENT_VER='2.7';
+const FLOW_CURRENT_VER='2.7.1';
 (function(){
   const lastSeen=localStorage.getItem('flow_last_ver');
   if(lastSeen!==FLOW_CURRENT_VER){
     setTimeout(()=>{
       if(localStorage.getItem('flow_visited')){
-        showToast('✦ Flow v2.7 is here','FAB, Smart Dashboard, NL Entry, Undo, Biometric & more',6000);
+        showToast('✦ Flow v2.7.1','Dashboard minimize + Biometric fix',4000);
       }
       localStorage.setItem('flow_last_ver',FLOW_CURRENT_VER);
     },2500);
