@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<!-- ── Content Security Policy ────────────────────────── -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.mfapi.in; img-src 'self' data: blob:; worker-src 'self'; manifest-src 'self'; frame-ancestors 'none';">
 <title>Flow — Personal Finance</title>
 
 <!-- ── PWA Install & App Meta ─────────────────────────── -->
@@ -1540,6 +1542,31 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .stmt-preview-row:first-child{font-weight:600;color:var(--muted);font-size:9.5px;text-transform:uppercase;letter-spacing:.5px}
 .stmt-cat-sel{font-size:10.5px;padding:3px 6px;max-width:100%;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'IBM Plex Mono',monospace}
 .stmt-import-btn{width:100%;margin-top:12px;padding:10px;background:var(--text);color:var(--bg);border:none;border-radius:var(--r);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;cursor:pointer;letter-spacing:.2px}
+/* ══ LEGAL MODALS ═══════════════════════════════════════════ */
+.legal-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.legal-modal.open{display:flex}
+.legal-box{background:var(--surface);border-radius:12px;max-width:660px;width:100%;margin:16px auto;box-shadow:0 12px 40px rgba(0,0,0,.28);display:flex;flex-direction:column;max-height:calc(100dvh - 40px)}
+.legal-hd{display:flex;align-items:flex-start;justify-content:space-between;padding:18px 20px 14px;border-bottom:1px solid var(--border);flex-shrink:0;gap:12px}
+.legal-hd-inner{display:flex;flex-direction:column;gap:3px}
+.legal-hd-badge{font-size:9px;text-transform:uppercase;letter-spacing:1.1px;font-weight:600;padding:2px 8px;border-radius:8px;background:var(--surface-alt);color:var(--muted);border:1px solid var(--border);align-self:flex-start;margin-bottom:3px}
+.legal-hd-title{font-size:14.5px;font-weight:600;color:var(--text);letter-spacing:.1px;line-height:1.2}
+.legal-hd-sub{font-size:10px;color:var(--faint);margin-top:2px}
+.legal-body{overflow-y:auto;padding:20px;flex:1;font-size:12px;line-height:1.78;color:var(--text)}
+.legal-body h2{font-size:9.5px;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;color:var(--muted);margin:24px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.legal-body h2:first-child{margin-top:0}
+.legal-body p{margin:0 0 11px;color:var(--text);opacity:.9}
+.legal-body ul{margin:0 0 11px;padding-left:20px}
+.legal-body li{margin-bottom:6px;opacity:.9}
+.legal-body strong{font-weight:600;color:var(--text);opacity:1}
+.legal-callout{background:var(--surface-alt);border:1px solid var(--border);border-left:3px solid var(--surplus);border-radius:7px;padding:11px 14px;margin:14px 0;font-size:11.5px;line-height:1.65;color:var(--text)}
+.legal-callout.warn{border-left-color:var(--amber)}
+.legal-callout.info{border-left-color:#60a5fa}
+.legal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;flex-wrap:wrap;background:var(--surface-alt);border-radius:0 0 12px 12px}
+.legal-foot-note{font-size:10px;color:var(--faint);flex:1;align-self:center;line-height:1.4}
+/* ── In-app disclaimer ──────────────────────────────────── */
+.disclaimer-strip{display:flex;align-items:flex-start;gap:9px;padding:9px 13px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:7px;font-size:11px;line-height:1.55;color:var(--muted);margin:10px 0 4px}
+.disclaimer-strip-ico{font-size:13px;flex-shrink:0;line-height:1.4;opacity:.9}
+.disclaimer-strip a{color:var(--muted);text-decoration:underline;cursor:pointer}
 </style>
 </head>
 <body>
@@ -1580,6 +1607,203 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 </div>
 
 <!-- ── Toast Stack ────────────────────────────────────── -->
+<!-- ══ PRIVACY POLICY MODAL ══════════════════════════════════ -->
+<div id="privacyModal" class="legal-modal" onclick="if(event.target===this)closeLegal('privacyModal')">
+  <div class="legal-box">
+    <div class="legal-hd">
+      <div class="legal-hd-inner">
+        <div class="legal-hd-badge">&#x1F512; Legal Document</div>
+        <div class="legal-hd-title">Privacy Policy</div>
+        <div class="legal-hd-sub">Flow &mdash; Personal Finance Tracker &nbsp;&middot;&nbsp; Effective: June 2026 &nbsp;&middot;&nbsp; Version 1.0</div>
+      </div>
+      <button class="btn-del" onclick="closeLegal('privacyModal')" style="flex-shrink:0">&#x2715;</button>
+    </div>
+    <div class="legal-body">
+
+      <div class="legal-callout">
+        <strong>&#x2714; The short version:</strong> Flow stores everything on <em>your device only</em> — financial data in your browser&rsquo;s localStorage, receipt photos in IndexedDB. We have no server, no database, no account system, and <strong>no way to see your data</strong>. Nothing you enter is ever transmitted to us.
+      </div>
+
+      <h2>1. Who We Are</h2>
+      <p>Flow is a personal finance tracker built as a Progressive Web App (PWA). It is developed and maintained independently. For privacy-related queries, contact: <strong>flowfinance.official@gmail.com</strong></p>
+
+      <h2>2. What Data Flow Collects</h2>
+      <p>Flow processes the following categories of personal and financial data that <strong>you voluntarily enter</strong>:</p>
+      <ul>
+        <li>Income, expenses, and daily spending entries</li>
+        <li>Bank account names and balances (no account numbers, no credentials)</li>
+        <li>Bill names, amounts, and due dates</li>
+        <li>Investment and mutual fund details (names, amounts, SIP values)</li>
+        <li>Loan details (amount, EMI, interest rate)</li>
+        <li>Personal goals, budget limits, and notes</li>
+        <li>Display name and app preferences (theme, currency, language)</li>
+        <li>Optional: PIN lock (stored as a SHA-256 hash in browser localStorage — the actual PIN digits are never stored, only a one-way fingerprint of them)</li>
+      </ul>
+      <p><strong>Flow does not collect</strong>: bank account numbers, card numbers, passwords, Aadhaar, PAN, government IDs, location data, contacts, camera access, biometric templates, or device identifiers.</p>
+
+      <h2>3. Where Your Data Is Stored</h2>
+      <div class="legal-callout">
+        <strong>All data is stored exclusively in your browser&rsquo;s local storage</strong> on your own device — specifically <strong>localStorage</strong> for all financial data and <strong>IndexedDB</strong> for receipt photos and PDF attachments. Both are browser-native storage mechanisms that keep data entirely on your device. Flow has no backend, no cloud sync, and no server storage. <strong>We physically cannot access your data — not now, not ever.</strong>
+      </div>
+      <p>If you clear your browser data, uninstall the app, or switch devices, your Flow data will be deleted or lost permanently — this includes both financial entries (localStorage) and receipt attachments (IndexedDB). We recommend using the built-in <strong>Backup</strong> feature (Settings &rarr; Data &amp; Backup) regularly.</p>
+      <div class="legal-callout warn">
+        <strong>&#9888; Receipt photos and PDF attachments are not included in backups.</strong> The JSON backup file exported from Settings covers all your financial data — expenses, bills, investments, accounts, notes, goals and budgets. However, receipt photos and PDF attachments stored in IndexedDB cannot be exported and are <strong>not backed up</strong>. If you clear browser data or switch devices, receipt attachments will be permanently lost. Save important receipts to your phone&rsquo;s own gallery or files app separately.
+      </div>
+
+      <h2>4. Third-Party Services &amp; Bank Names</h2>
+      <p><strong>Bank name disclaimer:</strong> Flow allows users to label their own accounts using names of Indian banks (e.g. HDFC Bank, ICICI Bank, SBI, Axis Bank, Kotak Mahindra Bank and others). These names are used purely as <em>user-selected labels</em> to identify personal accounts. <strong>Flow is not affiliated with, endorsed by, sponsored by, or connected to any bank listed in the app.</strong> Bank names are used solely so users can identify which bank an account belongs to — the same way someone might write a bank&rsquo;s name on a notebook tab. No bank data, credentials, or account numbers are collected.</p>
+      <p>Flow makes the following outbound network requests:</p>
+      <ul>
+        <li><strong>api.mfapi.in</strong> &mdash; Used to fetch publicly available mutual fund NAV (Net Asset Value) data. Only the fund scheme code is sent as part of the URL. No personal data is transmitted.</li>
+        <li><strong>cdnjs.cloudflare.com</strong> &mdash; Used to load Chart.js and jsPDF libraries. Standard CDN request; no personal data transmitted.</li>
+      </ul>
+      <p>These are the <em>only</em> external network calls Flow makes. There are no analytics trackers, no advertising SDKs, no crash reporting services, and no social media integrations.</p>
+
+      <h2>5. Biometric Authentication</h2>
+      <p>If you enable biometric unlock (fingerprint / Face ID), Flow uses the <strong>WebAuthn Web API</strong> built into your browser. Your biometric data (fingerprint or face scan) is processed entirely by your device&rsquo;s secure hardware (Trusted Execution Environment / Secure Enclave). Flow only stores a <em>credential ID</em> &mdash; a random reference string &mdash; in localStorage. Your actual biometric is never accessible to Flow.</p>
+
+      <h2>6. Compliance with Indian Law</h2>
+      <p>Flow is designed for use by Indian users and is built in compliance with:</p>
+      <ul>
+        <li><strong>Digital Personal Data Protection Act, 2023 (DPDPA)</strong> &mdash; As all data remains on your device, Flow does not transfer, process, or store personal data on any server, satisfying data localisation obligations.</li>
+        <li><strong>Information Technology Act, 2000</strong> &mdash; Flow does not collect sensitive personal data (as defined under IT Rules 2011) on any server.</li>
+      </ul>
+
+      <h2>7. Your Rights</h2>
+      <p>Since your data lives on your device, you have complete control:</p>
+      <ul>
+        <li><strong>Access:</strong> Open Flow and view all your data at any time</li>
+        <li><strong>Export:</strong> Settings &rarr; Data &amp; Backup &rarr; Export JSON or CSV</li>
+        <li><strong>Delete:</strong> Settings &rarr; Data &amp; Backup &rarr; Wipe All Data permanently deletes everything</li>
+        <li><strong>Correction:</strong> Edit or delete any entry directly in the app</li>
+      </ul>
+      <p>For any privacy questions or grievances, email <strong>flowfinance.official@gmail.com</strong>. We will respond within 30 days as required under DPDPA.</p>
+
+      <h2>8. Data Retention</h2>
+      <p>Flow retains no data on any server. Data on your device persists until you delete it, clear browser storage, or uninstall the app.</p>
+
+      <h2>9. Children</h2>
+      <p>Flow is intended for users aged 18 and above. If you are under 18, please use this app only with parental guidance. We do not knowingly process data of minors.</p>
+
+      <h2>10. Changes to This Policy</h2>
+      <p>If this policy is updated, the new version will be included in the app update. The &ldquo;What&rsquo;s New&rdquo; section will note any material changes. Continued use of Flow after an update constitutes acceptance of the revised policy.</p>
+
+      <h2>11. Contact</h2>
+      <p>Privacy Officer / Developer<br>
+      Email: <strong>flowfinance.official@gmail.com</strong><br>
+      Response time: Within 30 days</p>
+
+    </div>
+    <div class="legal-foot">
+      <div class="legal-foot-note">Effective June 2026 &middot; DPDPA 2023 compliant &middot; IT Act 2000</div>
+      <button class="btn-ghost btn-sm" onclick="closeLegal('privacyModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TERMS OF USE MODAL ════════════════════════════════════ -->
+<div id="touModal" class="legal-modal" onclick="if(event.target===this)closeLegal('touModal')">
+  <div class="legal-box">
+    <div class="legal-hd">
+      <div class="legal-hd-inner">
+        <div class="legal-hd-badge">&#x1F4CB; Legal Document</div>
+        <div class="legal-hd-title">Terms of Use</div>
+        <div class="legal-hd-sub">Flow &mdash; Personal Finance Tracker &nbsp;&middot;&nbsp; Effective: June 2026 &nbsp;&middot;&nbsp; Version 1.0</div>
+      </div>
+      <button class="btn-del" onclick="closeLegal('touModal')" style="flex-shrink:0">&#x2715;</button>
+    </div>
+    <div class="legal-body">
+
+      <div class="legal-callout warn">
+        <strong>&#9888; Important:</strong> Flow is a personal finance <em>tracking tool</em>, not a financial advisor, investment platform, or banking service. Nothing in this app constitutes financial, investment, tax, or legal advice. All financial decisions are your own.
+      </div>
+
+      <h2>1. Acceptance of Terms</h2>
+      <p>By accessing or using Flow (&ldquo;the App&rdquo;), you agree to be bound by these Terms of Use. If you do not agree, do not use the App. These terms are governed by the laws of India.</p>
+
+      <h2>2. Description of Service</h2>
+      <p>Flow is a free, offline-first personal finance tracker. It helps you:</p>
+      <ul>
+        <li>Record income and expenses</li>
+        <li>Track bills, subscriptions, and loans</li>
+        <li>Monitor investment and mutual fund portfolios</li>
+        <li>Set budgets and financial goals</li>
+        <li>View analytics of your own entered data</li>
+      </ul>
+      <p>Flow is provided &ldquo;as is&rdquo; at no charge. Features may change or be discontinued at any time.</p>
+
+      <h2>3. Not Financial Advice</h2>
+      <div class="legal-callout warn">
+        <strong>Flow does not provide financial advice.</strong> The calculations, projections, SIP estimates, EMI calculators, and analytics shown in Flow are based solely on data <em>you enter</em> and standard mathematical formulas. They are for personal reference only.<br><br>
+        <strong>Do not make investment, borrowing, insurance, or tax decisions based solely on Flow&rsquo;s output.</strong> Consult a SEBI-registered investment advisor, chartered accountant, or qualified financial planner for advice specific to your situation.
+      </div>
+      <p>Mutual fund NAV data is fetched from a public API (mfapi.in) and may be delayed or inaccurate. Always verify fund values with your fund house or AMFI before making decisions.</p>
+
+      <h2>4. No Warranty</h2>
+      <p>Flow is provided <strong>&ldquo;as is&rdquo; and &ldquo;as available&rdquo;</strong> without any warranty of any kind, express or implied, including but not limited to:</p>
+      <ul>
+        <li>Accuracy or completeness of calculations</li>
+        <li>Uninterrupted or error-free operation</li>
+        <li>Fitness for any particular financial purpose</li>
+        <li>Data preservation (localStorage can be cleared by the browser)</li>
+      </ul>
+
+      <h2>5. Limitation of Liability</h2>
+      <p>To the maximum extent permitted by applicable Indian law, the developer of Flow shall not be liable for:</p>
+      <ul>
+        <li>Any financial loss resulting from use of or reliance on Flow</li>
+        <li>Loss of data due to browser storage clearing, device failure, or app updates</li>
+        <li>Inaccurate calculations or data entry errors</li>
+        <li>Decisions made based on Flow&rsquo;s projections, analytics, or calculators</li>
+      </ul>
+      <p>Your use of Flow is entirely at your own risk.</p>
+
+      <h2>6. Acceptable Use</h2>
+      <p>You agree to use Flow only for lawful personal finance tracking. You must not:</p>
+      <ul>
+        <li>Use Flow to track finances for illegal activities</li>
+        <li>Attempt to reverse-engineer, modify, or redistribute the app for commercial gain without permission</li>
+        <li>Share the app in a way that misrepresents its purpose or capabilities</li>
+      </ul>
+
+      <h2>7. Data Responsibility</h2>
+      <p>All data you enter into Flow is your responsibility. Since Flow stores data only on your device:</p>
+      <ul>
+        <li>Back up your data regularly using Settings &rarr; Data &amp; Backup</li>
+        <li>The developer is not responsible for data loss from browser clearing, device damage, or OS updates</li>
+        <li>Do not enter bank passwords, card numbers, OTPs, or Aadhaar numbers into Flow</li>
+      </ul>
+
+      <h2>8. Intellectual Property</h2>
+      <p>Flow&rsquo;s design, code, and interface are the intellectual property of the developer. You may use Flow for personal, non-commercial purposes. You may share the app link freely. You may not copy, rebrand, or sell Flow or any part of it.</p>
+
+      <h2>9. Third-Party Services &amp; Bank Names</h2>
+      <p><strong>Bank name disclaimer:</strong> Flow displays names of Indian banks (HDFC Bank, ICICI Bank, SBI, Axis Bank, Kotak Mahindra Bank and others) as labels users can select to identify their own accounts. <strong>Flow is not affiliated with, endorsed by, or connected to any of these banks.</strong> These are proper names used purely for user identification — not a commercial association. No bank account credentials, account numbers, or banking data are ever collected or transmitted.</p>
+      <p>Flow uses the following third-party services:</p>
+      <ul>
+        <li><strong>mfapi.in</strong> &mdash; Public MF NAV API. Subject to their own terms.</li>
+        <li><strong>Cloudflare CDN</strong> &mdash; For library delivery. Subject to Cloudflare&rsquo;s terms.</li>
+      </ul>
+      <p>We are not responsible for the availability, accuracy, or terms of these third-party services.</p>
+
+      <h2>10. Governing Law &amp; Disputes</h2>
+      <p>These Terms are governed by the laws of India. Any disputes arising from the use of Flow shall be subject to the exclusive jurisdiction of courts in India. The Consumer Protection Act 2019 and IT Act 2000 apply where relevant.</p>
+
+      <h2>11. Changes to Terms</h2>
+      <p>These Terms may be updated with app updates. The revised Terms will be included in the app and noted in &ldquo;What&rsquo;s New.&rdquo; Continued use after an update constitutes acceptance.</p>
+
+      <h2>12. Contact</h2>
+      <p>For questions about these Terms:<br>
+      Email: <strong>flowfinance.official@gmail.com</strong></p>
+
+    </div>
+    <div class="legal-foot">
+      <div class="legal-foot-note">Governed by Indian law &middot; Consumer Protection Act 2019 &middot; IT Act 2000</div>
+      <button class="btn-ghost btn-sm" onclick="closeLegal('touModal')">Close</button>
+    </div>
+  </div>
+</div>
+
 <div id="toastStack"></div>
 
 <!-- ══ HOME SCREEN — Professional ════════════════════════════ -->
@@ -3714,6 +3938,13 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
         <span id="backupStatusLbl" style="font-size:9.5px;color:var(--faint)"></span>
       </div>
     </div>
+    <!-- Receipt backup warning -->
+    <div style="padding:0 16px 10px">
+      <div style="display:flex;align-items:flex-start;gap:8px;padding:9px 12px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.22);border-left:3px solid var(--amber);border-radius:6px;font-size:11px;line-height:1.6;color:var(--muted)">
+        <span style="font-size:13px;flex-shrink:0;opacity:.85">&#9888;</span>
+        <div><strong style="color:var(--text)">Receipt photos and PDF attachments are not included in backups.</strong> They are stored separately in your browser&rsquo;s IndexedDB and cannot be exported. If you clear browser data or switch devices, all receipt attachments will be permanently lost. Save important receipts to your phone&rsquo;s gallery or files app before clearing data.</div>
+      </div>
+    </div>
     <div class="settings-row">
       <div class="settings-row-left"><div class="settings-row-label">Restore from Backup</div><div class="settings-row-desc">Replace all data with a saved backup file</div></div>
       <div class="settings-row-right"><label class="btn-ghost btn-sm" style="font-size:11px;cursor:pointer;padding:5px 10px;border:1px solid var(--border);border-radius:var(--r)">&#x2191; Restore<input type="file" accept=".json" onchange="restoreData(this)" style="display:none"></label></div>
@@ -3743,22 +3974,38 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="settings-section-hdr">About</div>
     <div class="settings-row">
       <div class="settings-row-left"><div class="settings-row-label">App Version</div></div>
-      <div class="settings-row-right" style="font-size:12px;color:var(--muted)">Flow v2.6</div>
+      <div class="settings-row-right" style="font-size:12px;color:var(--muted)">Flow v2.7.1</div>
     </div>
     <div class="settings-row">
       <div class="settings-row-left"><div class="settings-row-label">What's New</div><div class="settings-row-desc">See latest features and changes</div></div>
       <div class="settings-row-right"><button class="btn-ghost btn-sm" onclick="switchTab('new',null)" style="font-size:11px">View &rarr;</button></div>
-    </div><div class="settings-row">
+    </div>
+    <div class="settings-row">
       <div class="settings-row-left"><div class="settings-row-label">Privacy</div><div class="settings-row-desc">All data stays on this device — nothing sent to any server</div></div>
       <div class="settings-row-right" style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:11px;color:var(--surplus)">🔒 Local only</span><span style="font-size:9.5px;color:var(--faint)" id="settStorageBytes">0 bytes sent to any server</span></div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Privacy Policy</div><div class="settings-row-desc">How your data is handled — DPDPA 2023 compliant</div></div>
+      <div class="settings-row-right"><button class="btn-ghost btn-sm" onclick="openLegal('privacyModal')" style="font-size:11px">Read &rarr;</button></div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left"><div class="settings-row-label">Terms of Use</div><div class="settings-row-desc">Rules, liability limits and disclaimers</div></div>
+      <div class="settings-row-right"><button class="btn-ghost btn-sm" onclick="openLegal('touModal')" style="font-size:11px">Read &rarr;</button></div>
     </div>
     <div class="settings-row">
       <div class="settings-row-left"><div class="settings-row-label">Install App</div><div class="settings-row-desc">Add to home screen for offline use</div></div>
       <div class="settings-row-right"><button class="btn-ghost btn-sm" onclick="openInstallModal()" style="font-size:11px">&#x2B07; Install</button></div>
     </div>
+    <!-- Step 4 — In-app financial disclaimer -->
+    <div style="padding:12px 16px 4px">
+      <div class="disclaimer-strip">
+        <div class="disclaimer-strip-ico">&#9888;</div>
+        <div><strong>Not financial advice.</strong> Flow is a personal finance tracker. Calculations, projections and analytics are based on data you enter and are for reference only. Consult a SEBI-registered advisor for investment decisions. <a onclick="openLegal('touModal')">Terms of Use</a> &nbsp;&middot;&nbsp; <a onclick="openLegal('privacyModal')">Privacy Policy</a></div>
+      </div>
+    </div>
   </div>
 
-  <div class="settings-version">Flow — Personal Finance</div>
+  <div class="settings-version">Flow — Personal Finance &nbsp;·&nbsp; Not financial advice</div>
 
 </div>
 </div>
@@ -3769,6 +4016,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   <div class="footer-inner">
     <span>Flow &nbsp;·&nbsp; <span id="fDate"></span></span>
     <span class="footer-privacy" id="footerPrivacy" title="All data lives only on this device. Nothing is sent to any server.">🔒 <span id="footerStorageInfo">All data on this device</span></span>
+    <span style="font-size:9.5px;color:var(--faint);opacity:.7"><a onclick="openLegal('privacyModal')" style="cursor:pointer;color:inherit;text-decoration:underline">Privacy</a> &nbsp;&middot;&nbsp; <a onclick="openLegal('touModal')" style="cursor:pointer;color:inherit;text-decoration:underline">Terms</a> &nbsp;&middot;&nbsp; Not financial advice</span>
   </div>
 </footer>
 
@@ -6299,7 +6547,26 @@ function pinKey(k){
   if(pinEntry.length===4||k==='enter'){
     if(pinEntry.length<4)return;
     const stored=localStorage.getItem('flow_pin');
-    if(pinEntry===stored){
+    // Support both hashed PINs (64-char hex) and legacy plain text PINs
+    const checkPin=(plain,storedVal)=>{
+      if(!storedVal)return Promise.resolve(false);
+      if(storedVal.length===64){
+        // Hashed — compare hash
+        return crypto.subtle.digest('SHA-256',new TextEncoder().encode(plain))
+          .then(buf=>{const h=Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');return h===storedVal;});
+      }
+      // Legacy plain text — migrate to hash on success
+      if(plain===storedVal){
+        crypto.subtle.digest('SHA-256',new TextEncoder().encode(plain)).then(buf=>{
+          const hash=Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+          localStorage.setItem('flow_pin',hash);
+        });
+        return Promise.resolve(true);
+      }
+      return Promise.resolve(false);
+    };
+    checkPin(pinEntry,stored).then(correct=>{
+    if(correct){
       // Correct PIN — unlock
       pinWrongAttempts=0;
       document.getElementById('lockScreen').classList.add('hidden');
@@ -6322,6 +6589,7 @@ function pinKey(k){
       }
       setTimeout(()=>{pinEntry='';updatePinDots('','pd');},800);
     }
+    }); // end checkPin.then
   }
 }
 function forgotPin(){
@@ -6392,10 +6660,14 @@ function setupPinKey(k){
       document.getElementById('pinSetupDesc').textContent='Confirm PIN — enter it once more.';
     } else {
       if(setupPinEntry===firstPin){
-        localStorage.setItem('flow_pin',setupPinEntry);
-        const el=document.getElementById('setupPinError');
-        if(el){el.textContent='PIN set! ✓';el.style.color='var(--surplus)';}
-        setTimeout(closePinSetup,800);
+        // Hash PIN with SHA-256 before storing — never store plain text
+        crypto.subtle.digest('SHA-256',new TextEncoder().encode(setupPinEntry)).then(buf=>{
+          const hash=Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+          localStorage.setItem('flow_pin',hash);
+          const el=document.getElementById('setupPinError');
+          if(el){el.textContent='PIN set! ✓';el.style.color='var(--surplus)';}
+          setTimeout(closePinSetup,800);
+        });
       } else {
         if(err)err.textContent='PINs do not match. Try again.';
         shakeDots('spd');
@@ -10748,17 +11020,43 @@ setTimeout(renderDashBar,600);
   window.enterApp=function(){if(typeof origEnter==='function')origEnter();const f=document.getElementById('flowFAB');if(f)f.classList.remove('hidden');renderDashBar();};
 })();
 
+// ══ LEGAL MODALS (Privacy Policy + Terms of Use) ════════════
+function openLegal(id){
+  const m=document.getElementById(id);
+  if(!m)return;
+  m.classList.add('open');
+  document.body.style.overflow='hidden';
+  // scroll body back to top each open
+  const body=m.querySelector('.legal-body');
+  if(body)body.scrollTop=0;
+}
+function closeLegal(id){
+  const m=document.getElementById(id);
+  if(!m)return;
+  m.classList.remove('open');
+  document.body.style.overflow='';
+}
+// close on Escape key
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    ['privacyModal','touModal'].forEach(id=>{
+      const m=document.getElementById(id);
+      if(m&&m.classList.contains('open'))closeLegal(id);
+    });
+  }
+});
+
 // Pre-load MF schemes silently in background after 2s
 setTimeout(loadAllSchemes, 2000);
 
 // ── What's New auto-show on new version ─────────────────
-const FLOW_CURRENT_VER='2.7.1';
+const FLOW_CURRENT_VER='2.7.6';
 (function(){
   const lastSeen=localStorage.getItem('flow_last_ver');
   if(lastSeen!==FLOW_CURRENT_VER){
     setTimeout(()=>{
       if(localStorage.getItem('flow_visited')){
-        showToast('✦ Flow v2.7.1','Dashboard minimize + Biometric fix',4000);
+        showToast('Flow v2.7.3','Privacy Policy &amp; Terms updated & Terms of Use added — Settings → About',5000);
       }
       localStorage.setItem('flow_last_ver',FLOW_CURRENT_VER);
     },2500);
