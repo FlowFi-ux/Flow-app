@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <!-- ── Content Security Policy ────────────────────────── -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.mfapi.in; img-src 'self' data: blob:; worker-src 'self'; manifest-src 'self'; frame-ancestors 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.mfapi.in; img-src 'self' data: blob:; worker-src 'self'; manifest-src 'self'; frame-ancestors 'none';">
 <title>Flow — Personal Finance</title>
 
 <!-- ── PWA Install & App Meta ─────────────────────────── -->
@@ -1655,7 +1655,8 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <p>Flow makes the following outbound network requests:</p>
       <ul>
         <li><strong>api.mfapi.in</strong> &mdash; Used to fetch publicly available mutual fund NAV (Net Asset Value) data. Only the fund scheme code is sent as part of the URL. No personal data is transmitted.</li>
-        <li><strong>cdnjs.cloudflare.com</strong> &mdash; Used to load Chart.js and jsPDF libraries. Standard CDN request; no personal data transmitted.</li>
+        <li><strong>cdn.jsdelivr.net</strong> &mdash; Used to load Chart.js (charting library). Standard CDN request; no personal data transmitted.</li>
+        <li><strong>cdnjs.cloudflare.com</strong> &mdash; Used to load jsPDF (PDF generation library). Standard CDN request; no personal data transmitted.</li>
       </ul>
       <p>These are the <em>only</em> external network calls Flow makes. There are no analytics trackers, no advertising SDKs, no crash reporting services, and no social media integrations.</p>
 
@@ -4846,6 +4847,7 @@ let budgetTimer=null;
 function scheduleCharts(){clearTimeout(chartTimer);chartTimer=setTimeout(updateCharts,220);clearTimeout(budgetTimer);budgetTimer=setTimeout(function(){renderBudgetManager();renderHeatmap();},300);}
 function chartColors(){return{text:dark?'#666':'#555',grid:dark?'#252525':'#ddd',income:dark?'rgba(74,222,128,.62)':'rgba(26,92,58,.52)',expense:dark?'rgba(248,113,113,.62)':'rgba(139,29,42,.52)',pie:dark?['rgba(248,113,113,.75)','rgba(251,191,36,.75)','rgba(167,139,250,.75)','rgba(96,165,250,.75)','rgba(52,211,153,.75)','rgba(251,146,60,.75)']:['rgba(139,29,42,.65)','rgba(160,110,20,.65)','rgba(90,80,140,.65)','rgba(40,75,140,.65)','rgba(25,95,65,.65)','rgba(140,70,25,.65)']}}
 function updateCharts(){
+  if(typeof Chart==='undefined'){console.warn('[Flow] Chart.js not yet loaded — skipping chart render');return;}
   const c=chartColors(),yr=selY();
   const base={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:c.text,font:{family:"'IBM Plex Mono'",size:10},boxWidth:10,padding:12}}}};
   const labels=MONTHS.map(m=>m.slice(0,3)),incArr=[],expArr=[];
@@ -6473,7 +6475,16 @@ function restoreData(input){
       dark=data.dark||false;
       localStorage.setItem('flow_v3',JSON.stringify(DB));localStorage.setItem('flow_bills',JSON.stringify(BILLS));localStorage.setItem('flow_invest',JSON.stringify(INVEST));
       localStorage.setItem('flow_loans',JSON.stringify(LOANS));localStorage.setItem('flow_splits',JSON.stringify(SPLITS));localStorage.setItem('flow_templates',JSON.stringify(TEMPLATES));localStorage.setItem('flow_emfund',JSON.stringify(EMFUND));localStorage.setItem('flow_subs',JSON.stringify(SUBS));localStorage.setItem('flow_insurance',JSON.stringify(INSURANCE));localStorage.setItem('flow_notes',JSON.stringify(NOTES));localStorage.setItem('flow_nw_history',JSON.stringify(NW_HISTORY));localStorage.setItem('flow_budgets',JSON.stringify(BUDGETS));localStorage.setItem('flow_daily',JSON.stringify(DAILY_EXPENSES));
-      applyDark();render();applyAllEyes();renderBills();renderHoldingsTable();renderMFTable();renderGoals();renderFDTable();renderSplits();renderTemplates();updateInvestSummary();renderDailyView();if(typeof renderInsurance==='function')renderInsurance();if(typeof loadSettingsUI==='function')loadSettingsUI();
+      applyDark();
+      try{render();}catch(e){console.warn('[Flow] render() after restore:',e);}
+      applyAllEyes();
+      try{renderBills();}catch(e){}
+      try{renderHoldingsTable();renderMFTable();renderGoals();renderFDTable();}catch(e){}
+      try{renderSplits();renderTemplates();}catch(e){}
+      try{updateInvestSummary();}catch(e){}
+      try{renderDailyView();}catch(e){}
+      if(typeof renderInsurance==='function')try{renderInsurance();}catch(e){}
+      if(typeof loadSettingsUI==='function')try{loadSettingsUI();}catch(e){}
       alert('Backup restored successfully!');
     }catch(err){alert('Failed to restore: '+err.message)}
   };
@@ -11050,7 +11061,7 @@ document.addEventListener('keydown',function(e){
 setTimeout(loadAllSchemes, 2000);
 
 // ── What's New auto-show on new version ─────────────────
-const FLOW_CURRENT_VER='2.7.6';
+const FLOW_CURRENT_VER='2.7.7';
 (function(){
   const lastSeen=localStorage.getItem('flow_last_ver');
   if(lastSeen!==FLOW_CURRENT_VER){
