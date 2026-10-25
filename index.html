@@ -11047,23 +11047,12 @@ function _parsePhonePe(lines){
   return rows;
 }
 function _parsePaytm(lines){
-  const h=_splitCSVLine(lines[0]).map(x=>x.replace(/["\r]/g,'').trim().toLowerCase());
-  const di=h.findIndex(x=>/date/.test(x));
-  const cri=h.findIndex(x=>/credit/.test(x));
-  const dbi=h.findIndex(x=>/debit/.test(x));
-  const dci=h.findIndex(x=>/narration|description|details/.test(x));
-  const rows=[];
-  for(let i=1;i<lines.length;i++){
-    const c=_splitCSVLine(lines[i]);
-    const d=_parseDate(c[di>=0?di:0]||'');if(!d)continue;
-    const cr=parseFloat((c[cri>=0?cri:'']||'').replace(/[,₹\s]/g,''))||0;
-    const db=parseFloat((c[dbi>=0?dbi:'']||'').replace(/[,₹\s]/g,''))||0;
-    if(!cr&&!db)continue;
-    const desc=(c[dci>=0?dci:1]||'').replace(/["\r]/g,'').trim();
-    if(db>0)rows.push({date:d,desc,amt:db,type:'expense',cat:_autoCat(desc),sel:true});
-    if(cr>0)rows.push({date:d,desc,amt:cr,type:'income',cat:_autoCat(desc),sel:true});
-  }
-  return rows;
+  // Paytm Excel / CSV can have:
+  //   Format A: "Transaction Date", "Credit", "Debit", "Comments"
+  //   Format B: "Transaction Date", "Amount", "Type" (DEBIT/CREDIT), "Remarks"
+  //   Format C: rows of metadata before the actual header row
+  // → delegate to universal parser which handles all these
+  return _universalParse(lines);
 }
 function _parseBHIM(lines){
   const h=_splitCSVLine(lines[0]).map(x=>x.replace(/["\r]/g,'').trim().toLowerCase());
@@ -11094,61 +11083,109 @@ function _parseBHIM(lines){
   return rows;
 }
 function _detectUPISource(header,rawText){
-  const h=header.join(',');const raw=rawText.slice(0,400);
-  if(/google pay|gpay/i.test(raw))return'gpay';
-  if(/transaction id.*description.*amount/i.test(h))return'gpay';
-  if(/phonepe|phone pe/i.test(raw))return'phonepe';
-  if(/paid in.*paid out/i.test(h)||/transaction details.*paid in/i.test(h))return'phonepe';
-  if(/paytm/i.test(raw))return'paytm';
-  if(/bhim|npci/i.test(raw))return'bhim';
-  if(/narration.*credit.*debit/i.test(h))return'paytm';
+  const h=header.join(',');const raw=(rawText||'').slice(0,600).toLowerCase();
+  if(/google pay|gpay/.test(raw))return'gpay';
+  if(/phonepe|phone pe/.test(raw))return'phonepe';
+  if(/paytm/.test(raw))return'paytm';
+  if(/bhim|npci/.test(raw))return'bhim';
+  // header pattern checks
+  if(/paid in.*paid out/.test(h)||/transaction details.*paid in/.test(h))return'phonepe';
+  if(/transaction id.*description.*amount/.test(h))return'gpay';
+  if(/narration.*credit.*debit/.test(h)||/credit.*debit.*balance/.test(h))return'paytm';
   return null;
+}
+// ── Universal smart parser ───────────────────────────────────
+// Finds date/amount/desc columns by trying every known header name.
+// Works for Paytm, PhonePe, GPay, BHIM, and any Indian bank CSV/XLSX.
+function _universalParse(lines){
+  // Skip leading non-data rows (Paytm Excel has header rows before the table)
+  let headerIdx=0;
+  for(let i=0;i<Math.min(lines.length,10);i++){
+    const l=lines[i].toLowerCase();
+    if(/date/.test(l)&&(/amount|debit|credit|paid/.test(l))){headerIdx=i;break;}
+  }
+  const rawHeader=_splitCSVLine(lines[headerIdx]);
+  const h=rawHeader.map(x=>x.replace(/["\r]/g,'').trim().toLowerCase());
+
+  // Date column
+  const dateCol=h.findIndex(x=>/transaction.?date|date|txn.?date|value.?date|posting.?date/.test(x));
+  // Description
+  const descCol=h.findIndex(x=>/narration|description|particulars|remarks|remark|details|transaction.?detail|note|comment|merchant|payee/.test(x));
+  // Debit / Credit separate cols
+  const debitCol=h.findIndex(x=>/(withdrawal|debit|dr\.?|debit.?amount|withdrawal.?amount|paid.?out|money.?sent|amount.?debited|debited)/.test(x));
+  const creditCol=h.findIndex(x=>/(deposit|credit|cr\.?|credit.?amount|deposit.?amount|paid.?in|money.?received|amount.?credited|credited)/.test(x));
+  // Single amount col
+  const amtCol=h.findIndex(x=>/^amount$|^amt$|transaction.?amount|net.?amount|total.?amount/.test(x));
+  // Type col (Credit/Debit label)
+  const typeCol=h.findIndex(x=>/^type$|^txn.?type$|transaction.?type/.test(x));
+
+  if(dateCol<0){
+    // Show detected headers so user can debug
+    document.getElementById('stmtPreview').innerHTML=
+      `<div style="font-size:11px;color:var(--deficit);padding:8px 0">
+        Could not find a Date column.<br>
+        <span style="color:var(--muted)">Columns found: <strong>${h.join(', ')||'(none)'}</strong></span><br>
+        Try selecting the correct source chip above, or ensure the file has a "Date" column.
+      </div>`;
+    return[];
+  }
+
+  const rows=[];
+  for(let i=headerIdx+1;i<lines.length;i++){
+    const c=_splitCSVLine(lines[i]);
+    if(c.every(x=>!x.replace(/["\r,\s]/g,'')))continue; // skip empty rows
+    const d=_parseDate(c[dateCol]||'');
+    if(!d)continue;
+    const desc=(descCol>=0?(c[descCol]||''):(c[1]||'')).replace(/["\r]/g,'').trim();
+    let amt=0,type='expense';
+    if(typeCol>=0&&(debitCol>=0||amtCol>=0)){
+      // Type column present (Credit/Debit label)
+      const typ=(c[typeCol]||'').toLowerCase().replace(/["\r]/g,'').trim();
+      const a=parseFloat((c[debitCol>=0?debitCol:amtCol]||'').replace(/[,₹\s"]/g,''))||0;
+      if(!a)continue;
+      amt=a;
+      type=/credit|receive|incoming|refund|cashback/.test(typ)?'income':'expense';
+    } else if(debitCol>=0&&creditCol>=0){
+      // Separate debit and credit columns
+      const db=parseFloat((c[debitCol]||'').replace(/[,₹\s"]/g,''))||0;
+      const cr=parseFloat((c[creditCol]||'').replace(/[,₹\s"]/g,''))||0;
+      if(!db&&!cr)continue;
+      if(db>0){amt=db;type='expense';}
+      else if(cr>0){amt=cr;type='income';}
+    } else if(amtCol>=0){
+      // Single amount column — negative = expense, positive = income
+      const num=parseFloat((c[amtCol]||'').replace(/[,₹\s"]/g,''))||0;
+      if(!num)continue;
+      amt=Math.abs(num);
+      type=num<0?'expense':'income';
+    } else {
+      // Last resort — try last numeric column
+      for(let j=c.length-1;j>=0;j--){
+        const num=parseFloat((c[j]||'').replace(/[,₹\s"]/g,''));
+        if(num){amt=Math.abs(num);type=num<0?'expense':'income';break;}
+      }
+    }
+    if(!amt)continue;
+    rows.push({date:d,desc,amt,type,cat:_autoCat(desc),sel:true});
+  }
+  return rows;
 }
 function parseStmtCSV(raw){
   if(!raw||!raw.trim())return;
   const lines=raw.trim().split('\n').map(l=>l.trim()).filter(Boolean);
-  if(lines.length<2){document.getElementById('stmtPreview').innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">No data rows found. Paste the CSV content from your statement.</div>';return;}
-  const header=lines[0].split(',').map(h=>h.replace(/["\r]/g,'').trim().toLowerCase());
+  if(lines.length<2){document.getElementById('stmtPreview').innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">No data rows found.</div>';return;}
+  const header=_splitCSVLine(lines[0]).map(h=>h.replace(/["\r]/g,'').trim().toLowerCase());
   const _srcEl=document.querySelector('input[name="stmtSrc"]:checked');
   const src=_srcEl?_srcEl.value:'auto';
   let rows=[];
   const upiSrc=src==='auto'?_detectUPISource(header,raw):src;
+  // Try the dedicated parser first; fall back to universal if it returns nothing
   if(upiSrc==='phonepe')rows=_parsePhonePe(lines);
   else if(upiSrc==='paytm')rows=_parsePaytm(lines);
   else if(upiSrc==='bhim')rows=_parseBHIM(lines);
   else if(upiSrc==='gpay')rows=_parseGPay(lines);
-  else{
-    // Generic bank CSV fallback
-    let dateCol=-1,amtCol=-1,descCol=-1,debitCol=-1,creditCol=-1;
-    header.forEach((h,i)=>{
-      if(/date|dt/.test(h)&&dateCol<0)dateCol=i;
-      if(/(withdrawal|debit|dr|debit amount|withdrawal amount|paid out)/.test(h))debitCol=i;
-      if(/(deposit|credit|cr|credit amount|deposit amount|paid in)/.test(h))creditCol=i;
-      if(/(amount|amt)/.test(h)&&amtCol<0)amtCol=i;
-      if(/(narration|description|particulars|details|remarks|ref|transaction details)/.test(h)&&descCol<0)descCol=i;
-    });
-    if(dateCol<0){document.getElementById('stmtPreview').innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">Could not detect a date column. Select the correct source above or ensure your CSV has a "Date" header.</div>';return;}
-    for(let i=1;i<lines.length;i++){
-      const cols=_splitCSVLine(lines[i]);
-      const parsedDate=_parseDate(cols[dateCol]||'');
-      if(!parsedDate)continue;
-      let amt=0,type='expense';
-      if(debitCol>=0&&creditCol>=0){
-        const d=parseFloat((cols[debitCol]||'').replace(/[,₹\s]/g,''))||0;
-        const cr=parseFloat((cols[creditCol]||'').replace(/[,₹\s]/g,''))||0;
-        if(d>0){amt=d;type='expense';}
-        else if(cr>0){amt=cr;type='income';}
-      } else {
-        const rawAmt=(cols[amtCol>=0?amtCol:cols.length-1]||'').replace(/[,₹\s]/g,'');
-        const num=parseFloat(rawAmt)||0;
-        amt=Math.abs(num);
-        type=num<0?'expense':'income';
-      }
-      if(!amt)continue;
-      const desc=descCol>=0?(cols[descCol]||''):'';
-      rows.push({date:parsedDate,desc:desc.trim(),amt,type,cat:_autoCat(desc),sel:true});
-    }
-  }
+  // If dedicated parser found nothing, try universal
+  if(!rows.length)rows=_universalParse(lines);
   _stmtRows=rows;
   renderStmtPreview();
 }
@@ -11229,7 +11266,7 @@ document.addEventListener('keydown',function(e){
 setTimeout(loadAllSchemes, 2000);
 
 // ── What's New auto-show on new version ─────────────────
-const FLOW_CURRENT_VER='2.8.1';
+const FLOW_CURRENT_VER='2.8.2';
 (function(){
   const lastSeen=localStorage.getItem('flow_last_ver');
   if(lastSeen!==FLOW_CURRENT_VER){
