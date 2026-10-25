@@ -34,6 +34,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 /* ── Light theme — toned down, darker text ─────────────── */
 :root{
@@ -10939,16 +10940,41 @@ function closeStmtModal(){
   _stmtOpen=false;
   const m=document.getElementById('stmtModal');if(m)m.style.display='none';
 }
+function _readStmtFile(file){
+  if(!file)return;
+  const isXlsx=/\.(xlsx|xls|ods)$/i.test(file.name)||file.type.includes('spreadsheet')||file.type.includes('excel');
+  if(isXlsx){
+    if(typeof XLSX==='undefined'){
+      document.getElementById('stmtPreview').innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">Excel library not loaded yet. Wait 2 seconds and try again.</div>';
+      return;
+    }
+    const r=new FileReader();
+    r.onload=e=>{
+      try{
+        const wb=XLSX.read(e.target.result,{type:'array'});
+        // Use first sheet
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        const csv=XLSX.utils.sheet_to_csv(ws);
+        parseStmtCSV(csv);
+      }catch(err){
+        document.getElementById('stmtPreview').innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">Could not read Excel file: '+err.message+'</div>';
+      }
+    };
+    r.readAsArrayBuffer(file);
+  } else {
+    const r=new FileReader();
+    r.onload=e=>parseStmtCSV(e.target.result);
+    r.readAsText(file);
+  }
+}
 function handleStmtFile(inp){
   if(!inp.files||!inp.files[0])return;
-  const r=new FileReader();
-  r.onload=e=>parseStmtCSV(e.target.result);
-  r.readAsText(inp.files[0]);
+  _readStmtFile(inp.files[0]);
 }
 function handleStmtDrop(e){
   e.preventDefault();document.getElementById('stmtDrop').classList.remove('drag-over');
   const f=e.dataTransfer.files[0];if(!f)return;
-  const r=new FileReader();r.onload=ev=>parseStmtCSV(ev.target.result);r.readAsText(f);
+  _readStmtFile(f);
 }
 // ── Helpers ─────────────────────────────────────────────────
 function _autoCat(desc){
@@ -11203,7 +11229,7 @@ document.addEventListener('keydown',function(e){
 setTimeout(loadAllSchemes, 2000);
 
 // ── What's New auto-show on new version ─────────────────
-const FLOW_CURRENT_VER='2.8.0';
+const FLOW_CURRENT_VER='2.8.1';
 (function(){
   const lastSeen=localStorage.getItem('flow_last_ver');
   if(lastSeen!==FLOW_CURRENT_VER){
@@ -11306,10 +11332,10 @@ const FLOW_CURRENT_VER='2.8.0';
     </div>
     <div class="stmt-drop" id="stmtDrop" onclick="document.getElementById('stmtFileInp').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleStmtDrop(event)">
       <div class="stmt-drop-icon">&#128196;</div>
-      Drop .csv file here or tap to browse<br>
-      <span style="font-size:10px;opacity:.7">Or paste CSV text in the box below</span>
+      Drop .csv or .xlsx file here or tap to browse<br>
+      <span style="font-size:10px;opacity:.7">Supports Excel (.xlsx) and CSV — Or paste CSV text below</span>
     </div>
-    <input type="file" id="stmtFileInp" accept=".csv,text/csv" style="display:none" onchange="handleStmtFile(this)">
+    <input type="file" id="stmtFileInp" accept=".csv,.xlsx,.xls,text/csv" style="display:none" onchange="handleStmtFile(this)">
     <textarea id="stmtPaste" placeholder="Paste CSV rows here..." style="width:100%;height:90px;margin-top:10px;font-size:11px;resize:vertical" oninput="parseStmtCSV(this.value)"></textarea>
     <div id="stmtPreview" style="margin-top:10px;max-height:240px;overflow-y:auto"></div>
     <div id="stmtImportWrap" style="display:none">
