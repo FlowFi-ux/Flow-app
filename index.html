@@ -11087,7 +11087,8 @@ function _splitCSVLine(line){
 // ── Auto-detect UPI source ───────────────────────────────
 function _detectUPISource(header,rawText){
   const h=header.join(' ');const raw=rawText.slice(0,300).toLowerCase();
-  if(/google pay|gpay|transaction id.*description.*amount/i.test(raw)||/paid in.*paid out|transaction details/i.test(h))return'auto';
+  if(/google pay|gpay/i.test(raw))return'gpay';
+  if(/transaction id.*description.*amount/i.test(h))return'gpay';
   if(/phonepe|phone pe|paid in.*paid out/i.test(raw))return'phonepe';
   if(/paytm/i.test(raw))return'paytm';
   if(/bhim|npci/i.test(raw))return'bhim';
@@ -11102,7 +11103,8 @@ function parseStmtCSV(raw){
   if(lines.length<2){document.getElementById('stmtPreview').innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">No data rows found. Paste the CSV content from your statement.</div>';return;}
   const header=lines[0].split(',').map(h=>h.replace(/["\r]/g,'').trim().toLowerCase());
   // ── Try UPI detection first ──
-  const src=document.getElementById('stmtSrcSel')?document.getElementById('stmtSrcSel').value:'auto';
+  const _srcEl=document.querySelector('input[name="stmtSrc"]:checked');
+  const src=_srcEl?_srcEl.value:'auto';
   let rows=[];
   const upiSrc=src==='auto'?_detectUPISource(header,raw):src;
   if(upiSrc==='phonepe')rows=_parsePhonePe(lines);
@@ -11134,7 +11136,7 @@ function parseStmtCSV(raw){
         const rawAmt=(cols[amtCol>=0?amtCol:cols.length-1]||'').replace(/[,₹\s]/g,'');
         const num=parseFloat(rawAmt)||0;
         amt=Math.abs(num);
-        type=num<0?'expense':'expense';
+        type=num<0?'expense':'income';
       }
       if(!amt)continue;
       const desc=descCol>=0?(cols[descCol]||''):'';
@@ -11221,7 +11223,7 @@ document.addEventListener('keydown',function(e){
 setTimeout(loadAllSchemes, 2000);
 
 // ── What's New auto-show on new version ─────────────────
-const FLOW_CURRENT_VER='2.7.9';
+const FLOW_CURRENT_VER='2.8.0';
 (function(){
   const lastSeen=localStorage.getItem('flow_last_ver');
   if(lastSeen!==FLOW_CURRENT_VER){
