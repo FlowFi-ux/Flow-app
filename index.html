@@ -11177,16 +11177,16 @@ function _universalParse(lines){
   const rawHeader=_splitCSVLine(lines[headerIdx]);
   const h=rawHeader.map(x=>x.replace(/["\r]/g,'').trim().toLowerCase());
 
-  // Date column
-  const dateCol=h.findIndex(x=>/transaction.?date|^date$|txn.?date|value.?date|posting.?date/.test(x));
+  // Date column — "Date" in Paytm; must not match "Other Transaction Details"
+  const dateCol=h.findIndex(x=>/^date$|^transaction\s+date$|^txn\s+date$|^value\s+date$|^posting\s+date$/.test(x));
   // Time column (Paytm has separate Time column — combine with date)
   const timeCol=h.findIndex(x=>/^time$/.test(x));
-  // Description — "Transaction Details" in Paytm, narration/particulars in banks
-  const descCol=h.findIndex(x=>/transaction.?details?|narration|description|particulars|transaction.?detail/.test(x));
+  // Description — "Transaction Details" in Paytm (must NOT match "Other Transaction Details")
+  const descCol=h.findIndex(x=>/^transaction\s+details?$|^narration$|^description$|^particulars$|^details$/.test(x));
   // Payee/merchant — explicit payee columns in other formats
-  const payeeCol=h.findIndex(x=>/^merchant$|^payee$|paid.?to|recipient|^party$|beneficiary|wallet.?name|sender|receiver/.test(x));
-  // "Other Transaction Details" in Paytm = UPI ID / A/c No — useful as secondary info, not merchant name
-  const upiIdCol=h.findIndex(x=>/other.?transaction|upi.?id|a\/c.?no/.test(x));
+  const payeeCol=h.findIndex(x=>/^merchant$|^payee$|^paid.?to$|^recipient$|^party$|^beneficiary$|^wallet.?name$|^sender$|^receiver$/.test(x));
+  // "Other Transaction Details (UPI ID or A/c No)" in Paytm — skip for merchant, don't use as desc
+  const upiIdCol=h.findIndex(x=>/other.?transaction|upi.?id/.test(x));
   // Remarks
   const remarkCol=h.findIndex(x=>/^remarks?$|^remark$|^note$/.test(x));
   // Tags (Paytm has a Tags column like "#① Food")
@@ -11212,13 +11212,20 @@ function _universalParse(lines){
     return[];
   }
 
+  // Debug: log detected column indices to console
+  console.log('[Flow UPI] Columns detected:',{dateCol,timeCol,descCol,payeeCol,upiIdCol,remarkCol,tagsCol,yourAccCol,debitCol,creditCol,amtCol,typeCol},'Headers:',h);
+
   const rows=[];
   for(let i=headerIdx+1;i<lines.length;i++){
     const c=_splitCSVLine(lines[i]);
     if(c.every(x=>!x.replace(/["\r,\s]/g,'')))continue; // skip empty rows
-    const d=_parseDate(c[dateCol]||'');
+    // Combine Date + Time if Paytm has separate time column
+    const rawDate=(c[dateCol]||'').replace(/["\r]/g,'').trim();
+    const rawTime=timeCol>=0?(c[timeCol]||'').replace(/["\r]/g,'').trim():'';
+    const d=_parseDate(rawDate+(rawTime?' '+rawTime:''));
     if(!d)continue;
-    const desc=(descCol>=0?(c[descCol]||''):(c[1]||'')).replace(/["\r]/g,'').trim();
+    // Use descCol if found; avoid fallback to c[1] which may be Time column
+    const desc=(descCol>=0?(c[descCol]||''):(descCol<0&&timeCol===1?c[2]||'':c[1]||'')).replace(/["\r]/g,'').trim();
     let amt=0,type='expense';
     if(typeCol>=0&&(debitCol>=0||creditCol>=0||amtCol>=0)){
       // Type column present (Credit/Debit label) — read from correct col per type
