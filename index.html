@@ -11178,13 +11178,21 @@ function _universalParse(lines){
   const h=rawHeader.map(x=>x.replace(/["\r]/g,'').trim().toLowerCase());
 
   // Date column
-  const dateCol=h.findIndex(x=>/transaction.?date|date|txn.?date|value.?date|posting.?date/.test(x));
-  // Description
-  const descCol=h.findIndex(x=>/narration|description|particulars|details|transaction.?detail|note|comment/.test(x));
-  // Payee/merchant (separate from description)
-  const payeeCol=h.findIndex(x=>/merchant|payee|paid.?to|recipient|party|beneficiary/.test(x));
-  // Remarks (separate from description if present)
-  const remarkCol=h.findIndex(x=>/^remarks?$|^remark$/.test(x));
+  const dateCol=h.findIndex(x=>/transaction.?date|^date$|txn.?date|value.?date|posting.?date/.test(x));
+  // Time column (Paytm has separate Time column — combine with date)
+  const timeCol=h.findIndex(x=>/^time$/.test(x));
+  // Description — "Transaction Details" in Paytm, narration/particulars in banks
+  const descCol=h.findIndex(x=>/transaction.?details?|narration|description|particulars|transaction.?detail/.test(x));
+  // Payee/merchant — explicit payee columns in other formats
+  const payeeCol=h.findIndex(x=>/^merchant$|^payee$|paid.?to|recipient|^party$|beneficiary|wallet.?name|sender|receiver/.test(x));
+  // "Other Transaction Details" in Paytm = UPI ID / A/c No — useful as secondary info, not merchant name
+  const upiIdCol=h.findIndex(x=>/other.?transaction|upi.?id|a\/c.?no/.test(x));
+  // Remarks
+  const remarkCol=h.findIndex(x=>/^remarks?$|^remark$|^note$/.test(x));
+  // Tags (Paytm has a Tags column like "#① Food")
+  const tagsCol=h.findIndex(x=>/^tags?$/.test(x));
+  // "Your Account" column — Paytm: shows user's own bank (e.g. "HDFC Bank") → use for account auto-link
+  const yourAccCol=h.findIndex(x=>/your.?account|account.?no\.?$|account.?number/.test(x));
   // Debit / Credit separate cols
   const debitCol=h.findIndex(x=>/(withdrawal|debit|dr\.?|debit.?amount|withdrawal.?amount|paid.?out|money.?sent|amount.?debited|debited)/.test(x));
   const creditCol=h.findIndex(x=>/(deposit|credit|cr\.?|credit.?amount|deposit.?amount|paid.?in|money.?received|amount.?credited|credited)/.test(x));
@@ -11250,11 +11258,23 @@ function _universalParse(lines){
       }
     }
     if(!amt)continue;
-    const payee=payeeCol>=0?(c[payeeCol]||'').replace(/["\r]/g,'').trim():'';
-    const remarks=remarkCol>=0?(c[remarkCol]||'').replace(/["\r]/g,'').trim():'';
-    const paidTo=type==='expense'?(payee||desc.slice(0,40)):'';
-    const paidBy=type==='income'?(payee||desc.slice(0,40)):'';
-    rows.push({date:d,desc,amt,type,cat:_autoCat(desc),sel:true,paidBy,paidTo,remarks});
+    // Explicit payee col wins; else extract name from desc ("Paid to Menaka" → "Menaka", "Received from Ravi" → "Ravi")
+    const rawPayee=payeeCol>=0?(c[payeeCol]||'').replace(/["\r]/g,'').trim():'';
+    function _extractName(s){
+      // Strip "Paid to ", "Received from ", "Payment to ", "Transfer to/from " prefixes
+      const m=s.match(/^(?:paid\s+to|received\s+from|payment\s+to|transferred?\s+(?:to|from)|sent\s+to|money\s+(?:sent\s+to|received\s+from))\s+(.+)/i);
+      return m?m[1].trim():s;
+    }
+    const nameFromDesc=desc?_extractName(desc):'';
+    const payee=rawPayee||nameFromDesc;
+    const remarks=(remarkCol>=0?(c[remarkCol]||'').replace(/["\r]/g,'').trim():'')
+      ||(tagsCol>=0?(c[tagsCol]||'').replace(/["\r#①②③④⑤\r]/g,'').trim():'');
+    // Your Account → match against registered accounts by name for auto-linking
+    const yourAccRaw=yourAccCol>=0?(c[yourAccCol]||'').replace(/["\r]/g,'').trim():'';
+    const bankHint=yourAccRaw?(ACCOUNTS||[]).find(a=>a.nickname&&yourAccRaw.toLowerCase().includes(a.nickname.toLowerCase().split(' ')[0]))?.id||null:null;
+    const paidTo=type==='expense'?payee:'';
+    const paidBy=type==='income'?payee:'';
+    rows.push({date:d,desc,amt,type,cat:_autoCat(desc),sel:true,paidBy,paidTo,remarks,bank:bankHint,yourAcc:yourAccRaw});
   }
   return rows;
 }
@@ -11324,7 +11344,7 @@ function renderStmtPreview(){
       <div class="stmt-preview-row"><span><input type="checkbox" ${r.sel?'checked':''} onchange="_stmtRows[${i}].sel=this.checked" style="margin-right:4px">${r.date}</span><span style="font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.desc)}">${esc(r.desc.slice(0,40))}</span><span style="color:${r.type==='income'?'var(--surplus)':'var(--deficit)'};font-weight:600">${r.type==='income'?'+':'-'}${fmt(r.amt)}</span><span><select class="stmt-cat-sel" onchange="_stmtRows[${i}].cat=this.value">${catOpts}</select></span></div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;padding-left:18px;margin-top:3px">
         <label style="font-size:10px;color:var(--muted)">${paidLabel}: <input type="text" value="${esc(paidVal)}" placeholder="name / UPI ID" style="font-size:10px;padding:2px 5px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);width:120px" oninput="_stmtRows[${i}].${r.type==='expense'?'paidTo':'paidBy'}=this.value"></label>
-        <label style="font-size:10px;color:var(--muted)">Account: <select style="font-size:10px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text)" onchange="_stmtRows[${i}].bank=this.value||null">${accOpts}</select></label>
+        <label style="font-size:10px;color:var(--muted)">Account: <select style="font-size:10px;padding:2px 4px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text)" onchange="_stmtRows[${i}].bank=this.value||null">${(()=>{const sel=r.bank;return'<option value="">— No account —</option>'+(ACCOUNTS||[]).map(a=>`<option value="${esc(a.id)}"${a.id===sel?' selected':''}>${esc(a.nickname)}</option>`).join('');})()}</select>${r.yourAcc?`<span style="font-size:9px;color:var(--faint);margin-left:3px">(${esc(r.yourAcc)})</span>`:''}</label>
         <label style="font-size:10px;color:var(--muted)">Remarks: <input type="text" value="${esc(r.remarks||'')}" placeholder="optional note" style="font-size:10px;padding:2px 5px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);width:110px" oninput="_stmtRows[${i}].remarks=this.value"></label>
       </div>
     </div>`;
