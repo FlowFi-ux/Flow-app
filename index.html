@@ -10942,28 +10942,41 @@ function closeStmtModal(){
 }
 function _readStmtFile(file){
   if(!file)return;
+  const prev=document.getElementById('stmtPreview');
+  prev.innerHTML='<div style="font-size:11px;color:var(--muted);padding:8px 0">⏳ Reading <strong>'+file.name+'</strong>…</div>';
   const isXlsx=/\.(xlsx|xls|ods)$/i.test(file.name)||file.type.includes('spreadsheet')||file.type.includes('excel');
   if(isXlsx){
     if(typeof XLSX==='undefined'){
-      document.getElementById('stmtPreview').innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">Excel library not loaded yet. Wait 2 seconds and try again.</div>';
+      prev.innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">Excel library not loaded yet. Please wait 5 seconds and try uploading the file again.</div>';
       return;
     }
     const r=new FileReader();
     r.onload=e=>{
       try{
-        const wb=XLSX.read(e.target.result,{type:'array'});
-        // Use first sheet
-        const ws=wb.Sheets[wb.SheetNames[0]];
-        const csv=XLSX.utils.sheet_to_csv(ws);
-        parseStmtCSV(csv);
+        const wb=XLSX.read(e.target.result,{type:'array',cellDates:true,raw:false});
+        // Try each sheet and use the one with the most rows
+        let bestCsv='',bestLen=0;
+        wb.SheetNames.forEach(name=>{
+          const ws=wb.Sheets[name];
+          const csv=XLSX.utils.sheet_to_csv(ws,{blankrows:false});
+          const nonEmpty=csv.split('\n').filter(l=>l.replace(/,/g,'').trim()).length;
+          if(nonEmpty>bestLen){bestLen=nonEmpty;bestCsv=csv;}
+        });
+        if(!bestCsv.trim()){
+          prev.innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">Excel file read but all cells appear empty. Try saving as CSV from the app and uploading that instead.</div>';
+          return;
+        }
+        parseStmtCSV(bestCsv);
       }catch(err){
-        document.getElementById('stmtPreview').innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">Could not read Excel file: '+err.message+'</div>';
+        prev.innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">Could not read Excel file: '+err.message+'<br><span style="color:var(--muted)">Try exporting as CSV from Paytm/PhonePe and uploading that.</span></div>';
       }
     };
+    r.onerror=()=>{prev.innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">Could not open file. Tap the upload button again.</div>';};
     r.readAsArrayBuffer(file);
   } else {
     const r=new FileReader();
     r.onload=e=>parseStmtCSV(e.target.result);
+    r.onerror=()=>{prev.innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">Could not open file. Tap the upload button again.</div>';};
     r.readAsText(file);
   }
 }
@@ -11171,9 +11184,15 @@ function _universalParse(lines){
   return rows;
 }
 function parseStmtCSV(raw){
-  if(!raw||!raw.trim())return;
+  if(!raw||!raw.trim()){
+    document.getElementById('stmtPreview').innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">File appears empty. Try uploading again.</div>';
+    return;
+  }
   const lines=raw.trim().split('\n').map(l=>l.trim()).filter(Boolean);
-  if(lines.length<2){document.getElementById('stmtPreview').innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">No data rows found.</div>';return;}
+  if(lines.length<2){
+    document.getElementById('stmtPreview').innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">No data rows found in file. First row detected: <strong>'+_splitCSVLine(lines[0]).join(' | ')+'</strong></div>';
+    return;
+  }
   const header=_splitCSVLine(lines[0]).map(h=>h.replace(/["\r]/g,'').trim().toLowerCase());
   const _srcEl=document.querySelector('input[name="stmtSrc"]:checked');
   const src=_srcEl?_srcEl.value:'auto';
@@ -11187,11 +11206,29 @@ function parseStmtCSV(raw){
   // If dedicated parser found nothing, try universal
   if(!rows.length)rows=_universalParse(lines);
   _stmtRows=rows;
+  // Store the raw lines globally so renderStmtPreview can show debug info
+  _stmtRawLines=lines;
   renderStmtPreview();
 }
+let _stmtRawLines=[];
 function renderStmtPreview(){
   const wrap=document.getElementById('stmtPreview');const imp=document.getElementById('stmtImportWrap');
-  if(!_stmtRows.length){wrap.innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">No valid rows found. Check that date and amount columns are present.</div>';imp.style.display='none';return;}
+  if(!_stmtRows.length){
+    // Show what columns were actually detected to help debug
+    let detectedCols='';
+    if(_stmtRawLines.length>0){
+      // Find header row (first row with date/amount keywords, or row 0)
+      let hIdx=0;
+      for(let i=0;i<Math.min(_stmtRawLines.length,10);i++){
+        const l=_stmtRawLines[i].toLowerCase();
+        if(/date/.test(l)&&/amount|debit|credit|paid/.test(l)){hIdx=i;break;}
+      }
+      const cols=_splitCSVLine(_stmtRawLines[hIdx]).map(x=>x.replace(/["\r]/g,'').trim()).filter(Boolean);
+      detectedCols=`<br><span style="color:var(--muted);font-size:10.5px">Columns detected (row ${hIdx+1}): <strong>${cols.join(' · ')||'(none)'}</strong></span>`;
+    }
+    wrap.innerHTML=`<div style="font-size:11px;color:var(--deficit);padding:8px 0">No valid rows found.${detectedCols}<br><span style="color:var(--muted);font-size:10px">Select the correct source chip (Paytm / PhonePe / GPay) above and try again, or share the column names with support.</span></div>`;
+    imp.style.display='none';return;
+  }
   const cats=[...new Set(DAILY_EXPENSES.map(e=>e.cat)),'Food','Transport','Shopping','Groceries','Entertainment','Health','Utilities','Investment','Rent','Other','Income'].filter(Boolean);
   let html=`<div style="font-size:10.5px;color:var(--muted);margin-bottom:6px">${_stmtRows.length} row${_stmtRows.length!==1?'s':''} found. Uncheck rows to skip.</div>`;
   html+='<div class="stmt-preview-row"><span>Date</span><span>Description</span><span>Amount</span><span>Category</span></div>';
@@ -11266,7 +11303,7 @@ document.addEventListener('keydown',function(e){
 setTimeout(loadAllSchemes, 2000);
 
 // ── What's New auto-show on new version ─────────────────
-const FLOW_CURRENT_VER='2.8.2';
+const FLOW_CURRENT_VER='2.8.3';
 (function(){
   const lastSeen=localStorage.getItem('flow_last_ver');
   if(lastSeen!==FLOW_CURRENT_VER){
