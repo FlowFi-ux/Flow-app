@@ -11221,7 +11221,7 @@ document.addEventListener('keydown',function(e){
 setTimeout(loadAllSchemes, 2000);
 
 // ── What's New auto-show on new version ─────────────────
-const FLOW_CURRENT_VER='2.7.8';
+const FLOW_CURRENT_VER='2.7.9';
 (function(){
   const lastSeen=localStorage.getItem('flow_last_ver');
   if(lastSeen!==FLOW_CURRENT_VER){
@@ -11303,7 +11303,7 @@ const FLOW_CURRENT_VER='2.7.8';
 </div>
 
 <!-- ══ STATEMENT IMPORT MODAL ════════════════════════════ -->
-<div id="stmtModal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center">
+<div id="stmtModal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.55);align-items:flex-end;justify-content:center">
   <div style="background:var(--surface);border-radius:14px 14px 0 0;padding:20px 16px 28px;width:100%;max-width:600px;max-height:85vh;overflow-y:auto">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div style="font-size:13px;font-weight:600">Import Statement</div>
@@ -11341,7 +11341,9 @@ const FLOW_CURRENT_VER='2.7.8';
 (function(){
   if(!('serviceWorker' in navigator)) return;
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register('./sw.js', {scope: './'})
+    // updateViaCache:'none' forces browser to always byte-check sw.js
+        // ignoring HTTP Cache-Control headers (fixes GitHub Pages 10-min cache delay)
+        navigator.serviceWorker.register('./sw.js', {scope: './', updateViaCache: 'none'})
       .then(function(reg){
         console.log('[Flow] SW registered, scope:', reg.scope);
 
@@ -11352,8 +11354,7 @@ const FLOW_CURRENT_VER='2.7.8';
           if(banner) banner.style.display = 'flex';
         }
 
-        // ② Force the browser to CHECK sw.js for changes right now
-        //    (without this, Chrome waits up to 24h between checks)
+        // ② Force the browser to byte-check sw.js right now on every load
         reg.update();
 
         // ③ Catch NEW installs that complete during this page visit
