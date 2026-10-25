@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <!-- ── Content Security Policy ────────────────────────── -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.mfapi.in; img-src 'self' data: blob:; worker-src 'self'; manifest-src 'self'; frame-ancestors 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.mfapi.in; img-src 'self' data: blob:; worker-src 'self'; manifest-src 'self'; frame-ancestors 'none';">
 <title>Flow — Personal Finance</title>
 
 <!-- ── PWA Install & App Meta ─────────────────────────── -->
@@ -1655,7 +1655,8 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <p>Flow makes the following outbound network requests:</p>
       <ul>
         <li><strong>api.mfapi.in</strong> &mdash; Used to fetch publicly available mutual fund NAV (Net Asset Value) data. Only the fund scheme code is sent as part of the URL. No personal data is transmitted.</li>
-        <li><strong>cdnjs.cloudflare.com</strong> &mdash; Used to load Chart.js and jsPDF libraries. Standard CDN request; no personal data transmitted.</li>
+        <li><strong>cdn.jsdelivr.net</strong> &mdash; Used to load Chart.js (charting library). Standard CDN request; no personal data transmitted.</li>
+        <li><strong>cdnjs.cloudflare.com</strong> &mdash; Used to load jsPDF (PDF generation library). Standard CDN request; no personal data transmitted.</li>
       </ul>
       <p>These are the <em>only</em> external network calls Flow makes. There are no analytics trackers, no advertising SDKs, no crash reporting services, and no social media integrations.</p>
 
@@ -6474,7 +6475,16 @@ function restoreData(input){
       dark=data.dark||false;
       localStorage.setItem('flow_v3',JSON.stringify(DB));localStorage.setItem('flow_bills',JSON.stringify(BILLS));localStorage.setItem('flow_invest',JSON.stringify(INVEST));
       localStorage.setItem('flow_loans',JSON.stringify(LOANS));localStorage.setItem('flow_splits',JSON.stringify(SPLITS));localStorage.setItem('flow_templates',JSON.stringify(TEMPLATES));localStorage.setItem('flow_emfund',JSON.stringify(EMFUND));localStorage.setItem('flow_subs',JSON.stringify(SUBS));localStorage.setItem('flow_insurance',JSON.stringify(INSURANCE));localStorage.setItem('flow_notes',JSON.stringify(NOTES));localStorage.setItem('flow_nw_history',JSON.stringify(NW_HISTORY));localStorage.setItem('flow_budgets',JSON.stringify(BUDGETS));localStorage.setItem('flow_daily',JSON.stringify(DAILY_EXPENSES));
-      applyDark();render();applyAllEyes();renderBills();renderHoldingsTable();renderMFTable();renderGoals();renderFDTable();renderSplits();renderTemplates();updateInvestSummary();renderDailyView();if(typeof renderInsurance==='function')renderInsurance();if(typeof loadSettingsUI==='function')loadSettingsUI();
+      applyDark();
+      try{render();}catch(e){console.warn('[Flow] render() after restore:',e);}
+      applyAllEyes();
+      try{renderBills();}catch(e){}
+      try{renderHoldingsTable();renderMFTable();renderGoals();renderFDTable();}catch(e){}
+      try{renderSplits();renderTemplates();}catch(e){}
+      try{updateInvestSummary();}catch(e){}
+      try{renderDailyView();}catch(e){}
+      if(typeof renderInsurance==='function')try{renderInsurance();}catch(e){}
+      if(typeof loadSettingsUI==='function')try{loadSettingsUI();}catch(e){}
       alert('Backup restored successfully!');
     }catch(err){alert('Failed to restore: '+err.message)}
   };
@@ -10896,10 +10906,10 @@ window.openUPIPay=function(upiId,payeeName,amount,title,fromName){
   }
 };
 
-// ══ BANK STATEMENT IMPORT ═══════════════════════════════════
+// ══ BANK / UPI STATEMENT IMPORT ═════════════════════════════
 let _stmtRows=[];
 let _stmtOpen=false;
-// ── Source chip highlight ────────────────────────────────
+// ── Source chip highlight & hint ────────────────────────────
 function _stmtSrcChange(){
   const sel=document.querySelector('input[name="stmtSrc"]:checked');
   const val=sel?sel.value:'auto';
@@ -10912,7 +10922,6 @@ function _stmtSrcChange(){
   const hints={auto:'Detects GPay, PhonePe, Paytm, BHIM and bank CSVs automatically.',gpay:'Google Pay: export from GPay app → Transactions → Download CSV.',phonepe:'PhonePe: Profile → Transaction History → Download Statement.',paytm:'Paytm: Passbook → Statement → Download CSV.',bhim:'BHIM UPI or NPCI statement CSV.',bank:'Generic bank CSV — HDFC, ICICI, SBI, Axis, Kotak etc.'};
   const hint=document.getElementById('stmtSrcHint');
   if(hint)hint.textContent=hints[val]||hints.auto;
-  // re-parse if text is already pasted
   const pa=document.getElementById('stmtPaste');
   if(pa&&pa.value.trim())parseStmtCSV(pa.value);
 }
@@ -10923,7 +10932,6 @@ function openStmtModal(){
   document.getElementById('stmtPreview').innerHTML='';
   document.getElementById('stmtImportWrap').style.display='none';
   const pa=document.getElementById('stmtPaste');if(pa)pa.value='';
-  // reset to auto-detect chip
   const autoRadio=document.querySelector('input[name="stmtSrc"][value="auto"]');
   if(autoRadio){autoRadio.checked=true;}_stmtSrcChange();
 }
@@ -10942,167 +10950,139 @@ function handleStmtDrop(e){
   const f=e.dataTransfer.files[0];if(!f)return;
   const r=new FileReader();r.onload=ev=>parseStmtCSV(ev.target.result);r.readAsText(f);
 }
-// ── Shared auto-categoriser ──────────────────────────────
+// ── Helpers ─────────────────────────────────────────────────
 function _autoCat(desc){
   const dl=(desc||'').toLowerCase();
-  const cm={Food:['swiggy','zomato','food','restaurant','cafe','chai','lunch','dinner','barbeque','biryani','dominos','pizza','kfc','mcdonalds','starbucks'],Transport:['uber','ola','rapido','auto','petrol','fuel','metro','irctc','flight','indigo','spicejet','bus','cab','parking'],Shopping:['amazon','flipkart','myntra','ajio','meesho','nykaa','decathlon','croma','reliance','mall'],Groceries:['bigbasket','zepto','blinkit','grofers','dmart','grocery','jiomart','supermart','nature basket'],Entertainment:['netflix','hotstar','spotify','prime','movie','pvr','inox','bookmyshow','youtube','zee5','gaana'],Health:['pharmacy','apollo','hospital','doctor','medicine','medplus','netmeds','1mg','cult.fit','healthkart'],Utilities:['electricity','airtel','jio','bsnl','recharge','broadband','gas','water','postpaid','prepaid','tata sky','dish tv'],Investment:['sip','mutual fund','mf','nse','bse','zerodha','groww','upstox','kuvera'],Rent:['rent','pg','hostel','lease'],Education:['udemy','coursera','byju','unacademy','fee','college','school','tuition']};
+  const cm={Food:['swiggy','zomato','food','restaurant','cafe','chai','lunch','dinner','barbeque','biryani','dominos','pizza','kfc','mcdonalds','starbucks'],Transport:['uber','ola','rapido','auto','petrol','fuel','metro','irctc','flight','indigo','spicejet','bus','cab','parking'],Shopping:['amazon','flipkart','myntra','ajio','meesho','nykaa','decathlon','croma','reliance','mall'],Groceries:['bigbasket','zepto','blinkit','grofers','dmart','grocery','jiomart','supermart'],Entertainment:['netflix','hotstar','spotify','prime','movie','pvr','inox','bookmyshow','youtube','zee5','gaana'],Health:['pharmacy','apollo','hospital','doctor','medicine','medplus','netmeds','1mg','cult.fit','healthkart'],Utilities:['electricity','airtel','jio','bsnl','recharge','broadband','gas','water','postpaid','prepaid'],Investment:['sip','mutual fund','mf','nse','bse','zerodha','groww','upstox','kuvera'],Rent:['rent','pg','hostel','lease'],Education:['udemy','coursera','byju','unacademy','fee','college','school','tuition']};
   for(const[c,kws]of Object.entries(cm)){if(kws.some(k=>dl.includes(k)))return c;}
   return'Other';
 }
-// ── Shared date parser ───────────────────────────────────
 function _parseDate(raw){
   if(!raw)return'';
-  // Handle "DD MMM YYYY" format e.g. "25 Oct 2026" or "25-Oct-2026"
+  const s=raw.replace(/["\r]/g,'').trim();
   const mnames={jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'};
-  const mth=raw.match(/(\d{1,2})[\s\-]([A-Za-z]{3})[\s\-](\d{4})/);
-  if(mth){const[,d,m,y]=mth;const mn=mnames[m.toLowerCase()];if(mn)return`${y}-${mn}-${d.padStart(2,'0')}`;}
-  // Handle ISO with time: "2026-10-25T14:30:00" or "2026-10-25 14:30:00"
-  const iso=raw.match(/^(\d{4}-\d{2}-\d{2})/);
-  if(iso)return iso[1];
-  // DD/MM/YYYY, DD-MM-YYYY, YYYY-MM-DD
-  const dm=raw.match(/(\d{1,4})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
-  if(dm){
-    const[,a,b,c]=dm;
-    if(a.length===4)return`${a}-${b.padStart(2,'0')}-${c.padStart(2,'0')}`;
-    if(parseInt(a)<=31&&parseInt(b)<=12)return`${c.length===2?'20'+c:c}-${b.padStart(2,'0')}-${a.padStart(2,'0')}`;
-  }
+  // DD MMM YYYY or DD-MMM-YYYY
+  const mth=s.match(/(\d{1,2})[\s\-]([A-Za-z]{3})[\s\-](\d{4})/);
+  if(mth){const mn=mnames[mth[2].toLowerCase()];if(mn)return`${mth[3]}-${mn}-${mth[1].padStart(2,'0')}`;}
+  // ISO with optional time
+  const iso=s.match(/^(\d{4}-\d{2}-\d{2})/);if(iso)return iso[1];
+  // DD/MM/YYYY or DD-MM-YYYY
+  const dm=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if(dm){const y=dm[3].length===2?'20'+dm[3]:dm[3];if(parseInt(dm[1])<=31&&parseInt(dm[2])<=12)return`${y}-${dm[2].padStart(2,'0')}-${dm[1].padStart(2,'0')}`;}
   return'';
 }
-// ── UPI-specific parsers ─────────────────────────────────
+function _splitCSVLine(line){
+  const res=[];let cur='';let inQ=false;
+  for(let i=0;i<line.length;i++){
+    if(line[i]==='"'){inQ=!inQ;}
+    else if(line[i]===','&&!inQ){res.push(cur.replace(/\r/g,'').trim());cur='';}
+    else cur+=line[i];
+  }
+  res.push(cur.replace(/\r/g,'').trim());
+  return res;
+}
+// ── UPI parsers ─────────────────────────────────────────────
 function _parseGPay(lines){
-  // GPay CSV: Date, Transaction ID, Description, Amount (negative=debit), Status
-  // OR: Date, Time, Description, Amount, Status
-  const h=lines[0].split(',').map(c=>c.replace(/["\r]/g,'').trim().toLowerCase());
+  const h=_splitCSVLine(lines[0]).map(x=>x.replace(/["\r]/g,'').trim().toLowerCase());
+  const di=h.findIndex(x=>/date|time/.test(x));
+  const ami=h.findIndex(x=>x==='amount(inr)'||x==='amount'||/amount/.test(x));
+  const dci=h.findIndex(x=>/description|narration|note/.test(x));
   const rows=[];
   for(let i=1;i<lines.length;i++){
-    const cols=_splitCSVLine(lines[i]);
-    if(cols.length<3)continue;
-    const rawDate=cols[0]||'';
-    const parsedDate=_parseDate(rawDate);
-    if(!parsedDate)continue;
-    // Find description and amount — GPay puts desc before amount
-    let desc='',rawAmt='',status='';
-    if(h.length>=5&&/time/.test(h[1])){
-      // format: Date, Time, Description, Amount, Status
-      desc=cols[2]||'';rawAmt=cols[3]||'';status=(cols[4]||'').toLowerCase();
-    } else {
-      // format: Date, TxnID, Description, Amount, Status
-      desc=cols[2]||'';rawAmt=cols[3]||'';status=(cols[4]||'').toLowerCase();
-    }
-    if(status&&/(failed|pending|cancelled)/i.test(status))continue;
-    // GPay: negative = debit (you paid), positive = credit (received)
-    const num=parseFloat(rawAmt.replace(/[,₹\s]/g,''))||0;
-    if(!num)continue;
-    const amt=Math.abs(num);
+    const c=_splitCSVLine(lines[i]);
+    const d=_parseDate(c[di>=0?di:0]||'');if(!d)continue;
+    const rawAmt=(c[ami>=0?ami:c.length-1]||'').replace(/[,₹\s]/g,'');
+    const num=parseFloat(rawAmt);if(!num||isNaN(num))continue;
+    const desc=(c[dci>=0?dci:1]||'').replace(/["\r]/g,'').trim();
+    // GPay: negative = debit(expense), positive = credit(income)
+    if(/(failed|pending|reversed)/i.test(desc))continue;
     const type=num<0?'expense':'income';
-    rows.push({date:parsedDate,desc:desc.trim(),amt,type,cat:_autoCat(desc),sel:true});
+    rows.push({date:d,desc,amt:Math.abs(num),type,cat:_autoCat(desc),sel:true});
   }
   return rows;
 }
 function _parsePhonePe(lines){
-  // PhonePe CSV: Date, Transaction ID, Transaction Details, Paid In, Paid Out, Closing Balance, Order ID
+  const h=_splitCSVLine(lines[0]).map(x=>x.replace(/["\r]/g,'').trim().toLowerCase());
+  const di=h.findIndex(x=>/date/.test(x));
+  const pii=h.findIndex(x=>/paid in|credit/.test(x));
+  const poi=h.findIndex(x=>/paid out|debit/.test(x));
+  const dci=h.findIndex(x=>/transaction details|description|narration/.test(x));
   const rows=[];
   for(let i=1;i<lines.length;i++){
-    const cols=_splitCSVLine(lines[i]);
-    if(cols.length<5)continue;
-    const parsedDate=_parseDate(cols[0]||'');
-    if(!parsedDate)continue;
-    const desc=cols[2]||cols[1]||'';
-    const paidIn=parseFloat((cols[3]||'').replace(/[,₹\s]/g,''))||0;
-    const paidOut=parseFloat((cols[4]||'').replace(/[,₹\s]/g,''))||0;
-    if(!paidIn&&!paidOut)continue;
-    if(paidOut>0)rows.push({date:parsedDate,desc:desc.trim(),amt:paidOut,type:'expense',cat:_autoCat(desc),sel:true});
-    if(paidIn>0)rows.push({date:parsedDate,desc:desc.trim(),amt:paidIn,type:'income',cat:_autoCat(desc),sel:true});
+    const c=_splitCSVLine(lines[i]);
+    const d=_parseDate(c[di>=0?di:0]||'');if(!d)continue;
+    const paid_in=parseFloat((c[pii>=0?pii:'']||'').replace(/[,₹\s]/g,''))||0;
+    const paid_out=parseFloat((c[poi>=0?poi:'']||'').replace(/[,₹\s]/g,''))||0;
+    if(!paid_in&&!paid_out)continue;
+    const desc=(c[dci>=0?dci:1]||'').replace(/["\r]/g,'').trim();
+    if(paid_out>0)rows.push({date:d,desc,amt:paid_out,type:'expense',cat:_autoCat(desc),sel:true});
+    if(paid_in>0)rows.push({date:d,desc,amt:paid_in,type:'income',cat:_autoCat(desc),sel:true});
   }
   return rows;
 }
 function _parsePaytm(lines){
-  // Paytm CSV: Date, Narration, Credit, Debit, Net Balance
-  // OR: Transaction Date, Transaction ID, Description, Debit, Credit, Balance
+  const h=_splitCSVLine(lines[0]).map(x=>x.replace(/["\r]/g,'').trim().toLowerCase());
+  const di=h.findIndex(x=>/date/.test(x));
+  const cri=h.findIndex(x=>/credit/.test(x));
+  const dbi=h.findIndex(x=>/debit/.test(x));
+  const dci=h.findIndex(x=>/narration|description|details/.test(x));
   const rows=[];
   for(let i=1;i<lines.length;i++){
-    const cols=_splitCSVLine(lines[i]);
-    if(cols.length<4)continue;
-    const parsedDate=_parseDate(cols[0]||'');
-    if(!parsedDate)continue;
-    const desc=cols[1]||cols[2]||'';
-    // try credit/debit in cols 2&3 or 3&4
-    let credit=0,debit=0;
-    const c1=parseFloat((cols[2]||'').replace(/[,₹\s]/g,''))||0;
-    const c2=parseFloat((cols[3]||'').replace(/[,₹\s]/g,''))||0;
-    // detect which is credit/which is debit by header
-    const h=lines[0].split(',').map(c=>c.replace(/["\r]/g,'').trim().toLowerCase());
-    const col2h=h[2]||'';const col3h=h[3]||'';
-    if(/credit|deposit|paid in|received/.test(col2h)){credit=c1;debit=c2;}
-    else{debit=c1;credit=c2;}
-    if(debit>0)rows.push({date:parsedDate,desc:desc.trim(),amt:debit,type:'expense',cat:_autoCat(desc),sel:true});
-    if(credit>0)rows.push({date:parsedDate,desc:desc.trim(),amt:credit,type:'income',cat:_autoCat(desc),sel:true});
+    const c=_splitCSVLine(lines[i]);
+    const d=_parseDate(c[di>=0?di:0]||'');if(!d)continue;
+    const cr=parseFloat((c[cri>=0?cri:'']||'').replace(/[,₹\s]/g,''))||0;
+    const db=parseFloat((c[dbi>=0?dbi:'']||'').replace(/[,₹\s]/g,''))||0;
+    if(!cr&&!db)continue;
+    const desc=(c[dci>=0?dci:1]||'').replace(/["\r]/g,'').trim();
+    if(db>0)rows.push({date:d,desc,amt:db,type:'expense',cat:_autoCat(desc),sel:true});
+    if(cr>0)rows.push({date:d,desc,amt:cr,type:'income',cat:_autoCat(desc),sel:true});
   }
   return rows;
 }
 function _parseBHIM(lines){
-  // BHIM/NPCI: Date, Transaction ID, Description, Type (Credit/Debit), Amount, Status
+  const h=_splitCSVLine(lines[0]).map(x=>x.replace(/["\r]/g,'').trim().toLowerCase());
+  const di=h.findIndex(x=>/date/.test(x));
+  const ti=h.findIndex(x=>/^type$/.test(x));
+  const ami=h.findIndex(x=>/amount/.test(x));
+  const dci=h.findIndex(x=>/description|narration|remark|note/.test(x));
+  const cri=h.findIndex(x=>/credit/.test(x));
+  const dbi=h.findIndex(x=>/debit/.test(x));
   const rows=[];
-  const h=lines[0].split(',').map(c=>c.replace(/["\r]/g,'').trim().toLowerCase());
   for(let i=1;i<lines.length;i++){
-    const cols=_splitCSVLine(lines[i]);
-    if(cols.length<4)continue;
-    const parsedDate=_parseDate(cols[0]||'');
-    if(!parsedDate)continue;
-    const desc=cols[2]||cols[1]||'';
-    // look for a type column (Credit/Debit)
-    let type='expense',amt=0;
-    const typeIdx=h.findIndex(x=>/^type$|txn type|transaction type/.test(x));
-    const amtIdx=h.findIndex(x=>/^amount$|amt/.test(x));
-    if(typeIdx>=0&&amtIdx>=0){
-      const t=(cols[typeIdx]||'').toLowerCase();
-      type=/credit|received|cr/.test(t)?'income':'expense';
-      amt=Math.abs(parseFloat((cols[amtIdx]||'').replace(/[,₹\s]/g,''))||0);
-    } else {
-      // fallback: cols 3&4 as debit/credit
-      const c3=parseFloat((cols[3]||'').replace(/[,₹\s]/g,''))||0;
-      const c4=parseFloat((cols[4]||'').replace(/[,₹\s]/g,''))||0;
-      if(c3>0){amt=c3;type='expense';}
-      else if(c4>0){amt=c4;type='income';}
+    const c=_splitCSVLine(lines[i]);
+    const d=_parseDate(c[di>=0?di:0]||'');if(!d)continue;
+    const desc=(c[dci>=0?dci:1]||'').replace(/["\r]/g,'').trim();
+    if(ti>=0&&ami>=0){
+      const typ=(c[ti]||'').toLowerCase();
+      const amt=parseFloat((c[ami]||'').replace(/[,₹\s]/g,''))||0;
+      if(!amt)continue;
+      const type=/credit|receive|incoming/.test(typ)?'income':'expense';
+      rows.push({date:d,desc,amt,type,cat:_autoCat(desc),sel:true});
+    } else if(cri>=0||dbi>=0){
+      const cr=parseFloat((c[cri>=0?cri:'']||'').replace(/[,₹\s]/g,''))||0;
+      const db=parseFloat((c[dbi>=0?dbi:'']||'').replace(/[,₹\s]/g,''))||0;
+      if(db>0)rows.push({date:d,desc,amt:db,type:'expense',cat:_autoCat(desc),sel:true});
+      if(cr>0)rows.push({date:d,desc,amt:cr,type:'income',cat:_autoCat(desc),sel:true});
     }
-    if(!amt)continue;
-    const status=(cols[cols.length-1]||'').toLowerCase();
-    if(/(failed|pending|cancelled)/i.test(status))continue;
-    rows.push({date:parsedDate,desc:desc.trim(),amt,type,cat:_autoCat(desc),sel:true});
   }
   return rows;
 }
-// ── CSV line splitter (handles quoted commas) ────────────
-function _splitCSVLine(line){
-  const result=[];let cur='';let inQ=false;
-  for(let i=0;i<line.length;i++){
-    const ch=line[i];
-    if(ch==='"'){inQ=!inQ;}
-    else if(ch===','&&!inQ){result.push(cur.replace(/^"|"$/g,'').replace(/["\r]/g,'').trim());cur='';}
-    else{cur+=ch;}
-  }
-  result.push(cur.replace(/^"|"$/g,'').replace(/["\r]/g,'').trim());
-  return result;
-}
-// ── Auto-detect UPI source ───────────────────────────────
 function _detectUPISource(header,rawText){
-  const h=header.join(' ');const raw=rawText.slice(0,300).toLowerCase();
+  const h=header.join(',');const raw=rawText.slice(0,400);
   if(/google pay|gpay/i.test(raw))return'gpay';
   if(/transaction id.*description.*amount/i.test(h))return'gpay';
-  if(/phonepe|phone pe|paid in.*paid out/i.test(raw))return'phonepe';
+  if(/phonepe|phone pe/i.test(raw))return'phonepe';
+  if(/paid in.*paid out/i.test(h)||/transaction details.*paid in/i.test(h))return'phonepe';
   if(/paytm/i.test(raw))return'paytm';
   if(/bhim|npci/i.test(raw))return'bhim';
-  if(/phonepay|paid in|paid out/i.test(h))return'phonepe';
   if(/narration.*credit.*debit/i.test(h))return'paytm';
-  if(/transaction details.*paid in.*paid out/i.test(h))return'phonepe';
-  return null; // not a UPI statement — use generic bank parser
+  return null;
 }
 function parseStmtCSV(raw){
   if(!raw||!raw.trim())return;
   const lines=raw.trim().split('\n').map(l=>l.trim()).filter(Boolean);
   if(lines.length<2){document.getElementById('stmtPreview').innerHTML='<div style="font-size:11px;color:var(--deficit);padding:8px 0">No data rows found. Paste the CSV content from your statement.</div>';return;}
   const header=lines[0].split(',').map(h=>h.replace(/["\r]/g,'').trim().toLowerCase());
-  // ── Try UPI detection first ──
   const _srcEl=document.querySelector('input[name="stmtSrc"]:checked');
   const src=_srcEl?_srcEl.value:'auto';
   let rows=[];
@@ -11112,7 +11092,7 @@ function parseStmtCSV(raw){
   else if(upiSrc==='bhim')rows=_parseBHIM(lines);
   else if(upiSrc==='gpay')rows=_parseGPay(lines);
   else{
-    // ── Generic bank statement parser ──
+    // Generic bank CSV fallback
     let dateCol=-1,amtCol=-1,descCol=-1,debitCol=-1,creditCol=-1;
     header.forEach((h,i)=>{
       if(/date|dt/.test(h)&&dateCol<0)dateCol=i;
@@ -11311,11 +11291,11 @@ const FLOW_CURRENT_VER='2.8.0';
       <div style="font-size:13px;font-weight:600">Import Statement</div>
       <button class="btn-del" onclick="closeStmtModal()">&#x2715;</button>
     </div>
-    <!-- Source selector -->
+    <!-- Source selector chips -->
     <div style="margin-bottom:12px">
       <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Statement Source</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 10px;border:1px solid var(--border);border-radius:20px;transition:all .15s" id="srcLbl_auto"><input type="radio" name="stmtSrc" id="stmtSrcSel" value="auto" checked onchange="_stmtSrcChange()" style="display:none">🔍 Auto-detect</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 10px;border:1px solid var(--border);border-radius:20px;transition:all .15s" id="srcLbl_auto"><input type="radio" name="stmtSrc" value="auto" checked onchange="_stmtSrcChange()" style="display:none">🔍 Auto-detect</label>
         <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 10px;border:1px solid var(--border);border-radius:20px;transition:all .15s" id="srcLbl_gpay"><input type="radio" name="stmtSrc" value="gpay" onchange="_stmtSrcChange()" style="display:none">📱 GPay</label>
         <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 10px;border:1px solid var(--border);border-radius:20px;transition:all .15s" id="srcLbl_phonepe"><input type="radio" name="stmtSrc" value="phonepe" onchange="_stmtSrcChange()" style="display:none">💜 PhonePe</label>
         <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 10px;border:1px solid var(--border);border-radius:20px;transition:all .15s" id="srcLbl_paytm"><input type="radio" name="stmtSrc" value="paytm" onchange="_stmtSrcChange()" style="display:none">💙 Paytm</label>
@@ -11343,8 +11323,8 @@ const FLOW_CURRENT_VER='2.8.0';
 (function(){
   if(!('serviceWorker' in navigator)) return;
   window.addEventListener('load', function(){
-    // updateViaCache:'none' forces browser to always byte-check sw.js
-        // ignoring HTTP Cache-Control headers (fixes GitHub Pages 10-min cache delay)
+    // updateViaCache:'none' forces browser to always byte-check sw.js,
+        // bypassing GitHub Pages' Cache-Control: max-age=600 header
         navigator.serviceWorker.register('./sw.js', {scope: './', updateViaCache: 'none'})
       .then(function(reg){
         console.log('[Flow] SW registered, scope:', reg.scope);
@@ -11356,7 +11336,7 @@ const FLOW_CURRENT_VER='2.8.0';
           if(banner) banner.style.display = 'flex';
         }
 
-        // ② Force the browser to byte-check sw.js right now on every load
+        // ② Force the browser to byte-check sw.js on every load
         reg.update();
 
         // ③ Catch NEW installs that complete during this page visit
