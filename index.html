@@ -171,9 +171,25 @@ body{font-family:'IBM Plex Mono','Courier New',monospace;background:var(--bg);co
 .sub-pane.active{display:block;animation:sub-fade-in .16s ease forwards}
 @keyframes sub-fade-in{from{opacity:0}to{opacity:1}}
 
+/* ── Form slide-down ──────────────────────────────────── */
+@keyframes form-slide-down{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.form-animate{animation:form-slide-down .22s cubic-bezier(.33,1,.68,1) forwards}
+
+/* ── Button press feedback ────────────────────────────── */
+.btn-primary:active,.btn-ghost:active,.btn-settle:active,.btn-del:active{transform:scale(.96);opacity:.85}
+.btn-primary{transition:opacity .14s,transform .12s,background .15s}
+.btn-ghost{transition:background .14s,color .14s,transform .12s}
+
+/* ── Card hover lift ──────────────────────────────────── */
+.card{transition:box-shadow .2s,border-color .2s,transform .18s}
+.card:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,0,0,.22)}
+
+/* ── Smooth tab-pane fade ─────────────────────────────── */
+@keyframes tab-fade-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
 /* ── FORM ELEMENTS ────────────────────────────────────── */
-select,input[type="text"],input[type="number"],input[type="date"],textarea{font-family:'IBM Plex Mono',monospace;font-size:12px;background:var(--surface-alt);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:var(--r);outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none}
-select:focus,input:focus,textarea:focus{border-color:var(--muted)}
+select,input[type="text"],input[type="number"],input[type="date"],textarea{font-family:'IBM Plex Mono',monospace;font-size:12px;background:var(--surface-alt);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:var(--r);outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;appearance:none}
+select:focus,input:focus,textarea:focus{border-color:var(--text);box-shadow:0 0 0 2px rgba(240,240,240,.08)}
 select{cursor:pointer;padding-right:24px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
 input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none}
 input[type="number"]{-moz-appearance:textfield}
@@ -1896,7 +1912,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   <div class="tour-step-bar">
     <span class="tour-tab-chip" id="tourTabChip">Track</span>
     <div class="tour-dots" id="tourDots"></div>
-    <span class="tour-step-count" id="tourStepCount">1 / 15</span>
+    <span class="tour-step-count" id="tourStepCount">1 / 10</span>
   </div>
   <div class="tour-title" id="tourTitle">Welcome</div>
   <div class="tour-desc" id="tourDesc"></div>
@@ -2239,6 +2255,16 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 <!-- ══ TRACK TAB ════════════════════════════════════════════ -->
 <div id="tab-track" class="tab-pane active">
 <div class="main" id="main">
+  <!-- Weekly Sunday Summary Banner -->
+  <div class="wrapped-banner" id="weeklySummaryBanner" style="display:none;border-left:3px solid #7c5cfc">
+    <span class="wb-icon">📊</span>
+    <div class="wb-body">
+      <div class="wb-title" id="weeklySummaryTitle">Week in Review</div>
+      <div class="wb-sub" id="weeklySummaryBody">Your weekly spending summary is ready.</div>
+    </div>
+    <button class="wb-btn" onclick="openWeeklySummary()">View →</button>
+    <button class="wb-x" onclick="dismissWeeklySummaryBanner()" title="Dismiss">×</button>
+  </div>
   <!-- Annual Wrapped Banner (Dec 25 – Jan 5) -->
   <div class="wrapped-banner" id="wrappedBanner">
     <span class="wb-icon">🎁</span>
@@ -2279,6 +2305,8 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="view-toggle">
       <button class="view-toggle-btn active" id="btnLedgerView" onclick="switchTrackView('ledger')">Monthly</button>
       <button class="view-toggle-btn" id="btnDailyView" onclick="switchTrackView('daily')">Daily</button>
+      <button class="view-toggle-btn" id="btnFlowSnapView" onclick="switchTrackView('flowsnap')">✦ FlowSnap</button>
+      <button class="view-toggle-btn" id="btnReportsView" onclick="switchTrackView('reports')">Reports</button>
     </div>
     <div id="dailyLimitRow" style="display:none;align-items:center;gap:6px">
       <span style="font-size:10px;color:var(--muted)">Daily limit</span>
@@ -2484,6 +2512,49 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     </div>
   </div>
   </div><!-- /#monthlyOnlySection -->
+
+  <!-- ── FLOWSNAP PANEL (moved from Planner) ────────────── -->
+  <div id="trackFlowSnapPanel" style="display:none">
+    <div class="flowsnap-toolbar">
+      <button class="btn-snap-pdf" id="snapPDFBtn" onclick="exportFlowSnapPDF()">
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5.5l3 3 3-3M1 9.5v1a.5.5 0 00.5.5h9a.5.5 0 00.5-.5v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Export PDF
+      </button>
+    </div>
+    <div id="recapBody"></div>
+  </div>
+
+  <!-- ── REPORTS PANEL (moved from Planner) ─────────────── -->
+  <div id="trackReportsPanel" style="display:none">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted);font-weight:500">Report Type</span>
+      <div class="sub-tabs" style="margin:0;flex:1">
+        <button class="sub-tab active" id="repTabTrack" onclick="switchRepType('track',this)">Track</button>
+        <button class="sub-tab" id="repTabBills" onclick="switchRepType('bills',this)">Bills</button>
+        <button class="sub-tab" id="repTabPortfolio" onclick="switchRepType('portfolio',this)">Portfolio</button>
+      </div>
+    </div>
+    <div id="repPeriodRow" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
+      <span style="font-size:11px;color:var(--muted)">Period:</span>
+      <select id="repMonth" style="font-size:11px"></select>
+      <select id="repYear" style="font-size:11px"></select>
+    </div>
+    <div style="margin-bottom:12px">
+      <button class="btn-ghost btn-sm" onclick="renderReport()">Generate Report</button>
+    </div>
+    <div id="repBody" style="margin-bottom:16px"><div class="empty-msg">Select a report type and tap Generate.</div></div>
+    <div id="repActions" style="display:none;gap:8px;flex-wrap:wrap">
+      <button class="btn-primary btn-sm" id="repPDFBtn" onclick="exportRepPDF()">
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5.5l3 3 3-3M1 9.5v1a.5.5 0 00.5.5h9a.5.5 0 00.5-.5v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Export PDF
+      </button>
+      <button class="btn-ghost btn-sm" id="repCSVBtn" onclick="exportRepCSV()">
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 9.5h8M6 1v7M3 5.5l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Export Excel (CSV)
+      </button>
+    </div>
+  </div>
+
 </div>
 </div>
 
@@ -2510,10 +2581,12 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
   <div class="sub-tabs" style="margin-top:14px">
     <button class="sub-tab active" id="btab-accounts" onclick="switchBillsTab('accounts',this)">Accounts</button>
     <button class="sub-tab" id="btab-reminders" onclick="switchBillsTab('reminders',this)">Bill Reminders</button>
-    <button class="sub-tab" id="btab-split" onclick="switchBillsTab('split',this)">Bill Split</button>
     <button class="sub-tab" id="btab-loans" onclick="switchBillsTab('loans',this)">Loan Tracker</button>
     <button class="sub-tab" id="btab-subs" onclick="switchBillsTab('subs',this)">Subscriptions</button>
     <button class="sub-tab" id="btab-insurance" onclick="switchBillsTab('insurance',this)">Insurance</button>
+    <button class="sub-tab" id="btab-split" onclick="switchBillsTab('split',this)">🫂 Circle</button>
+    <!-- btab-circle kept hidden for JS compatibility -->
+    <button class="sub-tab" id="btab-circle" style="display:none" onclick="switchBillsTab('circle',this)"></button>
   </div>
 
   <!-- ── BILL REMINDERS ───────────────────────────────────── -->
@@ -2555,15 +2628,16 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div id="billsUpcoming"></div>
   </div>
 
-  <!-- ── BILL SPLIT ───────────────────────────────────────── -->
+  <!-- ── SHARED (Bill Split + Circle + Who Had What) ──────── -->
   <div id="bsub-split" class="sub-pane">
     <div class="sec-hdr" style="margin-bottom:8px">
       <div style="display:flex;align-items:center;gap:7px">
-        <span class="sec-title">Bill Split Tracker</span>
-        <button class="info-btn" onclick="toggleInfo('tip-split')" title="About Bill Split">i</button>
+        <span class="sec-title">🫂 Circle</span>
+        <button class="info-btn" onclick="toggleInfo('tip-split')" title="About Circle">i</button>
       </div>
       <div style="display:flex;gap:6px">
         <button class="btn-primary btn-sm" onclick="openQuickSplit()" title="Split Up — quick split &amp; notify">&#x26A1; Split Up</button>
+        <button class="btn-ghost btn-sm" onclick="openWhw()" title="Who Had What — item-by-item split">🍽 Who Had What</button>
         <button class="btn-ghost btn-sm" onclick="toggleForm('splitForm')">+ Add Split</button>
       </div>
     </div>
@@ -2589,6 +2663,65 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       </div>
     </div>
     <div id="splitList"></div>
+
+    <!-- ── 🫂 CIRCLE FINANCE (embedded in Circle tab) ──── -->
+    <div style="border-top:1px solid var(--border);margin-top:20px;padding-top:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:7px">
+          <span class="sec-title">🫂 Circle Finance</span>
+          <button class="info-btn" onclick="toggleInfo('tip-circle')" title="About Circle Finance">i</button>
+        </div>
+        <button class="btn-ghost btn-sm" onclick="circleShare()">🔗 Share View</button>
+      </div>
+      <div class="info-tip" id="tip-circle"><div class="info-tip-hd">Circle Finance</div>A shared financial ledger for two people — couples, flatmates, travel partners. Each entry is tagged as yours or theirs. The running balance shows who owes whom at all times. Share a read-only view link with your partner so they always see the current state.<button class="info-tip-close" onclick="toggleInfo('tip-circle')">×</button></div>
+      <div id="circleSetup" style="display:none;padding:18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);text-align:center;margin-bottom:14px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px">Set up your Circle</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Enter your name and your partner's name to get started.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+          <input type="text" id="circleMyName" placeholder="Your name" style="font-size:12px;padding:7px 10px;border:1px solid var(--border);border-radius:var(--r);background:var(--bg);color:var(--text);width:140px">
+          <input type="text" id="circlePartnerName" placeholder="Partner's name" style="font-size:12px;padding:7px 10px;border:1px solid var(--border);border-radius:var(--r);background:var(--bg);color:var(--text);width:140px">
+          <button class="btn-primary btn-sm" onclick="circleSaveSetup()">Create Circle</button>
+        </div>
+      </div>
+      <div id="circleActive">
+        <div id="circleBalanceCard" style="padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)">Running Balance</span>
+            <button class="btn-ghost btn-sm" onclick="circleReset()" style="font-size:9.5px;color:var(--muted)">Reset Circle</button>
+          </div>
+          <div id="circleBalanceDisplay" style="font-size:17px;font-weight:700;text-align:center;padding:8px 0"></div>
+          <div id="circleUPIBlock" style="margin-top:8px;text-align:center;display:none">
+            <button class="btn-primary btn-sm" onclick="circlePayUPI()" id="circlePayBtn">Pay via UPI</button>
+          </div>
+        </div>
+        <div style="padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">Add Entry</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <div class="form-field"><span class="form-label">Who paid?</span>
+              <select id="circleWho" style="font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--r);background:var(--bg);color:var(--text);width:100%">
+                <option value="me" id="circleOptMe">Me</option>
+                <option value="them" id="circleOptThem">Partner</option>
+              </select>
+            </div>
+            <div class="form-field"><span class="form-label">Amount (₹)</span><input type="number" id="circleAmt" placeholder="0" min="0" style="font-size:12px"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <div class="form-field"><span class="form-label">Description</span><input type="text" id="circleDesc" placeholder="Groceries, rent…" style="font-size:12px"></div>
+            <div class="form-field"><span class="form-label">Split</span>
+              <select id="circleSplit" style="font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--r);background:var(--bg);color:var(--text);width:100%">
+                <option value="equal">Equal (50/50)</option>
+                <option value="full">Full (payer owes nothing)</option>
+                <option value="me">My expense only</option>
+                <option value="them">Their expense only</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-primary btn-sm" onclick="circleAddEntry()">Add Entry</button>
+        </div>
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px">Shared Ledger</div>
+        <div id="circleLedger"></div>
+      </div>
+    </div>
   </div>
 
   <!-- ── LOAN TRACKER ─────────────────────────────────────── -->
@@ -2792,6 +2925,8 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div id="accountList"></div>
   </div>
 
+  <!-- bsub-circle stub — content moved into bsub-split -->
+  <div id="bsub-circle" class="sub-pane" style="display:none"></div>
 
 </div><!-- /.main -->
 </div><!-- /#tab-bills -->
@@ -3391,12 +3526,14 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 <div class="main">
   <div class="sub-tabs">
     <button class="sub-tab active" onclick="switchToolsTab('calendar',this)">Financial Calendar</button>
+    <button class="sub-tab" onclick="switchToolsTab('payday',this)">📅 Pay Day</button>
     <button class="sub-tab" onclick="switchToolsTab('emfund',this)">Emergency Fund</button>
     <button class="sub-tab" onclick="switchToolsTab('debtpay',this)">Debt Payoff</button>
-    <button class="sub-tab" id="recapSubTabBtn" onclick="switchToolsTab('recap',this)">&#x2736; FlowSnap</button>
-    <button class="sub-tab" id="wrappedSubTabBtn" onclick="switchToolsTab('wrapped',this)" style="display:none">&#x1F381; Annual Wrapped</button>
-    <button class="sub-tab" onclick="switchToolsTab('reports',this)">Reports</button>
+    <button class="sub-tab" onclick="switchToolsTab('fingerprint',this)">🧬 Fingerprint</button>
     <button class="sub-tab" onclick="switchToolsTab('notes',this)">Notes</button>
+    <button class="sub-tab" id="wrappedSubTabBtn" onclick="switchToolsTab('wrapped',this)" style="display:none">&#x1F381; Annual Wrapped</button>
+    <!-- recapSubTabBtn kept hidden for JS compatibility -->
+    <button class="sub-tab" id="recapSubTabBtn" style="display:none" onclick="switchToolsTab('recap',this)"></button>
   </div>
   <!-- FINANCIAL CALENDAR -->
   <div id="tsub-calendar" class="sub-pane active">
@@ -3460,53 +3597,10 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div id="debtSummaryBlock" style="display:none;margin-top:14px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r)"></div>
   </div>
 
-  <!-- ══ FLOW RECAP SUB-PANE ══════════════════════════════ -->
-  <div id="tsub-recap" class="sub-pane">
-    <div class="flowsnap-toolbar">
-      <button class="btn-snap-pdf" id="snapPDFBtn" onclick="exportFlowSnapPDF()">
-        <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5.5l3 3 3-3M1 9.5v1a.5.5 0 00.5.5h9a.5.5 0 00.5-.5v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Export PDF
-      </button>
-    </div>
-    <div id="recapBody"></div>
-  </div>
-
-  <!-- ══ ANNUAL WRAPPED SUB-PANE ══════════════════════════ -->
-  <div id="tsub-wrapped" class="sub-pane">
-    <div id="wrappedSubBody"></div>
-  </div>
-
-  <!-- ══ REPORTS SUB-PANE ══════════════════════════════════ -->
-  <div id="tsub-reports" class="sub-pane">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-      <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted);font-weight:500">Report Type</span>
-      <div class="sub-tabs" style="margin:0;flex:1">
-        <button class="sub-tab active" id="repTabTrack" onclick="switchRepType('track',this)">Track</button>
-        <button class="sub-tab" id="repTabBills" onclick="switchRepType('bills',this)">Bills</button>
-        <button class="sub-tab" id="repTabPortfolio" onclick="switchRepType('portfolio',this)">Portfolio</button>
-      </div>
-    </div>
-    <!-- Period selector for Track report -->
-    <div id="repPeriodRow" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
-      <span style="font-size:11px;color:var(--muted)">Period:</span>
-      <select id="repMonth" style="font-size:11px"></select>
-      <select id="repYear" style="font-size:11px"></select>
-    </div>
-    <div style="margin-bottom:12px">
-      <button class="btn-ghost btn-sm" onclick="renderReport()">Generate Report</button>
-    </div>
-    <div id="repBody" style="margin-bottom:16px"><div class="empty-msg">Select a report type and tap Generate.</div></div>
-    <div id="repActions" style="display:none;gap:8px;flex-wrap:wrap">
-      <button class="btn-primary btn-sm" id="repPDFBtn" onclick="exportRepPDF()">
-        <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5.5l3 3 3-3M1 9.5v1a.5.5 0 00.5.5h9a.5.5 0 00.5-.5v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Export PDF
-      </button>
-      <button class="btn-ghost btn-sm" id="repCSVBtn" onclick="exportRepCSV()">
-        <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 9.5h8M6 1v7M3 5.5l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Export Excel (CSV)
-      </button>
-    </div>
-  </div>
+  <!-- FlowSnap, Annual Wrapped, Reports moved to Track tab -->
+  <div id="tsub-recap" class="sub-pane" style="display:none"></div>
+  <div id="tsub-wrapped" class="sub-pane"><div id="wrappedSubBody"></div></div>
+  <div id="tsub-reports" class="sub-pane" style="display:none"></div>
 
   <!-- ── NOTES (moved from standalone tab) ───────────────── -->
   <div id="tsub-notes" class="sub-pane">
@@ -3524,6 +3618,61 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div id="notesList"><div class="empty-msg">No notes yet. Click + New Note to create one.</div></div>
   </div>
 
+  <!-- ══ PAY DAY PLANNER SUB-PANE ════════════════════════════ -->
+  <div id="tsub-payday" class="sub-pane">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:7px">
+        <span class="sec-title">📅 Pay Day Planner</span>
+        <button class="info-btn" onclick="toggleInfo('tip-payday')" title="About Pay Day Planner">i</button>
+      </div>
+      <button class="btn-ghost btn-sm" onclick="paydayEditSettings()">⚙ Settings</button>
+    </div>
+    <div class="info-tip" id="tip-payday"><div class="info-tip-hd">Pay Day Planner</div>A cash-flow heat map of your month. Set your pay day and the calendar automatically colour-codes every day — <strong>Indigo</strong> = pay day, <strong>Red</strong> = big outflow (bills/EMIs/loans), <strong>Amber</strong> = medium outflow, <strong>Green</strong> = free-buffer days. The free-money window shows how many days after salary before your first big bill hits.<button class="info-tip-close" onclick="toggleInfo('tip-payday')">×</button></div>
+    <div id="paydaySettings" style="display:none;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px">
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">Pay Day Settings</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <div class="form-field"><span class="form-label">Pay Day of Month</span><input type="number" id="paydayDate" min="1" max="31" placeholder="e.g. 1" style="font-size:12px"></div>
+        <div class="form-field"><span class="form-label">Monthly Net Salary (₹)</span><input type="number" id="paydaySalary" placeholder="0" style="font-size:12px"></div>
+      </div>
+      <div class="form-field" style="margin-bottom:8px"><span class="form-label">Outflow Threshold — High (₹, per day)</span><input type="number" id="paydayThreshHigh" placeholder="e.g. 5000" style="font-size:12px"></div>
+      <div class="form-field" style="margin-bottom:10px"><span class="form-label">Outflow Threshold — Medium (₹, per day)</span><input type="number" id="paydayThreshMed" placeholder="e.g. 1000" style="font-size:12px"></div>
+      <button class="btn-primary btn-sm" onclick="paydaySaveSettings()">Save</button>
+      <button class="btn-ghost btn-sm" onclick="document.getElementById('paydaySettings').style.display='none'" style="margin-left:6px">Cancel</button>
+    </div>
+    <div id="paydaySummary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px"></div>
+    <div class="cal-nav" style="margin-bottom:8px">
+      <button class="btn-ghost btn-sm" onclick="paydayPrev()">← Prev</button>
+      <div class="cal-month-lbl" id="paydayMonthLbl">Month Year</div>
+      <button class="btn-ghost btn-sm" onclick="paydayNext()">Next →</button>
+    </div>
+    <div id="paydayGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:10px">
+      <div style="font-size:9px;text-align:center;color:var(--muted);padding:4px">S</div>
+      <div style="font-size:9px;text-align:center;color:var(--muted);padding:4px">M</div>
+      <div style="font-size:9px;text-align:center;color:var(--muted);padding:4px">T</div>
+      <div style="font-size:9px;text-align:center;color:var(--muted);padding:4px">W</div>
+      <div style="font-size:9px;text-align:center;color:var(--muted);padding:4px">T</div>
+      <div style="font-size:9px;text-align:center;color:var(--muted);padding:4px">F</div>
+      <div style="font-size:9px;text-align:center;color:var(--muted);padding:4px">S</div>
+    </div>
+    <div class="cal-legend" style="margin-bottom:10px">
+      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#6B4EFF;border:1px solid #6B4EFF"></div>Pay Day</div>
+      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--deficit-bg);border:1px solid var(--deficit)"></div>Big outflow</div>
+      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--amber-bg);border:1px solid var(--amber)"></div>Medium outflow</div>
+      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--surplus-bg);border:1px solid var(--surplus)"></div>Free buffer</div>
+    </div>
+    <div id="paydaySuggestions"></div>
+  </div>
+
+  <!-- ══ FINANCIAL FINGERPRINT SUB-PANE ══════════════════════ -->
+  <div id="tsub-fingerprint" class="sub-pane">
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px">
+      <span class="sec-title">🧬 Financial Fingerprint</span>
+      <button class="info-btn" onclick="toggleInfo('tip-fingerprint')" title="About Financial Fingerprint">i</button>
+    </div>
+    <div class="info-tip" id="tip-fingerprint"><div class="info-tip-hd">Financial Fingerprint</div>Your unique spending and saving DNA — built from the last 90 days of transactions. The Flow Score (0–100) measures overall financial health. The radar chart shows 5 dimensions: Saving Rate, Spending Discipline, Income Stability, Investment Consistency, and Budget Adherence. Your spending archetype is detected automatically — Planner, Impulsive, Saver, Balanced, Explorer or Cautious.<button class="info-tip-close" onclick="toggleInfo('tip-fingerprint')">×</button></div>
+    <div id="fingerprintBody"><div class="empty-msg" style="padding:30px 0">Loading your Fingerprint…</div></div>
+  </div>
+
 </div>
 </div>
 
@@ -3536,6 +3685,18 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="wn-hero-icon">&#x2726;</div>
     <div class="wn-hero-title">Flow &mdash; Release Notes</div>
     <div class="wn-hero-sub">Every feature, fix and improvement &mdash; from the beginning.</div>
+  </div>
+
+  <div class="wn-version-block" id="wn-v292">
+    <div class="wn-version-header">
+      <span class="wn-version-num">v2.9.2</span>
+      <span class="wn-version-date">Nov 2026</span>
+      <span class="wn-version-label wn-label-major">Feature Update</span>
+    </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🍽 Who Had What v2 — Full Bill Splitting Wizard</div><div class="wn-entry-desc">Completely rebuilt from scratch. 5-step wizard: add items with quantity and price → assign each item to the right person → adjust for tax, tip and service charge → collect payment via UPI deep link or inline QR code → view net settlements (minimum transfers). Supports saved groups, 30-session history, payer's own share shown as "keeps ₹X", round-up option, and saves directly to Bill Split.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">📅 Pay Day Planner — Cash Flow Heat Map</div><div class="wn-entry-desc">A new sub-tab under Planner. Set your pay day and the calendar automatically colour-codes every day of the month: Indigo for pay day, Red for high-outflow days (bills, EMIs, loan payments), Amber for medium outflow, and Green for free-buffer days. See your free-money window — the gap between pay day and your first big payment — plus a summary of all high-outflow dates. Reads your existing Bills, Subscriptions, and Loan data automatically.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🧬 Financial Fingerprint — Your Money DNA</div><div class="wn-entry-desc">A new sub-tab under Planner. Analyses the last 90 days of your Daily Expense data to generate a Flow Score (0–100), a spending archetype (Planner, Balanced, Saver, Explorer, Impulsive or Cautious), and a radar chart across 5 dimensions: Saving Rate, Spending Discipline, Income Stability, Investment Consistency, and Budget Adherence. Also shows peak spend day, peak spend time-of-day, average daily spend, and top 3 categories. No manual input required.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🫂 Circle Finance — Shared Ledger for Two</div><div class="wn-entry-desc">A new sub-tab under Bills. A persistent shared financial ledger for couples, flatmates or travel partners. Each entry is tagged as yours or your partner's, with a split mode: equal (50/50), full (payer owes nothing), my expense only, or their expense only. The running balance updates instantly — shows who owes whom. Settle directly via UPI or share a text snapshot with your partner.</div></div></div>
   </div>
 
   <div class="wn-version-block" id="wn-v291">
@@ -3606,7 +3767,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">📝 Notes Moved to Planner</div><div class="wn-entry-desc">Notes is now a sub-tab inside Planner — keeping the bottom nav focused on the 5 core areas: Track, Bills, Portfolio, Planner, Settings. Access via Planner → Notes. All existing notes are preserved.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-improved">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">Clean Header</div><div class="wn-entry-desc">The Track tab header now shows only what you need: month/year selector, Copy, Import, Search, CSV, Card, PDF and the notification bell. Dark mode, currency, PIN and Install moved to Settings — less clutter, same access.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-improved">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">Smooth Dark/Light Transition</div><div class="wn-entry-desc">Switching between light and dark mode now transitions every element smoothly — cards, borders, inputs, icons — at 350ms ease. Previously only the body background transitioned; everything else snapped.</div></div></div>
-    <div class="wn-entry"><span class="wn-badge wn-badge-improved">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">Onboarding Tour Updated</div><div class="wn-entry-desc">The 16-step interactive tour now covers the Settings tab, Notes in Planner, the cleaned header and the mobile bottom nav. Steps are platform-aware — highlights the bottom bar on iOS/Android and the top bar on desktop.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-improved">Improved</span><div class="wn-entry-body"><div class="wn-entry-title">Onboarding Tour Streamlined</div><div class="wn-entry-desc">The interactive tour is now 10 focused steps covering only the core features — Track, Bills, Circle (with UPI QR), Portfolio, Pay Day Heat Map, Financial Fingerprint and Settings. Duplicate and minor steps removed.</div></div></div>
   </div>
 
   <div class="wn-version-block">
@@ -4209,7 +4370,17 @@ const uid  = ()=>Math.random().toString(36).slice(2,10);
 function toggleForm(id){
   const e=document.getElementById(id);if(!e)return;
   const willShow=(e.style.display==='none'||e.style.display==='');
-  e.style.display=willShow?'block':'none';
+  if(willShow){
+    e.style.display='block';
+    e.classList.remove('form-animate');
+    void e.offsetWidth; // force reflow
+    e.classList.add('form-animate');
+    // Scroll into view smoothly so the form is never off-screen
+    setTimeout(()=>e.scrollIntoView({behavior:'smooth',block:'nearest'}),60);
+  } else {
+    e.style.display='none';
+    e.classList.remove('form-animate');
+  }
   if(id==='accountAddForm'&&willShow){renderBankPickerGrid();}
   if(id==='holdForm'&&willShow){_holdPayAcct=null;_refreshFormAcctBadge('holdPayAccWrap',null,'openHoldPayAcctPicker');}
   if(id==='goalForm'&&willShow){_goalPayAcct=null;_refreshFormAcctBadge('goalPayAccWrap',null,'openGoalPayAcctPicker');}
@@ -6330,8 +6501,15 @@ function renderSplits(){
           +((!m.settled&&m.phone)?'<button class="btn-notify-icon wa'+(isNudgeDue?' nudge-due':'')+'\" onclick="notifyMember(\''+s.id+'\',\''+m.id+'\')" title="'+waTitle+'">'+waSVG+(isNudgeDue?'<span class="nudge-dot"></span>':'')+'</button>':'')
           +((!m.settled&&m.phone)?'<button class="btn-notify-icon sms" onclick="notifySMS(\''+s.id+'\',\''+m.id+'\')" title="SMS '+esc(m.name)+'">'+smsSVG+'</button>':'')
           +((!m.settled&&!m.phone)?'<button class="btn-notify-icon" onclick="notifyMember(\''+s.id+'\',\''+m.id+'\')" title="Copy message — add phone for WA/SMS" style="font-size:11px;width:30px;height:30px">&#x1F4CB;</button>':'')
+          +((!m.settled&&s.payeeUPI)?'<button class="btn-notify-icon" onclick="toggleSplitQR(\''+s.id+'\',\''+m.id+'\')" title="Show QR — '+esc(m.name)+' scans to pay" style="font-size:12px;width:30px;height:30px">&#x25A6;</button>':'')
           +(!m.settled?'<button class="btn-settle" onclick="settleSplitMember(\''+s.id+'\',\''+m.id+'\')">Mark Settled</button>':'<span style="display:flex;align-items:center;gap:4px"><span style="font-size:10px;color:var(--surplus)">&#x2713; Settled</span><button class="btn-ghost btn-sm" onclick="unmarkSplitMember(\''+s.id+'\',\''+m.id+'\')" style="font-size:9px;padding:2px 6px;opacity:.55" title="Undo">Undo</button></span>')
-          +'</div></div>';
+          +'</div>'
+          +'<div id="splitQrWrap_'+s.id+'_'+m.id+'" style="display:none;margin-top:8px;padding:10px;background:var(--surface-alt);border-radius:var(--r);text-align:center">'
+            +'<div style="font-size:9px;color:var(--muted);margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase">'+esc(m.name)+' scans to pay ₹'+fmt(m.amount)+'</div>'
+            +'<div id="splitQrCanvas_'+s.id+'_'+m.id+'"></div>'
+            +'<div style="font-size:9px;color:var(--faint);margin-top:6px">UPI · '+esc(s.payeeUPI)+'</div>'
+          +'</div>'
+          +'</div>';
       }).join('')}
     </div>`;
   }).join('');
@@ -6775,69 +6953,45 @@ document.addEventListener('keydown', function(e){
 // ══ INTERACTIVE TOUR ════════════════════════════════════════
 const TOUR_STEPS=[
   // 1 — NAVIGATION
-  {tab:'track',target:'.tab-bar',chip:'Navigation',
-   title:'4 Tabs + Settings — Everything in one place',
-   desc:'Flow has 4 main tabs: Track, Bills, Portfolio, Planner. On desktop, tap the ⚙ gear icon in the top-right corner to open Settings. On mobile, use the bottom nav bar — 5 icons including the gear.'},
-  // 2 — TRACK: month controls
-  {tab:'track',target:'#trackControls',chip:'Track',
-   title:'Month Selector & Exports',
-   desc:'Switch month and year from the top bar. Export as PDF, CSV, or share a Flow Card. Use Search to find any entry. Import CSV has moved to Settings → Data & Backup.'},
-  // 3 — TRACK: summary cards
-  {tab:'track',target:'.summary',chip:'Track',
-   title:'Live Summary — Income · Expenses · Net',
-   desc:'Cards animate as you add entries. Your savings rate is always visible. Hide all amounts with the eye toggle inside Settings → Appearance.'},
-  // 4 — TRACK: daily view
+  {tab:'track',target:'.tab-bar',chip:'Welcome',
+   title:'Flow — Your Personal Finance App',
+   desc:'4 main tabs: Track (log money), Bills (reminders & shared expenses), Portfolio (investments), Planner (tools & insights). Settings is the ⚙ icon — top-right on desktop, bottom nav on mobile.'},
+  // 2 — TRACK: add entry
+  {tab:'track',target:'.ledger',chip:'Track',scroll:true,
+   title:'Log Income & Expenses',
+   desc:'Tap "+ Add income entry" or "+ Add expense entry" to record money. Add a category, description and tag. Everything you log here builds your financial picture over time.'},
+  // 3 — TRACK: monthly vs daily
   {tab:'track',target:'.view-toggle',chip:'Track',
    title:'Monthly or Daily Tracker',
-   desc:'Switch between the full monthly ledger and the Daily Expense Tracker. Daily is independent — small purchases tracked separately, never mixed with monthly budget.'},
-  // 5 — TRACK: ledger
-  {tab:'track',target:'.ledger',chip:'Track',scroll:true,
-   title:'Your Ledger — Add Entries',
-   desc:'Tap "+ Add income entry" or "+ Add expense entry" to log money. Add category, description and tag. Drag rows to reorder. Save recurring entries as templates.'},
-  // 6 — BILLS: tab
-  {tab:'bills',target:'.tab-btn:nth-child(2)',chip:'Bills',
-   title:'Bills — Reminders, Splits & Loans',
-   desc:'Four sub-tabs: Bill Reminders, Bill Split, Loan Tracker and Subscriptions. A red dot on Bills in the nav bar means an overdue payment.'},
-  // 6b — ACCOUNTS
-  {tab:'bills',subtab:'accounts',target:'#bsub-accounts',chip:'Accounts',
-   title:'🏦 Bank Accounts',
-   desc:'Add your bank accounts here — Savings, Salary, Credit Card, Wallet, and more. Once added, tag any income, expense, bill, or investment to the account it came from. The account card shows your balance and a full statement view.'},
-  // 7 — BILLS: reminders
-  {tab:'bills',target:'#bsub-reminders',chip:'Bill Reminders',
-   title:'Bill Reminders',
-   desc:'Add recurring bills with due dates. Overdue shows in red. Flow sends browser notifications 3 days before each due date — enable in Settings → Notifications.'},
-  // 8 — BILLS: split
-  {tab:'bills',subtab:'split',target:'#bsub-split .sec-hdr',chip:'Bill Split',
-   title:'⚡ Split Up — Notify via WhatsApp',
-   desc:'Split any shared expense instantly. Enter total → auto-divides equally → notify each person via WhatsApp or SMS. Track who settled and nudge after 3 days.'},
-  // 9 — PORTFOLIO: tab
+   desc:'Switch between the full Monthly ledger and the Daily Expense Tracker. Use Daily for small day-to-day purchases — it stays separate from your monthly budget so nothing gets mixed up.'},
+  // 4 — BILLS: reminders
+  {tab:'bills',target:'#bsub-reminders',chip:'Bills',
+   title:'Bill Reminders — Never Miss a Due Date',
+   desc:'Add recurring bills with due dates. Overdue bills show in red. Flow notifies you 3 days before each due date — enable notifications in Settings.'},
+  // 5 — CIRCLE: splits & QR
+  {tab:'bills',subtab:'split',target:'#bsub-split .sec-hdr',chip:'Circle',
+   title:'🫂 Circle — Split Bills & Shared Expenses',
+   desc:'Three tools: ⚡ Split Up splits any expense between people — tap the QR icon on a member row to show a UPI QR they scan to pay instantly. 🫂 Circle Finance tracks a shared running ledger. 🍽 Who Had What splits a restaurant bill item by item.'},
+  // 6 — PORTFOLIO
   {tab:'invest',target:'.tab-btn:nth-child(3)',chip:'Portfolio',
-   title:'Portfolio — All Your Investments',
-   desc:'Track equity, mutual funds, gold, FD, PPF, NPS, crypto. Set savings goals with progress bars. Use SIP, EMI, FD and inflation calculators. Live NAV from AMFI.'},
-  // 10 — PORTFOLIO: mutual funds
-  {tab:'invest',subtab:'mf',target:'#mfSearch',chip:'Mutual Funds',scroll:true,
-   title:'16,000+ Mutual Fund Schemes',
-   desc:'Search any AMFI-registered fund. Live NAV updated automatically. Set monthly SIP amount and date. Track units, cost and P&L per fund.'},
-  // 11 — PLANNER: tab
-  {tab:'tools',target:'.tab-btn:nth-child(4)',chip:'Planner',
-   title:'Planner — 7 Tools in One Tab',
-   desc:'Financial Calendar, Emergency Fund, Debt Payoff, FlowSnap monthly recap, Annual Wrapped, Reports and Notes — all here as sub-tabs.'},
-  // 12 — PLANNER: FlowSnap
-  {tab:'tools',target:'#recapSubTabBtn',chip:'FlowSnap',
-   title:'✦ FlowSnap — Monthly Recap (25th–end)',
-   desc:'Available 25th to last day of every month. Shows savings grade A–F, income vs expenses, top spend categories and a narrative. Export as PDF.'},
-  // 13 — PLANNER: notes
-  {tab:'tools',subtab:'notes',target:'#tsub-notes',chip:'Notes',
-   title:'Notes — Inside Planner',
-   desc:'Write financial goals, reminders or anything. Pin important notes to the top. Find under Planner → Notes sub-tab.'},
-  // 14 — SETTINGS
+   title:'Portfolio — Track Every Investment',
+   desc:'Stocks, mutual funds, gold, FD, PPF, NPS and more in one place. Search from 16,000+ AMFI funds with live NAV. Set savings goals and watch progress bars fill up.'},
+  // 7 — PAY DAY PLANNER
+  {tab:'tools',subtab:'payday',target:'#tsub-payday',chip:'Planner',
+   title:'📅 Pay Day Heat Map',
+   desc:'Set your pay day and see the whole month colour-coded. Indigo = salary day, Red = heavy outflow days, Amber = medium spend, Green = free-buffer days. Know exactly when you have breathing room.'},
+  // 8 — FINGERPRINT
+  {tab:'tools',subtab:'fingerprint',target:'#tsub-fingerprint',chip:'Fingerprint',
+   title:'🧬 Financial Fingerprint — Your Money DNA',
+   desc:'After a few weeks of logging, Flow analyses your habits — Flow Score 0–100, spending archetype, radar chart across 5 dimensions, peak spend day and your top categories.'},
+  // 9 — SETTINGS
   {tab:'settings',target:'#desktopSettingsBtn',chip:'Settings',
-   title:'⚙ Settings — Your Control Centre',
-   desc:'On desktop tap the ⚙ icon (top-right, next to the bell). Profile, theme, PIN lock, backup, notifications, Import CSV and Track preferences — everything in one place.'},
-  // 15 — FINAL
+   title:'⚙ Settings — Backup & Preferences',
+   desc:'Set a PIN lock, change theme, export or import your data (CSV / JSON), manage notifications and customise how Flow looks. Your data never leaves your device unless you export it.'},
+  // 10 — FINAL
   {tab:'track',target:'.ledger',chip:'Ready!',scroll:true,
    title:'You\'re all set! 🎉',
-   desc:'Tap "+ Add income entry" to log your first transaction. All data stays on this device — private, offline, always yours.'},
+   desc:'Start by logging your first transaction — tap "+ Add income entry". The more you log, the smarter Flow gets. Everything stays on your device, private and offline.'},
 ];
 
 let _tourStep=0;
@@ -8168,11 +8322,11 @@ function dismissRecapBanner(){
 
 function openFlowRecap(){
   dismissRecapBanner();
-  const plannerBtn=document.querySelector('.tab-btn[onclick*="tools"]');
-  if(plannerBtn){switchTab('tools',plannerBtn);}
+  const trackBtn=document.querySelector('.tab-btn[onclick*="track"]');
+  if(trackBtn){switchTab('track',trackBtn);}
   setTimeout(()=>{
-    const recapBtn=document.getElementById('recapSubTabBtn');
-    if(recapBtn) recapBtn.click();
+    const fsBtn=document.getElementById('btnFlowSnapView');
+    if(fsBtn) switchTrackView('flowsnap');
   },150);
 }
 
@@ -8511,6 +8665,9 @@ function showToast(title,body,duration){
   const stack=document.getElementById('toastStack');
   if(!stack)return;
   duration=duration||5000;
+  // Cap stack at 3 — remove oldest if already at limit
+  const existing=stack.querySelectorAll('.flow-toast');
+  if(existing.length>=3){existing[0].remove();}
   const t=document.createElement('div');
   t.className='flow-toast';
   t.style.position='relative';
@@ -8955,7 +9112,7 @@ function initNWToggle(){
 let repType='track';
 function switchRepType(type,btn){
   repType=type;
-  document.querySelectorAll('#tsub-reports .sub-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#trackReportsPanel .sub-tab,#tsub-reports .sub-tab').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   const periodRow=document.getElementById('repPeriodRow');
   if(periodRow)periodRow.style.display=type==='track'?'flex':'none';
@@ -9141,6 +9298,33 @@ function notifySMS(splitId,memberId){
   window.open('sms:+'+phone+'?body='+encodeURIComponent(msg),'_blank');
 }
 
+
+// ══ SPLIT QR CODE ═════════════════════════════════════════
+function toggleSplitQR(splitId,memberId){
+  const wrap=document.getElementById('splitQrWrap_'+splitId+'_'+memberId);
+  if(!wrap)return;
+  const isOpen=wrap.style.display!=='none';
+  // Close any other open QR wraps first
+  document.querySelectorAll('[id^="splitQrWrap_"]').forEach(el=>el.style.display='none');
+  if(isOpen)return; // was open — just toggling off
+  const sp=SPLITS.find(s=>s.id===splitId);
+  const m=sp?.members.find(x=>x.id===memberId);
+  if(!sp||!m||!sp.payeeUPI)return;
+  const upiLink='upi://pay?pa='+encodeURIComponent(sp.payeeUPI)+'&pn='+encodeURIComponent(sp.paidBy||'')+'&am='+m.amount+'&cu=INR&tn='+encodeURIComponent('Split: '+sp.title);
+  wrap.style.display='block';
+  const canvas=document.getElementById('splitQrCanvas_'+splitId+'_'+memberId);
+  if(!canvas||canvas.children.length)return; // already rendered
+  _loadQRLib(()=>{
+    const c=document.getElementById('splitQrCanvas_'+splitId+'_'+memberId);
+    if(!c)return;
+    if(window._whwQRReady==='err'||typeof QRCode==='undefined'){
+      c.innerHTML='<div style="font-size:9px;color:var(--faint);word-break:break-all;padding:5px;border:1px dashed var(--border);border-radius:5px">'+upiLink+'</div>';
+      return;
+    }
+    try{new QRCode(c,{text:upiLink,width:140,height:140,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});}
+    catch(e){c.innerHTML='';}
+  });
+}
 
 // ══ UNMARK SETTLED ════════════════════════════════════════
 function unmarkSplitMember(splitId,memberId){
@@ -9910,25 +10094,38 @@ function saveDailyLimit(){
 
 function switchTrackView(mode){
   _dailyViewActive=(mode==='daily');
-  document.getElementById('btnLedgerView').classList.toggle('active',!_dailyViewActive);
-  document.getElementById('btnDailyView').classList.toggle('active',_dailyViewActive);
-  document.getElementById('ledgerPanel').style.display=_dailyViewActive?'none':'';
+  const isLedger=(mode==='ledger');
+  const isDaily=(mode==='daily');
+  const isFlowSnap=(mode==='flowsnap');
+  const isReports=(mode==='reports');
+  // Toggle buttons
+  document.getElementById('btnLedgerView').classList.toggle('active',isLedger);
+  document.getElementById('btnDailyView').classList.toggle('active',isDaily);
+  const bfs=document.getElementById('btnFlowSnapView');if(bfs)bfs.classList.toggle('active',isFlowSnap);
+  const brp=document.getElementById('btnReportsView');if(brp)brp.classList.toggle('active',isReports);
+  // Show/hide panels
+  document.getElementById('ledgerPanel').style.display=(isLedger)?'':'none';
   const dv=document.getElementById('dailyViewPanel');
-  dv.classList.toggle('show',_dailyViewActive);
+  dv.classList.toggle('show',isDaily);
   const dlr=document.getElementById('dailyLimitRow');
-  if(dlr)dlr.style.display=_dailyViewActive?'flex':'none';
-  // Hide charts / heatmap / budget / templates / annual in Daily view
+  if(dlr)dlr.style.display=isDaily?'flex':'none';
+  // Monthly section (charts, budget, heatmap) — hide in non-ledger views
   const mos=document.getElementById('monthlyOnlySection');
-  if(mos)mos.style.display=_dailyViewActive?'none':'';
-  if(_dailyViewActive){
+  if(mos)mos.style.display=isLedger?'':'none';
+  // FlowSnap + Reports panels
+  const fsp=document.getElementById('trackFlowSnapPanel');if(fsp)fsp.style.display=isFlowSnap?'':'none';
+  const rpp=document.getElementById('trackReportsPanel');if(rpp)rpp.style.display=isReports?'':'none';
+  if(isDaily){
     const inp=document.getElementById('dailyLimitInp');
     const lim=getDailyLimit();if(inp&&lim>0)inp.value=lim;
     const dq=document.getElementById('dqDate');
     if(dq&&!dq.value)dq.value=_localDateStr();
     _refreshDQBankBadge();
-    setDQType('expense'); // reset to expense on every daily view open
+    setDQType('expense');
     renderDailyView();
   }
+  if(isFlowSnap){renderFlowRecap();}
+  if(isReports){initRepSelectors();switchRepType('track',document.getElementById('repTabTrack'));}
 }
 
 function renderDailyView(){
@@ -11774,6 +11971,1439 @@ const FLOW_CURRENT_VER='2.9.1';
     </div>
   </div>
 </div>
+
+<!-- ══ WHO HAD WHAT — MODAL OVERLAY (v2) ═════════════════════ -->
+<!-- ══ WHO HAD WHAT — MODAL OVERLAY (v2) ═════════════════════ -->
+<style>
+#whwOverlay{position:fixed;inset:0;z-index:400;background:var(--bg);display:none;flex-direction:column;overflow:hidden}
+#whwOverlay.open{display:flex}
+.whw-topbar{display:flex;align-items:center;gap:8px;padding:12px 14px 10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.whw-topbar-title{font-size:13px;font-weight:600;flex:1}
+.whw-topbar-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 8px;border-radius:6px}
+.whw-topbar-close:hover{color:var(--text);background:var(--surface-alt)}
+.whw-steps{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto}
+.whw-step-btn{flex:1;min-width:70px;padding:8px 4px;font-size:9.5px;font-family:'IBM Plex Mono',monospace;font-weight:500;text-align:center;background:none;border:none;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap}
+.whw-step-btn.active{color:var(--text);border-bottom-color:var(--text)}
+.whw-step-btn.done{color:var(--surplus)}
+.whw-body{flex:1;overflow-y:auto;padding:12px 14px 24px}
+.whw-sec-label{font-size:9.5px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted);font-weight:500;margin-bottom:8px}
+.whw-item-row{display:flex;align-items:center;gap:5px;padding:6px 0;border-bottom:1px solid var(--border)}
+.whw-item-name{flex:1;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.whw-item-qty{width:36px;font-size:11px;text-align:center;padding:3px 4px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-family:'IBM Plex Mono',monospace}
+.whw-item-price{width:68px;font-size:11px;padding:3px 6px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-family:'IBM Plex Mono',monospace;text-align:right}
+.whw-item-del{background:none;border:none;color:var(--muted);cursor:pointer;padding:2px 5px;font-size:14px;flex-shrink:0}
+.whw-item-del:hover{color:var(--deficit)}
+.whw-add-row{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.whw-add-row input,.whw-add-row select{font-size:11px;padding:5px 7px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-family:'IBM Plex Mono',monospace}
+.whw-add-row input:focus,.whw-add-row select:focus{outline:none;border-color:var(--text)}
+.whw-person-row{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--border)}
+.whw-person-name{flex:1;font-size:12px}
+.whw-person-del{background:none;border:none;color:var(--muted);cursor:pointer;padding:2px 5px;font-size:14px}
+.whw-assign-item{background:var(--surface);border-radius:8px;margin-bottom:10px;padding:10px 12px;border:1px solid var(--border)}
+.whw-assign-item-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:6px;flex-wrap:wrap}
+.whw-assign-item-name{font-size:12px;font-weight:600}
+.whw-assign-item-price{font-size:10px;color:var(--muted)}
+.whw-assign-chips{display:flex;gap:5px;flex-wrap:wrap}
+.whw-assign-chip{font-size:10px;padding:4px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface-alt);color:var(--text);cursor:pointer;transition:all .12s;font-family:'IBM Plex Mono',monospace}
+.whw-assign-chip.selected{background:var(--text);color:var(--bg);border-color:var(--text)}
+.whw-assign-chip.payer-chip{border-style:dashed;opacity:.7}
+.whw-summary-person{background:var(--surface);border-radius:8px;margin-bottom:10px;padding:12px 14px;border:1px solid var(--border)}
+.whw-summary-person-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.whw-summary-person-name{font-size:13px;font-weight:600}
+.whw-summary-person-amt{font-size:15px;font-weight:700}
+.whw-summary-person-items{font-size:10px;color:var(--muted);line-height:1.6;margin-bottom:6px}
+.whw-payer-box{background:var(--surface-alt);border-radius:8px;padding:12px 14px;border:1px solid var(--border);margin-bottom:12px}
+.whw-adj-row{display:flex;align-items:center;gap:7px;margin-bottom:8px;flex-wrap:wrap}
+.whw-adj-row label{font-size:11px;color:var(--muted);min-width:90px}
+.whw-adj-row input{width:75px;font-size:11px;padding:4px 7px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-family:'IBM Plex Mono',monospace;text-align:right}
+.whw-adj-row select{font-size:11px;padding:4px 6px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-family:'IBM Plex Mono',monospace}
+.whw-scan-area{border:1.5px dashed var(--border);border-radius:10px;padding:18px;text-align:center;cursor:pointer;transition:border-color .15s;margin-bottom:10px}
+.whw-scan-area:hover{border-color:var(--text)}
+.whw-totals{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.whw-total-chip{flex:1;min-width:72px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;text-align:center}
+.whw-total-chip-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+.whw-total-chip-val{font-size:14px;font-weight:700;margin-top:2px}
+.whw-portion-toggle{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap}
+.whw-portion-btn{flex:1;min-width:80px;padding:6px;font-size:10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-alt);color:var(--muted);cursor:pointer;font-family:'IBM Plex Mono',monospace;transition:all .12s}
+.whw-portion-btn.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+.whw-net-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.whw-history-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.whw-history-row:hover{background:var(--surface-alt);margin:0 -4px;padding:9px 4px;border-radius:5px}
+.whw-settled-badge{font-size:9px;padding:2px 7px;border-radius:8px;background:var(--surplus-bg);color:var(--surplus);font-family:'IBM Plex Mono',monospace}
+.whw-unsettled-badge{font-size:9px;padding:2px 7px;border-radius:8px;background:var(--deficit-bg);color:var(--deficit);font-family:'IBM Plex Mono',monospace}
+.whw-group-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border:1px solid var(--border);border-radius:14px;font-size:10px;background:var(--surface-alt);cursor:pointer;margin:3px;transition:all .12s;font-family:'IBM Plex Mono',monospace}
+.whw-group-chip:hover{border-color:var(--text);background:var(--surface)}
+</style>
+
+<div id="whwOverlay">
+  <div class="whw-topbar">
+    <button class="whw-topbar-close" onclick="whwClose()">&#8592;</button>
+    <div class="whw-topbar-title">🍽 Who Had What</div>
+    <button class="btn-ghost btn-sm" onclick="whwShowHistory()" style="font-size:10px;padding:4px 10px">History</button>
+    <button class="btn-primary btn-sm" id="whwNextBtn" onclick="whwNext()" style="font-size:11px;padding:5px 13px">Next →</button>
+  </div>
+  <div class="whw-steps">
+    <button class="whw-step-btn active" id="whwS1Btn" onclick="whwGoStep(1)">1·Items</button>
+    <button class="whw-step-btn" id="whwS2Btn" onclick="whwGoStep(2)">2·Who Had</button>
+    <button class="whw-step-btn" id="whwS3Btn" onclick="whwGoStep(3)">3·Adjust</button>
+    <button class="whw-step-btn" id="whwS4Btn" onclick="whwGoStep(4)">4·Collect</button>
+    <button class="whw-step-btn" id="whwS5Btn" onclick="whwGoStep(5)">5·Settle</button>
+  </div>
+  <div class="whw-body" id="whwBody"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// WHO HAD WHAT v2 — complete bill-splitting engine
+// ══════════════════════════════════════════════════════════════
+
+// ── Inline minimal QR encoder (no CDN needed) ─────────────────
+// Based on qrcode-generator (MIT) — stripped to essentials for UPI QR
+(function(){
+// Tiny QR: we use a simple approach — encode as a data URI SVG via
+// the existing qrcode.js if loaded, else use our bundled micro-encoder.
+// We'll load qrcode.js from cdnjs once and cache it.
+window._whwQRReady=false;
+window._whwQRQueue=[];
+function _loadQR(cb){
+  if(window._whwQRReady){cb();return;}
+  window._whwQRQueue.push(cb);
+  if(document.getElementById('_whwQRScript'))return;
+  const s=document.createElement('script');
+  s.id='_whwQRScript';
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+  s.onload=()=>{window._whwQRReady=true;window._whwQRQueue.forEach(f=>f());window._whwQRQueue=[];};
+  s.onerror=()=>{window._whwQRReady='err';window._whwQRQueue.forEach(f=>f());window._whwQRQueue=[];};
+  document.head.appendChild(s);
+}
+window._loadQRLib=_loadQR;
+})();
+
+// ── Storage ───────────────────────────────────────────────────
+function _whwGetHistory(){try{return JSON.parse(localStorage.getItem('WHW_HISTORY')||'[]');}catch{return[];}}
+function _whwSaveHistory(arr){try{localStorage.setItem('WHW_HISTORY',JSON.stringify(arr));}catch{}}
+function _whwGetGroups(){try{return JSON.parse(localStorage.getItem('WHW_GROUPS')||'[]');}catch{return[];}}
+function _whwSaveGroups(arr){try{localStorage.setItem('WHW_GROUPS',JSON.stringify(arr));}catch{}}
+
+// ── State ─────────────────────────────────────────────────────
+let _whw={
+  step:1,id:null,
+  title:'',
+  items:[],       // [{id,name,qty,price}]
+  persons:[],     // [{id,name,upiId,isPayer}]
+  assigns:{},     // itemId → {personId: portions}  OR  '_p_'+personId → portions (portion mode)
+  splitMode:'item',
+  tax:0,taxType:'%',
+  discount:0,discType:'%',
+  tip:0,tipType:'%',
+  rounding:false,
+  payerUpi:'',payerName:'',payerId:null,
+  settled:{},     // personId → bool
+  savedAt:null,
+};
+let _whwItemId=0,_whwPersonId=0;
+
+function openWhw(loadId){
+  if(loadId){
+    const hist=_whwGetHistory();
+    const entry=hist.find(h=>h.id===loadId);
+    if(entry){_whw=JSON.parse(JSON.stringify(entry));_whw.step=4;}
+    else{showToast('Not found','');return;}
+  } else {
+    _whw={step:1,id:'whw_'+Date.now(),title:'',items:[],persons:[],assigns:{},splitMode:'item',
+      tax:0,taxType:'%',discount:0,discType:'%',tip:0,tipType:'%',rounding:false,
+      payerUpi:'',payerName:'',payerId:null,settled:{},savedAt:null};
+    _whwItemId=0;_whwPersonId=0;
+  }
+  document.getElementById('whwOverlay').classList.add('open');
+  whwRender();
+}
+function whwClose(){document.getElementById('whwOverlay').classList.remove('open');}
+
+function whwGoStep(n){
+  if(n>_whw.step+1&&n!==_whw.step)return;
+  _whw.step=n;whwRender();
+}
+function whwNext(){
+  if(_whw.step===1){
+    if(!_whw.items.length){showToast('Add items first','');return;}
+    if(!_whw.persons.length){showToast('Add people first','');return;}
+    _whw.step=2;
+  } else if(_whw.step===2){_whw.step=3;}
+  else if(_whw.step===3){_whw.step=4;}
+  else if(_whw.step===4){
+    // auto-save to history before going to settle
+    whwAutoSave();
+    _whw.step=5;
+  } else {
+    whwAutoSave();
+    whwClose();return;
+  }
+  whwRender();
+}
+function whwAutoSave(){
+  _whw.savedAt=Date.now();
+  const hist=_whwGetHistory().filter(h=>h.id!==_whw.id);
+  hist.unshift(JSON.parse(JSON.stringify(_whw)));
+  _whwSaveHistory(hist.slice(0,30));
+}
+
+function whwRender(){
+  [1,2,3,4,5].forEach(n=>{
+    const b=document.getElementById('whwS'+n+'Btn');
+    if(b)b.className='whw-step-btn'+(n===_whw.step?' active':n<_whw.step?' done':'');
+  });
+  document.getElementById('whwNextBtn').textContent=_whw.step>=5?'Done':'Next →';
+  const body=document.getElementById('whwBody');
+  if(_whw.step===1)body.innerHTML=whwRenderStep1();
+  else if(_whw.step===2)body.innerHTML=whwRenderStep2();
+  else if(_whw.step===3)body.innerHTML=whwRenderStep3();
+  else if(_whw.step===4){body.innerHTML=whwRenderStep4();setTimeout(whwRenderCollect,80);}
+  else body.innerHTML=whwRenderStep5();
+}
+
+// ── STEP 1 ────────────────────────────────────────────────────
+function whwRenderStep1(){
+  const groups=_whwGetGroups();
+  const subtotal=_whw.items.reduce((s,it)=>s+it.qty*it.price,0);
+  const itemRows=_whw.items.map((it,i)=>`
+    <div class="whw-item-row">
+      <div class="whw-item-name">${esc(it.name)}</div>
+      <input class="whw-item-qty" type="number" min="1" value="${it.qty}" onchange="_whw.items[${i}].qty=Math.max(1,+this.value||1);whwRender()" title="Qty">
+      <span style="font-size:10px;color:var(--muted)">×</span>
+      <input class="whw-item-price" type="number" min="0" step="0.01" value="${it.price}" onchange="_whw.items[${i}].price=parseFloat(this.value)||0;whwRender()" placeholder="₹">
+      <span style="font-size:10px;color:var(--muted);min-width:50px;text-align:right">${fmt(it.qty*it.price)}</span>
+      <button class="whw-item-del" onclick="_whw.items.splice(${i},1);whwRender()">×</button>
+    </div>`).join('');
+
+  const personRows=_whw.persons.map((p,i)=>`
+    <div class="whw-person-row">
+      <div class="whw-person-name">${esc(p.name)}${p.isPayer?'<span style="font-size:9px;margin-left:5px;color:var(--surplus)">(paid)</span>':''}</div>
+      <span style="font-size:10px;color:var(--faint)">${p.upiId?esc(p.upiId):''}</span>
+      <button onclick="_whw.persons[${i}].isPayer=!_whw.persons[${i}].isPayer;if(_whw.persons[${i}].isPayer){_whw.payerName=_whw.persons[${i}].name;_whw.payerUpi=_whw.persons[${i}].upiId||_whw.payerUpi;_whw.payerId=_whw.persons[${i}].id;_whw.persons.forEach((pp,ii)=>{if(ii!==${i})_whw.persons[ii].isPayer=false;});}whwRender()" style="font-size:9px;padding:2px 7px;border:1px solid var(--border);border-radius:8px;background:${p.isPayer?'var(--surplus-bg)':'var(--surface-alt)'};color:${p.isPayer?'var(--surplus)':'var(--muted)'};cursor:pointer;font-family:'IBM Plex Mono',monospace">${p.isPayer?'✓ Paid':'Mark paid'}</button>
+      <button class="whw-person-del" onclick="_whw.persons.splice(${i},1);whwRender()">×</button>
+    </div>`).join('');
+
+  const groupHtml=groups.length?`
+    <div style="margin-bottom:10px">
+      <div class="whw-sec-label">Saved Groups</div>
+      <div>${groups.map((g,gi)=>`<span class="whw-group-chip" onclick="whwLoadGroup(${gi})">👥 ${esc(g.name)} <span style="color:var(--faint)">(${g.members.length})</span></span>`).join('')}</div>
+    </div>`:'';
+
+  return `
+    <div style="margin-bottom:12px">
+      <input type="text" placeholder="Bill title (e.g. Dinner at Truffles)" value="${esc(_whw.title)}" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);font-family:'IBM Plex Mono',monospace" oninput="_whw.title=this.value">
+    </div>
+
+    <div style="margin-bottom:14px">
+      <div class="whw-scan-area" onclick="document.getElementById('whwBillImg').click()">
+        <div style="font-size:24px;margin-bottom:5px">📷</div>
+        <div style="font-size:11px;color:var(--muted)">Scan or upload bill image</div>
+        <div style="font-size:9px;color:var(--faint);margin-top:3px">Shows image for reference — add items manually from it</div>
+        <input type="file" id="whwBillImg" accept="image/*" capture="environment" style="display:none" onchange="whwScanBill(this)">
+      </div>
+      <div id="whwScanStatus"></div>
+    </div>
+
+    <div style="margin-bottom:16px">
+      <div class="whw-sec-label">Items &nbsp;<span style="color:var(--faint);font-weight:400">${_whw.items.length} · ${fmt(subtotal)}</span></div>
+      ${itemRows||'<div style="font-size:11px;color:var(--faint);padding:5px 0">No items yet.</div>'}
+      <div class="whw-add-row" style="margin-top:8px">
+        <input type="text" id="whwNewName" placeholder="Item name" style="flex:2;min-width:90px">
+        <input type="number" id="whwNewQty" placeholder="Qty" value="1" min="1" style="width:46px">
+        <input type="number" id="whwNewPrice" placeholder="₹ each" min="0" step="0.01" style="width:76px">
+        <button class="btn-primary btn-sm" onclick="whwAddItem()" style="font-size:11px;padding:5px 11px">+ Add</button>
+      </div>
+    </div>
+
+    ${groupHtml}
+    <div style="margin-bottom:8px">
+      <div class="whw-sec-label" style="display:flex;justify-content:space-between">
+        <span>People &nbsp;<span style="color:var(--faint);font-weight:400">${_whw.persons.length}</span></span>
+        ${_whw.persons.length>=2?`<button onclick="whwSaveGroup()" style="font-size:9px;padding:2px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface-alt);color:var(--muted);cursor:pointer">Save as Group</button>`:''}
+      </div>
+      ${personRows||'<div style="font-size:11px;color:var(--faint);padding:5px 0">Add people splitting this bill. Tap "Mark paid" on whoever paid.</div>'}
+      <div class="whw-add-row" style="margin-top:8px">
+        <input type="text" id="whwNewPerson" placeholder="Name" style="flex:1;min-width:70px">
+        <input type="text" id="whwNewUpi" placeholder="UPI ID (optional)" style="flex:2;min-width:100px">
+        <button class="btn-primary btn-sm" onclick="whwAddPerson()" style="font-size:11px;padding:5px 11px">+ Add</button>
+      </div>
+    </div>`;
+}
+
+function whwAddItem(){
+  const n=(document.getElementById('whwNewName').value||'').trim();
+  const q=Math.max(1,parseInt(document.getElementById('whwNewQty').value)||1);
+  const p=parseFloat(document.getElementById('whwNewPrice').value)||0;
+  if(!n){showToast('Enter item name','');return;}
+  if(!p){showToast('Enter item price','');return;}
+  _whw.items.push({id:++_whwItemId,name:n,qty:q,price:p});
+  whwRender();
+  setTimeout(()=>{
+    const el=document.getElementById('whwNewName');
+    if(el){el.value='';el.focus();}
+    document.getElementById('whwNewQty').value='1';
+    document.getElementById('whwNewPrice').value='';
+  },10);
+}
+function whwAddPerson(){
+  const n=(document.getElementById('whwNewPerson').value||'').trim();
+  const u=(document.getElementById('whwNewUpi').value||'').trim();
+  if(!n){showToast('Enter a name','');return;}
+  _whw.persons.push({id:++_whwPersonId,name:n,upiId:u,isPayer:false});
+  whwRender();
+  setTimeout(()=>{
+    const el=document.getElementById('whwNewPerson');
+    if(el){el.value='';el.focus();}
+    document.getElementById('whwNewUpi').value='';
+  },10);
+}
+function whwScanBill(input){
+  const file=input.files[0];if(!file)return;
+  const st=document.getElementById('whwScanStatus');
+  const reader=new FileReader();
+  reader.onload=function(e){
+    st.innerHTML=`<div style="margin-top:8px"><img src="${e.target.result}" style="max-width:100%;border-radius:8px;max-height:220px;display:block"><div style="font-size:10px;color:var(--muted);margin-top:5px">Bill loaded — add items manually using it as reference.</div></div>`;
+  };
+  reader.readAsDataURL(file);
+}
+function whwLoadGroup(gi){
+  const g=_whwGetGroups()[gi];if(!g)return;
+  g.members.forEach(m=>{
+    if(!_whw.persons.find(p=>p.name.toLowerCase()===m.name.toLowerCase())){
+      _whw.persons.push({id:++_whwPersonId,name:m.name,upiId:m.upiId||'',isPayer:false});
+    }
+  });
+  showToast('Group loaded',g.name+' · '+g.members.length+' people added');
+  whwRender();
+}
+function whwSaveGroup(){
+  const name=prompt('Group name (e.g. "Office Gang"):');
+  if(!name||!name.trim())return;
+  const groups=_whwGetGroups();
+  groups.push({name:name.trim(),members:_whw.persons.map(p=>({name:p.name,upiId:p.upiId}))});
+  _whwSaveGroups(groups);
+  showToast('Group saved',name.trim()+' · '+_whw.persons.length+' people');
+}
+
+// ── STEP 2 ────────────────────────────────────────────────────
+function whwRenderStep2(){
+  if(!_whw.items.length)return'<div class="empty-msg">No items — go back to Step 1.</div>';
+  if(!_whw.persons.length)return'<div class="empty-msg">No people — go back to Step 1.</div>';
+  const payer=_whw.persons.find(p=>p.isPayer);
+
+  const modeHtml=`
+    <div style="margin-bottom:14px">
+      <div class="whw-sec-label">Split Mode</div>
+      <div class="whw-portion-toggle">
+        <button class="whw-portion-btn${_whw.splitMode==='equal'?' active':''}" onclick="_whw.splitMode='equal';whwRender()">Equal Share</button>
+        <button class="whw-portion-btn${_whw.splitMode==='portion'?' active':''}" onclick="_whw.splitMode='portion';whwRender()">By Portion</button>
+        <button class="whw-portion-btn${_whw.splitMode==='item'?' active':''}" onclick="_whw.splitMode='item';whwRender()">Item-by-Item</button>
+      </div>
+      ${payer?`<div style="font-size:10px;color:var(--surplus);margin-top:4px">✓ ${esc(payer.name)} paid the bill — their own share will be deducted automatically.</div>`:'<div style="font-size:10px;color:var(--faint);margin-top:4px">Tip: go back and tap "Mark paid" on whoever paid the bill.</div>'}
+    </div>`;
+
+  if(_whw.splitMode==='equal'){
+    const each=whwSubtotal()/_whw.persons.length;
+    return modeHtml+`<div style="background:var(--surface);border-radius:8px;padding:14px;border:1px solid var(--border);text-align:center">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px">${fmt(whwSubtotal())} ÷ ${_whw.persons.length} people</div>
+      <div style="font-size:22px;font-weight:700">${fmt(each)} each</div>
+      <div style="font-size:10px;color:var(--faint);margin-top:4px">before tax / discount</div>
+    </div>`;
+  }
+
+  if(_whw.splitMode==='portion'){
+    const portionRows=_whw.persons.map((p,pi)=>{
+      const portions=((_whw.assigns['_p_'+p.id])!=null?_whw.assigns['_p_'+p.id]:1);
+      return `<div class="whw-assign-item">
+        <div class="whw-assign-item-hd">
+          <div class="whw-assign-item-name">${esc(p.name)}${p.isPayer?'<span style="font-size:9px;color:var(--surplus);margin-left:5px">(paid)</span>':''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:11px;color:var(--muted)">Portions:</span>
+          <input type="number" min="0" step="0.5" value="${portions}" style="width:60px;font-size:12px;padding:4px 7px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-family:'IBM Plex Mono',monospace" onchange="_whw.assigns['_p_${p.id}']=parseFloat(this.value)||0;whwRender()">
+          <span style="font-size:10px;color:var(--faint)">1 = full share · 0.5 = half</span>
+        </div>
+      </div>`;
+    }).join('');
+    const totalPortions=_whw.persons.reduce((s,p)=>s+((_whw.assigns['_p_'+p.id]!=null?_whw.assigns['_p_'+p.id]:1)),0);
+    return modeHtml+portionRows+`<div style="font-size:11px;color:var(--muted);text-align:center;margin-top:6px">Total portions: ${totalPortions}</div>`;
+  }
+
+  // Item-by-item
+  const itemBlocks=_whw.items.map(it=>{
+    const totalUnits=it.qty;
+    const assigned=_whw.assigns[it.id]||{};
+    const assignedCount=Object.values(assigned).reduce((s,v)=>s+v,0);
+    const leftover=totalUnits-assignedCount;
+    const chips=_whw.persons.map(p=>{
+      const portions=assigned[p.id]||0;
+      return `<button class="whw-assign-chip${portions>0?' selected':''}${p.isPayer?' payer-chip':''}" onclick="whwToggleAssign(${it.id},'${p.id}',${totalUnits})">
+        ${esc(p.name)}${portions>0?' ×'+portions:''}
+      </button>`;
+    }).join('');
+    return `<div class="whw-assign-item">
+      <div class="whw-assign-item-hd">
+        <div class="whw-assign-item-name">${esc(it.name)}</div>
+        <div class="whw-assign-item-price">${it.qty>1?it.qty+'× ':''} ${fmt(it.price)} = ${fmt(it.qty*it.price)} · <span style="color:${leftover>0?'var(--deficit)':'var(--surplus)'}">left: ${leftover}</span></div>
+      </div>
+      <div class="whw-assign-chips">${chips}</div>
+      ${leftover>0?`<div style="font-size:9px;color:var(--faint);margin-top:4px">⚠ ${leftover} unassigned — will split equally among all</div>`:''}
+    </div>`;
+  }).join('');
+  return modeHtml+itemBlocks;
+}
+function whwToggleAssign(itemId,personId,totalQty){
+  if(!_whw.assigns[itemId])_whw.assigns[itemId]={};
+  const cur=_whw.assigns[itemId][personId]||0;
+  const totalAssigned=Object.values(_whw.assigns[itemId]).reduce((s,v)=>s+v,0);
+  if(cur>0){delete _whw.assigns[itemId][personId];}
+  else{const rem=totalQty-totalAssigned;if(rem>0)_whw.assigns[itemId][personId]=(cur||0)+1;}
+  whwRender();
+}
+function whwSubtotal(){return _whw.items.reduce((s,it)=>s+it.qty*it.price,0);}
+
+// ── STEP 3 ────────────────────────────────────────────────────
+function whwRenderStep3(){
+  const {sub,taxAmt,discAmt,tipAmt,total}=whwTotals();
+  const preview=whwCalcSplits(total);
+  return `
+    <div class="whw-sec-label">Adjustments</div>
+    <div class="whw-adj-row">
+      <label>Tax / GST</label>
+      <input type="number" min="0" step="0.01" value="${_whw.tax||''}" placeholder="0" oninput="_whw.tax=parseFloat(this.value)||0;whwRender()">
+      <select onchange="_whw.taxType=this.value;whwRender()"><option value="%" ${_whw.taxType==='%'?'selected':''}>%</option><option value="₹" ${_whw.taxType==='₹'?'selected':''}>₹ flat</option></select>
+      <span style="font-size:11px;color:var(--deficit);min-width:55px">+${fmt(taxAmt)}</span>
+    </div>
+    <div class="whw-adj-row">
+      <label>Tip / Service</label>
+      <input type="number" min="0" step="0.01" value="${_whw.tip||''}" placeholder="0" oninput="_whw.tip=parseFloat(this.value)||0;whwRender()">
+      <select onchange="_whw.tipType=this.value;whwRender()"><option value="%" ${_whw.tipType==='%'?'selected':''}>%</option><option value="₹" ${_whw.tipType==='₹'?'selected':''}>₹ flat</option></select>
+      <span style="font-size:11px;color:var(--deficit);min-width:55px">+${fmt(tipAmt)}</span>
+    </div>
+    <div class="whw-adj-row">
+      <label>Discount</label>
+      <input type="number" min="0" step="0.01" value="${_whw.discount||''}" placeholder="0" oninput="_whw.discount=parseFloat(this.value)||0;whwRender()">
+      <select onchange="_whw.discType=this.value;whwRender()"><option value="%" ${_whw.discType==='%'?'selected':''}>%</option><option value="₹" ${_whw.discType==='₹'?'selected':''}>₹ flat</option></select>
+      <span style="font-size:11px;color:var(--surplus);min-width:55px">-${fmt(discAmt)}</span>
+    </div>
+    <div class="whw-adj-row" style="margin-top:4px">
+      <label>Round up to ₹10</label>
+      <input type="checkbox" ${_whw.rounding?'checked':''} onchange="_whw.rounding=this.checked;whwRender()" style="width:auto;margin:0">
+      <span style="font-size:10px;color:var(--faint)">Rounds each share to nearest ₹10</span>
+    </div>
+    <div class="whw-totals" style="margin-top:14px">
+      <div class="whw-total-chip"><div class="whw-total-chip-lbl">Subtotal</div><div class="whw-total-chip-val">${fmt(sub)}</div></div>
+      <div class="whw-total-chip"><div class="whw-total-chip-lbl">+Tax+Tip</div><div class="whw-total-chip-val" style="color:var(--deficit)">+${fmt(taxAmt+tipAmt)}</div></div>
+      <div class="whw-total-chip"><div class="whw-total-chip-lbl">Discount</div><div class="whw-total-chip-val" style="color:var(--surplus)">-${fmt(discAmt)}</div></div>
+      <div class="whw-total-chip" style="border-color:var(--text)"><div class="whw-total-chip-lbl">Total</div><div class="whw-total-chip-val">${fmt(total)}</div></div>
+    </div>
+    <div class="whw-sec-label">Preview</div>
+    ${preview.map(s=>`
+      <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);align-items:center">
+        <span style="font-size:12px">${esc(s.name)}${s.isPayer?'<span style="font-size:9px;color:var(--surplus);margin-left:5px">(paid — keep this)</span>':''}</span>
+        <span style="font-size:13px;font-weight:600;color:${s.isPayer?'var(--surplus)':'var(--text)'}">${s.isPayer?'keeps ':'owes '}${fmt(s.amount)}</span>
+      </div>`).join('')}`;
+}
+function whwTotals(totalOverride){
+  const sub=whwSubtotal();
+  const taxAmt=_whw.taxType==='%'?sub*(_whw.tax/100):(_whw.tax||0);
+  const tipAmt=_whw.tipType==='%'?sub*(_whw.tip/100):(_whw.tip||0);
+  const discAmt=_whw.discType==='%'?sub*(_whw.discount/100):(_whw.discount||0);
+  const total=Math.max(0,sub+taxAmt+tipAmt-discAmt);
+  return{sub,taxAmt,tipAmt,discAmt,total};
+}
+
+// ── Core split calculator ─────────────────────────────────────
+function whwCalcSplits(totalOverride){
+  const {total:calcTotal}=whwTotals();
+  const total=totalOverride!==undefined?totalOverride:calcTotal;
+  const sub=whwSubtotal();
+  const ratio=sub>0?total/sub:1;
+  const raw={};
+  _whw.persons.forEach(p=>{raw[p.id]=0;});
+
+  if(_whw.splitMode==='equal'){
+    const each=total/_whw.persons.length;
+    _whw.persons.forEach(p=>{raw[p.id]=each;});
+  } else if(_whw.splitMode==='portion'){
+    const totalPortions=_whw.persons.reduce((s,p)=>s+((_whw.assigns['_p_'+p.id]!=null?_whw.assigns['_p_'+p.id]:1)),0);
+    _whw.persons.forEach(p=>{
+      const portions=(_whw.assigns['_p_'+p.id]!=null?_whw.assigns['_p_'+p.id]:1);
+      raw[p.id]=totalPortions>0?(portions/totalPortions)*total:total/_whw.persons.length;
+    });
+  } else {
+    _whw.items.forEach(it=>{
+      const assigned=_whw.assigns[it.id]||{};
+      const totalAssigned=Object.values(assigned).reduce((s,v)=>s+v,0);
+      const itemTotal=it.qty*it.price*ratio;
+      if(totalAssigned===0){
+        const each=itemTotal/_whw.persons.length;
+        _whw.persons.forEach(p=>{raw[p.id]+=each;});
+      } else {
+        _whw.persons.forEach(p=>{
+          const pPortions=assigned[p.id]||0;
+          raw[p.id]+=(pPortions/it.qty)*itemTotal;
+        });
+        const unassigned=it.qty-totalAssigned;
+        if(unassigned>0){
+          const unassignedAmt=(unassigned/it.qty)*itemTotal;
+          const each=unassignedAmt/_whw.persons.length;
+          _whw.persons.forEach(p=>{raw[p.id]+=each;});
+        }
+      }
+    });
+  }
+  // Apply rounding
+  return _whw.persons.map(p=>{
+    let amt=raw[p.id]||0;
+    if(_whw.rounding)amt=Math.round(amt/10)*10;
+    else amt=Math.round(amt*100)/100;
+    return{id:p.id,name:p.name,upiId:p.upiId,isPayer:p.isPayer,
+      amount:amt,settled:!!_whw.settled[p.id],
+      items:whwPersonItems(p.id)};
+  });
+}
+function whwPersonItems(personId){
+  if(_whw.splitMode!=='item')return null;
+  const names=[];
+  _whw.items.forEach(it=>{
+    const assigned=_whw.assigns[it.id]||{};
+    if(assigned[personId])names.push(assigned[personId]>1?assigned[personId]+'× '+it.name:it.name);
+  });
+  return names.join(', ')||null;
+}
+
+// ── STEP 4: Collect ───────────────────────────────────────────
+function whwRenderStep4(){
+  const splits=whwCalcSplits();
+  const payer=splits.find(s=>s.isPayer);
+  const payerBox=`
+    <div class="whw-payer-box">
+      <div class="whw-sec-label" style="margin-bottom:8px">Who Paid the Bill?</div>
+      <div style="display:flex;gap:7px;margin-bottom:7px;flex-wrap:wrap">
+        <input type="text" placeholder="Payer name" value="${esc(_whw.payerName)}" style="flex:1;min-width:90px;font-size:11px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-family:'IBM Plex Mono',monospace" oninput="_whw.payerName=this.value;document.getElementById('whwCollectCards').innerHTML='';setTimeout(whwRenderCollect,80)">
+        <input type="text" placeholder="UPI ID (e.g. name@upi)" value="${esc(_whw.payerUpi)}" style="flex:2;min-width:130px;font-size:11px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-family:'IBM Plex Mono',monospace" oninput="_whw.payerUpi=this.value;document.getElementById('whwCollectCards').innerHTML='';setTimeout(whwRenderCollect,80)">
+      </div>
+      ${payer?`<div style="font-size:10px;color:var(--surplus)">✓ ${esc(payer.name)} paid — their share (${fmt(payer.amount)}) is their own money back.</div>`:'<div style="font-size:10px;color:var(--faint)">Enter the UPI ID where others should pay.</div>'}
+    </div>`;
+
+  const cards=splits.filter(s=>!s.isPayer).map(s=>`
+    <div class="whw-summary-person" id="whwCard_${s.id}">
+      <div class="whw-summary-person-hd">
+        <div class="whw-summary-person-name">${esc(s.name)}</div>
+        <div class="whw-summary-person-amt" style="color:${s.settled?'var(--surplus)':'var(--text)'}">${s.settled?'✓ Settled':fmt(s.amount)}</div>
+      </div>
+      ${s.items?`<div class="whw-summary-person-items">${esc(s.items)}</div>`:''}
+      <div id="whwCollect_${s.id}" style="margin-top:8px"></div>
+    </div>`).join('');
+
+  // Copy all links button
+  const copyAllBtn=`<button onclick="whwCopyAllLinks()" style="width:100%;margin-bottom:12px;padding:9px;font-size:11px;border:1px solid var(--border);border-radius:7px;background:var(--surface-alt);color:var(--text);cursor:pointer;font-family:'IBM Plex Mono',monospace">📋 Copy All Payment Links</button>`;
+
+  return payerBox+`<div class="whw-sec-label" style="margin:12px 0 6px">Others owe</div>`
+    +`<div id="whwCollectCards">`+cards+`</div>`+copyAllBtn;
+}
+function whwRenderCollect(){
+  const splits=whwCalcSplits();
+  splits.filter(s=>!s.isPayer).forEach(s=>{
+    const el=document.getElementById('whwCollect_'+s.id);
+    if(!el)return;
+    if(!_whw.payerUpi.trim()){
+      el.innerHTML='<div style="font-size:10px;color:var(--faint)">Enter payer UPI ID above.</div>';
+      return;
+    }
+    if(s.settled){
+      el.innerHTML=`<div style="font-size:10px;color:var(--surplus)">✓ Marked as settled</div>
+        <button onclick="whwUnsettle('${s.id}')" style="font-size:9px;padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface-alt);color:var(--muted);cursor:pointer;margin-top:4px">Undo</button>`;
+      return;
+    }
+    const upiLink=`upi://pay?pa=${encodeURIComponent(_whw.payerUpi.trim())}&pn=${encodeURIComponent(_whw.payerName||'Flow')}&am=${s.amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(_whw.title||'Bill Split')}`;
+    const shareMsg=`Hi ${s.name}! 👋\n${_whw.payerName||'Someone'} paid for "${_whw.title||'the bill'}"\n\nYour share: ₹${s.amount.toFixed(2)}${s.items?'\n('+s.items+')':''}\n\nPay via UPI:\n${upiLink}\n\n— Sent via Flow`;
+    el.innerHTML=`
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+        <a href="${upiLink}" style="flex:1;min-width:100px;text-align:center;padding:8px;font-size:11px;background:var(--text);color:var(--bg);border-radius:7px;text-decoration:none;font-family:'IBM Plex Mono',monospace;font-weight:600">📲 Pay ₹${s.amount.toFixed(2)}</a>
+        <button onclick="whwSharePerson('${s.id}',${JSON.stringify(shareMsg).replace(/'/g,"\\'")})" style="flex:1;min-width:80px;padding:8px;font-size:11px;background:var(--surface-alt);border:1px solid var(--border);border-radius:7px;cursor:pointer;color:var(--text);font-family:'IBM Plex Mono',monospace">🔗 Share</button>
+        <button onclick="whwMarkSettled('${s.id}')" style="flex:1;min-width:80px;padding:8px;font-size:11px;background:var(--surplus-bg);border:1px solid var(--surplus);border-radius:7px;cursor:pointer;color:var(--surplus);font-family:'IBM Plex Mono',monospace">✓ Settled</button>
+      </div>
+      <div id="whwQr_${s.id}" style="text-align:center;margin-top:4px"></div>`;
+    // Generate QR
+    _loadQRLib(()=>whwGenQR(s.id,upiLink));
+  });
+}
+function whwGenQR(personId,upiLink){
+  const wrap=document.getElementById('whwQr_'+personId);
+  if(!wrap)return;
+  if(window._whwQRReady==='err'||typeof QRCode==='undefined'){
+    wrap.innerHTML=`<div style="font-size:9px;color:var(--faint);word-break:break-all;padding:5px;border:1px dashed var(--border);border-radius:5px">${upiLink}</div>`;
+    return;
+  }
+  wrap.innerHTML='<div id="whwQrCanvas_'+personId+'"></div>';
+  try{new QRCode(document.getElementById('whwQrCanvas_'+personId),{text:upiLink,width:130,height:130,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});}
+  catch(e){wrap.innerHTML='';}
+}
+function whwMarkSettled(personId){
+  _whw.settled[personId]=true;
+  whwAutoSave();
+  whwRender();
+  setTimeout(whwRenderCollect,80);
+}
+function whwUnsettle(personId){
+  delete _whw.settled[personId];
+  whwAutoSave();
+  whwRender();
+  setTimeout(whwRenderCollect,80);
+}
+function whwSharePerson(personId,msg){
+  if(navigator.share){navigator.share({title:'Bill Split',text:msg}).catch(()=>{});}
+  else{
+    navigator.clipboard.writeText(msg).then(()=>showToast('Copied!','Payment details copied'))
+      .catch(()=>prompt('Copy this:',msg));
+  }
+}
+function whwCopyAllLinks(){
+  if(!_whw.payerUpi.trim()){showToast('Enter UPI ID first','');return;}
+  const splits=whwCalcSplits();
+  const lines=[`🍽 ${_whw.title||'Bill Split'}`,``];
+  splits.filter(s=>!s.isPayer&&!s.settled).forEach(s=>{
+    const link=`upi://pay?pa=${encodeURIComponent(_whw.payerUpi.trim())}&pn=${encodeURIComponent(_whw.payerName||'Flow')}&am=${s.amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(_whw.title||'Bill Split')}`;
+    lines.push(`${s.name}: ₹${s.amount.toFixed(2)}`);
+    lines.push(link);
+    lines.push('');
+  });
+  const txt=lines.join('\n');
+  navigator.clipboard.writeText(txt).then(()=>showToast('Copied!','All payment links copied to clipboard'))
+    .catch(()=>prompt('Copy all links:',txt));
+}
+
+// ── STEP 5: Settle + Net Settlement ──────────────────────────
+function whwRenderStep5(){
+  const splits=whwCalcSplits();
+  const payer=splits.find(s=>s.isPayer);
+  const others=splits.filter(s=>!s.isPayer);
+  const totalOwed=others.reduce((s,p)=>s+(p.settled?0:p.amount),0);
+  const totalCollected=others.reduce((s,p)=>s+(p.settled?p.amount:0),0);
+
+  const settleRows=others.map(s=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:12px;font-weight:600">${esc(s.name)}</div>
+        ${s.items?`<div style="font-size:10px;color:var(--faint)">${esc(s.items)}</div>`:''}
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:13px;font-weight:700">${fmt(s.amount)}</span>
+        ${s.settled
+          ?`<span class="whw-settled-badge">✓ Settled</span><button onclick="whwUnsettle('${s.id}')" style="font-size:9px;padding:2px 7px;border:1px solid var(--border);border-radius:6px;background:none;color:var(--muted);cursor:pointer">Undo</button>`
+          :`<button onclick="whwMarkSettled('${s.id}')" style="font-size:10px;padding:4px 10px;border:1px solid var(--surplus);border-radius:8px;background:var(--surplus-bg);color:var(--surplus);cursor:pointer;font-family:'IBM Plex Mono',monospace">Mark Settled</button>`}
+      </div>
+    </div>`).join('');
+
+  // Net settlement (who owes whom across multiple payers)
+  const netHtml=whwNetSettle(splits);
+
+  // Save to Bill Split
+  const saveBtn=`<button onclick="whwSaveToBillSplit()" style="width:100%;padding:10px;margin-top:12px;font-size:11px;background:var(--text);color:var(--bg);border:none;border-radius:8px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-weight:600">💾 Save to Bill Split</button>`;
+
+  return `
+    <div class="whw-totals">
+      <div class="whw-total-chip"><div class="whw-total-chip-lbl">Total</div><div class="whw-total-chip-val">${fmt(whwTotals().total)}</div></div>
+      <div class="whw-total-chip"><div class="whw-total-chip-lbl">Collected</div><div class="whw-total-chip-val" style="color:var(--surplus)">${fmt(totalCollected)}</div></div>
+      <div class="whw-total-chip"><div class="whw-total-chip-lbl">Pending</div><div class="whw-total-chip-val" style="color:${totalOwed>0?'var(--deficit)':'var(--surplus)'}">${fmt(totalOwed)}</div></div>
+    </div>
+    <div class="whw-sec-label">Settlement Status</div>
+    ${settleRows}
+    ${payer?`<div style="font-size:11px;color:var(--surplus);padding:8px 0;border-bottom:1px solid var(--border)">${esc(payer.name)} paid — their own share ${fmt(payer.amount)} is accounted for.</div>`:''}
+    <div style="margin-top:16px">
+      <div class="whw-sec-label">Net Settlement (minimum transfers)</div>
+      ${netHtml}
+    </div>
+    ${saveBtn}`;
+}
+function whwNetSettle(splits){
+  // Simple net: everyone's balance = what they paid minus what they owe
+  const bal={};
+  splits.forEach(s=>{bal[s.id]={name:s.name,bal:0};});
+  const {total}=whwTotals();
+  // Payer paid total, owes their share
+  splits.forEach(s=>{
+    if(s.isPayer)bal[s.id].bal=total-s.amount; // they're owed (total - own share)
+    else bal[s.id].bal=-s.amount;              // they owe their share
+  });
+  // Greedy net settlement
+  const creditors=Object.values(bal).filter(b=>b.bal>0.01).sort((a,b)=>b.bal-a.bal);
+  const debtors=Object.values(bal).filter(b=>b.bal<-0.01).sort((a,b)=>a.bal-b.bal);
+  const transfers=[];
+  let ci=0,di=0;
+  while(ci<creditors.length&&di<debtors.length){
+    const c=creditors[ci],d=debtors[di];
+    const amt=Math.min(c.bal,-d.bal);
+    transfers.push({from:d.name,to:c.name,amt:Math.round(amt*100)/100});
+    c.bal-=amt;d.bal+=amt;
+    if(c.bal<0.01)ci++;
+    if(d.bal>-0.01)di++;
+  }
+  if(!transfers.length)return'<div style="font-size:11px;color:var(--surplus);padding:6px 0">✓ All settled — no transfers needed.</div>';
+  return transfers.map(t=>`
+    <div class="whw-net-row">
+      <span>${esc(t.from)}</span>
+      <span style="font-size:10px;color:var(--muted)">→ pays →</span>
+      <span>${esc(t.to)}</span>
+      <span style="font-weight:700;color:var(--deficit)">${fmt(t.amt)}</span>
+    </div>`).join('');
+}
+function whwSaveToBillSplit(){
+  const {total}=whwTotals();
+  const splits=whwCalcSplits();
+  const payer=splits.find(s=>s.isPayer);
+  // Build a split entry compatible with existing Bill Split data model (SPLITS array)
+  const sp={
+    id:uid(),
+    title:_whw.title||'Who Had What',
+    total:total,
+    paidBy:payer?payer.name:(_whw.payerName||''),
+    payeeUPI:_whw.payerUpi||'',
+    date:new Date().toISOString().slice(0,10),
+    members:splits.filter(s=>!s.isPayer).map(s=>({
+      id:uid(),name:s.name,amount:s.amount,
+      settled:s.settled,phone:''
+    }))
+  };
+  SPLITS.push(sp);
+  saveSplits();
+  showToast('Saved to Bill Split','View it in Bills → Bill Split');
+  whwClose();
+  switchTab('bills',document.querySelector('[onclick*="bills"]'));
+  setTimeout(()=>switchBillsTab('split',document.getElementById('btab-split')),200);
+}
+
+// ── History ───────────────────────────────────────────────────
+function whwShowHistory(){
+  const hist=_whwGetHistory();
+  const body=document.getElementById('whwBody');
+  if(!hist.length){body.innerHTML='<div class="empty-msg" style="padding:28px 0">No past splits yet.</div>';return;}
+  body.innerHTML=`
+    <div class="whw-sec-label" style="margin-bottom:10px">Past Splits</div>
+    ${hist.map(h=>{
+      const sub=h.items.reduce((s,it)=>s+it.qty*it.price,0);
+      const taxAmt=h.taxType==='%'?sub*((h.tax||0)/100):(h.tax||0);
+      const tipAmt=(h.tipType||'%')==='%'?sub*((h.tip||0)/100):(h.tip||0);
+      const discAmt=h.discType==='%'?sub*((h.discount||0)/100):(h.discount||0);
+      const total=Math.max(0,sub+taxAmt+tipAmt-discAmt);
+      const settledCount=Object.values(h.settled||{}).filter(Boolean).length;
+      const totalPeople=h.persons.filter(p=>!p.isPayer).length;
+      return `<div class="whw-history-row" onclick="openWhw('${h.id}')">
+        <div>
+          <div style="font-size:12px;font-weight:600">${esc(h.title||'Split')}</div>
+          <div style="font-size:10px;color:var(--faint)">${h.persons.length} people · ${h.items.length} items · ${h.savedAt?new Date(h.savedAt).toLocaleDateString('en-IN'):''}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:13px;font-weight:700">${fmt(total)}</div>
+          <div>${settledCount>=totalPeople?'<span class="whw-settled-badge">All settled</span>':'<span class="whw-unsettled-badge">'+settledCount+'/'+totalPeople+' settled</span>'}</div>
+        </div>
+      </div>`;
+    }).join('')}`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PAY DAY PLANNER
+// ═══════════════════════════════════════════════════════════════
+let _pdYear=new Date().getFullYear();
+let _pdMonth=new Date().getMonth();
+
+function paydayEditSettings(){
+  const s=_paydaySettings();
+  document.getElementById('paydayDate').value=s.payDay||'';
+  document.getElementById('paydaySalary').value=s.salary||'';
+  document.getElementById('paydayThreshHigh').value=s.threshHigh||5000;
+  document.getElementById('paydayThreshMed').value=s.threshMed||1000;
+  document.getElementById('paydaySettings').style.display='block';
+}
+function paydaySaveSettings(){
+  const s={
+    payDay:parseInt(document.getElementById('paydayDate').value)||1,
+    salary:parseFloat(document.getElementById('paydaySalary').value)||0,
+    threshHigh:parseFloat(document.getElementById('paydayThreshHigh').value)||5000,
+    threshMed:parseFloat(document.getElementById('paydayThreshMed').value)||1000,
+  };
+  localStorage.setItem('PAYDAY_SETTINGS',JSON.stringify(s));
+  document.getElementById('paydaySettings').style.display='none';
+  renderPayday();
+}
+function _paydaySettings(){
+  try{return JSON.parse(localStorage.getItem('PAYDAY_SETTINGS'))||{};}catch(e){return {};}
+}
+
+// Build a map: day-of-month → total outflow amount for a given year/month
+function _paydayOutflowMap(year,month){
+  const map={};
+  // Bills (reminders) — global: BILLS, fields: dueDay, amt
+  (typeof BILLS!=='undefined'?BILLS:[]).forEach(b=>{
+    const d=parseInt(b.dueDay)||0;
+    if(d>=1&&d<=31){map[d]=(map[d]||0)+(parseFloat(b.amt)||0);}
+  });
+  // Loans / EMIs — global: LOANS, fields: emi (amount), emiDay or start date
+  (typeof LOANS!=='undefined'?LOANS:[]).forEach(l=>{
+    const d=parseInt(l.emiDay)||(l.start?new Date(l.start).getDate():0)||0;
+    if(d>=1&&d<=31){map[d]=(map[d]||0)+(parseFloat(l.emi)||0);}
+  });
+  // Subscriptions — global: SUBS, fields: cost, renewal (ISO date), status
+  (typeof SUBS!=='undefined'?SUBS:[]).filter(s=>s.status==='Active').forEach(s=>{
+    const d=s.renewal?new Date(s.renewal).getDate():0;
+    if(d>=1&&d<=31){map[d]=(map[d]||0)+(parseFloat(s.cost)||0);}
+  });
+  // Daily expenses from DAILY_EXPENSES for the given month
+  if(typeof DAILY_EXPENSES!=='undefined'){
+    DAILY_EXPENSES.forEach(e=>{
+      if(!e.date)return;
+      const dt=new Date(e.date);
+      if(dt.getFullYear()===year&&dt.getMonth()===month&&e.type==='expense'){
+        const d=dt.getDate();
+        map[d]=(map[d]||0)+(parseFloat(e.amount)||0);
+      }
+    });
+  }
+  return map;
+}
+
+function renderPayday(){
+  const s=_paydaySettings();
+  const payDay=s.payDay||0;
+  const salary=s.salary||0;
+  const threshHigh=s.threshHigh||5000;
+  const threshMed=s.threshMed||1000;
+  const year=_pdYear, month=_pdMonth;
+  const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const lbl=document.getElementById('paydayMonthLbl');
+  if(lbl)lbl.textContent=monthNames[month]+' '+year;
+
+  const outflowMap=_paydayOutflowMap(year,month);
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const firstDow=new Date(year,month,1).getDay();
+  const totalOutflow=Object.values(outflowMap).reduce((a,b)=>a+b,0);
+  const freeBuffer=salary>0?Math.max(0,salary-totalOutflow):0;
+  // Free-money window: days between payDay and first big outflow day after payDay
+  let freeWindow=0;
+  if(payDay>0){
+    const bigDays=Object.keys(outflowMap).map(Number).filter(d=>outflowMap[d]>=threshHigh&&d>payDay).sort((a,b)=>a-b);
+    freeWindow=bigDays.length>0?bigDays[0]-payDay:daysInMonth-payDay;
+  }
+
+  // Summary cards
+  const sumEl=document.getElementById('paydaySummary');
+  if(sumEl){
+    sumEl.innerHTML=`
+      <div class="card"><div class="card-lbl">Total Outflow</div><div class="card-val" style="color:var(--deficit)">₹${totalOutflow.toLocaleString('en-IN')}</div></div>
+      <div class="card"><div class="card-lbl">Free Buffer</div><div class="card-val" style="color:var(--surplus)">₹${freeBuffer.toLocaleString('en-IN')}</div></div>
+      <div class="card"><div class="card-lbl">Free Window</div><div class="card-val">${freeWindow} days</div><div style="font-size:9px;color:var(--faint)">after pay day</div></div>
+    `;
+  }
+
+  // Calendar grid
+  const grid=document.getElementById('paydayGrid');
+  if(!grid)return;
+  // Remove old day cells (keep header row = first 7 children)
+  while(grid.children.length>7)grid.removeChild(grid.lastChild);
+  // Blank cells before 1st
+  for(let i=0;i<firstDow;i++){
+    const blank=document.createElement('div');blank.style.cssText='padding:4px';grid.appendChild(blank);
+  }
+  const today=new Date();
+  for(let d=1;d<=daysInMonth;d++){
+    const cell=document.createElement('div');
+    const outflow=outflowMap[d]||0;
+    const isPayDay=payDay>0&&d===payDay;
+    const isToday=today.getFullYear()===year&&today.getMonth()===month&&today.getDate()===d;
+    let bg='transparent',color='var(--text)',border='1px solid transparent';
+    if(isPayDay){bg='#6B4EFF';color='#fff';border='1px solid #6B4EFF';}
+    else if(outflow>=threshHigh){bg='var(--deficit-bg)';color='var(--deficit)';border='1px solid var(--deficit)';}
+    else if(outflow>=threshMed){bg='var(--amber-bg)';color='var(--amber)';border='1px solid var(--amber)';}
+    else if(d>=(payDay||1)&&outflow===0){bg='var(--surplus-bg)';color='var(--surplus)';border='1px solid var(--surplus)';}
+    if(isToday){border='2px solid var(--accent)';}
+    cell.style.cssText=`padding:5px 2px;border-radius:5px;text-align:center;background:${bg};color:${color};border:${border};cursor:${outflow>0||isPayDay?'pointer':'default'};`;
+    cell.innerHTML=`<div style="font-size:11px;font-weight:${isToday?700:500}">${d}</div>${outflow>0?`<div style="font-size:8px;opacity:.85">₹${outflow>=1000?(outflow/1000).toFixed(1)+'k':outflow}</div>`:''}`;
+    if(isPayDay)cell.title=`Pay Day — ₹${salary.toLocaleString('en-IN')}`;
+    else if(outflow>0)cell.title=`Outflow: ₹${outflow.toLocaleString('en-IN')}`;
+    grid.appendChild(cell);
+  }
+
+  // Suggestions
+  const sugEl=document.getElementById('paydaySuggestions');
+  if(sugEl){
+    const bigDaysList=Object.entries(outflowMap).filter(([,v])=>v>=threshHigh).sort((a,b)=>a[0]-b[0]);
+    if(bigDaysList.length===0&&payDay===0){
+      sugEl.innerHTML=`<div class="empty-msg">Set your pay day in ⚙ Settings to see cash-flow insights.</div>`;
+    } else {
+      const rows=bigDaysList.map(([d,v])=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:11px"><span>Day ${d}</span><span style="color:var(--deficit);font-weight:600">₹${v.toLocaleString('en-IN')}</span></div>`).join('');
+      sugEl.innerHTML=bigDaysList.length>0?`<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px">High-outflow days</div><div>${rows}</div>`:'';
+    }
+  }
+}
+
+function paydayPrev(){_pdMonth--;if(_pdMonth<0){_pdMonth=11;_pdYear--;}renderPayday();}
+function paydayNext(){_pdMonth++;if(_pdMonth>11){_pdMonth=0;_pdYear++;}renderPayday();}
+
+// Auto-render when switching to payday pane
+(function(){
+  const origSwitchToolsTab=window.switchToolsTab;
+  window.switchToolsTab=function(id,btn){
+    if(typeof origSwitchToolsTab==='function')origSwitchToolsTab(id,btn);
+    if(id==='payday'){_pdYear=new Date().getFullYear();_pdMonth=new Date().getMonth();renderPayday();}
+    if(id==='fingerprint')renderFingerprint();
+  };
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// FINANCIAL FINGERPRINT
+// ═══════════════════════════════════════════════════════════════
+function renderFingerprint(){
+  const el=document.getElementById('fingerprintBody');
+  if(!el)return;
+
+  // Gather last 90 days of daily expenses
+  const now=new Date();
+  const cutoff=new Date(now.getTime()-90*24*60*60*1000);
+  const entries=(typeof DAILY_EXPENSES!=='undefined'?DAILY_EXPENSES:[]).filter(e=>{
+    if(!e.date)return false;
+    const d=new Date(e.date);
+    return d>=cutoff&&d<=now;
+  });
+
+  if(entries.length<5){
+    el.innerHTML=`<div class="empty-msg" style="padding:30px 0">Not enough data yet. Add at least 5 expenses in the Track tab over the last 90 days to generate your Fingerprint.</div>`;
+    return;
+  }
+
+  const expenses=entries.filter(e=>e.type==='expense');
+  const incomes=entries.filter(e=>e.type==='income');
+  const totalExp=expenses.reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
+  const totalInc=incomes.reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
+
+  // Days with data
+  const expDays=new Set(expenses.map(e=>e.date)).size||1;
+  const avgDailyExp=totalExp/expDays;
+
+  // 1) Saving Rate (income > 0 required)
+  const savingRate=totalInc>0?Math.max(0,Math.min(100,((totalInc-totalExp)/totalInc)*100)):0;
+  // 2) Spending Discipline — lower CV = more disciplined
+  const dailyMap={};
+  expenses.forEach(e=>{dailyMap[e.date]=(dailyMap[e.date]||0)+(parseFloat(e.amount)||0);});
+  const vals=Object.values(dailyMap);
+  const mean=vals.reduce((a,b)=>a+b,0)/(vals.length||1);
+  const variance=vals.reduce((s,v)=>s+Math.pow(v-mean,2),0)/(vals.length||1);
+  const stdDev=Math.sqrt(variance);
+  const cv=mean>0?stdDev/mean:1;
+  const disciplineScore=Math.max(0,Math.min(100,100-cv*40));
+  // 3) Income Stability — count distinct income dates
+  const incDays=new Set(incomes.map(e=>e.date)).size;
+  const incStability=totalInc>0?Math.min(100,(incDays/90)*100*2.5):20;
+  // 4) Investment Consistency — from portfolio holdings
+  const hasInvestments=(typeof INVEST!=='undefined'&&((INVEST.holdings&&INVEST.holdings.length>0)||(INVEST.mf&&INVEST.mf.length>0)));
+  const investScore=hasInvestments?70:30;
+  // 5) Budget Adherence — compare actual vs estimated categories
+  const catMap={};
+  expenses.forEach(e=>{catMap[e.category||'Other']=(catMap[e.category||'Other']||0)+(parseFloat(e.amount)||0);});
+  const topCatVal=Math.max(...Object.values(catMap));
+  const budgetScore=topCatVal>0&&totalExp>0?Math.max(0,Math.min(100,100-(topCatVal/totalExp)*80)):50;
+
+  // Flow Score — weighted average
+  const flowScore=Math.round(savingRate*0.30+disciplineScore*0.20+Math.min(100,incStability)*0.15+investScore*0.20+budgetScore*0.15);
+
+  // Archetype
+  let archetype,archetypeDesc,archetypeEmoji;
+  if(flowScore>=80){archetype='Planner';archetypeEmoji='🎯';archetypeDesc='You budget with precision, invest consistently, and rarely overspend. Your financial house is in excellent order.';}
+  else if(flowScore>=65&&disciplineScore>60){archetype='Balanced';archetypeEmoji='⚖️';archetypeDesc='Steady and grounded. You manage income and expenses well with minor fluctuations — room to push savings further.';}
+  else if(savingRate>30){archetype='Saver';archetypeEmoji='🐢';archetypeDesc='You excel at saving and holding back — make sure you are also putting that capital to work through investments.';}
+  else if(cv>1.2){archetype='Explorer';archetypeEmoji='🌊';archetypeDesc='Spending varies widely — you live in the moment and enjoy variety. Building a buffer would help weather surprises.';}
+  else if(disciplineScore<40){archetype='Impulsive';archetypeEmoji='⚡';archetypeDesc='Spending spikes frequently and unpredictably. Setting per-category limits could unlock significant savings.';}
+  else{archetype='Cautious';archetypeEmoji='🌱';archetypeDesc='You are building financial habits but income or investment data is thin. Keep tracking and the picture will sharpen.';}
+
+  // Top 3 categories
+  const sortedCats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]).slice(0,3);
+
+  // Grade
+  const grade=flowScore>=90?'A+':flowScore>=80?'A':flowScore>=70?'B':flowScore>=55?'C':flowScore>=40?'D':'F';
+  const gradeColor=flowScore>=70?'var(--surplus)':flowScore>=50?'var(--amber)':'var(--deficit)';
+
+  // Radar chart SVG
+  const dims=[
+    {label:'Saving',val:savingRate},
+    {label:'Discipline',val:disciplineScore},
+    {label:'Income\nStability',val:Math.min(100,incStability)},
+    {label:'Invest',val:investScore},
+    {label:'Budget',val:budgetScore},
+  ];
+  const cx=100,cy=100,r=70;
+  const toXY=(i,v)=>{
+    const angle=(2*Math.PI*i/dims.length)-(Math.PI/2);
+    const rr=r*(v/100);
+    return {x:cx+rr*Math.cos(angle),y:cy+rr*Math.sin(angle)};
+  };
+  const gridPts=[20,40,60,80,100].map(pct=>{
+    return dims.map((_,i)=>{
+      const angle=(2*Math.PI*i/dims.length)-(Math.PI/2);
+      const rr=r*(pct/100);
+      return `${cx+rr*Math.cos(angle)},${cy+rr*Math.sin(angle)}`;
+    }).join(' ');
+  });
+  const dataPath=dims.map((d,i)=>{const p=toXY(i,d.val);return `${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`;}).join(' ')+'Z';
+  const axisLines=dims.map((_,i)=>{
+    const angle=(2*Math.PI*i/dims.length)-(Math.PI/2);
+    return `<line x1="${cx}" y1="${cy}" x2="${(cx+r*Math.cos(angle)).toFixed(1)}" y2="${(cy+r*Math.sin(angle)).toFixed(1)}" stroke="var(--border)" stroke-width="1"/>`;
+  }).join('');
+  const labels=dims.map((d,i)=>{
+    const angle=(2*Math.PI*i/dims.length)-(Math.PI/2);
+    const lx=(cx+(r+18)*Math.cos(angle)).toFixed(1);
+    const ly=(cy+(r+18)*Math.sin(angle)).toFixed(1);
+    return `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="8" fill="var(--muted)">${d.label.replace('\n',' ')}</text>`;
+  }).join('');
+  const radarSvg=`<svg viewBox="0 0 200 200" width="160" height="160" style="display:block;margin:0 auto">
+    ${gridPts.map(pts=>`<polygon points="${pts}" fill="none" stroke="var(--border)" stroke-width="0.8"/>`).join('')}
+    ${axisLines}
+    <path d="${dataPath}" fill="rgba(107,78,255,0.18)" stroke="#6B4EFF" stroke-width="2"/>
+    ${dims.map((d,i)=>{const p=toXY(i,d.val);return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" fill="#6B4EFF"/>`;}).join('')}
+    ${labels}
+  </svg>`;
+
+  // Mood-spend (time-of-day pattern from hour in date if available, else skip)
+  const hourMap={morning:0,afternoon:0,evening:0,night:0};
+  expenses.forEach(e=>{
+    if(!e.time&&!e.createdAt)return;
+    const h=e.time?parseInt(e.time.split(':')[0]):new Date(e.createdAt||e.date).getHours();
+    if(h>=5&&h<12)hourMap.morning+=(parseFloat(e.amount)||0);
+    else if(h>=12&&h<17)hourMap.afternoon+=(parseFloat(e.amount)||0);
+    else if(h>=17&&h<21)hourMap.evening+=(parseFloat(e.amount)||0);
+    else hourMap.night+=(parseFloat(e.amount)||0);
+  });
+  const hasTimeData=Object.values(hourMap).some(v=>v>0);
+  const peakTime=hasTimeData?Object.entries(hourMap).sort((a,b)=>b[1]-a[1])[0][0]:null;
+
+  // Day-of-week pattern
+  const dowMap={Sun:0,Mon:0,Tue:0,Wed:0,Thu:0,Fri:0,Sat:0};
+  const dowKeys=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  expenses.forEach(e=>{if(!e.date)return;dowMap[dowKeys[new Date(e.date).getDay()]]+=(parseFloat(e.amount)||0);});
+  const peakDow=Object.entries(dowMap).sort((a,b)=>b[1]-a[1])[0][0];
+
+  el.innerHTML=`
+  <div style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px">
+    <div style="text-align:center;min-width:70px">
+      <div style="font-size:36px;font-weight:800;color:${gradeColor}">${grade}</div>
+      <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px">Flow Score</div>
+      <div style="font-size:22px;font-weight:700;color:${gradeColor}">${flowScore}</div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:14px;font-weight:700;margin-bottom:3px">${archetypeEmoji} ${archetype}</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.5">${archetypeDesc}</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+    ${dims.map(d=>`<div class="card"><div class="card-lbl">${d.label.replace('\n',' ')}</div><div style="display:flex;align-items:center;gap:6px;margin-top:4px"><div style="flex:1;height:4px;background:var(--border);border-radius:2px"><div style="width:${d.val.toFixed(0)}%;height:4px;background:#6B4EFF;border-radius:2px"></div></div><span style="font-size:10px;font-weight:600;min-width:28px;text-align:right">${d.val.toFixed(0)}</span></div></div>`).join('')}
+  </div>
+
+  <div style="text-align:center;margin-bottom:12px">${radarSvg}</div>
+
+  <div style="padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px">Spending DNA</div>
+    <div style="font-size:11px;margin-bottom:4px">Peak spend day: <strong>${peakDow}</strong></div>
+    ${peakTime?`<div style="font-size:11px;margin-bottom:4px">Peak spend time: <strong>${peakTime}</strong></div>`:''}
+    <div style="font-size:11px;margin-bottom:4px">Avg daily spend: <strong>₹${Math.round(avgDailyExp).toLocaleString('en-IN')}</strong></div>
+    <div style="font-size:11px">Days tracked: <strong>${expDays}</strong></div>
+  </div>
+
+  ${sortedCats.length>0?`<div style="padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r)">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px">Top Spending Categories (90d)</div>
+    ${sortedCats.map(([cat,amt])=>`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:11px"><span>${cat}</span><span style="font-weight:600">₹${Math.round(amt).toLocaleString('en-IN')}</span></div>`).join('')}
+  </div>`:''}
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CIRCLE FINANCE
+// ═══════════════════════════════════════════════════════════════
+function _circleData(){
+  try{return JSON.parse(localStorage.getItem('CIRCLE_DATA'))||{setup:false,myName:'Me',partnerName:'Partner',partnerUPI:'',entries:[]};}catch(e){return {setup:false,myName:'Me',partnerName:'Partner',partnerUPI:'',entries:[]};}
+}
+function _circleSave(d){localStorage.setItem('CIRCLE_DATA',JSON.stringify(d));}
+
+function renderCircle(){
+  const d=_circleData();
+  const setup=document.getElementById('circleSetup');
+  const active=document.getElementById('circleActive');
+  if(!setup||!active)return;
+  if(!d.setup){
+    setup.style.display='block';active.style.display='none';return;
+  }
+  setup.style.display='none';active.style.display='block';
+  // Populate who-paid select labels
+  const optMe=document.getElementById('circleOptMe');
+  const optThem=document.getElementById('circleOptThem');
+  if(optMe)optMe.textContent=d.myName;
+  if(optThem)optThem.textContent=d.partnerName;
+  // Balance: positive = partner owes me; negative = I owe partner
+  let balance=0;
+  d.entries.forEach(e=>{
+    const amt=parseFloat(e.amount)||0;
+    if(e.split==='equal'){balance+=(e.who==='me'?amt/2:-amt/2);}
+    else if(e.split==='full'){/* payer owes nothing, full on other */balance+=(e.who==='me'?amt:-amt);}
+    else if(e.split==='me'){balance+=(e.who==='me'?0:amt);/* they paid, I owe */}
+    else if(e.split==='them'){balance+=(e.who==='me'?amt:0);/* I paid, they owe */}
+  });
+  const balEl=document.getElementById('circleBalanceDisplay');
+  const upiBlock=document.getElementById('circleUPIBlock');
+  const payBtn=document.getElementById('circlePayBtn');
+  if(balEl){
+    if(Math.abs(balance)<1){
+      balEl.innerHTML=`<span style="color:var(--surplus)">✓ All Settled</span>`;
+      if(upiBlock)upiBlock.style.display='none';
+    } else if(balance>0){
+      balEl.innerHTML=`<span style="color:var(--deficit)">${d.partnerName} owes you ₹${Math.abs(balance).toFixed(0)}</span>`;
+      if(upiBlock)upiBlock.style.display=d.partnerUPI?'block':'none';
+      if(payBtn)payBtn.textContent=`Request ₹${Math.abs(balance).toFixed(0)} from ${d.partnerName}`;
+    } else {
+      balEl.innerHTML=`<span style="color:var(--amber)">You owe ${d.partnerName} ₹${Math.abs(balance).toFixed(0)}</span>`;
+      if(upiBlock)upiBlock.style.display=d.partnerUPI?'block':'none';
+      if(payBtn)payBtn.textContent=`Pay ₹${Math.abs(balance).toFixed(0)} to ${d.partnerName}`;
+    }
+    balEl.dataset.balance=balance.toFixed(2);
+  }
+  // Ledger
+  const ledger=document.getElementById('circleLedger');
+  if(ledger){
+    if(d.entries.length===0){ledger.innerHTML=`<div class="empty-msg">No entries yet. Add the first shared expense above.</div>`;return;}
+    ledger.innerHTML=d.entries.slice().reverse().map((e,ri)=>{
+      const i=d.entries.length-1-ri;
+      const whoName=e.who==='me'?d.myName:d.partnerName;
+      let splitLabel=e.split==='equal'?'50/50':e.split==='full'?`${whoName} only`:e.split==='me'?`${d.myName}'s`:e.split==='them'?`${d.partnerName}'s`:'50/50';
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:12px;font-weight:600">${esc(e.desc||'Expense')}</div>
+          <div style="font-size:10px;color:var(--faint)">${whoName} paid · ${splitLabel} · ${e.date||''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:13px;font-weight:700">₹${parseFloat(e.amount).toFixed(0)}</span>
+          <button onclick="circleDeleteEntry(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 4px">×</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+function circleSaveSetup(){
+  const myName=document.getElementById('circleMyName').value.trim()||'Me';
+  const partnerName=document.getElementById('circlePartnerName').value.trim()||'Partner';
+  const d=_circleData();
+  d.setup=true;d.myName=myName;d.partnerName=partnerName;
+  _circleSave(d);renderCircle();
+}
+function circleReset(){
+  if(!confirm('Reset your Circle? All entries will be deleted.'))return;
+  localStorage.removeItem('CIRCLE_DATA');
+  document.getElementById('circleMyName').value='';
+  document.getElementById('circlePartnerName').value='';
+  renderCircle();
+}
+function circleAddEntry(){
+  const who=document.getElementById('circleWho').value;
+  const amt=parseFloat(document.getElementById('circleAmt').value)||0;
+  const desc=document.getElementById('circleDesc').value.trim();
+  const split=document.getElementById('circleSplit').value;
+  if(amt<=0){showToast('Enter a valid amount','');return;}
+  const d=_circleData();
+  d.entries.push({id:uid(),who,amount:amt,desc,split,date:new Date().toLocaleDateString('en-IN')});
+  _circleSave(d);
+  document.getElementById('circleAmt').value='';
+  document.getElementById('circleDesc').value='';
+  renderCircle();showToast('Entry added','');
+}
+function circleDeleteEntry(i){
+  const d=_circleData();d.entries.splice(i,1);_circleSave(d);renderCircle();
+}
+function circlePayUPI(){
+  const d=_circleData();
+  const balance=parseFloat(document.getElementById('circleBalanceDisplay').dataset.balance||0);
+  if(!d.partnerUPI){showToast('No UPI ID saved for partner','Add via Settings');return;}
+  const amount=Math.abs(balance).toFixed(2);
+  const link=`upi://pay?pa=${encodeURIComponent(d.partnerUPI)}&pn=${encodeURIComponent(d.partnerName)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Circle Finance settle')}`;
+  window.open(link,'_blank');
+}
+function circleShare(){
+  const d=_circleData();
+  if(!d.setup){showToast('Set up your Circle first','');return;}
+  // Build a readable summary as shareable text
+  let balance=0;
+  d.entries.forEach(e=>{
+    const amt=parseFloat(e.amount)||0;
+    if(e.split==='equal'){balance+=(e.who==='me'?amt/2:-amt/2);}
+    else if(e.split==='full'){balance+=(e.who==='me'?amt:-amt);}
+    else if(e.split==='me'){balance+=(e.who==='me'?0:amt);}
+    else if(e.split==='them'){balance+=(e.who==='me'?amt:0);}
+  });
+  const balStr=Math.abs(balance)<1?'All settled ✓':balance>0?`${d.partnerName} owes ${d.myName} ₹${Math.abs(balance).toFixed(0)}`:`${d.myName} owes ${d.partnerName} ₹${Math.abs(balance).toFixed(0)}`;
+  const last5=d.entries.slice(-5).map(e=>`• ${e.desc||'Expense'}: ₹${e.amount} (${e.who==='me'?d.myName:d.partnerName} paid)`).join('\n');
+  const text=`🫂 Circle Finance — ${d.myName} & ${d.partnerName}\n\nBalance: ${balStr}\n\nRecent entries:\n${last5}\n\nShared via Flow App`;
+  if(navigator.share){navigator.share({title:'Circle Finance',text}).catch(()=>{});}
+  else if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>showToast('Copied to clipboard','Share with '+d.partnerName)).catch(()=>showToast('Share not available','Copy manually'));}
+}
+
+// Auto-render circle when switching to it
+(function(){
+  const origSwitchBillsTab=window.switchBillsTab;
+  window.switchBillsTab=function(id,btn){
+    if(typeof origSwitchBillsTab==='function')origSwitchBillsTab(id,btn);
+    if(id==='circle')renderCircle();
+  };
+})();
+
+// ══ HABIT LOOP ═══════════════════════════════════════════════
+// Streak system — tracks consecutive days with any log entry
+// Storage key: 'flow_streak' → {lastDate:'YYYY-MM-DD', count:N}
+
+function _streakKey(){return'flow_streak';}
+function _getStreak(){
+  try{return JSON.parse(localStorage.getItem(_streakKey())||'null')||{lastDate:null,count:0};}catch(e){return{lastDate:null,count:0};}
+}
+function _saveStreak(s){localStorage.setItem(_streakKey(),JSON.stringify(s));}
+
+function _bumpStreak(){
+  const today=_localDateStr();
+  const s=_getStreak();
+  if(s.lastDate===today) return; // already bumped today
+  const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+  const yStr=_localDateStr(yesterday);
+  if(s.lastDate===yStr){
+    s.count=(s.count||0)+1;
+  } else if(s.lastDate===null){
+    s.count=1;
+  } else {
+    // Gap — streak broken
+    s.count=1;
+  }
+  s.lastDate=today;
+  _saveStreak(s);
+  renderStreakChip();
+}
+
+function renderStreakChip(){
+  // Streak chip removed — streak count still tracked internally for milestone toasts
+}
+
+// Hook streak bump into daily save and monthly ledger save
+(function(){
+  const _origSaveDaily=window.saveDaily;
+  window.saveDaily=function(){
+    if(typeof _origSaveDaily==='function') _origSaveDaily();
+    _bumpStreak();
+  };
+  const _origSave=window.save;
+  window.save=function(){
+    if(typeof _origSave==='function') _origSave();
+    _bumpStreak();
+  };
+})();
+
+// ── Post-log micro-insight toast ─────────────────────────────
+// Fires after a daily expense is saved — shows current-month
+// category spending or streak milestone message.
+function _showMicroInsight(entry){
+  if(!entry||!entry.cat) return;
+  const cat=entry.cat;
+  const type=entry.type||'expense';
+  if(type==='income') return; // only for expenses
+  // Sum current month spending for this category
+  const nowDate=new Date();
+  const mk=`${nowDate.getMonth()}_${nowDate.getFullYear()}`;
+  let catTotal=0;
+  // From DAILY_EXPENSES
+  DAILY_EXPENSES.forEach(e=>{
+    if((e.type||'expense')==='expense'&&e.cat===cat){
+      catTotal+=(parseFloat(e.amt)||0);
+    }
+  });
+  // From monthly ledger
+  const ld=DB[mk];
+  if(ld&&ld.expense){
+    ld.expense.forEach(e=>{if(e.cat===cat) catTotal+=(parseFloat(e.amt)||0);});
+  }
+  const s=_getStreak();
+  // Milestone messages
+  const milestones=[3,7,14,21,30,50,100];
+  if(milestones.includes(s.count)){
+    setTimeout(()=>showToast('🔥 '+s.count+' day streak!','You\'re building a great habit. Keep logging!',4000),400);
+    return;
+  }
+  // Category insight
+  if(catTotal>0){
+    const mon=MONTHS[nowDate.getMonth()]||'this month';
+    setTimeout(()=>showToast('💡 '+cat+' this month','You\'ve spent ₹'+fmt(catTotal)+' on '+cat+' in '+mon+'.',3500),400);
+  }
+}
+
+// Hook micro-insight into FAB submit and daily quick-add
+(function(){
+  const _origSubmitFAB=window.submitFAB;
+  window.submitFAB=function(){
+    // capture the new entry before it's added
+    const cat=(document.getElementById('fabCat')&&document.getElementById('fabCat').value)||'';
+    const type=window._fabType||'expense';
+    if(typeof _origSubmitFAB==='function') _origSubmitFAB();
+    if(cat&&type!=='income'){
+      const nowDate=new Date();
+      const mk=`${nowDate.getMonth()}_${nowDate.getFullYear()}`;
+      let catTotal=0;
+      DAILY_EXPENSES.forEach(e=>{if((e.type||'expense')==='expense'&&e.cat===cat) catTotal+=(parseFloat(e.amt)||0);});
+      const ld=DB[mk];if(ld&&ld.expense) ld.expense.forEach(e=>{if(e.cat===cat) catTotal+=(parseFloat(e.amt)||0);});
+      const s=_getStreak();
+      const milestones=[3,7,14,21,30,50,100];
+      if(milestones.includes(s.count)){
+        setTimeout(()=>showToast('🔥 '+s.count+' day streak!','You\'re building a great habit. Keep logging!',4000),500);
+      } else if(catTotal>0){
+        const mon=MONTHS[nowDate.getMonth()]||'this month';
+        setTimeout(()=>showToast('💡 '+cat+' this month','₹'+fmt(catTotal)+' on '+cat+' in '+mon+'.',3500),500);
+      }
+    }
+  };
+})();
+
+// Hook micro-insight into quickDailyAdd
+(function(){
+  const _origQuickDailyAdd=window.quickDailyAdd;
+  window.quickDailyAdd=function(){
+    const cat=(document.getElementById('dqCat')&&document.getElementById('dqCat').value)||'';
+    const type=document.getElementById('dqTypeExp')&&document.getElementById('dqTypeExp').classList.contains('active')?'expense':'income';
+    if(typeof _origQuickDailyAdd==='function') _origQuickDailyAdd();
+    if(cat&&type==='expense'){
+      setTimeout(()=>{
+        const nowDate=new Date();
+        const mk=`${nowDate.getMonth()}_${nowDate.getFullYear()}`;
+        let catTotal=0;
+        DAILY_EXPENSES.forEach(e=>{if((e.type||'expense')==='expense'&&e.cat===cat) catTotal+=(parseFloat(e.amt)||0);});
+        const ld=DB[mk];if(ld&&ld.expense) ld.expense.forEach(e=>{if(e.cat===cat) catTotal+=(parseFloat(e.amt)||0);});
+        const s=_getStreak();
+        const milestones=[3,7,14,21,30,50,100];
+        if(milestones.includes(s.count)){
+          setTimeout(()=>showToast('🔥 '+s.count+' day streak!','Building a great habit!',4000),300);
+        } else if(catTotal>0){
+          const mon=MONTHS[nowDate.getMonth()]||'this month';
+          setTimeout(()=>showToast('💡 '+cat+' this month','₹'+fmt(catTotal)+' on '+cat+' in '+mon+'.',3500),300);
+        }
+      },500);
+    }
+  };
+})();
+
+// ── Daily 9 PM nudge notification ────────────────────────────
+// Fires once per day — if user hasn't logged anything today,
+// show an in-app toast at 9 PM and a browser notification.
+function _scheduleDailyNudge(){
+  const now=new Date();
+  const today=_localDateStr(now);
+  const lastNudge=localStorage.getItem('flow_last_nudge');
+  if(lastNudge===today) return; // already nudged today
+
+  // Check if user already logged something today
+  const hasLoggedToday=DAILY_EXPENSES.some(e=>e.date===today)||
+    (()=>{const mk=`${now.getMonth()}_${now.getFullYear()}`;const d=DB[mk];
+     if(!d) return false;
+     return[...(d.income||[]),...(d.expense||[])].some(e=>e.date===today);})();
+  if(hasLoggedToday) return; // no nudge needed
+
+  // Schedule nudge for 9 PM today (or immediately if already past 9 PM)
+  const ninepm=new Date(now.getFullYear(),now.getMonth(),now.getDate(),21,0,0,0);
+  const delay=ninepm.getTime()-now.getTime();
+  if(delay<0||delay>24*60*60*1000) return; // not today's window
+
+  setTimeout(()=>{
+    // Re-check: maybe they logged in the meantime
+    const todayStr=_localDateStr(new Date());
+    const stillEmpty=!DAILY_EXPENSES.some(e=>e.date===todayStr);
+    if(!stillEmpty) return;
+    localStorage.setItem('flow_last_nudge',todayStr);
+    showToast('📝 Log today\'s expenses','Takes 30 seconds. Build the habit!',6000);
+    if(Notification.permission==='granted'){
+      try{new Notification('Flow — Log today\'s expenses',{body:'Takes 30 seconds. Your streak is waiting! 🔥',icon:'./icon-192.png',badge:'./favicon.png',tag:'daily_nudge_'+todayStr});}catch(e){}
+    }
+  }, delay);
+}
+
+// ── Weekly Sunday summary banner ──────────────────────────────
+// Shows on Sunday with last 7 days' spending breakdown.
+function _buildWeeklySummary(){
+  const now=new Date();
+  const weekAgo=new Date(now);weekAgo.setDate(now.getDate()-6);
+  let total=0, topCat={}, days=0;
+  for(let i=0;i<7;i++){
+    const d=new Date(weekAgo);d.setDate(weekAgo.getDate()+i);
+    const dStr=_localDateStr(d);
+    const dayEntries=DAILY_EXPENSES.filter(e=>e.date===dStr&&(e.type||'expense')==='expense');
+    if(dayEntries.length) days++;
+    dayEntries.forEach(e=>{
+      const a=parseFloat(e.amt)||0;total+=a;
+      topCat[e.cat]=(topCat[e.cat]||0)+a;
+    });
+    // Also check monthly ledger
+    const mk=`${d.getMonth()}_${d.getFullYear()}`;
+    const ld=DB[mk];
+    if(ld&&ld.expense){
+      ld.expense.forEach(e=>{
+        if(e.date===dStr){
+          const a=parseFloat(e.amt)||0;total+=a;
+          topCat[e.cat]=(topCat[e.cat]||0)+a;
+        }
+      });
+    }
+  }
+  const s=_getStreak();
+  const topEntry=Object.entries(topCat).sort((a,b)=>b[1]-a[1])[0];
+  return{total,days,topCat:topEntry?topEntry[0]:null,topAmt:topEntry?topEntry[1]:0,streak:s.count};
+}
+
+function checkWeeklySummaryBanner(){
+  const banner=document.getElementById('weeklySummaryBanner');
+  if(!banner) return;
+  const now=new Date();
+  const isSunday=now.getDay()===0;
+  if(!isSunday){banner.style.display='none';return;}
+  const weekKey='flow_weekly_banner_'+_localDateStr(now);
+  if(localStorage.getItem(weekKey)==='1'){banner.style.display='none';return;}
+  const data=_buildWeeklySummary();
+  if(data.total<=0&&data.days===0){banner.style.display='none';return;}
+  const title=document.getElementById('weeklySummaryTitle');
+  const body=document.getElementById('weeklySummaryBody');
+  if(title) title.textContent='Week in Review 📊';
+  let bodyText='Spent ₹'+fmt(data.total)+' over '+data.days+' day'+(data.days!==1?'s':'');
+  if(data.topCat) bodyText+=' · Top: '+data.topCat;
+  if(data.streak>0) bodyText+=' · 🔥 '+data.streak+' day streak';
+  if(body) body.textContent=bodyText;
+  banner.style.display='flex';
+}
+
+function dismissWeeklySummaryBanner(){
+  const banner=document.getElementById('weeklySummaryBanner');
+  if(banner) banner.style.display='none';
+  const weekKey='flow_weekly_banner_'+_localDateStr(new Date());
+  localStorage.setItem(weekKey,'1');
+}
+
+function openWeeklySummary(){
+  dismissWeeklySummaryBanner();
+  // Navigate to Track → Daily view to show week
+  const trackBtn=document.querySelector('.tab-btn[onclick*="track"]');
+  if(trackBtn) switchTab('track',trackBtn);
+  setTimeout(()=>switchTrackView('daily'),100);
+}
+
+
+// Init habit loop on load
+(function(){
+  // Render streak chip immediately (shows if streak exists)
+  renderStreakChip();
+  // Check weekly Sunday banner
+  checkWeeklySummaryBanner();
+  // Schedule daily nudge
+  _scheduleDailyNudge();
+})();
+
+</script>
 
 </body>
 </html>
