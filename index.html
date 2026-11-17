@@ -2649,7 +2649,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       </div>
       <div style="display:flex;gap:6px">
         <button class="btn-primary btn-sm" onclick="openQuickSplit()" title="Split Up — quick split &amp; notify">&#x26A1; Split Up</button>
-        <button class="btn-ghost btn-sm" onclick="openWhw()" title="Who Had What — item-by-item split">🍽 Who Had What</button>
+        <button class="btn-ghost btn-sm" onclick="openWhw()" title="Slice It — item-by-item split">🍕 Slice It</button>
         <button class="btn-ghost btn-sm" onclick="toggleForm('splitForm')">+ Add Split</button>
       </div>
     </div>
@@ -2954,11 +2954,11 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
     </div>
     <div style="display:flex;gap:6px">
       <button class="btn-primary btn-sm" onclick="openQuickSplit()" title="Split Up — quick split &amp; notify">&#x26A1; Split Up</button>
-      <button class="btn-ghost btn-sm" onclick="openWhw()" title="Who Had What — item-by-item split">🍽 Who Had What</button>
+      <button class="btn-ghost btn-sm" onclick="openWhw()" title="Slice It — item-by-item split">🍕 Slice It</button>
       <button class="btn-ghost btn-sm" onclick="editingSplitId=null;document.getElementById('splitFormCircleTitle').textContent='Add Shared Expense';initSplitMembersCircle();toggleForm('splitFormCircle')">+ Add Split</button>
     </div>
   </div>
-  <div class="info-tip" id="tip-circle-tab"><div class="info-tip-hd">Circle — All Shared Money Tools</div>Three tools in one place: <strong>⚡ Split Up</strong> — quick split with WhatsApp notify and UPI QR. <strong>🍽 Who Had What</strong> — item-by-item restaurant bill wizard. <strong>🫂 Circle Finance</strong> — running shared ledger for couples or flatmates.<button class="info-tip-close" onclick="toggleInfo('tip-circle-tab')">×</button></div>
+  <div class="info-tip" id="tip-circle-tab"><div class="info-tip-hd">Circle — All Shared Money Tools</div>Three tools in one place: <strong>⚡ Split Up</strong> — quick split with WhatsApp notify and UPI QR. <strong>🍕 Slice It</strong> — item-by-item restaurant bill wizard. <strong>🫂 Circle Finance</strong> — running shared ledger for couples or flatmates.<button class="info-tip-close" onclick="toggleInfo('tip-circle-tab')">×</button></div>
 
   <!-- Split Form -->
   <div class="hold-form" id="splitFormCircle" style="display:none;margin-bottom:14px">
@@ -3818,7 +3818,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
       <span class="wn-version-date">Nov 2026</span>
       <span class="wn-version-label wn-label-major">Feature Update</span>
     </div>
-    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🍽 Who Had What v2 — Full Bill Splitting Wizard</div><div class="wn-entry-desc">Completely rebuilt from scratch. 5-step wizard: add items with quantity and price → assign each item to the right person → adjust for tax, tip and service charge → collect payment via UPI deep link or inline QR code → view net settlements (minimum transfers). Supports saved groups, 30-session history, payer's own share shown as "keeps ₹X", round-up option, and saves directly to Bill Split.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🍕 Slice It v2 — Full Bill Splitting Wizard</div><div class="wn-entry-desc">Completely rebuilt from scratch. 5-step wizard: add items with quantity and price → assign each item to the right person → adjust for tax, tip and service charge → collect payment via UPI deep link or inline QR code → view net settlements (minimum transfers). Supports saved groups, 30-session history, payer's own share shown as "keeps ₹X", round-up option, and saves directly to Bill Split.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">📅 Pay Day Planner — Cash Flow Heat Map</div><div class="wn-entry-desc">A new sub-tab under Planner. Set your pay day and the calendar automatically colour-codes every day of the month: Indigo for pay day, Red for high-outflow days (bills, EMIs, loan payments), Amber for medium outflow, and Green for free-buffer days. See your free-money window — the gap between pay day and your first big payment — plus a summary of all high-outflow dates. Reads your existing Bills, Subscriptions, and Loan data automatically.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🧬 Financial Fingerprint — Your Money DNA</div><div class="wn-entry-desc">A new sub-tab under Planner. Analyses the last 90 days of your Daily Expense data to generate a Flow Score (0–100), a spending archetype (Planner, Balanced, Saver, Explorer, Impulsive or Cautious), and a radar chart across 5 dimensions: Saving Rate, Spending Discipline, Income Stability, Investment Consistency, and Budget Adherence. Also shows peak spend day, peak spend time-of-day, average daily spend, and top 3 categories. No manual input required.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🫂 Circle Finance — Shared Ledger for Two</div><div class="wn-entry-desc">A new sub-tab under Bills. A persistent shared financial ledger for couples, flatmates or travel partners. Each entry is tagged as yours or your partner's, with a split mode: equal (50/50), full (payer owes nothing), my expense only, or their expense only. The running balance updates instantly — shows who owes whom. Settle directly via UPI or share a text snapshot with your partner.</div></div></div>
@@ -7207,7 +7207,7 @@ const TOUR_STEPS=[
   // 5 — CIRCLE: main tab
   {tab:'circle',target:'#tab-circle',chip:'Circle',
    title:'🫂 Circle — Shared Expenses & Finance',
-   desc:'Circle is its own tab. ⚡ Split Up divides any expense between people — tap QR on a member row to show a UPI QR they scan to pay. 🫂 Circle Finance tracks a shared running ledger between two people. 🍽 Who Had What splits a restaurant bill item by item.'},
+   desc:'Circle is its own tab. ⚡ Split Up divides any expense between people — tap QR on a member row to show a UPI QR they scan to pay. 🫂 Circle Finance tracks a shared running ledger between two people. 🍕 Slice It splits a restaurant bill item by item.'},
   // 6 — PORTFOLIO
   {tab:'invest',target:'.tab-btn:nth-child(3)',chip:'Portfolio',
    title:'Portfolio — Track Every Investment',
@@ -12282,7 +12282,7 @@ const FLOW_CURRENT_VER='2.9.1';
 <div id="whwOverlay">
   <div class="whw-topbar">
     <button class="whw-topbar-close" onclick="whwClose()">&#8592;</button>
-    <div class="whw-topbar-title">🍽 Who Had What</div>
+    <div class="whw-topbar-title">🍕 Slice It</div>
     <button class="btn-ghost btn-sm" onclick="whwShowHistory()" style="font-size:10px;padding:4px 10px">History</button>
     <button class="btn-primary btn-sm" id="whwNextBtn" onclick="whwNext()" style="font-size:11px;padding:5px 13px">Next →</button>
   </div>
@@ -12902,7 +12902,7 @@ function whwSaveToBillSplit(){
   // Build a split entry compatible with existing Bill Split data model (SPLITS array)
   const sp={
     id:uid(),
-    title:_whw.title||'Who Had What',
+    title:_whw.title||'Slice It',
     total:total,
     paidBy:payer?payer.name:(_whw.payerName||''),
     payeeUPI:_whw.payerUpi||'',
