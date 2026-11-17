@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <!-- ── Content Security Policy ────────────────────────── -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.mfapi.in https://tessdata.projectnaptha.com blob:; img-src 'self' data: blob:; worker-src 'self' blob: https://cdn.jsdelivr.net; manifest-src 'self'; frame-ancestors 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.mfapi.in; img-src 'self' data: blob:; worker-src 'self'; manifest-src 'self'; frame-ancestors 'none';">
 <title>Flow — Personal Finance</title>
 
 <!-- ── PWA Install & App Meta ─────────────────────────── -->
@@ -12460,16 +12460,6 @@ function whwRenderStep1(){
       <input type="text" placeholder="Bill title (e.g. Dinner at Truffles)" value="${esc(_whw.title)}" style="width:100%;font-size:12px;padding:7px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);font-family:'IBM Plex Mono',monospace" oninput="_whw.title=this.value">
     </div>
 
-    <div style="margin-bottom:14px">
-      <div class="whw-scan-area" onclick="_cameraOpen=true;document.getElementById('whwBillImg').click()">
-        <div style="font-size:24px;margin-bottom:5px">📷</div>
-        <div style="font-size:11px;color:var(--muted)">Scan or upload bill image</div>
-        <div style="font-size:9px;color:var(--faint);margin-top:3px">Shows image for reference — add items manually from it</div>
-        <input type="file" id="whwBillImg" accept="image/*" capture="environment" style="display:none" onchange="whwScanBill(this)">
-      </div>
-      <div id="whwScanStatus"></div>
-    </div>
-
     <div style="margin-bottom:16px">
       <div class="whw-sec-label">Items &nbsp;<span style="color:var(--faint);font-weight:400">${_whw.items.length} · ${fmt(subtotal)}</span></div>
       ${itemRows||'<div style="font-size:11px;color:var(--faint);padding:5px 0">No items yet.</div>'}
@@ -12522,93 +12512,6 @@ function whwAddPerson(){
     if(el){el.value='';el.focus();}
     document.getElementById('whwNewUpi').value='';
   },10);
-}
-// ══ BILL OCR — parses item+price from a photo using Tesseract.js ════════════
-var _tesseractLoaded=false;
-var _TESS_CDN='https://cdn.jsdelivr.net/npm/tesseract.js@4.1.4/dist/';
-function _loadTesseract(){
-  return new Promise(function(resolve,reject){
-    if(typeof Tesseract!=='undefined'&&Tesseract.createWorker){_tesseractLoaded=true;resolve();return;}
-    var s=document.createElement('script');
-    s.src=_TESS_CDN+'tesseract.min.js';
-    s.onload=function(){_tesseractLoaded=true;resolve();};
-    s.onerror=function(){reject(new Error('Could not load OCR library — check internet'));};
-    document.head.appendChild(s);
-  });
-}
-// Parse OCR text → [{name,price}] by looking for lines with a trailing number
-function _parseBillText(text){
-  var lines=text.split(/\r?\n/);
-  var items=[];
-  // Patterns: "Item Name ... 123.00" or "Item Name 123.00" (₹ optional)
-  var priceRe=/₹?\s*(\d{1,6}(?:\.\d{1,2})?)\s*$/;
-  var skipRe=/^\s*(total|subtotal|sub total|grand total|tax|gst|cgst|sgst|service|discount|amount|bill no|table|date|time|thank|welcome|visit|wifi|receipt|invoice|order|qty|quantity|item|price|rate|s\.?no|sr\.?\s*no|description)\b/i;
-  for(var i=0;i<lines.length;i++){
-    var line=lines[i].trim();
-    if(!line||line.length<3)continue;
-    if(skipRe.test(line))continue;
-    var m=priceRe.exec(line);
-    if(!m)continue;
-    var price=parseFloat(m[1]);
-    if(isNaN(price)||price<=0||price>99999)continue;
-    // Name is everything before the price
-    var name=line.slice(0,m.index).replace(/[|:×x*]+$/,'').replace(/\s{2,}/g,' ').trim();
-    // Strip leading index numbers like "1." "01 " etc.
-    name=name.replace(/^\d{1,3}[\.\):\s]+/,'').trim();
-    if(!name||name.length<2)continue;
-    // Skip lines that are just numbers (qty × rate patterns get through otherwise)
-    if(/^\d+$/.test(name))continue;
-    items.push({name:name,price:price});
-  }
-  return items;
-}
-async function whwScanBill(input){
-  const file=input.files[0];if(!file)return;
-  _cameraOpen=false;
-  const st=document.getElementById('whwScanStatus');
-  const imgUrl=URL.createObjectURL(file);
-  const spin='<span style="display:inline-block;animation:spin 1s linear infinite;font-size:14px">⟳</span> ';
-  function setMsg(html){var el=document.getElementById('whwOcrMsg');if(el)el.innerHTML=html;}
-  st.innerHTML=`<div style="margin-top:8px">
-    <img src="${imgUrl}" style="max-width:100%;border-radius:8px;max-height:200px;display:block">
-    <div id="whwOcrMsg" style="font-size:11px;color:var(--muted);margin-top:7px">${spin}Loading OCR engine…</div>
-  </div>`;
-  var worker=null;
-  try{
-    await _loadTesseract();
-    setMsg(spin+'Starting OCR…');
-    // Tesseract v4 — createWorker with explicit CDN paths so no fetch to unknown origins
-    worker=await Tesseract.createWorker('eng',1,{
-      workerPath:_TESS_CDN+'worker.min.js',
-      langPath:'https://tessdata.projectnaptha.com/4.0.0',
-      corePath:_TESS_CDN+'tesseract-core.wasm.js',
-      logger:function(m){
-        if(m.status==='recognizing text'){
-          setMsg(spin+'Reading bill… '+Math.round((m.progress||0)*100)+'%');
-        } else if(m.status==='loading tesseract core'||m.status==='loading language traineddata'){
-          setMsg(spin+m.status+'…');
-        }
-      },
-      errorHandler:function(e){console.warn('[Flow] Tesseract error:',e);}
-    });
-    const {data}=await worker.recognize(file);
-    await worker.terminate();
-    worker=null;
-    const items=_parseBillText(data.text);
-    if(items.length===0){
-      setMsg('<span style="color:var(--deficit)">⚠</span> No items found — try a clearer photo, or add items manually.');
-      return;
-    }
-    items.forEach(function(it){
-      _whw.items.push({id:++_whwItemId,name:it.name,price:it.price,paidBy:'',splits:[]});
-    });
-    whwRender();
-    setMsg('<span style="color:var(--surplus)">✓</span> Found '+items.length+' item'+(items.length!==1?'s':'')+' — review & assign who ordered what.');
-  }catch(err){
-    if(worker){try{await worker.terminate();}catch(e){}}
-    setMsg('<span style="color:var(--deficit)">⚠</span> OCR failed: '+err.message+' — add items manually.');
-    console.warn('[Flow] Bill OCR error:',err);
-  }
 }
 function whwLoadGroup(gi){
   const g=_whwGetGroups()[gi];if(!g)return;
