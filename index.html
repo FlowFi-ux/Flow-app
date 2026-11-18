@@ -67,7 +67,7 @@ html.dark-transitioning *::after{
     fill .18s ease,
     stroke .18s ease !important;
 }
-body{font-family:'IBM Plex Mono','Courier New',monospace;background:var(--bg);color:var(--text);font-size:13px;line-height:1.55;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+body{font-family:'IBM Plex Mono','Courier New',monospace;background:var(--bg);color:var(--text);font-size:13px;line-height:1.55;overflow-x:clip}
 
 /* ── HOME SCREEN — Professional ──────────────────────── */
 .home-screen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;flex-direction:column;overflow-y:auto}
@@ -220,7 +220,7 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .track.on .knob{transform:translateX(13px)}
 
 /* ── LAYOUT ───────────────────────────────────────────── */
-.main{max-width:1080px;margin:0 auto;padding:18px 16px 40px;overflow-x:hidden;scroll-padding-bottom:80px}
+.main{max-width:1080px;margin:0 auto;padding:18px 16px 40px;overflow-x:clip;scroll-padding-bottom:80px}
 
 /* ── SUMMARY CARDS ────────────────────────────────────── */
 .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
@@ -1587,7 +1587,8 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 
 /* ── iOS fit: notch / home bar / dynamic toolbar / input zoom ── */
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
-html,body{max-width:100%;overscroll-behavior-y:none}
+html,body{max-width:100%}
+html{overscroll-behavior-y:none}
 body{position:relative;min-height:100vh;min-height:100dvh}
 img,canvas,svg,video{max-width:100%}
 .lock-screen,#homeScreen,.home-screen,.wrapped-overlay,.notif-panel{padding-top:env(safe-area-inset-top,0px)}
@@ -3088,7 +3089,7 @@ img,canvas,svg,video{max-width:100%}
 
   <!-- ══ NET WORTH TIMELINE ═══════════════════════════════ -->
   <div class="card" style="margin-bottom:14px;padding:16px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
       <div style="display:flex;align-items:center;gap:7px">
         <span class="card-lbl" style="margin:0">Net Worth Timeline</span>
         <button class="info-btn" onclick="toggleInfo('tip-nwtl')" title="About Net Worth Timeline">i</button>
@@ -3830,6 +3831,11 @@ img,canvas,svg,video{max-width:100%}
       <span class="wn-version-date">Nov 2026</span>
       <span class="wn-version-label wn-label-major">Feature Update</span>
     </div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🗂️ Sort spends — swipe to categorise</div><div class="wn-entry-desc">On the Track tab. UPI payments and uncategorised spends come up as cards. Swipe right to accept Flow's suggested category, left to pick another, up to skip. Undo any swipe.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">💡 Money moves</div><div class="wn-entry-desc">Two to four swipeable suggestions drawn from your own numbers: spending spikes, savings rate, emergency fund, SIPs and bills due soon. Most come with a one-tap action such as setting a budget cap.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🎞️ Your week in Flow</div><div class="wn-entry-desc">Swipeable story cards for the last 7 days: what you spent, top category, calmest and priciest day, savings rate and one thing to try.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🫙 Goal jars</div><div class="wn-entry-desc">Goals under Portfolio show as filling jars. Tap one to see a what-if slider that shows when you will reach it, or add money straight away. Milestone alerts at 25, 50, 75 and 100%.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🔍 Subscription audit and Circle trust</div><div class="wn-entry-desc">Under Bills → Subscriptions, swipe to keep or cancel each one with its yearly cost shown. In Circle, see how reliably each person pays back.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🍕 Slice It — simpler, 3 steps</div><div class="wn-entry-desc">Items → Who Had → Collect. Say exactly how many of each item every person had (2 naans, 1 juice, 3 nuggets), or split by shares. Pick who paid, set tax/tip/discount in one collapsible section and see what each person pays live. Collect with one swipeable payment-QR card per person. New: create and edit people groups, and delete saved splits from History. Deletes everywhere now use an in-app confirm with Undo, and Backup now includes everything (Slice It history and groups, Circle ledger, Pay Day settings).</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">📅 Pay Day Planner — Cash Flow Heat Map</div><div class="wn-entry-desc">A new sub-tab under Planner. Set your pay day and the calendar automatically colour-codes every day of the month: Indigo for pay day, Red for high-outflow days (bills, EMIs, loan payments), Amber for medium outflow, and Green for free-buffer days. See your free-money window — the gap between pay day and your first big payment — plus a summary of all high-outflow dates. Reads your existing Bills, Subscriptions, and Loan data automatically.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🧬 Financial Fingerprint — Your Money DNA</div><div class="wn-entry-desc">A new sub-tab under Planner. Analyses the last 90 days of your Daily Expense data to generate a Flow Score (0–100), a spending archetype (Planner, Balanced, Saver, Explorer, Impulsive or Cautious), and a radar chart across 5 dimensions: Saving Rate, Spending Discipline, Income Stability, Investment Consistency, and Budget Adherence. Also shows peak spend day, peak spend time-of-day, average daily spend, and top 3 categories. No manual input required.</div></div></div>
@@ -6718,7 +6724,7 @@ function notifyMember(splitId,memberId){
 }
 function settleSplitMember(splitId,memberId){
   const sp=SPLITS.find(s=>s.id===splitId);if(!sp)return;
-  const m=sp.members.find(x=>x.id===memberId);if(m)m.settled=true;
+  const m=sp.members.find(x=>x.id===memberId);if(m){m.settled=true;m.settledAt=Date.now();}
   saveSplits();renderSplits();
 }
 function deleteSplit(id){flowAsk('Delete this split?',()=>{SPLITS=SPLITS.filter(s=>s.id!==id);saveSplits();renderSplits();renderSplits('splitListCircle');showToast('Deleted','Split removed')})}
@@ -7253,6 +7259,13 @@ const TOUR_STEPS=[
   {tab:'settings',target:'#desktopSettingsBtn',chip:'Settings',
    title:'⚙ Settings — Backup & Preferences',
    desc:'Set a PIN lock, change theme, export or import your data (CSV / JSON), manage notifications and customise how Flow looks. Your data never leaves your device unless you export it.'},
+  // NEW — swipe features
+  {tab:'track',target:'#fxBoost',chip:'New',
+   title:'Sort spends, Money moves, Your week',
+   desc:'Three quick swipe decks. Sort spends files UPI payments in one swipe. Money moves gives tailored tips with one-tap actions. Your week shows a story-style recap of the last 7 days.'},
+  {tab:'invest',subtab:'goals',target:'#goalList',chip:'New',
+   title:'Goal jars',
+   desc:'Each savings goal is a jar that fills as you save. Tap one to try a what-if slider and see when you will reach it.'},
   // 10 — FINAL
   {tab:'track',target:'.ledger',chip:'Ready!',scroll:true,
    title:'You\'re all set! 🎉',
@@ -10391,9 +10404,9 @@ function loadDemoData(){
       {id:uid(),bank:'HDFC Bank FD',principal:200000,rate:7.1,tenureMonths:12,compounding:4,startDate:ds(cY-1,cM,10),notes:'Tax-saver FD'},
     ],
     goals:[
-      {id:uid(),name:'Emergency Fund',target:360000,saved:180000,deadline:ds(cY+1,cM,1),notes:'6 months expenses',linkedMF:null},
-      {id:uid(),name:'Europe Trip ✈️',target:300000,saved:75000,deadline:ds(cY+1,8,1),notes:'Italy + Spain',linkedMF:null},
-      {id:uid(),name:'MacBook Pro',target:200000,saved:52000,deadline:ds(cY,10,1),notes:'M3 Pro',linkedMF:null},
+      {id:uid(),name:'Emergency Fund',target:360000,current:180000,deadline:ds(cY+1,cM,1),notes:'6 months expenses',linkedMFId:null},
+      {id:uid(),name:'Europe Trip ✈️',target:300000,current:75000,deadline:ds(cY+1,8,1),notes:'Italy + Spain',linkedMFId:null},
+      {id:uid(),name:'MacBook Pro',target:200000,current:52000,deadline:ds(cY,10,1),notes:'M3 Pro',linkedMFId:null},
     ],
     dividends:[],
   };
@@ -12470,6 +12483,85 @@ const FLOW_CURRENT_VER='2.9.1';
 .cir-reset{background:none;border:none;color:var(--faint);font-size:11px;text-decoration:underline;cursor:pointer;padding:6px}
 .fa-undo{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:100001;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#1c1c1e;color:#fff;border-radius:12px;padding:12px 14px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
 .fa-undo button{background:none;border:none;color:#7dd3fc;font-weight:700;font-size:13px;cursor:pointer;padding:4px 6px}
+
+/* ── Responsive polish: phones (Android), tablets, desktop ── */
+.cal-grid{grid-template-columns:repeat(7,minmax(0,1fr))}
+.cal-day{min-width:0;overflow:hidden}
+.card,.hold-form,.split-card{min-width:0;max-width:100%}
+img,canvas,svg,video{max-width:100%}
+select,input,textarea{max-width:100%}
+@media(max-width:640px){
+  .hdr{flex-wrap:wrap;row-gap:8px;position:relative}
+  #trackControls{order:3;flex:1 1 100%;flex-wrap:wrap;overflow:visible;gap:6px;justify-content:flex-start}
+  #trackControls .sep{display:none}
+  #trackControls #notifBell{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:16px}
+  #trackControls select{flex:1 1 110px;min-width:0}
+  .sec-hdr{flex-wrap:wrap;gap:8px}
+  .card-lbl{white-space:normal}
+}
+@media(min-width:1100px){
+  .dash-bar,.dash-minimized-pill{max-width:1080px;margin-left:auto;margin-right:auto}
+}
+@media(min-width:1500px){
+  .main{max-width:1240px}
+}
+
+@media(min-width:760px){
+  .whw-topbar,.whw-body{padding-left:max(14px,calc((100% - 680px)/2));padding-right:max(14px,calc((100% - 680px)/2))}
+  .whw-steps{padding-left:max(0px,calc((100% - 680px)/2));padding-right:max(0px,calc((100% - 680px)/2))}
+}
+/* ═══ Flow Plus ═══ */
+body.fx-lock{overflow:hidden}
+#fxDeck{position:fixed;inset:0;z-index:450;background:var(--bg);display:none;flex-direction:column;padding:calc(10px + env(safe-area-inset-top,0px)) 16px calc(14px + env(safe-area-inset-bottom,0px));height:100vh;height:100dvh}
+#fxDeck.open{display:flex}
+.fx-top{display:flex;align-items:center;gap:10px;max-width:480px;width:100%;margin:0 auto}
+.fx-x{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:15px;cursor:pointer}
+.fx-title{flex:1;font-size:14px;font-weight:600}.fx-count{font-size:11px;color:var(--muted)}
+.fx-stage{position:relative;flex:1;max-width:420px;width:100%;margin:14px auto 8px;min-height:300px}
+.fx-card{position:absolute;inset:0 0 6px;border-radius:22px;background:var(--surface);border:1px solid var(--border);padding:24px 22px;display:flex;flex-direction:column;justify-content:center;box-shadow:0 14px 34px rgba(0,0,0,.12);user-select:none;-webkit-user-select:none;overflow:hidden;transition:transform .25s ease,opacity .25s}
+.fx-card.top{cursor:grab;z-index:3}
+.fx-card.dark,.fx-card[data-dark]{color:#fff}
+.fx-meta{font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+.fx-amt{font-size:44px;font-weight:700;margin:8px 0 2px;line-height:1.1}.fx-per{font-size:14px;font-weight:400;color:var(--muted)}
+.fx-line{font-size:15px;margin-top:4px;overflow-wrap:anywhere}
+.fx-h{font-size:22px;font-weight:700;line-height:1.3;margin:10px 0}
+.fx-h.fx-amber{color:#b45309}.fx-h.fx-red{color:#b91c1c}.fx-h.fx-green{color:#15803d}.fx-h.fx-blue{color:#1d4ed8}
+.fx-body{font-size:13.5px;line-height:1.7;color:var(--muted)}
+.fx-sub{font-size:13px;color:var(--muted);line-height:1.6;margin-top:6px}
+.fx-why{font-size:11px;color:var(--muted);margin-top:8px}
+.fx-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.fx-chip{display:inline-block;font-size:12.5px;padding:8px 13px;border-radius:16px;border:1px solid var(--border);background:var(--surface-alt);color:var(--text);cursor:pointer;font-family:inherit}
+.fx-chip.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.fx-cust{display:flex;gap:6px;margin-top:10px}.fx-cust input{flex:1;font-size:16px;padding:8px 10px;border:1px solid var(--border);border-radius:12px;background:var(--bg);color:var(--text);min-width:0}
+.fx-stamp{position:absolute;top:18px;font-size:12px;font-weight:700;padding:5px 11px;border-radius:8px;border:2px solid;opacity:0;pointer-events:none;letter-spacing:.5px;text-transform:uppercase}
+.fx-stamp.r{right:16px;color:#15803d;border-color:#15803d;transform:rotate(8deg)}.fx-stamp.l{left:16px;color:#b91c1c;border-color:#b91c1c;transform:rotate(-8deg)}.fx-stamp.u{left:50%;margin-left:-30px;color:#6b7280;border-color:#6b7280}
+.fx-hint{text-align:center;font-size:11px;color:var(--muted);min-height:16px}
+.fx-actions{display:flex;gap:8px;justify-content:center;max-width:420px;width:100%;margin:10px auto 0;flex-wrap:wrap}
+.fx-b{padding:12px 16px;border-radius:14px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;font-family:inherit;flex:1;min-width:84px}
+.fx-b.main{background:var(--text);color:var(--bg);border-color:var(--text)}.fx-b.sm{flex:0 0 auto;min-width:0}
+.fx-dots{display:flex;gap:5px;justify-content:center;margin-top:12px;min-height:8px}.fx-dots i{width:6px;height:6px;border-radius:50%;background:var(--border)}.fx-dots i.on{background:var(--text);width:16px;border-radius:4px}.fx-dots i.done{background:var(--muted)}
+.fx-done{align-items:center;text-align:center}.fx-done-in{display:flex;flex-direction:column;align-items:center}
+.fx-lead{font-size:14px;color:#cbd5e1;margin-top:28px}.fx-bigw{font-size:52px;font-weight:700;line-height:1.1;margin:6px 0;color:#fff}
+.fx-boost{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.fx-boost button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:11px 12px;border:1px solid var(--border);border-radius:14px;background:var(--surface);color:var(--text);cursor:pointer;text-align:left;font-family:inherit;min-width:0}
+.fx-boost span{font-size:18px}.fx-boost b{font-size:12px;font-weight:600}.fx-boost em{font-size:10.5px;font-style:normal;color:var(--muted)}
+.fx-wide{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px;margin-bottom:12px;border:1px solid var(--border);border-radius:14px;background:var(--surface);color:var(--text);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;text-align:left}
+.fx-wide em{font-style:normal;font-weight:400;font-size:10.5px;color:var(--muted)}
+.fx-jars{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:none}.fx-jars::-webkit-scrollbar{display:none}
+.fx-jarbtn{background:none;border:none;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;flex:0 0 auto;max-width:92px;font-family:inherit}
+.fx-jarbtn span{font-size:10.5px;color:var(--muted);max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fx-jar{width:68px;height:88px;border:2px solid var(--text);border-radius:8px 8px 20px 20px;position:relative;overflow:hidden;background:var(--surface)}
+.fx-jar i{position:absolute;left:0;right:0;bottom:0;opacity:.85;transition:height .6s}.fx-jar b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;mix-blend-mode:difference;color:#fff}
+.fx-jarhint{font-size:10px;color:var(--muted);margin-bottom:10px}
+.fx-plan-wrap{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:20px}
+.fx-plan{max-width:360px}.fx-plan input[type=number]{font-size:16px;padding:9px 10px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);min-width:0}.fx-plan .row2{display:flex;justify-content:space-between;align-items:center}
+.fx-trust{margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:6px 14px}
+.fx-trust-hd{font-size:12px;font-weight:700;padding:10px 0 6px}.fx-trust-hd span{font-weight:400;color:var(--muted);font-size:10px;margin-left:6px}
+.fx-trust-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--border)}
+.fx-trust-n{font-size:13px;font-weight:600}.fx-trust-s{font-size:10.5px;color:var(--muted);margin-top:1px}.fx-trust-sc{font-size:15px;font-weight:700;white-space:nowrap}
+@media(min-width:700px){.fx-stage{max-width:440px}.fx-card{padding:30px 28px}}
+@media(max-height:620px){.fx-amt{font-size:34px}.fx-bigw{font-size:40px}.fx-card{padding:16px}}
+.fx-story .fx-meta,.fx-story .fx-body{color:rgba(255,255,255,.75)}.fx-story .fx-sub{color:rgba(255,255,255,.75)}
 </style>
 
 <div id="whwOverlay">
@@ -13990,5 +14082,329 @@ function openWeeklySummary(){
 try{const _tc=document.getElementById('tab-circle');if(_tc&&_tc.classList.contains('active')){renderSplitsCircle();renderCircleFinanceC();initSplitMembersCircle();}}catch(e){}
 </script>
 
+<script>
+/* ═══════════════ FLOW PLUS — swipe decks, money moves, goal jars, wrapped, audit, trust ═══════════════ */
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
+const ds=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const num=v=>parseFloat(v)||0;
+const R=v=>'₹'+Math.round(v).toLocaleString('en-IN');
+const GENERIC=['upi payment','other','others','misc','miscellaneous','uncategorised','uncategorized',''];
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const KW=[
+  [/swiggy|zomato|restaurant|\bcafe\b|\bchai\b|coffee|biryani|pizza|dominos|\bmcd\b|\bkfc\b|\bfood\b|lunch|dinner|snack|bakery/i,'Food'],
+  [/bigbasket|blinkit|zepto|grocer|dmart|instamart|vegetable|fruit|milk|kirana/i,'Groceries'],
+  [/uber|\bola\b|rapido|\bmetro\b|petrol|fuel|diesel|\bbus\b|\bauto\b|\bcab\b|irctc|\btrain\b|flight|\btoll\b|fastag/i,'Transport'],
+  [/amazon|flipkart|myntra|ajio|meesho|nykaa|shopping|\bmall\b/i,'Shopping'],
+  [/netflix|spotify|hotstar|prime|youtube|subscription|zee5|sonyliv/i,'Subscriptions'],
+  [/electric|bescom|water bill|\bgas\b|broadband|airtel|\bjio\b|\bvi\b|bsnl|recharge|wifi|internet|\bdth\b/i,'Utilities'],
+  [/pharma|apollo|medplus|hospital|clinic|doctor|medic|\blab\b|diagnostic|1mg|pharmeasy/i,'Health'],
+  [/movie|bookmyshow|\bpvr\b|\binox\b|\bgame\b|concert/i,'Entertainment'],
+  [/rent|landlord|maintenance|society/i,'Rent'],
+  [/salon|urban company|spa|haircut|parlour/i,'Personal Care'],
+];
+function monthKey(m,y){return m+'_'+y;}
+function spendByCat(m,y){
+  const out={},tot={v:0};
+  const add=(c,a)=>{c=(c||'Other').trim()||'Other';out[c]=(out[c]||0)+a;tot.v+=a;};
+  const mm=(DB[monthKey(m,y)]||{}).expense||[];
+  mm.forEach(e=>add(e.cat,num(e.amt)));
+  DAILY_EXPENSES.forEach(e=>{if((e.type||'expense')==='income'||!e.date)return;const d=new Date(e.date);if(d.getMonth()===m&&d.getFullYear()===y)add(e.cat,num(e.amt));});
+  return {cats:out,total:tot.v};
+}
+function incomeOf(m,y){return ((DB[monthKey(m,y)]||{}).income||[]).reduce((t,e)=>t+num(e.amt),0);}
+function myCats(){const c=new Set();Object.values(DB).forEach(m=>(m.expense||[]).forEach(e=>{if(e.cat&&!GENERIC.includes(e.cat.toLowerCase()))c.add(e.cat.trim());}));DAILY_EXPENSES.forEach(e=>{if(e.cat&&!GENERIC.includes(e.cat.toLowerCase()))c.add(e.cat.trim());});return [...c];}
+function suggestCat(e){
+  const d=(e.desc||'').trim().toLowerCase();
+  if(d){const hit=DAILY_EXPENSES.find(x=>x.id!==e.id&&(x.desc||'').trim().toLowerCase()===d&&!GENERIC.includes((x.cat||'').toLowerCase()));if(hit)return {cat:hit.cat,why:'You filed “'+e.desc+'” here before'};}
+  const text=(e.desc||'')+' '+(e.note||'');
+  for(const [re,c] of KW){if(re.test(text)){const mine=myCats().find(x=>x.toLowerCase()===c.toLowerCase()||x.toLowerCase().includes(c.toLowerCase().slice(0,4)));return {cat:mine||c,why:'Looks like '+c.toLowerCase()};}}
+  const top=Object.entries(spendByCat(new Date().getMonth(),new Date().getFullYear()).cats).filter(([c])=>!GENERIC.includes(c.toLowerCase())).sort((a,b)=>b[1]-a[1])[0];
+  return {cat:top?top[0]:'Food',why:'Your most common category'};
+}
+function inbox(){
+  const cutoff=Date.now()-60*86400000;
+  return DAILY_EXPENSES.filter(e=>(e.type||'expense')!=='income'&&!e.fxOk&&!e.fxSkip&&GENERIC.includes((e.cat||'').trim().toLowerCase())&&(!e.date||new Date(e.date).getTime()>=cutoff));
+}
+
+/* ───────────── Deck engine ───────────── */
+let D=null;
+function ensureDeck(){
+  if($('fxDeck'))return;
+  const d=document.createElement('div');d.id='fxDeck';
+  d.innerHTML='<div class="fx-top"><button class="fx-x" aria-label="Close">✕</button><div class="fx-title"></div><div class="fx-count"></div></div><div class="fx-stage"></div><div class="fx-hint"></div><div class="fx-actions"></div><div class="fx-dots"></div>';
+  document.body.appendChild(d);
+  d.querySelector('.fx-x').onclick=closeDeck;
+  document.addEventListener('keydown',e=>{if(!D)return;if(e.key==='Escape')closeDeck();else if(e.key==='ArrowRight')act('right');else if(e.key==='ArrowLeft')act('left');else if(e.key==='ArrowUp')act('up');});
+}
+function openDeck(o){ensureDeck();D={o,i:0,undo:[]};$('fxDeck').classList.add('open');document.body.classList.add('fx-lock');drawDeck();}
+function closeDeck(){const d=$('fxDeck');if(d)d.classList.remove('open');document.body.classList.remove('fx-lock');const cb=D&&D.o.onClose;D=null;if(cb)try{cb();}catch(e){}}
+function drawDeck(){
+  const d=$('fxDeck'),o=D.o,cards=o.cards,n=cards.length;
+  d.querySelector('.fx-title').textContent=o.title;
+  d.querySelector('.fx-count').textContent=D.i<n?(D.i+1)+' / '+n:'';
+  const st=d.querySelector('.fx-stage');
+  st.innerHTML='';
+  if(D.i>=n){
+    st.innerHTML='<div class="fx-card fx-done"><div class="fx-done-in">'+(o.done?o.done():'<div style="font-size:42px">✓</div><div class="fx-h">All done</div>')+'</div></div>';
+    d.querySelector('.fx-hint').textContent='';
+    d.querySelector('.fx-actions').innerHTML='<button class="fx-b main" id="fxClose">Close</button>';
+    $('fxClose').onclick=closeDeck;
+    d.querySelector('.fx-dots').innerHTML='';
+    return;
+  }
+  for(let k=Math.min(2,n-D.i-1);k>=0;k--){
+    const c=cards[D.i+k],el=document.createElement('div');
+    el.className='fx-card'+(k===0?' top':'');
+    el.style.transform='translateY('+(k*10)+'px) scale('+(1-k*0.04)+')';el.style.opacity=k===0?1:(1-k*0.25);if(c.bg){el.style.background=c.bg;el.style.color='#fff';el.style.borderColor=c.bg;el.classList.add('fx-story');}
+    el.innerHTML=(typeof c.render==='function'?c.render(c):c.html)+'<div class="fx-stamp r">'+(c.right?c.right.label:'')+'</div><div class="fx-stamp l">'+(c.left?c.left.label:'')+'</div><div class="fx-stamp u">'+(c.up?c.up.label:'')+'</div>';
+    st.appendChild(el);
+    if(k===0)bindDrag(el,c);
+  }
+  const c=cards[D.i];
+  const hint=[];if(c.left)hint.push('← '+c.left.label);if(c.up)hint.push('↑ '+c.up.label);if(c.right)hint.push(c.right.label+' →');
+  d.querySelector('.fx-hint').textContent=o.story?'Swipe or tap Next':hint.join('   ·   ');
+  const A=d.querySelector('.fx-actions');A.innerHTML='';
+  const mk=(txt,cls,fn)=>{const b=document.createElement('button');b.className='fx-b '+(cls||'');b.textContent=txt;b.onclick=fn;A.appendChild(b);};
+  if(o.story){mk('← Back','',()=>{if(D.i>0){D.i--;drawDeck();}});mk(D.i===n-1?'Finish':'Next →','main',()=>act('left'));}
+  else{
+    if(c.left)mk('← '+c.left.label,'',()=>act('left'));
+    if(c.up)mk(c.up.label,'sm',()=>act('up'));
+    if(c.right)mk(c.right.label+' →','main',()=>act('right'));
+    if(D.undo.length)mk('↩','sm',doUndo);
+  }
+  d.querySelector('.fx-dots').innerHTML=cards.slice(0,Math.min(n,12)).map((_,j)=>'<i class="'+(j===D.i?'on':j<D.i?'done':'')+'"></i>').join('');
+  st.onclick=ev=>{const t=ev.target.closest('[data-fxcat]');if(t){pick(t.getAttribute('data-fxcat'));}const cu=ev.target.closest('[data-fxcustom]');if(cu){const inp=st.querySelector('.fx-custom');if(inp&&inp.value.trim())pick(inp.value.trim());}};
+}
+function doUndo(){const u=D.undo.pop();if(!u)return;try{u.fn();}catch(e){}D.i=Math.max(0,D.i-1);drawDeck();}
+function pick(cat){const c=D.o.cards[D.i];if(c&&c.pick){const r=c.pick(cat);if(r!==false)fly('right',c,true);}}
+function fly(dir,c,applied){
+  const ref=D;
+  const top=$('fxDeck').querySelector('.fx-card.top');if(!top){if(D===ref)advance(c);return;}
+  top.style.transition='transform .28s ease,opacity .28s ease';
+  top.style.transform=dir==='right'?'translate(120%,20px) rotate(18deg)':dir==='left'?'translate(-120%,20px) rotate(-18deg)':'translate(0,-120%)';top.style.opacity=0;
+  setTimeout(()=>{if(D===ref)advance(c);},230);
+}
+function advance(c){if(!D)return;D.i++;drawDeck();}
+function act(dir){
+  if(!D||D.i>=D.o.cards.length)return;
+  const c=D.o.cards[D.i];
+  if(D.o.story){if(dir==='right'){if(D.i>0){D.i--;drawDeck();}return;}fly('left',c);return;}
+  const a=c[dir];if(!a){snap();return;}
+  const r=a.fn?a.fn(c):true;
+  if(r===false){drawDeck();return;}
+  if(typeof r==='function')D.undo.push({fn:r});
+  fly(dir,c);
+}
+function snap(){const t=$('fxDeck').querySelector('.fx-card.top');if(t){t.style.transition='transform .2s';t.style.transform='';t.querySelectorAll('.fx-stamp').forEach(s=>s.style.opacity=0);}}
+function bindDrag(el,c){
+  let sx=0,sy=0,drag=false,id=null;
+  el.style.touchAction='none';
+  el.addEventListener('pointerdown',e=>{if(e.target.closest('input,button,[data-fxcat]'))return;drag=true;id=e.pointerId;sx=e.clientX;sy=e.clientY;el.setPointerCapture(id);el.style.transition='none';});
+  el.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-sx,dy=e.clientY-sy;el.style.transform='translate('+dx+'px,'+dy+'px) rotate('+(dx/22)+'deg)';
+    const r=el.querySelector('.fx-stamp.r'),l=el.querySelector('.fx-stamp.l'),u=el.querySelector('.fx-stamp.u');
+    r.style.opacity=dx>30&&c.right?Math.min(1,dx/90):0;l.style.opacity=dx<-30&&c.left?Math.min(1,-dx/90):0;u.style.opacity=(dy<-30&&Math.abs(dy)>Math.abs(dx)&&c.up)?Math.min(1,-dy/90):0;});
+  const end=e=>{if(!drag)return;drag=false;const dx=e.clientX-sx,dy=e.clientY-sy;
+    if(Math.abs(dy)>90&&dy<0&&Math.abs(dy)>Math.abs(dx))act('up');else if(dx>90)act('right');else if(dx<-90)act('left');else snap();};
+  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',()=>{drag=false;snap();});
+}
+
+/* ───────────── 1. Sort spends ───────────── */
+function openSort(){
+  const items=inbox();
+  if(!items.length){showToast('All sorted ✓','No uncategorised spends right now.');return;}
+  let sorted=0;
+  const cards=items.map(e=>{
+    const s=suggestCat(e);
+    const c={e,sug:s,picker:false,
+      render(c){
+        const head='<div class="fx-meta">'+esc(e.date||'')+(e.note&&e.note.startsWith('upi:')?' · UPI':'')+'</div><div class="fx-amt">'+R(num(e.amt))+'</div><div class="fx-line">'+esc(e.desc||'(no description)')+'</div>';
+        if(!c.picker)return head+'<div class="fx-meta" style="margin-top:18px">Looks like</div><div class="fx-chip on">'+esc(c.sug.cat)+'</div><div class="fx-why">'+esc(c.sug.why)+'</div>';
+        const cats=[...new Set([c.sug.cat,...myCats()])].slice(0,10);
+        return head+'<div class="fx-meta" style="margin-top:14px">Pick a category</div><div class="fx-chips">'+cats.map(x=>'<button class="fx-chip" data-fxcat="'+esc(x)+'">'+esc(x)+'</button>').join('')+'</div><div class="fx-cust"><input class="fx-custom" placeholder="Or type one…" maxlength="30"><button class="fx-chip on" data-fxcustom="1">Use</button></div>';
+      },
+      pick(cat){const old=e.cat;e.cat=cat;e.fxOk=true;saveDaily();sorted++;D.undo.push({fn:()=>{e.cat=old;delete e.fxOk;saveDaily();sorted--;}});return true;},
+      right:{label:'Confirm',fn:()=>{const old=e.cat;e.cat=c.sug.cat;e.fxOk=true;saveDaily();sorted++;return ()=>{e.cat=old;delete e.fxOk;saveDaily();sorted--;};}},
+      left:{label:'Change',fn:()=>{c.picker=true;return false;}},
+      up:{label:'Skip',fn:()=>{e.fxSkip=true;saveDaily();return ()=>{delete e.fxSkip;saveDaily();};}}
+    };
+    return c;
+  });
+  openDeck({title:'Sort your spends',cards,onClose:()=>{try{renderDailyView();renderDashBar();}catch(e){}fxRenderBoost();},
+    done:()=>'<div style="font-size:42px">✓</div><div class="fx-h">'+sorted+' sorted</div><div class="fx-sub">Your charts and budgets are now more accurate.</div>'});
+}
+
+/* ───────────── 2. Money moves ───────────── */
+function goTab(t){closeDeck();try{switchTab(t,document.querySelector('.tab-btn[onclick*="\''+t+'\'"]'));}catch(e){}try{const b=document.getElementById('bn-'+t);if(b)bnSwitch(t,b);}catch(e){}}
+function buildMoves(){
+  const now=new Date(),m=now.getMonth(),y=now.getFullYear(),pm=m?m-1:11,py=m?y:y-1;
+  const cur=spendByCat(m,y),prev=spendByCat(pm,py),inc=incomeOf(m,y)||incomeOf(pm,py);
+  const mv=[];
+  // spike
+  const spikes=Object.entries(cur.cats).map(([c,a])=>({c,a,p:prev.cats[c]||0})).filter(x=>x.p>0&&x.a>=x.p*1.25&&x.a-x.p>=500&&!GENERIC.includes(x.c.toLowerCase())).sort((a,b)=>(b.a-b.p)-(a.a-a.p));
+  if(spikes[0]){const s=spikes[0],cap=Math.ceil(s.p*1.05/100)*100;mv.push({tag:'Spending',tone:'amber',title:s.c+' is up '+Math.round((s.a/s.p-1)*100)+'% this month',body:R(s.a)+' vs '+R(s.p)+' last month. A cap of '+R(cap)+' would keep it in check.',acts:[{l:'Set '+R(cap)+' cap',fn:()=>{BUDGETS[s.c]=cap;saveBudgets();showToast('Budget set',s.c+' · '+R(cap));}}]});}
+  // top category without budget
+  const top=Object.entries(cur.cats).filter(([c])=>!GENERIC.includes(c.toLowerCase())).sort((a,b)=>b[1]-a[1])[0];
+  if(top&&cur.total>0&&top[1]/cur.total>0.3&&!(BUDGETS[top[0]]>0)&&!spikes.find(s=>s.c===top[0])){const cap=Math.ceil(top[1]*0.9/100)*100;mv.push({tag:'Budget',tone:'blue',title:top[0]+' takes '+Math.round(top[1]/cur.total*100)+'% of your spending',body:'You have no budget for it. Trimming 10% would save about '+R(top[1]*0.1)+' a month.',acts:[{l:'Budget '+R(cap),fn:()=>{BUDGETS[top[0]]=cap;saveBudgets();showToast('Budget set',top[0]+' · '+R(cap));}}]});}
+  // savings rate
+  if(inc>0&&cur.total>0){const rate=(inc-cur.total)/inc*100;if(rate<20){mv.push({tag:'Saving',tone:'amber',title:'Savings rate is '+Math.max(0,Math.round(rate))+'%',body:'Aim for 20%. That means keeping about '+R(inc*0.2)+' of your '+R(inc)+' income.',acts:[{l:'Review budgets',fn:()=>{goTab('track');setTimeout(()=>{const e=$('budgetManager')||document.querySelector('[id*="udget"]');if(e&&e.scrollIntoView)e.scrollIntoView({behavior:'smooth'});},300);}}]});}}
+  // emergency fund
+  const avgExp=cur.total||prev.total;
+  if(avgExp>0){const cov=(EMFUND.amount||0)/avgExp;if(cov<3){mv.push({tag:'Safety',tone:'red',title:'Emergency fund covers '+cov.toFixed(1)+' months',body:'Build towards 6 months of expenses ('+R(avgExp*6)+'). Even a small monthly top-up helps.',acts:[{l:'Open Emergency Fund',fn:()=>{goTab('tools');setTimeout(()=>{try{switchToolsTab('emfund',document.querySelector('#tab-tools .sub-tab[onclick*="emfund"]'));}catch(e){}},200);}}]});}}
+  // SIP
+  const sips=(INVEST.mf||[]).filter(h=>h.sip&&h.sip.active);
+  if(!sips.length&&inc>0){const amt=Math.max(500,Math.round(inc*0.1/500)*500);mv.push({tag:'Growing',tone:'green',title:'No SIP running yet',body:'Investing '+R(amt)+' a month (10% of income) builds wealth quietly in the background.',acts:[{l:'Explore mutual funds',fn:()=>{goTab('invest');}}]});}
+  // bills soon
+  const soon=(BILLS||[]).map(b=>{const due=new Date(now.getFullYear(),now.getMonth(),b.dueDay);const diff=Math.ceil((due-now)/864e5);const paid=(b.paidMonths||[]).includes(monthKey(m,y));return {b,diff,paid};}).filter(x=>!x.paid&&x.diff>=0&&x.diff<=7).sort((a,b)=>a.diff-b.diff);
+  if(soon[0]){const s=soon[0];mv.push({tag:'Bills',tone:'blue',title:s.b.name+' is due '+(s.diff===0?'today':'in '+s.diff+' day'+(s.diff>1?'s':'')),body:R(num(s.b.amt))+' due'+(soon.length>1?' · plus '+(soon.length-1)+' more this week':'')+'.',acts:[{l:'Open Bills',fn:()=>goTab('bills')}]});}
+  // subscriptions
+  const act=(SUBS||[]).filter(s=>s.status==='Active');
+  if(act.length>=2){const yr=act.reduce((t,s)=>t+s.cost*({'Monthly':12,'Quarterly':4,'Half-Yearly':2,'Annual':1}[s.cycle]||12),0);mv.push({tag:'Subscriptions',tone:'amber',title:act.length+' subscriptions cost '+R(yr)+' a year',body:'Worth a quick keep-or-cancel review.',acts:[{l:'Review them',fn:()=>{closeDeck();setTimeout(openAudit,150);}}]});}
+  return mv.slice(0,4);
+}
+function openMoves(){
+  const mv=buildMoves();
+  const cards=mv.length?mv.map((x,i)=>({
+    render:()=>'<div class="fx-meta">'+(i+1)+' of '+mv.length+' · '+x.tag.toUpperCase()+'</div><div class="fx-h fx-'+x.tone+'">'+esc(x.title)+'</div><div class="fx-body">'+esc(x.body)+'</div>',
+    right:{label:x.acts[0].l,fn:()=>{try{x.acts[0].fn();}catch(e){}return true;}},
+    left:{label:'Not now',fn:()=>true}
+  })):[{render:()=>'<div style="font-size:42px;margin-top:10px">🌿</div><div class="fx-h">You’re on track</div><div class="fx-body">Nothing needs attention right now. Check back after a few more entries.</div>',right:{label:'Great',fn:()=>true},left:{label:'Close',fn:()=>true}}];
+  openDeck({title:'Money moves',cards,done:()=>'<div style="font-size:42px">✨</div><div class="fx-h">That’s all for now</div><div class="fx-sub">New moves appear as your numbers change.</div>',onClose:fxRenderBoost});
+}
+
+/* ───────────── 3. Weekly wrapped ───────────── */
+function openWrapped(){
+  const now=new Date(),days=[];for(let i=6;i>=0;i--){const d=new Date(now);d.setDate(now.getDate()-i);days.push(ds(d));}
+  const prevDays=[];for(let i=13;i>=7;i--){const d=new Date(now);d.setDate(now.getDate()-i);prevDays.push(ds(d));}
+  const ex=DAILY_EXPENSES.filter(e=>(e.type||'expense')!=='income');
+  const wk=ex.filter(e=>days.includes(e.date)),pw=ex.filter(e=>prevDays.includes(e.date));
+  const tot=wk.reduce((t,e)=>t+num(e.amt),0),ptot=pw.reduce((t,e)=>t+num(e.amt),0);
+  const m=now.getMonth(),y=now.getFullYear(),inc=incomeOf(m,y),ms=spendByCat(m,y);
+  if(!wk.length&&!ms.total){showToast('Nothing to wrap yet','Log a few expenses and check back.');return;}
+  const byCat={};wk.forEach(e=>{const c=e.cat||'Other';byCat[c]=(byCat[c]||0)+num(e.amt);});
+  const topC=Object.entries(byCat).sort((a,b)=>b[1]-a[1])[0];
+  const byDay={};days.forEach(d=>byDay[d]=0);wk.forEach(e=>byDay[e.date]+=num(e.amt));
+  const dArr=Object.entries(byDay),best=dArr.slice().sort((a,b)=>a[1]-b[1])[0],worst=dArr.slice().sort((a,b)=>b[1]-a[1])[0];
+  const dn=s=>new Date(s).toLocaleDateString('en-IN',{weekday:'long'});
+  const cards=[];
+  const delta=ptot>0?Math.round((tot/ptot-1)*100):null;
+  cards.push({bg:'#111',render:()=>'<div class="fx-meta">YOUR WEEK</div><div class="fx-lead">You spent</div><div class="fx-bigw">'+R(tot)+'</div>'+(delta===null?'<div class="fx-body">in the last 7 days</div>':'<div class="fx-body" style="color:'+(delta<=0?'#86efac':'#fca5a5')+'">'+(delta<=0?'↓ ':'↑ ')+Math.abs(delta)+'% '+(delta<=0?'less':'more')+' than the week before</div>')});
+  if(topC)cards.push({bg:'#1d4ed8',render:()=>'<div class="fx-meta">TOP SPEND</div><div class="fx-lead">Most of it went to</div><div class="fx-bigw" style="font-size:34px">'+esc(topC[0])+'</div><div class="fx-body">'+R(topC[1])+' · '+Math.round(topC[1]/Math.max(tot,1)*100)+'% of the week</div>'});
+  if(tot>0)cards.push({bg:'#15803d',render:()=>'<div class="fx-meta">DAYS</div><div class="fx-lead">Calmest day</div><div class="fx-bigw" style="font-size:32px">'+dn(best[0])+'</div><div class="fx-body">'+R(best[1])+' spent</div><div class="fx-lead" style="margin-top:20px">Priciest day</div><div class="fx-body" style="font-size:18px;color:#fff">'+dn(worst[0])+' · '+R(worst[1])+'</div>'});
+  if(inc>0)cards.push({bg:'#7c3aed',render:()=>{const r=(inc-ms.total)/inc*100;return '<div class="fx-meta">THIS MONTH</div><div class="fx-lead">Savings rate</div><div class="fx-bigw">'+Math.round(r)+'%</div><div class="fx-body">'+R(Math.max(0,inc-ms.total))+' kept so far from '+R(inc)+'</div>';}});
+  if(topC&&topC[1]>0){const save=topC[1]*0.15*4;cards.push({bg:'#b45309',render:()=>'<div class="fx-meta">TRY THIS</div><div class="fx-lead">Next week</div><div class="fx-body" style="font-size:18px;color:#fff;line-height:1.6">Trim '+esc(topC[0])+' by 15% and you keep about <b>'+R(save)+'</b> a month.</div>'});}
+  openDeck({title:'Your week in Flow',story:true,cards,done:()=>'<div style="font-size:42px">🎉</div><div class="fx-h">See you next week</div><div class="fx-sub">Small, steady choices add up.</div>'});
+}
+
+/* ───────────── 4. Subscription audit ───────────── */
+function openAudit(){
+  const subs=(SUBS||[]).filter(s=>s.status==='Active');
+  if(!subs.length){showToast('No active subscriptions','Add some in Bills → Subscriptions.');return;}
+  const mult=s=>({'Monthly':12,'Quarterly':4,'Half-Yearly':2,'Annual':1}[s.cycle]||12);
+  let saved=0,cancelled=0;
+  const cards=subs.map(s=>{const yr=s.cost*mult(s);return{
+    render:()=>'<div class="fx-meta">'+esc((s.cat||'Subscription').toUpperCase())+'</div><div class="fx-h">'+esc(s.name)+'</div><div class="fx-amt">'+R(yr)+'<span class="fx-per"> / year</span></div><div class="fx-body">'+R(s.cost)+' '+esc((s.cycle||'Monthly').toLowerCase())+(s.renewal?' · renews '+new Date(s.renewal).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'')+'</div>',
+    right:{label:'Keep',fn:()=>{s.fxKept=Date.now();saveSubs();return ()=>{delete s.fxKept;saveSubs();};}},
+    left:{label:'Cancel',fn:()=>{const prev=s.status;s.status='Cancelled';saveSubs();saved+=yr;cancelled++;return ()=>{s.status=prev;saveSubs();saved-=yr;cancelled--;};}},
+    up:{label:'Skip',fn:()=>true}};});
+  openDeck({title:'Subscription audit',cards,onClose:()=>{try{renderSubs();}catch(e){}},
+    done:()=>cancelled?'<div style="font-size:42px">💰</div><div class="fx-h">'+R(saved)+' a year saved</div><div class="fx-sub">'+cancelled+' subscription'+(cancelled>1?'s':'')+' cancelled. Remember to cancel it with the provider too.</div>':'<div style="font-size:42px">✓</div><div class="fx-h">All kept</div><div class="fx-sub">You reviewed every subscription.</div>'});
+}
+
+/* ───────────── 5. Goal jars ───────────── */
+const JAR=['#5b7fa6','#6b9e6b','#a67c5b','#7a6ba6','#a65b7a'];
+function fxRenderJars(){
+  const list=$('goalList');if(!list)return;
+  let box=$('fxJars');
+  if(!box){box=document.createElement('div');box.id='fxJars';list.parentNode.insertBefore(box,list);}
+  const goals=INVEST.goals||[];
+  if(!goals.length){box.innerHTML='';return;}
+  box.innerHTML='<div class="fx-jars">'+goals.map((g,i)=>{const p=g.target?Math.min(100,Math.round(num(g.current)/num(g.target)*100)):0;return '<button class="fx-jarbtn" onclick="fxPlan(\''+g.id+'\')" aria-label="Plan '+esc(g.name)+'"><div class="fx-jar"><i style="height:'+p+'%;background:'+JAR[i%5]+'"></i><b>'+p+'%</b></div><span>'+esc(g.name)+'</span></button>';}).join('')+'</div><div class="fx-jarhint">Tap a jar to plan it</div>';
+  milestones();
+}
+function milestones(){
+  let ch=false;
+  (INVEST.goals||[]).forEach(g=>{const p=g.target?num(g.current)/num(g.target)*100:0;const th=[25,50,75,100].filter(t=>p>=t).pop()||0;
+    if(g.fxMile===undefined){g.fxMile=th;ch=true;}
+    else if(th>g.fxMile){g.fxMile=th;ch=true;showToast(th===100?'🎉 Goal reached!':'🎉 '+th+'% funded',g.name);}});
+  if(ch)saveInvest();
+}
+window.fxPlan=function(id){
+  const g=(INVEST.goals||[]).find(x=>x.id===id);if(!g)return;
+  const old=$('fxPlan');if(old)old.remove();
+  const rem=Math.max(0,num(g.target)-num(g.current));
+  let dl=null;if(g.deadline){const dd=new Date(g.deadline);dl=Math.max(1,Math.round((dd-new Date())/(30.4*864e5)));}
+  const need=dl?Math.ceil(rem/dl/100)*100:0;
+  const max=Math.max(5000,Math.ceil(Math.max(rem/3,need*2)/500)*500);
+  let start=need||Math.max(500,Math.round(rem/12/500)*500);start=Math.min(start,max);
+  const w=document.createElement('div');w.id='fxPlan';
+  w.innerHTML='<div class="fa-card fx-plan"><div class="fx-h" style="font-size:18px;margin-bottom:2px">'+esc(g.name)+'</div><div class="fx-meta">'+R(num(g.current))+' of '+R(num(g.target))+'</div>'
+   +(rem<=0?'<div class="fx-body" style="margin:14px 0">🎉 You’ve reached this goal.</div>':'<div class="fx-meta" style="margin-top:14px">What if I save every month?</div><input type="range" id="fxSl" min="500" max="'+max+'" step="500" value="'+start+'" style="width:100%;margin:8px 0"><div class="row2"><span class="fx-meta">₹500</span><b id="fxSv"></b></div><div id="fxRes" class="fx-body" style="margin:8px 0 4px"></div>')
+   +'<div class="fx-meta" style="margin-top:12px">Add money to this goal</div><div style="display:flex;gap:8px"><input id="fxAdd" type="number" inputmode="decimal" placeholder="₹ amount" style="flex:1"><button class="btn-primary" id="fxAddB" style="padding:9px 14px;border-radius:10px">Add</button></div>'
+   +'<div style="margin-top:14px;text-align:right"><button class="btn-ghost" id="fxPlanX" style="padding:9px 16px;border-radius:10px">Close</button></div></div>';
+  w.className='fx-plan-wrap';document.body.appendChild(w);
+  const upd=()=>{const sl=$('fxSl');if(!sl)return;const mo=num(sl.value),n=Math.ceil(rem/mo),dt=new Date();dt.setMonth(dt.getMonth()+n);
+    $('fxSv').textContent=R(mo)+' / month';
+    let t='You’ll reach it in <b>'+n+' month'+(n>1?'s':'')+'</b> ('+MN[dt.getMonth()]+' '+dt.getFullYear()+').';
+    if(dl){t+=n<=dl?'<br><span style="color:#15803d">✓ On time'+(dl-n>0?', '+(dl-n)+' month'+(dl-n>1?'s':'')+' early':'')+'.</span>':'<br><span style="color:#b45309">'+(n-dl)+' month'+(n-dl>1?'s':'')+' after your deadline. Save '+R(need)+' a month to make it.</span>';}
+    $('fxRes').innerHTML=t;};
+  upd();const sl=$('fxSl');if(sl)sl.oninput=upd;
+  $('fxPlanX').onclick=()=>w.remove();w.addEventListener('click',e=>{if(e.target===w)w.remove();});
+  $('fxAddB').onclick=()=>{const a=num($('fxAdd').value);if(a<=0){showToast('Enter an amount','');return;}g.current=num(g.current)+a;saveInvest();w.remove();try{renderGoals();updateInvestSummary();}catch(e){}showToast('Added '+R(a),g.name);};
+};
+
+/* ───────────── 6. Circle trust ───────────── */
+function trustData(){
+  const P={};
+  (SPLITS||[]).forEach(s=>{(s.members||[]).forEach(m=>{const k=(m.name||'').trim();if(!k||k.toLowerCase()===(s.paidBy||'').trim().toLowerCase())return;
+    const p=P[k]||(P[k]={name:k,total:0,settled:0,nudged:0,days:[],pending:0});const age=s.date?(Date.now()-new Date(s.date).getTime())/864e5:99;if(!m.settled&&age<7){p.pending++;return;}p.total++;if(m.settled){p.settled++;if(m.settledAt&&s.date){const d=(m.settledAt-new Date(s.date).getTime())/864e5;if(d>=0&&d<400)p.days.push(d);}}if(m.notifiedAt)p.nudged++;});});
+  return Object.values(P).map(p=>{const r=p.total?p.settled/p.total:0;const score=p.total?Math.max(1,Math.min(5,5*r-0.25*p.nudged)):null;const avg=p.days.length?p.days.reduce((a,b)=>a+b,0)/p.days.length:null;return {...p,score,avg};}).sort((a,b)=>(b.score||0)-(a.score||0)||b.total-a.total);
+}
+function fxRenderTrust(){
+  const list=$('splitListCircle');if(!list)return;
+  let box=$('fxTrust');
+  if(!box){box=document.createElement('div');box.id='fxTrust';list.parentNode.insertBefore(box,list.nextSibling);}
+  const T=trustData();
+  if(!T.length){box.innerHTML='';return;}
+  box.innerHTML='<div class="fx-trust"><div class="fx-trust-hd">Who pays back <span>based on your splits</span></div>'+T.slice(0,6).map(p=>{const col=p.score===null?'#6b7280':p.score>=4?'#15803d':p.score>=3?'#b45309':'#b91c1c';
+    const sub=(p.total?p.settled+' of '+p.total+' settled':'No history yet')+(p.pending?' · '+p.pending+' recent pending':'')+(p.avg!==null?' · ~'+(p.avg<1?'same day':Math.round(p.avg)+' day'+(Math.round(p.avg)>1?'s':''))+' to pay':'')+(p.nudged?' · '+p.nudged+' reminder'+(p.nudged>1?'s':''):'');
+    return '<div class="fx-trust-row"><div><div class="fx-trust-n">'+esc(p.name)+'</div><div class="fx-trust-s">'+esc(sub)+'</div></div><div class="fx-trust-sc" style="color:'+col+'">'+(p.score===null?'New':'★ '+p.score.toFixed(1))+'</div></div>';}).join('')+'</div>';
+}
+
+/* ───────────── Entry points ───────────── */
+function fxRenderBoost(){
+  const main=document.querySelector('#tab-track .main');if(!main)return;
+  let box=$('fxBoost');
+  if(!box){box=document.createElement('div');box.id='fxBoost';main.insertBefore(box,main.firstChild);}
+  const n=inbox().length,mv=(()=>{try{return buildMoves().length;}catch(e){return 0;}})();
+  box.innerHTML='<div class="fx-boost">'
+   +'<button onclick="fxSort()"><span>🗂️</span><b>Sort spends</b><em>'+(n?n+' to sort':'All sorted')+'</em></button>'
+   +'<button onclick="fxMoves()"><span>💡</span><b>Money moves</b><em>'+(mv?mv+' for you':'On track')+'</em></button>'
+   +'<button onclick="fxWrapped()"><span>🎞️</span><b>This week</b><em>Wrapped</em></button>'
+   +'</div>';
+}
+function fxRenderAuditBtn(){
+  const list=$('subList');if(!list)return;
+  let box=$('fxAuditBtn');
+  if(!box){box=document.createElement('div');box.id='fxAuditBtn';list.parentNode.insertBefore(box,list);}
+  const act=(SUBS||[]).filter(s=>s.status==='Active').length;
+  box.innerHTML=act>=1?'<button class="fx-wide" onclick="fxAudit()">🔍 Review subscriptions <em>swipe to keep or cancel · '+act+' active</em></button>':'';
+}
+window.fxSort=openSort;window.fxMoves=openMoves;window.fxWrapped=openWrapped;window.fxAudit=openAudit;window.fxRenderBoost=fxRenderBoost;window.fxRenderJars=fxRenderJars;window.fxRenderTrust=fxRenderTrust;
+
+function wrap(name,after){const f=window[name];if(typeof f!=='function')return;window[name]=function(){const r=f.apply(this,arguments);try{after();}catch(e){console.warn('[Flow+]',name,e);}return r;};}
+wrap('renderGoals',fxRenderJars);
+wrap('renderSubs',fxRenderAuditBtn);
+wrap('renderSplits',fxRenderTrust);
+wrap('renderDashBar',fxRenderBoost);
+const _swt=window.switchTab;
+if(typeof _swt==='function')window.switchTab=function(id){const r=_swt.apply(this,arguments);if(id==='track')try{fxRenderBoost();}catch(e){}if(id==='bills')try{fxRenderAuditBtn();}catch(e){}if(id==='circle')try{fxRenderTrust();}catch(e){}if(id==='invest')try{fxRenderJars();}catch(e){}return r;};
+function init(){try{fxRenderBoost();fxRenderAuditBtn();fxRenderJars();fxRenderTrust();}catch(e){console.warn('[Flow+]',e);}}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+
+</script>
 </body>
 </html>
