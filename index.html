@@ -5043,7 +5043,7 @@ function switchSubTab(id,btn){
   else{document.querySelectorAll('.sub-pane').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.sub-tab').forEach(b=>b.classList.remove('active'));}
   document.getElementById('sub-'+id).classList.add('active');
   btn.classList.add('active');
-  if(id==='mf'){loadAllSchemes();renderMFSIPSummary();}
+  if(id==='mf'){renderMFSIPSummary();}
   if(id==='fdtracker'){renderFDTable();}
   if(id==='goals'){renderGoals();}
   if(id==='notes'){renderNotes();}
@@ -5484,48 +5484,61 @@ function renderGoals(){
 }
 
 // ══ MUTUAL FUNDS — ALL SCHEMES ══════════════════
+async function _mfFetch(url,ms){
+  const c=new AbortController();const t=setTimeout(()=>c.abort(),ms||12000);
+  try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
+  finally{clearTimeout(t);}
+}
+// Full list is only a fallback (large download) — used if the search endpoint fails
 async function loadAllSchemes(){
-  if(allMFSchemes)return;
+  if(Array.isArray(allMFSchemes)&&allMFSchemes.length)return allMFSchemes;
   if(mfLoadingPromise)return mfLoadingPromise;
-  const status=document.getElementById('mfStatus');
-  status.textContent='Loading all schemes…';
   mfLoadingPromise=(async()=>{
     try{
-      // Try session cache first
-      const cached=sessionStorage.getItem('mf_schemes_v1');
-      if(cached){allMFSchemes=JSON.parse(cached);status.textContent=`${allMFSchemes.length.toLocaleString()} schemes ready — type to search`;return}
-      const r=await fetch('https://api.mfapi.in/mf');
-      if(!r.ok)throw new Error('HTTP '+r.status);
-      allMFSchemes=await r.json();
-      try{sessionStorage.setItem('mf_schemes_v1',JSON.stringify(allMFSchemes))}catch(e){}
-      status.textContent=`${allMFSchemes.length.toLocaleString()} schemes loaded — type to search`;
-    }catch(e){
-      allMFSchemes=[];
-      mfLoadingPromise=null; // reset so user can retry after failure
-      status.textContent='Failed to load schemes — check connection and try again.';
-      status.style.color='var(--deficit)';
-    }
+      try{const cached=sessionStorage.getItem('mf_schemes_v1');if(cached){const c=JSON.parse(cached);if(Array.isArray(c)&&c.length){allMFSchemes=c;return c;}}}catch(e){}
+      const d=await _mfFetch('https://api.mfapi.in/mf',40000);
+      if(!Array.isArray(d)||!d.length)throw new Error('Bad response');
+      allMFSchemes=d;
+      try{sessionStorage.setItem('mf_schemes_v1',JSON.stringify(d))}catch(e){}
+      return d;
+    }finally{mfLoadingPromise=null;}
   })();
   return mfLoadingPromise;
 }
-let mfQueueSearch='';
+let mfQueueSearch='',_mfSeq=0;const _mfCache={};
+async function _mfQuery(q){
+  const key=q.toLowerCase();
+  if(_mfCache[key])return _mfCache[key];
+  let list=null;
+  try{const d=await _mfFetch('https://api.mfapi.in/mf/search?q='+encodeURIComponent(q),12000);if(Array.isArray(d))list=d;}catch(e){}
+  if(!list){
+    const all=await loadAllSchemes();
+    const words=key.split(/\s+/).filter(Boolean);
+    list=all.filter(s=>{const n=(s.schemeName||'').toLowerCase();return words.every(w=>n.includes(w));});
+  }
+  _mfCache[key]=list;return list;
+}
 function searchMF(q){
   mfQueueSearch=q;
   clearTimeout(mfSearchTimer);
   const res=document.getElementById('mfResults'),status=document.getElementById('mfStatus');
-  if(!q.trim()||q.trim().length<2){res.style.display='none';return}
-  if(!allMFSchemes){
-    res.style.display='block';res.innerHTML='<div class="mf-result-item" style="color:var(--faint)">Loading all schemes, please wait…</div>';
-    loadAllSchemes().then(()=>searchMF(mfQueueSearch));return;
-  }
-  mfSearchTimer=setTimeout(()=>{
-    const fl=q.toLowerCase();
-    const matches=allMFSchemes.filter(s=>s.schemeName.toLowerCase().includes(fl));
-    if(!matches.length){res.innerHTML='<div class="mf-result-item" style="color:var(--faint)">No schemes found</div>';res.style.display='block';return}
-    status.textContent=`${matches.length.toLocaleString()} results — showing top 50`;
-    res.innerHTML=matches.slice(0,50).map(s=>{const _jsName=esc(s.schemeName).replace(/\\/g,'\\\\').replace(/'/g,"\\'");return`<div class="mf-result-item" onclick="selectMF(${s.schemeCode},'${_jsName}')"><div class="mf-result-name">${esc(s.schemeName)}</div><div class="mf-result-code">Code: ${s.schemeCode}</div></div>`}).join('');
-    res.style.display='block';
-  },150);
+  status.style.color='';
+  if(!q.trim()||q.trim().length<2){res.style.display='none';status.textContent='Type at least 2 letters to search';return}
+  res.style.display='block';res.innerHTML='<div class="mf-result-item" style="color:var(--faint)">Searching…</div>';
+  const seq=++_mfSeq;
+  mfSearchTimer=setTimeout(async()=>{
+    try{
+      const matches=await _mfQuery(q.trim());
+      if(seq!==_mfSeq)return;
+      if(!matches.length){res.innerHTML='<div class="mf-result-item" style="color:var(--faint)">No schemes found. Try fewer words, e.g. “axis bluechip”.</div>';status.textContent='';return}
+      status.textContent=matches.length>50?`${matches.length.toLocaleString()} results — showing top 50`:`${matches.length} result${matches.length>1?'s':''}`;
+      res.innerHTML=matches.slice(0,50).map(s=>{const _jsName=esc(s.schemeName).replace(/\\/g,'\\\\').replace(/'/g,"\\'");return`<div class="mf-result-item" onclick="selectMF(${s.schemeCode},'${_jsName}')"><div class="mf-result-name">${esc(s.schemeName)}</div><div class="mf-result-code">Code: ${s.schemeCode}</div></div>`}).join('');
+    }catch(e){
+      if(seq!==_mfSeq)return;
+      res.innerHTML='<div class="mf-result-item" style="color:var(--deficit)">Couldn’t reach the fund database.</div><div class="mf-result-item" style="font-weight:600" onclick="searchMF(document.getElementById(\'mfSearch\').value)">↻ Try again</div>';
+      status.textContent='Check your internet connection and try again.';status.style.color='var(--deficit)';
+    }
+  },350);
 }
 function selectMF(code,name){
   mfSelectedCode=code;mfSelectedName=name;
@@ -5547,7 +5560,7 @@ function addMFHolding(){
   _mfPayAcct=null;
   saveInvest();document.getElementById('mfSearch').value='';document.getElementById('mfAddForm').style.display='none';
   ['mfUnits','mfNavBuy'].forEach(i=>document.getElementById(i).value='');mfSelectedCode=null;mfSelectedName='';
-  document.getElementById('mfStatus').textContent=`${allMFSchemes?allMFSchemes.length.toLocaleString()+'+ ':'' }schemes ready — type to search`;
+  document.getElementById('mfStatus').textContent='Type to search 16,000+ schemes';
   renderMFTable();renderMFSIPSummary();updateInvestSummary();
 }
 async function fetchNAV(h){
@@ -11960,7 +11973,6 @@ document.addEventListener('keydown',function(e){
 });
 
 // Pre-load MF schemes silently in background after 2s
-setTimeout(loadAllSchemes, 2000);
 
 // ── What's New auto-show on new version ─────────────────
 const FLOW_CURRENT_VER='2.9.1';
@@ -12491,11 +12503,10 @@ const FLOW_CURRENT_VER='2.9.1';
 img,canvas,svg,video{max-width:100%}
 select,input,textarea{max-width:100%}
 @media(max-width:640px){
-  .hdr{flex-wrap:wrap;row-gap:8px;position:relative}
-  #trackControls{order:3;flex:1 1 100%;flex-wrap:wrap;overflow:visible;gap:6px;justify-content:flex-start}
-  #trackControls .sep{display:none}
-  #trackControls #notifBell{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:16px}
-  #trackControls select{flex:1 1 110px;min-width:0}
+  .hdr{gap:8px}
+  .hdr-controls{min-width:0;flex:1;justify-content:flex-start}
+  .hdr-controls button{white-space:nowrap;flex-shrink:0}
+  #trackControls #notifBell{position:sticky;right:0;margin-left:auto;background:var(--surface);flex-shrink:0;z-index:2}
   .sec-hdr{flex-wrap:wrap;gap:8px}
   .card-lbl{white-space:normal}
 }
@@ -14122,7 +14133,7 @@ function suggestCat(e){
   const text=(e.desc||'')+' '+(e.note||'');
   for(const [re,c] of KW){if(re.test(text)){const mine=myCats().find(x=>x.toLowerCase()===c.toLowerCase()||x.toLowerCase().includes(c.toLowerCase().slice(0,4)));return {cat:mine||c,why:'Looks like '+c.toLowerCase()};}}
   const top=Object.entries(spendByCat(new Date().getMonth(),new Date().getFullYear()).cats).filter(([c])=>!GENERIC.includes(c.toLowerCase())).sort((a,b)=>b[1]-a[1])[0];
-  return {cat:top?top[0]:'Food',why:'Your most common category'};
+  return {cat:null,why:''};
 }
 function inbox(){
   const cutoff=Date.now()-60*86400000;
@@ -14218,16 +14229,16 @@ function openSort(){
   let sorted=0;
   const cards=items.map(e=>{
     const s=suggestCat(e);
-    const c={e,sug:s,picker:false,
+    const c={e,sug:s,picker:!s.cat,
       render(c){
         const head='<div class="fx-meta">'+esc(e.date||'')+(e.note&&e.note.startsWith('upi:')?' · UPI':'')+'</div><div class="fx-amt">'+R(num(e.amt))+'</div><div class="fx-line">'+esc(e.desc||'(no description)')+'</div>';
         if(!c.picker)return head+'<div class="fx-meta" style="margin-top:18px">Looks like</div><div class="fx-chip on">'+esc(c.sug.cat)+'</div><div class="fx-why">'+esc(c.sug.why)+'</div>';
-        const cats=[...new Set([c.sug.cat,...myCats()])].slice(0,10);
+        const cats=[...new Set([c.sug.cat,...myCats()].filter(Boolean))].slice(0,10);
         return head+'<div class="fx-meta" style="margin-top:14px">Pick a category</div><div class="fx-chips">'+cats.map(x=>'<button class="fx-chip" data-fxcat="'+esc(x)+'">'+esc(x)+'</button>').join('')+'</div><div class="fx-cust"><input class="fx-custom" placeholder="Or type one…" maxlength="30"><button class="fx-chip on" data-fxcustom="1">Use</button></div>';
       },
       pick(cat){const old=e.cat;e.cat=cat;e.fxOk=true;saveDaily();sorted++;D.undo.push({fn:()=>{e.cat=old;delete e.fxOk;saveDaily();sorted--;}});return true;},
-      right:{label:'Confirm',fn:()=>{const old=e.cat;e.cat=c.sug.cat;e.fxOk=true;saveDaily();sorted++;return ()=>{e.cat=old;delete e.fxOk;saveDaily();sorted--;};}},
-      left:{label:'Change',fn:()=>{c.picker=true;return false;}},
+      right:!s.cat?undefined:{label:'Confirm',fn:()=>{const old=e.cat;e.cat=c.sug.cat;e.fxOk=true;saveDaily();sorted++;return ()=>{e.cat=old;delete e.fxOk;saveDaily();sorted--;};}},
+      left:!s.cat?undefined:{label:'Change',fn:()=>{c.picker=true;return false;}},
       up:{label:'Skip',fn:()=>{e.fxSkip=true;saveDaily();return ()=>{delete e.fxSkip;saveDaily();};}}
     };
     return c;
@@ -14238,40 +14249,46 @@ function openSort(){
 
 /* ───────────── 2. Money moves ───────────── */
 function goTab(t){closeDeck();try{switchTab(t,document.querySelector('.tab-btn[onclick*="\''+t+'\'"]'));}catch(e){}try{const b=document.getElementById('bn-'+t);if(b)bnSwitch(t,b);}catch(e){}}
+function isoWeek(d){d=d||new Date();const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const day=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-day);const y0=new Date(Date.UTC(t.getUTCFullYear(),0,1));return t.getUTCFullYear()+'-W'+pad(Math.ceil(((t-y0)/864e5+1)/7));}
+function movesState(){let st={};try{st=JSON.parse(localStorage.getItem('FX_MOVES')||'{}');}catch(e){}const wk=isoWeek();if(st.week!==wk)st={week:wk,done:[]};if(!Array.isArray(st.done))st.done=[];return st;}
+function markMoveDone(id){const st=movesState();if(!st.done.includes(id)){st.done.push(id);try{localStorage.setItem('FX_MOVES',JSON.stringify(st));}catch(e){}}}
+function pendingMoves(){const st=movesState(),done=st.done;let set=st.set;if(!Array.isArray(set)||!set.length){const b=buildMoves().slice(0,4);set=b.map(x=>x.id);st.set=set;try{localStorage.setItem('FX_MOVES',JSON.stringify(st));}catch(e){}}return buildMoves().filter(x=>set.includes(x.id)&&!done.includes(x.id));}
 function buildMoves(){
   const now=new Date(),m=now.getMonth(),y=now.getFullYear(),pm=m?m-1:11,py=m?y:y-1;
   const cur=spendByCat(m,y),prev=spendByCat(pm,py),inc=incomeOf(m,y)||incomeOf(pm,py);
   const mv=[];
   // spike
   const spikes=Object.entries(cur.cats).map(([c,a])=>({c,a,p:prev.cats[c]||0})).filter(x=>x.p>0&&x.a>=x.p*1.25&&x.a-x.p>=500&&!GENERIC.includes(x.c.toLowerCase())).sort((a,b)=>(b.a-b.p)-(a.a-a.p));
-  if(spikes[0]){const s=spikes[0],cap=Math.ceil(s.p*1.05/100)*100;mv.push({tag:'Spending',tone:'amber',title:s.c+' is up '+Math.round((s.a/s.p-1)*100)+'% this month',body:R(s.a)+' vs '+R(s.p)+' last month. A cap of '+R(cap)+' would keep it in check.',acts:[{l:'Set '+R(cap)+' cap',fn:()=>{BUDGETS[s.c]=cap;saveBudgets();showToast('Budget set',s.c+' · '+R(cap));}}]});}
+  if(spikes[0]){const s=spikes[0],cap=Math.ceil(s.p*1.05/100)*100;mv.push({id:'spike:'+s.c,tag:'Spending',tone:'amber',title:s.c+' is up '+Math.round((s.a/s.p-1)*100)+'% this month',body:R(s.a)+' vs '+R(s.p)+' last month. A cap of '+R(cap)+' would keep it in check.',acts:[{l:'Set '+R(cap)+' cap',fn:()=>{BUDGETS[s.c]=cap;saveBudgets();showToast('Budget set',s.c+' · '+R(cap));}}]});}
   // top category without budget
   const top=Object.entries(cur.cats).filter(([c])=>!GENERIC.includes(c.toLowerCase())).sort((a,b)=>b[1]-a[1])[0];
-  if(top&&cur.total>0&&top[1]/cur.total>0.3&&!(BUDGETS[top[0]]>0)&&!spikes.find(s=>s.c===top[0])){const cap=Math.ceil(top[1]*0.9/100)*100;mv.push({tag:'Budget',tone:'blue',title:top[0]+' takes '+Math.round(top[1]/cur.total*100)+'% of your spending',body:'You have no budget for it. Trimming 10% would save about '+R(top[1]*0.1)+' a month.',acts:[{l:'Budget '+R(cap),fn:()=>{BUDGETS[top[0]]=cap;saveBudgets();showToast('Budget set',top[0]+' · '+R(cap));}}]});}
+  if(top&&cur.total>0&&top[1]/cur.total>0.3&&!(BUDGETS[top[0]]>0)&&!spikes.find(s=>s.c===top[0])){const cap=Math.ceil(top[1]*0.9/100)*100;mv.push({id:'budget:'+top[0],tag:'Budget',tone:'blue',title:top[0]+' takes '+Math.round(top[1]/cur.total*100)+'% of your spending',body:'You have no budget for it. Trimming 10% would save about '+R(top[1]*0.1)+' a month.',acts:[{l:'Budget '+R(cap),fn:()=>{BUDGETS[top[0]]=cap;saveBudgets();showToast('Budget set',top[0]+' · '+R(cap));}}]});}
   // savings rate
-  if(inc>0&&cur.total>0){const rate=(inc-cur.total)/inc*100;if(rate<20){mv.push({tag:'Saving',tone:'amber',title:'Savings rate is '+Math.max(0,Math.round(rate))+'%',body:'Aim for 20%. That means keeping about '+R(inc*0.2)+' of your '+R(inc)+' income.',acts:[{l:'Review budgets',fn:()=>{goTab('track');setTimeout(()=>{const e=$('budgetManager')||document.querySelector('[id*="udget"]');if(e&&e.scrollIntoView)e.scrollIntoView({behavior:'smooth'});},300);}}]});}}
+  if(inc>0&&cur.total>0){const rate=(inc-cur.total)/inc*100;if(rate<20){mv.push({id:'saving',tag:'Saving',tone:'amber',title:'Savings rate is '+Math.max(0,Math.round(rate))+'%',body:'Aim for 20%. That means keeping about '+R(inc*0.2)+' of your '+R(inc)+' income.',acts:[{l:'Review budgets',fn:()=>{goTab('track');setTimeout(()=>{const e=$('budgetManager')||document.querySelector('[id*="udget"]');if(e&&e.scrollIntoView)e.scrollIntoView({behavior:'smooth'});},300);}}]});}}
   // emergency fund
   const avgExp=cur.total||prev.total;
-  if(avgExp>0){const cov=(EMFUND.amount||0)/avgExp;if(cov<3){mv.push({tag:'Safety',tone:'red',title:'Emergency fund covers '+cov.toFixed(1)+' months',body:'Build towards 6 months of expenses ('+R(avgExp*6)+'). Even a small monthly top-up helps.',acts:[{l:'Open Emergency Fund',fn:()=>{goTab('tools');setTimeout(()=>{try{switchToolsTab('emfund',document.querySelector('#tab-tools .sub-tab[onclick*="emfund"]'));}catch(e){}},200);}}]});}}
+  if(avgExp>0){const cov=(EMFUND.amount||0)/avgExp;if(cov<3){mv.push({id:'emfund',tag:'Safety',tone:'red',title:'Emergency fund covers '+cov.toFixed(1)+' months',body:'Build towards 6 months of expenses ('+R(avgExp*6)+'). Even a small monthly top-up helps.',acts:[{l:'Open Emergency Fund',fn:()=>{goTab('tools');setTimeout(()=>{try{switchToolsTab('emfund',document.querySelector('#tab-tools .sub-tab[onclick*="emfund"]'));}catch(e){}},200);}}]});}}
   // SIP
   const sips=(INVEST.mf||[]).filter(h=>h.sip&&h.sip.active);
-  if(!sips.length&&inc>0){const amt=Math.max(500,Math.round(inc*0.1/500)*500);mv.push({tag:'Growing',tone:'green',title:'No SIP running yet',body:'Investing '+R(amt)+' a month (10% of income) builds wealth quietly in the background.',acts:[{l:'Explore mutual funds',fn:()=>{goTab('invest');}}]});}
+  if(!sips.length&&inc>0){const amt=Math.max(500,Math.round(inc*0.1/500)*500);mv.push({id:'sip',tag:'Growing',tone:'green',title:'No SIP running yet',body:'Investing '+R(amt)+' a month (10% of income) builds wealth quietly in the background.',acts:[{l:'Explore mutual funds',fn:()=>{goTab('invest');}}]});}
   // bills soon
   const soon=(BILLS||[]).map(b=>{const due=new Date(now.getFullYear(),now.getMonth(),b.dueDay);const diff=Math.ceil((due-now)/864e5);const paid=(b.paidMonths||[]).includes(monthKey(m,y));return {b,diff,paid};}).filter(x=>!x.paid&&x.diff>=0&&x.diff<=7).sort((a,b)=>a.diff-b.diff);
-  if(soon[0]){const s=soon[0];mv.push({tag:'Bills',tone:'blue',title:s.b.name+' is due '+(s.diff===0?'today':'in '+s.diff+' day'+(s.diff>1?'s':'')),body:R(num(s.b.amt))+' due'+(soon.length>1?' · plus '+(soon.length-1)+' more this week':'')+'.',acts:[{l:'Open Bills',fn:()=>goTab('bills')}]});}
+  if(soon[0]){const s=soon[0];mv.push({id:'bill:'+s.b.name,tag:'Bills',tone:'blue',title:s.b.name+' is due '+(s.diff===0?'today':'in '+s.diff+' day'+(s.diff>1?'s':'')),body:R(num(s.b.amt))+' due'+(soon.length>1?' · plus '+(soon.length-1)+' more this week':'')+'.',acts:[{l:'Open Bills',fn:()=>goTab('bills')}]});}
   // subscriptions
   const act=(SUBS||[]).filter(s=>s.status==='Active');
-  if(act.length>=2){const yr=act.reduce((t,s)=>t+s.cost*({'Monthly':12,'Quarterly':4,'Half-Yearly':2,'Annual':1}[s.cycle]||12),0);mv.push({tag:'Subscriptions',tone:'amber',title:act.length+' subscriptions cost '+R(yr)+' a year',body:'Worth a quick keep-or-cancel review.',acts:[{l:'Review them',fn:()=>{closeDeck();setTimeout(openAudit,150);}}]});}
-  return mv.slice(0,4);
+  if(act.length>=2){const yr=act.reduce((t,s)=>t+s.cost*({'Monthly':12,'Quarterly':4,'Half-Yearly':2,'Annual':1}[s.cycle]||12),0);mv.push({id:'subs',tag:'Subscriptions',tone:'amber',title:act.length+' subscriptions cost '+R(yr)+' a year',body:'Worth a quick keep-or-cancel review.',acts:[{l:'Review them',fn:()=>{closeDeck();setTimeout(openAudit,150);}}]});}
+  return mv;
 }
 function openMoves(){
-  const mv=buildMoves();
-  const cards=mv.length?mv.map((x,i)=>({
+  const mv=pendingMoves().slice(0,4);
+  const all=movesState().done.length;
+  if(!mv.length){showToast(all?'All caught up ✓':'You’re on track','New money moves arrive every week.');return;}
+  const cards=mv.map((x,i)=>({
     render:()=>'<div class="fx-meta">'+(i+1)+' of '+mv.length+' · '+x.tag.toUpperCase()+'</div><div class="fx-h fx-'+x.tone+'">'+esc(x.title)+'</div><div class="fx-body">'+esc(x.body)+'</div>',
-    right:{label:x.acts[0].l,fn:()=>{try{x.acts[0].fn();}catch(e){}return true;}},
-    left:{label:'Not now',fn:()=>true}
-  })):[{render:()=>'<div style="font-size:42px;margin-top:10px">🌿</div><div class="fx-h">You’re on track</div><div class="fx-body">Nothing needs attention right now. Check back after a few more entries.</div>',right:{label:'Great',fn:()=>true},left:{label:'Close',fn:()=>true}}];
-  openDeck({title:'Money moves',cards,done:()=>'<div style="font-size:42px">✨</div><div class="fx-h">That’s all for now</div><div class="fx-sub">New moves appear as your numbers change.</div>',onClose:fxRenderBoost});
+    right:{label:x.acts[0].l,fn:()=>{markMoveDone(x.id);try{x.acts[0].fn();}catch(e){}return true;}},
+    left:{label:'Not now',fn:()=>{markMoveDone(x.id);return true;}}
+  }));
+  openDeck({title:'Money moves',cards,done:()=>'<div style="font-size:42px">✨</div><div class="fx-h">All caught up</div><div class="fx-sub">Fresh moves arrive every Monday.</div>',onClose:fxRenderBoost});
 }
 
 /* ───────────── 3. Weekly wrapped ───────────── */
@@ -14378,10 +14395,10 @@ function fxRenderBoost(){
   const main=document.querySelector('#tab-track .main');if(!main)return;
   let box=$('fxBoost');
   if(!box){box=document.createElement('div');box.id='fxBoost';main.insertBefore(box,main.firstChild);}
-  const n=inbox().length,mv=(()=>{try{return buildMoves().length;}catch(e){return 0;}})();
+  const n=inbox().length,mv=(()=>{try{return Math.min(4,pendingMoves().length);}catch(e){return 0;}})();
   box.innerHTML='<div class="fx-boost">'
    +'<button onclick="fxSort()"><span>🗂️</span><b>Sort spends</b><em>'+(n?n+' to sort':'All sorted')+'</em></button>'
-   +'<button onclick="fxMoves()"><span>💡</span><b>Money moves</b><em>'+(mv?mv+' for you':'On track')+'</em></button>'
+   +'<button onclick="fxMoves()"><span>💡</span><b>Money moves</b><em>'+(mv?mv+' for you':'All caught up')+'</em></button>'
    +'<button onclick="fxWrapped()"><span>🎞️</span><b>This week</b><em>Wrapped</em></button>'
    +'</div>';
 }
