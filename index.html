@@ -1584,6 +1584,24 @@ button{font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;borde
 .disclaimer-strip{display:flex;align-items:flex-start;gap:9px;padding:9px 13px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:7px;font-size:11px;line-height:1.55;color:var(--muted);margin:10px 0 4px}
 .disclaimer-strip-ico{font-size:13px;flex-shrink:0;line-height:1.4;opacity:.9}
 .disclaimer-strip a{color:var(--muted);text-decoration:underline;cursor:pointer}
+
+/* ── iOS fit: notch / home bar / dynamic toolbar / input zoom ── */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{max-width:100%;overscroll-behavior-y:none}
+body{position:relative;min-height:100vh;min-height:100dvh}
+img,canvas,svg,video{max-width:100%}
+.lock-screen,#homeScreen,.home-screen,.wrapped-overlay,.notif-panel{padding-top:env(safe-area-inset-top,0px)}
+.home-screen,.wrapped-overlay{padding-bottom:env(safe-area-inset-bottom,0px)}
+.note-editor,.legal-modal{padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.lock-screen{padding-bottom:env(safe-area-inset-bottom,0px)}
+.notif-panel{padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.fab-sheet-body{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+.qs-sheet,.bpk-sheet,.acc-log-sheet,.pay-confirm-sheet{max-height:calc(100dvh - env(safe-area-inset-top,0px) - 24px)}
+#whwOverlay{height:100vh;height:100dvh}
+@supports (-webkit-touch-callout:none){
+  /* iOS zooms into inputs under 16px and doesn't zoom back — keeps the page from drifting off-screen */
+  input,select,textarea{font-size:16px!important}
+}
 </style>
 </head>
 <body>
@@ -4475,7 +4493,7 @@ const CURRENCIES={
   VND:{sym:'₫',locale:'vi-VN'},
 };
 let BASE_CURRENCY=localStorage.getItem('flow_currency')||'INR';
-const fmt  = n=>{const c=CURRENCIES[BASE_CURRENCY]||CURRENCIES.INR;return c.sym+Math.abs(n||0).toLocaleString(c.locale);};
+const fmt  = n=>{const c=CURRENCIES[BASE_CURRENCY]||CURRENCIES.INR;const a=Math.abs(n||0);return c.sym+a.toLocaleString(c.locale,{minimumFractionDigits:(a<1000&&a%1>0.004)?2:0,maximumFractionDigits:a>=1000?0:2});};
 // ══ IST DATE UTILITIES — Flow is India-only (Asia/Kolkata, UTC+5:30) ═══════
 // All date logic is hardcoded to IST regardless of device timezone setting
 const _IST_MS=19800000; // 5.5 * 60 * 60 * 1000 ms = UTC+5:30
@@ -4485,7 +4503,7 @@ function _istNow(d){return new Date((d||new Date()).getTime()+_IST_MS);}
 function _istParts(d){const n=_istNow(d);return{year:n.getUTCFullYear(),month:n.getUTCMonth(),date:n.getUTCDate(),day:n.getUTCDay(),hours:n.getUTCHours(),minutes:n.getUTCMinutes()};}
 // Returns YYYY-MM-DD in IST — replaces all toISOString().split('T')[0] calls
 const _localDateStr=(d)=>{const n=_istNow(d);return n.getUTCFullYear()+'-'+String(n.getUTCMonth()+1).padStart(2,'0')+'-'+String(n.getUTCDate()).padStart(2,'0');};
-const fmtC = (n,cur)=>{const c=CURRENCIES[cur||BASE_CURRENCY]||CURRENCIES.INR;return c.sym+Math.abs(n||0).toLocaleString(c.locale);};
+const fmtC = (n,cur)=>{const c=CURRENCIES[cur||BASE_CURRENCY]||CURRENCIES.INR;const a=Math.abs(n||0);return c.sym+a.toLocaleString(c.locale,{minimumFractionDigits:(a<1000&&a%1>0.004)?2:0,maximumFractionDigits:a>=1000?0:2});};
 const fmtN = n=>(n<0?'−':'')+fmt(n);
 const key  = ()=>`${selM()}_${selY()}`;
 const selM = ()=>document.getElementById('selMonth').value;
@@ -6742,7 +6760,6 @@ function renderSplits(targetId){
           +'</div>'
           +'<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end">'
           +'<span style="font-weight:500">'+fmt(m.amount)+'</span>'
-          +'<span style="font-weight:500">'+fmt(m.amount)+'</span>'
           +((!m.settled&&m.phone)?'<button class="btn-notify-icon wa'+(isNudgeDue?' nudge-due':'')+'\" onclick="notifyMember(\''+s.id+'\',\''+m.id+'\')" title="'+waTitle+'">'+waSVG+(isNudgeDue?'<span class="nudge-dot"></span>':'')+'</button>':'')
           +((!m.settled&&m.phone)?'<button class="btn-notify-icon sms" onclick="notifySMS(\''+s.id+'\',\''+m.id+'\')" title="SMS '+esc(m.name)+'">'+smsSVG+'</button>':'')
           +((!m.settled&&!m.phone)?'<button class="btn-notify-icon" onclick="notifyMember(\''+s.id+'\',\''+m.id+'\')" title="Copy message — add phone for WA/SMS" style="font-size:11px;width:30px;height:30px">&#x1F4CB;</button>':'')
@@ -7753,7 +7770,7 @@ function renderNotes(){
   if(!all.length){el.innerHTML=mkES('&mdash;',q?'No matching notes':'No notes yet',q?'Try a different search term.':'Capture financial thoughts, reminders and observations here.',q?'':'+ New Note',q?'':"toggleForm('noteForm')");return}
   el.innerHTML=all.map(n=>`<div class="note-card${n.pinned?' pinned':''}" onclick="openNote('${n.id}')">
     <div class="note-title">${n.pinned?'📌 ':''}${esc(n.title)}</div>
-    <div class="note-preview">${esc(n.content.substring(0,120))}</div>
+    <div class="note-preview">${esc((n.content||n.body||'').substring(0,120))}</div>
     <div class="note-date">${n.date||''}</div>
   </div>`).join('');
 }
@@ -11895,7 +11912,7 @@ const FLOW_CURRENT_VER='2.9.1';
   if(lastSeen!==FLOW_CURRENT_VER){
     setTimeout(()=>{
       if(localStorage.getItem('flow_visited')){
-        showToast('Flow v2.9.1','UPI income fix, paid to/from, account linking &amp; monthly statements — see What\'s New',5000);
+        showToast('Flow v2.9.1','UPI income fix, paid to/from, account linking & monthly statements — see What\'s New',5000);
       }
       localStorage.setItem('flow_last_ver',FLOW_CURRENT_VER);
     },2500);
@@ -12298,6 +12315,83 @@ const FLOW_CURRENT_VER='2.9.1';
 .whw-unsettled-badge{font-size:9px;padding:2px 7px;border-radius:8px;background:var(--deficit-bg);color:var(--deficit);font-family:'IBM Plex Mono',monospace}
 .whw-group-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border:1px solid var(--border);border-radius:14px;font-size:10px;background:var(--surface-alt);cursor:pointer;margin:3px;transition:all .12s;font-family:'IBM Plex Mono',monospace}
 .whw-group-chip:hover{border-color:var(--text);background:var(--surface)}
+
+/* Slice It — shares, item units, collect carousel */
+.whw-portion-help{font-size:11px;color:var(--muted);line-height:1.5;margin:-4px 0 12px}
+.whw-portion-total{text-align:center;font-size:11px;color:var(--muted);margin-top:8px}
+.whw-paid-tag{font-size:9.5px;color:var(--surplus);background:var(--surplus-bg);border-radius:20px;padding:1px 7px;margin-left:6px;vertical-align:middle}
+.whw-unit-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:2px 12px}
+.whw-unit-list{display:flex;flex-direction:column;margin-top:4px}
+.whw-unit-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--border)}
+.whw-unit-card .whw-unit-row:first-child{border-top:none}
+.whw-unit-row.off{opacity:.55}
+.whw-unit-who{min-width:0}
+.whw-unit-name{font-size:12.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.whw-unit-row.on .whw-unit-name{font-weight:600}
+.whw-unit-sub{font-size:10.5px;color:var(--muted);margin-top:1px}
+.whw-unit-qty{font-size:11px;color:var(--muted);font-weight:500}
+.whw-stepper{display:flex;align-items:center;gap:2px;background:var(--surface-alt);border:1px solid var(--border);border-radius:20px;padding:2px;flex-shrink:0}
+.whw-stepper button{width:32px;height:30px;border:none;border-radius:16px;background:var(--surface);color:var(--text);font-size:17px;line-height:1;cursor:pointer;padding:0}
+.whw-stepper button:disabled{opacity:.3;cursor:default}
+.whw-stepper span{min-width:26px;text-align:center;font-size:13px;font-weight:600}
+.whw-unit-row.on .whw-stepper{border-color:var(--text)}
+.whw-item-foot{margin-top:8px;font-size:11px;color:var(--amber)}
+.whw-item-foot.ok{color:var(--surplus)}
+.whw-collect-hd{display:flex;justify-content:space-between;align-items:baseline;margin:16px 0 8px}
+.whw-car-count{font-size:11px;color:var(--muted)}
+.whw-carousel{position:relative;display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 9% 6px;margin:0 -14px;overscroll-behavior-x:contain}
+.whw-carousel::-webkit-scrollbar{display:none}
+.whw-qr-card{flex:0 0 82%;max-width:360px;scroll-snap-align:center;scroll-snap-stop:always;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.whw-qr-top{display:flex;align-items:center;gap:10px;width:100%;text-align:left}
+.whw-qr-av{width:38px;height:38px;border-radius:50%;background:var(--surface-alt);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+.whw-qr-who{flex:1;min-width:0}
+.whw-qr-name{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.whw-qr-sub{font-size:11px;color:var(--muted)}
+.whw-qr-step{font-size:11px;color:var(--faint)}
+.whw-qr-amt{font-size:30px;font-weight:700;letter-spacing:-.02em;margin-top:14px}
+.whw-qr-items{font-size:11px;color:var(--muted);margin-top:2px;max-width:100%}
+.whw-qr-box{margin-top:14px;width:228px;height:228px;max-width:100%;border-radius:16px;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;padding:14px}
+.whw-qr-canvas img,.whw-qr-canvas canvas{display:block;width:200px!important;height:200px!important}
+.whw-qr-empty{font-size:12px;color:#6b7280;padding:16px;line-height:1.5}
+.whw-qr-done{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:14px;font-weight:600;color:#0B8457}
+.whw-qr-done span{width:56px;height:56px;border-radius:50%;background:#E6F5EE;display:flex;align-items:center;justify-content:center;font-size:26px}
+.whw-qr-card.settled .whw-qr-amt{color:var(--faint);text-decoration:line-through}
+.whw-qr-hint{font-size:11px;color:var(--muted);margin-top:10px;min-height:16px}
+.whw-qr-acts{display:flex;gap:8px;width:100%;margin-top:14px}
+.whw-qr-btn{flex:1;height:42px;border-radius:12px;border:1px solid var(--text);background:var(--text);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer}
+.whw-qr-btn.ghost{background:var(--surface);color:var(--text);border-color:var(--border)}
+.whw-dots{display:flex;justify-content:center;gap:6px;margin:10px 0 14px}
+.whw-dot{width:7px;height:7px;padding:0;border-radius:50%;border:none;background:var(--border);cursor:pointer;transition:width .2s}
+.whw-dot.ok{background:var(--surplus);opacity:.55}
+.whw-dot.on{width:20px;border-radius:4px;background:var(--text);opacity:1}
+.whw-copy-all{width:100%;padding:11px;font-size:12px;border:1px solid var(--border);border-radius:10px;background:var(--surface-alt);color:var(--text);cursor:pointer}
+#whwOverlay{padding-top:env(safe-area-inset-top,0px)}
+.whw-body{padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))}
+
+.whw-extras{margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r)}
+.whw-extras summary{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;list-style:none;font-size:12.5px;font-weight:600}
+.whw-extras summary::-webkit-details-marker{display:none}
+.whw-extras summary::after{content:"+";font-size:16px;color:var(--muted);margin-left:4px}
+.whw-extras[open] summary::after{content:"−"}
+.whw-extras-sum{margin-left:auto;font-size:11px;font-weight:400;color:var(--muted)}
+.whw-extras-body{padding:2px 14px 12px;border-top:1px solid var(--border)}
+.whw-round{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted);margin-top:10px}
+.whw-round input{width:auto;margin:0}
+.whw-pays{margin-top:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:4px 14px}
+.whw-pays-hd{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0 8px;font-size:12px;font-weight:600;border-bottom:1px solid var(--border)}
+.whw-pays-hd span:last-child{font-weight:400;color:var(--muted)}
+.whw-pays-hd strong{color:var(--text)}
+.whw-pays-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--border)}
+.whw-pays-hd+.whw-pays-row{border-top:none}
+.whw-pays-name{font-size:13px;font-weight:600}
+.whw-pays-items{font-size:10.5px;color:var(--muted);margin-top:1px}
+.whw-pays-amt{font-size:15px;font-weight:700;white-space:nowrap}
+.whw-coll-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.whw-coll-sum div{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px}
+.whw-coll-sum span{display:block;font-size:10.5px;color:var(--muted)}
+.whw-coll-sum strong{font-size:15px}
+.whw-coll-sum .ok{color:var(--surplus)}.whw-coll-sum .due{color:var(--amber)}
+.whw-collect-foot{display:flex;flex-direction:column;gap:8px}
 </style>
 
 <div id="whwOverlay">
@@ -12310,9 +12404,7 @@ const FLOW_CURRENT_VER='2.9.1';
   <div class="whw-steps">
     <button class="whw-step-btn active" id="whwS1Btn" onclick="whwGoStep(1)">1·Items</button>
     <button class="whw-step-btn" id="whwS2Btn" onclick="whwGoStep(2)">2·Who Had</button>
-    <button class="whw-step-btn" id="whwS3Btn" onclick="whwGoStep(3)">3·Adjust</button>
-    <button class="whw-step-btn" id="whwS4Btn" onclick="whwGoStep(4)">4·Collect</button>
-    <button class="whw-step-btn" id="whwS5Btn" onclick="whwGoStep(5)">5·Settle</button>
+    <button class="whw-step-btn" id="whwS3Btn" onclick="whwGoStep(3)">3·Collect</button>
   </div>
   <div class="whw-body" id="whwBody"></div>
 </div>
@@ -12372,7 +12464,7 @@ function openWhw(loadId){
   if(loadId){
     const hist=_whwGetHistory();
     const entry=hist.find(h=>h.id===loadId);
-    if(entry){_whw=JSON.parse(JSON.stringify(entry));_whw.step=4;}
+    if(entry){_whw=JSON.parse(JSON.stringify(entry));_whw.step=3;}
     else{showToast('Not found','');return;}
   } else {
     _whw={step:1,id:'whw_'+Date.now(),title:'',items:[],persons:[],assigns:{},splitMode:'item',
@@ -12387,6 +12479,7 @@ function whwClose(){document.getElementById('whwOverlay').classList.remove('open
 
 function whwGoStep(n){
   if(n>_whw.step+1&&n!==_whw.step)return;
+  if(n>1&&(!_whw.items.length||!_whw.persons.length)){showToast('Add items and people first','');return;}
   _whw.step=n;whwRender();
 }
 function whwNext(){
@@ -12394,17 +12487,13 @@ function whwNext(){
     if(!_whw.items.length){showToast('Add items first','');return;}
     if(!_whw.persons.length){showToast('Add people first','');return;}
     _whw.step=2;
-  } else if(_whw.step===2){_whw.step=3;}
-  else if(_whw.step===3){_whw.step=4;}
-  else if(_whw.step===4){
-    // auto-save to history before going to settle
-    whwAutoSave();
-    _whw.step=5;
+  } else if(_whw.step===2){
+    whwAutoSave();_whw.step=3;
   } else {
-    whwAutoSave();
-    whwClose();return;
+    whwAutoSave();whwClose();return;
   }
   whwRender();
+  const b=document.getElementById('whwBody');if(b)b.scrollTop=0;
 }
 function whwAutoSave(){
   _whw.savedAt=Date.now();
@@ -12414,17 +12503,15 @@ function whwAutoSave(){
 }
 
 function whwRender(){
-  [1,2,3,4,5].forEach(n=>{
+  [1,2,3].forEach(n=>{
     const b=document.getElementById('whwS'+n+'Btn');
     if(b)b.className='whw-step-btn'+(n===_whw.step?' active':n<_whw.step?' done':'');
   });
-  document.getElementById('whwNextBtn').textContent=_whw.step>=5?'Done':'Next →';
+  document.getElementById('whwNextBtn').textContent=_whw.step>=3?'Done':'Next →';
   const body=document.getElementById('whwBody');
   if(_whw.step===1)body.innerHTML=whwRenderStep1();
-  else if(_whw.step===2)body.innerHTML=whwRenderStep2();
-  else if(_whw.step===3)body.innerHTML=whwRenderStep3();
-  else if(_whw.step===4){body.innerHTML=whwRenderStep4();setTimeout(whwRenderCollect,80);}
-  else body.innerHTML=whwRenderStep5();
+  else if(_whw.step===2)body.innerHTML=whwRenderStep2()+(_whw.items.length&&_whw.persons.length?whwRenderExtras():'');
+  else{body.innerHTML=whwRenderStep4();setTimeout(whwRenderCollect,60);}
 }
 
 // ── STEP 1 ────────────────────────────────────────────────────
@@ -12443,9 +12530,8 @@ function whwRenderStep1(){
 
   const personRows=_whw.persons.map((p,i)=>`
     <div class="whw-person-row">
-      <div class="whw-person-name">${esc(p.name)}${p.isPayer?'<span style="font-size:9px;margin-left:5px;color:var(--surplus)">(paid)</span>':''}</div>
+      <div class="whw-person-name">${esc(p.name)}</div>
       <span style="font-size:10px;color:var(--faint)">${p.upiId?esc(p.upiId):''}</span>
-      <button onclick="_whw.persons[${i}].isPayer=!_whw.persons[${i}].isPayer;if(_whw.persons[${i}].isPayer){_whw.payerName=_whw.persons[${i}].name;_whw.payerUpi=_whw.persons[${i}].upiId||_whw.payerUpi;_whw.payerId=_whw.persons[${i}].id;_whw.persons.forEach((pp,ii)=>{if(ii!==${i})_whw.persons[ii].isPayer=false;});}whwRender()" style="font-size:9px;padding:2px 7px;border:1px solid var(--border);border-radius:8px;background:${p.isPayer?'var(--surplus-bg)':'var(--surface-alt)'};color:${p.isPayer?'var(--surplus)':'var(--muted)'};cursor:pointer;font-family:'IBM Plex Mono',monospace">${p.isPayer?'✓ Paid':'Mark paid'}</button>
       <button class="whw-person-del" onclick="_whw.persons.splice(${i},1);whwRender()">×</button>
     </div>`).join('');
 
@@ -12477,7 +12563,7 @@ function whwRenderStep1(){
         <span>People &nbsp;<span style="color:var(--faint);font-weight:400">${_whw.persons.length}</span></span>
         ${_whw.persons.length>=2?`<button onclick="whwSaveGroup()" style="font-size:9px;padding:2px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface-alt);color:var(--muted);cursor:pointer">Save as Group</button>`:''}
       </div>
-      ${personRows||'<div style="font-size:11px;color:var(--faint);padding:5px 0">Add people splitting this bill. Tap "Mark paid" on whoever paid.</div>'}
+      ${personRows||'<div style="font-size:11px;color:var(--faint);padding:5px 0">Add everyone splitting this bill, including you.</div>'}
       <div class="whw-add-row" style="margin-top:8px">
         <input type="text" id="whwNewPerson" placeholder="Name" style="flex:1;min-width:70px">
         <input type="text" id="whwNewUpi" placeholder="UPI ID (optional)" style="flex:2;min-width:100px">
@@ -12546,7 +12632,7 @@ function whwRenderStep2(){
         <button class="whw-portion-btn${_whw.splitMode==='portion'?' active':''}" onclick="_whw.splitMode='portion';whwRender()">By Portion</button>
         <button class="whw-portion-btn${_whw.splitMode==='item'?' active':''}" onclick="_whw.splitMode='item';whwRender()">Item-by-Item</button>
       </div>
-      ${payer?`<div style="font-size:10px;color:var(--surplus);margin-top:4px">✓ ${esc(payer.name)} paid the bill — their own share will be deducted automatically.</div>`:'<div style="font-size:10px;color:var(--faint);margin-top:4px">Tip: go back and tap "Mark paid" on whoever paid the bill.</div>'}
+      
     </div>`;
 
   if(_whw.splitMode==='equal'){
@@ -12559,57 +12645,109 @@ function whwRenderStep2(){
   }
 
   if(_whw.splitMode==='portion'){
-    const portionRows=_whw.persons.map((p,pi)=>{
-      const portions=((_whw.assigns['_p_'+p.id])!=null?_whw.assigns['_p_'+p.id]:1);
-      return `<div class="whw-assign-item">
-        <div class="whw-assign-item-hd">
-          <div class="whw-assign-item-name">${esc(p.name)}${p.isPayer?'<span style="font-size:9px;color:var(--surplus);margin-left:5px">(paid)</span>':''}</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:11px;color:var(--muted)">Portions:</span>
-          <input type="number" min="0" step="0.5" value="${portions}" style="width:60px;font-size:12px;padding:4px 7px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-family:'IBM Plex Mono',monospace" onchange="_whw.assigns['_p_${p.id}']=parseFloat(this.value)||0;whwRender()">
-          <span style="font-size:10px;color:var(--faint)">1 = full share · 0.5 = half</span>
+    const preview=whwCalcSplits();
+    const totalW=_whw.persons.reduce((t,p)=>t+whwPortionOf(p.id),0);
+    const rows=_whw.persons.map(p=>{
+      const w=whwPortionOf(p.id);
+      const amt=(preview.find(x=>String(x.id)===String(p.id))||{}).amount||0;
+      return `<div class="whw-unit-row${w===0?' off':''}">
+        <div class="whw-unit-who"><div class="whw-unit-name">${esc(p.name)}${p.isPayer?'<span class="whw-paid-tag">paid</span>':''}</div>
+          <div class="whw-unit-sub">${w===0?'Not sharing this bill':w+' share'+(w>1?'s':'')+' · '+fmt(amt)}</div></div>
+        <div class="whw-stepper">
+          <button onclick="whwPortionStep('${p.id}',-1)" ${w<=0?'disabled':''} aria-label="Less">−</button>
+          <span>${w}</span>
+          <button onclick="whwPortionStep('${p.id}',1)" aria-label="More">+</button>
         </div>
       </div>`;
     }).join('');
-    const totalPortions=_whw.persons.reduce((s,p)=>s+((_whw.assigns['_p_'+p.id]!=null?_whw.assigns['_p_'+p.id]:1)),0);
-    return modeHtml+portionRows+`<div style="font-size:11px;color:var(--muted);text-align:center;margin-top:6px">Total portions: ${totalPortions}</div>`;
+    return modeHtml+`<div class="whw-portion-help">Everyone starts with 1 share. Give 2 to someone who had double, 0 to someone who skipped.</div>`
+      +`<div class="whw-unit-card">${rows}</div>`
+      +`<div class="whw-portion-total">${totalW} share${totalW!==1?'s':''} in total · ${fmt(whwTotals().total)}</div>`;
   }
 
-  // Item-by-item
+  // Item-by-item — how many of each item every person had
   const itemBlocks=_whw.items.map(it=>{
-    const totalUnits=it.qty;
     const assigned=_whw.assigns[it.id]||{};
-    const assignedCount=Object.values(assigned).reduce((s,v)=>s+v,0);
-    const leftover=totalUnits-assignedCount;
-    const chips=_whw.persons.map(p=>{
-      const portions=assigned[p.id]||0;
-      return `<button class="whw-assign-chip${portions>0?' selected':''}${p.isPayer?' payer-chip':''}" onclick="whwToggleAssign(${it.id},'${p.id}',${totalUnits})">
-        ${esc(p.name)}${portions>0?' ×'+portions:''}
-      </button>`;
+    const used=Object.values(assigned).reduce((t,v)=>t+(v>0?v:0),0);
+    const left=Math.max(0,it.qty-used);
+    const full=used>=it.qty;
+    const rows=_whw.persons.map(p=>{
+      const n=assigned[p.id]||0;
+      return `<div class="whw-unit-row${n>0?' on':''}">
+        <div class="whw-unit-name">${esc(p.name)}</div>
+        <div class="whw-stepper">
+          <button onclick="whwUnit(${it.id},'${p.id}',-1)" ${n<=0?'disabled':''} aria-label="One less">−</button>
+          <span>${n}</span>
+          <button onclick="whwUnit(${it.id},'${p.id}',1)" ${full?'disabled':''} aria-label="One more">+</button>
+        </div>
+      </div>`;
     }).join('');
+    const status=used===0
+      ?`Nobody picked yet · ${it.qty>1?'all '+it.qty+' split':'splits'} across everyone`
+      :left>0?`${left} of ${it.qty} not picked · ${left>1?'they split':'it splits'} across everyone`
+      :`All ${it.qty} picked`;
     return `<div class="whw-assign-item">
       <div class="whw-assign-item-hd">
-        <div class="whw-assign-item-name">${esc(it.name)}</div>
-        <div class="whw-assign-item-price">${it.qty>1?it.qty+'× ':''} ${fmt(it.price)} = ${fmt(it.qty*it.price)} · <span style="color:${leftover>0?'var(--deficit)':'var(--surplus)'}">left: ${leftover}</span></div>
+        <div class="whw-assign-item-name">${esc(it.name)}${it.qty>1?' <span class="whw-unit-qty">×'+it.qty+'</span>':''}</div>
+        <div class="whw-assign-item-price">${fmt(it.price)} each · ${fmt(it.qty*it.price)}</div>
       </div>
-      <div class="whw-assign-chips">${chips}</div>
-      ${leftover>0?`<div style="font-size:9px;color:var(--faint);margin-top:4px">⚠ ${leftover} unassigned — will split equally among all</div>`:''}
+      <div class="whw-unit-list">${rows}</div>
+      <div class="whw-item-foot${used>0&&left===0?' ok':''}">${status}</div>
     </div>`;
   }).join('');
-  return modeHtml+itemBlocks;
+  return modeHtml+`<div class="whw-portion-help">For each item, tap + for every piece a person had — e.g. 2 naans, 1 juice, 3 nuggets.</div>`+itemBlocks;
 }
-function whwToggleAssign(itemId,personId,totalQty){
+function whwPortionOf(pid){const v=_whw.assigns['_p_'+pid];return v!=null?v:1;}
+function whwPortionStep(pid,d){_whw.assigns['_p_'+pid]=Math.max(0,Math.round(whwPortionOf(pid))+d);whwRender();}
+function whwUnit(itemId,pid,d){
+  const it=_whw.items.find(x=>x.id===itemId);if(!it)return;
   if(!_whw.assigns[itemId])_whw.assigns[itemId]={};
-  const cur=_whw.assigns[itemId][personId]||0;
-  const totalAssigned=Object.values(_whw.assigns[itemId]).reduce((s,v)=>s+v,0);
-  if(cur>0){delete _whw.assigns[itemId][personId];}
-  else{const rem=totalQty-totalAssigned;if(rem>0)_whw.assigns[itemId][personId]=(cur||0)+1;}
+  const a=_whw.assigns[itemId];
+  const cur=Math.round(a[pid]||0);
+  const used=Object.values(a).reduce((t,v)=>t+(v>0?v:0),0);
+  if(d>0&&used>=it.qty){showToast('All '+it.qty+' picked','Remove one from someone else first.');return;}
+  const nv=Math.max(0,cur+d);
+  if(nv===0)delete a[pid];else a[pid]=nv;
   whwRender();
 }
 function whwSubtotal(){return _whw.items.reduce((s,it)=>s+it.qty*it.price,0);}
 
 // ── STEP 3 ────────────────────────────────────────────────────
+function whwRenderExtras(){
+  const has=(_whw.tax||_whw.tip||_whw.discount||_whw.rounding);
+  const row=(lbl,key,typeKey)=>`<div class="whw-adj-row">
+      <label>${lbl}</label>
+      <input type="number" min="0" step="0.01" inputmode="decimal" value="${_whw[key]||''}" placeholder="0" oninput="_whw.${key}=parseFloat(this.value)||0;whwUpdatePreview()">
+      <select onchange="_whw.${typeKey}=this.value;whwUpdatePreview()"><option value="%" ${_whw[typeKey]==='%'?'selected':''}>%</option><option value="₹" ${_whw[typeKey]==='₹'?'selected':''}>₹</option></select>
+    </div>`;
+  return `<details class="whw-extras"${has?' open':''}>
+      <summary><span>Tax, tip &amp; discount</span><span class="whw-extras-sum" id="whwExtrasSum">${whwExtrasSummary()}</span></summary>
+      <div class="whw-extras-body">
+        ${row('Tax / GST','tax','taxType')}
+        ${row('Tip / service','tip','tipType')}
+        ${row('Discount','discount','discType')}
+        <label class="whw-round"><input type="checkbox" ${_whw.rounding?'checked':''} onchange="_whw.rounding=this.checked;whwUpdatePreview()"> Round each share to the nearest ₹10</label>
+      </div>
+    </details>
+    <div class="whw-pays" id="whwPays">${whwPaysHtml()}</div>`;
+}
+function whwExtrasSummary(){
+  const t=whwTotals();const bits=[];
+  if(t.taxAmt)bits.push('+'+fmt(t.taxAmt)+' tax');
+  if(t.tipAmt)bits.push('+'+fmt(t.tipAmt)+' tip');
+  if(t.discAmt)bits.push('−'+fmt(t.discAmt));
+  if(_whw.rounding)bits.push('rounded');
+  return bits.length?bits.join(' · '):'None';
+}
+function whwPaysHtml(){
+  const sp=whwCalcSplits();const t=whwTotals();
+  return `<div class="whw-pays-hd"><span>Each person pays</span><span>Bill total <strong>${fmt(t.total)}</strong></span></div>`
+    +sp.map(x=>`<div class="whw-pays-row"><div><div class="whw-pays-name">${esc(x.name)}</div>${x.items?`<div class="whw-pays-items">${esc(x.items)}</div>`:''}</div><div class="whw-pays-amt">${fmt(x.amount)}</div></div>`).join('');
+}
+function whwUpdatePreview(){
+  const p=document.getElementById('whwPays');if(p)p.innerHTML=whwPaysHtml();
+  const e=document.getElementById('whwExtrasSum');if(e)e.textContent=whwExtrasSummary();
+}
 function whwRenderStep3(){
   const {sub,taxAmt,discAmt,tipAmt,total}=whwTotals();
   const preview=whwCalcSplits(total);
@@ -12693,8 +12831,7 @@ function whwCalcSplits(totalOverride){
         });
         const unassigned=it.qty-totalAssigned;
         if(unassigned>0){
-          const unassignedAmt=(unassigned/it.qty)*itemTotal;
-          const each=unassignedAmt/_whw.persons.length;
+          const each=(unassigned/it.qty)*itemTotal/_whw.persons.length;
           _whw.persons.forEach(p=>{raw[p.id]+=each;});
         }
       }
@@ -12714,91 +12851,123 @@ function whwPersonItems(personId){
   if(_whw.splitMode!=='item')return null;
   const names=[];
   _whw.items.forEach(it=>{
-    const assigned=_whw.assigns[it.id]||{};
-    if(assigned[personId])names.push(assigned[personId]>1?assigned[personId]+'× '+it.name:it.name);
+    const n=(_whw.assigns[it.id]||{})[personId]||0;
+    if(n>0)names.push((n>1?n+'× ':'')+it.name);
   });
   return names.join(', ')||null;
 }
 
 // ── STEP 4: Collect ───────────────────────────────────────────
+function whwSetPayer(pid){
+  _whw.persons.forEach(p=>{p.isPayer=String(p.id)===String(pid);});
+  const p=_whw.persons.find(x=>x.isPayer);
+  if(p){_whw.payerName=p.name;_whw.payerId=p.id;if(p.upiId)_whw.payerUpi=p.upiId;}
+  _whw._carIdx=0;
+  try{whwAutoSave();}catch(e){}
+  whwRender();
+}
+function whwInit2(n){n=String(n||'?').trim().split(/\s+/);return((n[0]||'?')[0]+((n[1]||'')[0]||'')).toUpperCase();}
+function whwUpiLink(s){return `upi://pay?pa=${encodeURIComponent((_whw.payerUpi||'').trim())}&pn=${encodeURIComponent(_whw.payerName||'Flow')}&am=${s.amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(_whw.title||'Bill Split')}`;}
 function whwRenderStep4(){
-  const splits=whwCalcSplits();
-  const payer=splits.find(s=>s.isPayer);
-  const payerBox=`
-    <div class="whw-payer-box">
-      <div class="whw-sec-label" style="margin-bottom:8px">Who Paid the Bill?</div>
-      <div style="display:flex;gap:7px;margin-bottom:7px;flex-wrap:wrap">
-        <input type="text" placeholder="Payer name" value="${esc(_whw.payerName)}" style="flex:1;min-width:90px;font-size:11px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-family:'IBM Plex Mono',monospace" oninput="_whw.payerName=this.value;document.getElementById('whwCollectCards').innerHTML='';setTimeout(whwRenderCollect,80)">
-        <input type="text" placeholder="UPI ID (e.g. name@upi)" value="${esc(_whw.payerUpi)}" style="flex:2;min-width:130px;font-size:11px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-family:'IBM Plex Mono',monospace" oninput="_whw.payerUpi=this.value;document.getElementById('whwCollectCards').innerHTML='';setTimeout(whwRenderCollect,80)">
-      </div>
-      ${payer?`<div style="font-size:10px;color:var(--surplus)">✓ ${esc(payer.name)} paid — their share (${fmt(payer.amount)}) is their own money back.</div>`:'<div style="font-size:10px;color:var(--faint)">Enter the UPI ID where others should pay.</div>'}
+  const payer=_whw.persons.find(p=>p.isPayer);
+  const chips=_whw.persons.map(p=>`<button class="whw-assign-chip${p.isPayer?' selected':''}" onclick="whwSetPayer('${p.id}')">${esc(p.name)}</button>`).join('');
+  const own=payer?((whwCalcSplits().find(x=>x.isPayer)||{}).amount||0):0;
+  const payerBox=`<div class="whw-payer-box">
+      <div class="whw-sec-label" style="margin-bottom:8px">Who paid the bill?</div>
+      <div class="whw-assign-chips" style="margin-bottom:${payer?'10px':'0'}">${chips}</div>
+      ${payer?`<input type="text" id="whwPayerUpi" placeholder="${esc(payer.name)}'s UPI ID, e.g. name@okaxis" value="${esc(_whw.payerUpi||'')}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" style="width:100%"
+          oninput="_whw.payerUpi=this.value.trim();clearTimeout(window._whwUpiT);window._whwUpiT=setTimeout(whwRenderCollect,350)">
+        <div class="whw-portion-help" style="margin:7px 0 0">${esc(payer.name)}'s own share (${fmt(own)}) stays with them. Everyone else pays ${esc(payer.name)}.</div>`
+      :'<div class="whw-portion-help" style="margin:8px 0 0">Tap the person who paid. Everyone else will pay them back.</div>'}
     </div>`;
-
-  const cards=splits.filter(s=>!s.isPayer).map(s=>`
-    <div class="whw-summary-person" id="whwCard_${s.id}">
-      <div class="whw-summary-person-hd">
-        <div class="whw-summary-person-name">${esc(s.name)}</div>
-        <div class="whw-summary-person-amt" style="color:${s.settled?'var(--surplus)':'var(--text)'}">${s.settled?'✓ Settled':fmt(s.amount)}</div>
-      </div>
-      ${s.items?`<div class="whw-summary-person-items">${esc(s.items)}</div>`:''}
-      <div id="whwCollect_${s.id}" style="margin-top:8px"></div>
-    </div>`).join('');
-
-  // Copy all links button
-  const copyAllBtn=`<button onclick="whwCopyAllLinks()" style="width:100%;margin-bottom:12px;padding:9px;font-size:11px;border:1px solid var(--border);border-radius:7px;background:var(--surface-alt);color:var(--text);cursor:pointer;font-family:'IBM Plex Mono',monospace">📋 Copy All Payment Links</button>`;
-
-  return payerBox+`<div class="whw-sec-label" style="margin:12px 0 6px">Others owe</div>`
-    +`<div id="whwCollectCards">`+cards+`</div>`+copyAllBtn;
+  if(!payer)return payerBox;
+  return payerBox
+    +`<div class="whw-collect-hd"><div class="whw-sec-label" style="margin:0">Collect from</div><div class="whw-car-count" id="whwCarCount"></div></div>`
+    +`<div id="whwCollectCards"></div><div class="whw-dots" id="whwDots"></div>`
+    +`<div class="whw-collect-foot"><button class="whw-copy-all" onclick="whwCopyAllLinks()">Copy all payment links</button>`
+    +`<button class="whw-copy-all" onclick="whwSaveToBillSplit()">Track in Circle</button></div>`;
 }
 function whwRenderCollect(){
-  const splits=whwCalcSplits();
-  splits.filter(s=>!s.isPayer).forEach(s=>{
-    const el=document.getElementById('whwCollect_'+s.id);
-    if(!el)return;
-    if(!_whw.payerUpi.trim()){
-      el.innerHTML='<div style="font-size:10px;color:var(--faint)">Enter payer UPI ID above.</div>';
-      return;
-    }
-    if(s.settled){
-      el.innerHTML=`<div style="font-size:10px;color:var(--surplus)">✓ Marked as settled</div>
-        <button onclick="whwUnsettle('${s.id}')" style="font-size:9px;padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface-alt);color:var(--muted);cursor:pointer;margin-top:4px">Undo</button>`;
-      return;
-    }
-    const upiLink=`upi://pay?pa=${encodeURIComponent(_whw.payerUpi.trim())}&pn=${encodeURIComponent(_whw.payerName||'Flow')}&am=${s.amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(_whw.title||'Bill Split')}`;
-    const shareMsg=`Hi ${s.name}! 👋\n${_whw.payerName||'Someone'} paid for "${_whw.title||'the bill'}"\n\nYour share: ₹${s.amount.toFixed(2)}${s.items?'\n('+s.items+')':''}\n\nPay via UPI:\n${upiLink}\n\n— Sent via Flow`;
-    el.innerHTML=`
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
-        <a href="${upiLink}" style="flex:1;min-width:100px;text-align:center;padding:8px;font-size:11px;background:var(--text);color:var(--bg);border-radius:7px;text-decoration:none;font-family:'IBM Plex Mono',monospace;font-weight:600">📲 Pay ₹${s.amount.toFixed(2)}</a>
-        <button onclick="whwSharePerson('${s.id}',${JSON.stringify(shareMsg).replace(/'/g,"\\'")})" style="flex:1;min-width:80px;padding:8px;font-size:11px;background:var(--surface-alt);border:1px solid var(--border);border-radius:7px;cursor:pointer;color:var(--text);font-family:'IBM Plex Mono',monospace">🔗 Share</button>
-        <button onclick="whwMarkSettled('${s.id}')" style="flex:1;min-width:80px;padding:8px;font-size:11px;background:var(--surplus-bg);border:1px solid var(--surplus);border-radius:7px;cursor:pointer;color:var(--surplus);font-family:'IBM Plex Mono',monospace">✓ Settled</button>
+  const wrap=document.getElementById('whwCollectCards');if(!wrap)return;
+  const payer=_whw.persons.find(p=>p.isPayer);
+  const list=whwCalcSplits().filter(x=>!x.isPayer&&x.amount>0);
+  const hasUpi=!!(_whw.payerUpi||'').trim();
+  const prev=document.getElementById('whwCarousel');const keep=prev?prev.scrollLeft:0;
+  const got=list.filter(x=>x.settled).reduce((t,x)=>t+x.amount,0),due=list.filter(x=>!x.settled).reduce((t,x)=>t+x.amount,0);
+  const sumHtml=`<div class="whw-coll-sum"><div><span>Bill</span><strong>${fmt(whwTotals().total)}</strong></div><div><span>Received</span><strong class="ok">${fmt(got)}</strong></div><div><span>Pending</span><strong class="${due>0?'due':'ok'}">${fmt(due)}</strong></div></div>`;
+  if(!list.length){wrap.innerHTML='<div class="empty-msg">Nobody else owes anything on this bill.</div>';const d=document.getElementById('whwDots');if(d)d.innerHTML='';return;}
+  wrap.innerHTML=sumHtml+`<div class="whw-carousel" id="whwCarousel" onscroll="whwCarSync()">${list.map((x,i)=>`
+    <div class="whw-qr-card${x.settled?' settled':''}">
+      <div class="whw-qr-top">
+        <div class="whw-qr-av">${esc(whwInit2(x.name))}</div>
+        <div class="whw-qr-who"><div class="whw-qr-name">${esc(x.name)}</div><div class="whw-qr-sub">pays ${esc(payer?payer.name:'the payer')}</div></div>
+        <div class="whw-qr-step">${i+1} / ${list.length}</div>
       </div>
-      <div id="whwQr_${s.id}" style="text-align:center;margin-top:4px"></div>`;
-    // Generate QR
-    _loadQRLib(()=>whwGenQR(s.id,upiLink));
-  });
+      <div class="whw-qr-amt">${fmt(x.amount)}</div>
+      ${x.items?`<div class="whw-qr-items">${esc(x.items)}</div>`:''}
+      <div class="whw-qr-box" id="whwQr_${x.id}">${x.settled?'<div class="whw-qr-done"><span>✓</span>Received</div>':hasUpi?'<div class="whw-qr-empty">Loading QR…</div>':'<div class="whw-qr-empty">Add the UPI ID above to show a QR code here</div>'}</div>
+      <div class="whw-qr-hint">${x.settled?'Marked as received':hasUpi?'Show this to '+esc(x.name)+' to scan with any UPI app':'&nbsp;'}</div>
+      <div class="whw-qr-acts">${x.settled
+        ?`<button class="whw-qr-btn ghost" onclick="whwUnsettle('${x.id}')">Undo</button>`
+        :`<button class="whw-qr-btn ghost" onclick="whwShareReq('${x.id}')">Send request</button><button class="whw-qr-btn" onclick="whwMarkSettled('${x.id}')">Mark received</button>`}</div>
+    </div>`).join('')}</div>`;
+  const car=document.getElementById('whwCarousel');
+  car.scrollLeft=keep;
+  if(_whw._carGoto!=null){const g=_whw._carGoto;_whw._carGoto=null;setTimeout(()=>whwCarGo(g),30);}
+  whwCarSync();
+  if(hasUpi)_loadQRLib(()=>list.forEach(x=>{if(!x.settled)whwGenQR(x.id,whwUpiLink(x));}));
+}
+function whwCarSync(){
+  const car=document.getElementById('whwCarousel');if(!car)return;
+  const cards=[...car.children];if(!cards.length)return;
+  const mid=car.scrollLeft+car.clientWidth/2;let idx=0,best=1e9;
+  cards.forEach((c,i)=>{const d=Math.abs(c.offsetLeft+c.clientWidth/2-mid);if(d<best){best=d;idx=i;}});
+  const dotsEl=document.getElementById('whwDots');if(!dotsEl)return;
+  if(_whw._carIdx===idx&&dotsEl.children.length===cards.length&&!whwCarSync._force){return;}
+  whwCarSync._force=false;_whw._carIdx=idx;
+  dotsEl.innerHTML=cards.map((c,i)=>`<button class="whw-dot${i===idx?' on':''}${c.classList.contains('settled')?' ok':''}" onclick="whwCarGo(${i})" aria-label="Person ${i+1}"></button>`).join('');
+  const cnt=document.getElementById('whwCarCount');
+  if(cnt){const done=cards.filter(c=>c.classList.contains('settled')).length;cnt.textContent=done+' of '+cards.length+' received';}
+}
+function whwCarGo(i){
+  const car=document.getElementById('whwCarousel');const c=car&&car.children[i];
+  if(c)car.scrollTo({left:c.offsetLeft-(car.clientWidth-c.clientWidth)/2,behavior:'smooth'});
 }
 function whwGenQR(personId,upiLink){
   const wrap=document.getElementById('whwQr_'+personId);
   if(!wrap)return;
   if(window._whwQRReady==='err'||typeof QRCode==='undefined'){
-    wrap.innerHTML=`<div style="font-size:9px;color:var(--faint);word-break:break-all;padding:5px;border:1px dashed var(--border);border-radius:5px">${upiLink}</div>`;
+    wrap.innerHTML=`<div class="whw-qr-empty" style="word-break:break-all">${esc(upiLink)}</div>`;
     return;
   }
-  wrap.innerHTML='<div id="whwQrCanvas_'+personId+'"></div>';
-  try{new QRCode(document.getElementById('whwQrCanvas_'+personId),{text:upiLink,width:130,height:130,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});}
+  wrap.innerHTML='<div class="whw-qr-canvas" id="whwQrCanvas_'+personId+'"></div>';
+  try{new QRCode(document.getElementById('whwQrCanvas_'+personId),{text:upiLink,width:200,height:200,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});}
   catch(e){wrap.innerHTML='';}
 }
 function whwMarkSettled(personId){
   _whw.settled[personId]=true;
-  whwAutoSave();
-  whwRender();
-  setTimeout(whwRenderCollect,80);
+  try{whwAutoSave();}catch(e){}
+  if(_whw.step!==3){whwRender();return;}
+  // move on to the next person who hasn't paid yet
+  const list=whwCalcSplits().filter(x=>!x.isPayer&&x.amount>0);
+  const cur=list.findIndex(x=>String(x.id)===String(personId));
+  let next=-1;for(let k=1;k<=list.length;k++){const j=(cur+k)%list.length;if(!list[j].settled){next=j;break;}}
+  _whw._carGoto=next>=0?next:cur;whwCarSync._force=true;
+  whwRenderCollect();
+  if(next<0)showToast('All collected','Everyone has paid '+(_whw.payerName||'the payer')+'.');
 }
 function whwUnsettle(personId){
   delete _whw.settled[personId];
-  whwAutoSave();
-  whwRender();
-  setTimeout(whwRenderCollect,80);
+  try{whwAutoSave();}catch(e){}
+  if(_whw.step!==3){whwRender();return;}
+  whwCarSync._force=true;whwRenderCollect();
+}
+function whwShareReq(personId){
+  const x=whwCalcSplits().find(y=>String(y.id)===String(personId));if(!x)return;
+  const upi=(_whw.payerUpi||'').trim();
+  const msg=`Hi ${x.name},\n${_whw.payerName||'I'} paid for "${_whw.title||'the bill'}".\nYour share: ₹${x.amount.toFixed(2)}${x.items?'\n('+x.items+')':''}`
+    +(upi?`\n\nUPI ID: ${upi}\nPay link: ${whwUpiLink(x)}`:'')+`\n\nSent via Flow`;
+  whwSharePerson(personId,msg);
 }
 function whwSharePerson(personId,msg){
   if(navigator.share){navigator.share({title:'Bill Split',text:msg}).catch(()=>{});}
