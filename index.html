@@ -3836,7 +3836,7 @@ img,canvas,svg,video{max-width:100%}
       <span class="wn-version-date">Nov 2026</span>
       <span class="wn-version-label wn-label-major">Feature Update</span>
     </div>
-    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🍕 Slice It v2 — Full Bill Splitting Wizard</div><div class="wn-entry-desc">Completely rebuilt from scratch. 5-step wizard: add items with quantity and price → assign each item to the right person → adjust for tax, tip and service charge → collect payment via UPI deep link or inline QR code → view net settlements (minimum transfers). Supports saved groups, 30-session history, payer's own share shown as "keeps ₹X", round-up option, and saves directly to Bill Split.</div></div></div>
+    <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🍕 Slice It — simpler, 3 steps</div><div class="wn-entry-desc">Items → Who Had → Collect. Say exactly how many of each item every person had (2 naans, 1 juice, 3 nuggets), or split by shares. Pick who paid, set tax/tip/discount in one collapsible section and see what each person pays live. Collect with one swipeable payment-QR card per person. New: create and edit people groups, and delete saved splits from History.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">📅 Pay Day Planner — Cash Flow Heat Map</div><div class="wn-entry-desc">A new sub-tab under Planner. Set your pay day and the calendar automatically colour-codes every day of the month: Indigo for pay day, Red for high-outflow days (bills, EMIs, loan payments), Amber for medium outflow, and Green for free-buffer days. See your free-money window — the gap between pay day and your first big payment — plus a summary of all high-outflow dates. Reads your existing Bills, Subscriptions, and Loan data automatically.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🧬 Financial Fingerprint — Your Money DNA</div><div class="wn-entry-desc">A new sub-tab under Planner. Analyses the last 90 days of your Daily Expense data to generate a Flow Score (0–100), a spending archetype (Planner, Balanced, Saver, Explorer, Impulsive or Cautious), and a radar chart across 5 dimensions: Saving Rate, Spending Discipline, Income Stability, Investment Consistency, and Budget Adherence. Also shows peak spend day, peak spend time-of-day, average daily spend, and top 3 categories. No manual input required.</div></div></div>
     <div class="wn-entry"><span class="wn-badge wn-badge-new">New</span><div class="wn-entry-body"><div class="wn-entry-title">🫂 Circle Finance — Shared Ledger for Two</div><div class="wn-entry-desc">A new sub-tab under Bills. A persistent shared financial ledger for couples, flatmates or travel partners. Each entry is tagged as yours or your partner's, with a split mode: equal (50/50), full (payer owes nothing), my expense only, or their expense only. The running balance updates instantly — shows who owes whom. Settle directly via UPI or share a text snapshot with your partner.</div></div></div>
@@ -4713,9 +4713,9 @@ function renderAccStatement(accId,panel){
     ${!txns.length?'<div class="empty-msg" style="padding:16px 0;text-align:center">No transactions tagged to this account yet.</div>':txnHtml}`;
 }
 function deleteAccount(id){
-  if(!confirm('Remove this account? Entries linked to it will lose the account tag.'))return;
+  flowAsk('Remove this account? Entries linked to it will lose the account tag.',()=>{
   ACCOUNTS=ACCOUNTS.filter(a=>a.id!==id);
-  saveAccounts();renderAccounts();
+  saveAccounts();renderAccounts();});
 }
 function renderAccounts(){
   const addForm=document.getElementById('accountAddForm');
@@ -5319,7 +5319,7 @@ function closeBillPayConfirm(){
   if(modal)modal.classList.remove('open');
   _billPayConfirmId=null;
 }
-function deleteBill(id){if(!confirm('Delete this bill?'))return;BILLS=BILLS.filter(b=>b.id!==id);saveBills();renderBills()}
+function deleteBill(id){flowAsk('Delete this bill?',()=>{BILLS=BILLS.filter(b=>b.id!==id);saveBills();renderBills()})}
 function renderBills(){
   const groups={overdue:[],soon:[],upcoming:[],paid:[]};
   BILLS.forEach(b=>{const s=billStatus(b);groups[s].push({...b,_s:s})});
@@ -5424,7 +5424,7 @@ function saveGoal(){
   document.getElementById('goalForm').style.display='none';renderGoals();updateInvestSummary();
 }
 function addToGoal(id){const inp=document.getElementById('gadd_'+id),amt=parseFloat(inp.value)||0;if(!amt)return;const g=INVEST.goals.find(x=>x.id===id);if(!g)return;g.current=Math.min(g.current+amt,g.target);inp.value='';saveInvest();renderGoals();updateInvestSummary()}
-function deleteGoal(id){if(!confirm('Delete goal?'))return;INVEST.goals=INVEST.goals.filter(g=>g.id!==id);saveInvest();renderGoals();updateInvestSummary()}
+function deleteGoal(id){flowAsk('Delete goal?',()=>{INVEST.goals=INVEST.goals.filter(g=>g.id!==id);saveInvest();renderGoals();updateInvestSummary()})}
 function renderGoals(){
   const list=document.getElementById('goalList');
   if(!INVEST.goals.length){list.innerHTML='<div class="empty-msg">No savings goals yet</div>';return}
@@ -5619,7 +5619,7 @@ async function refreshAllNAV(){
   }catch(e){console.error('[Flow] NAV refresh error:',e);showToast('NAV Error','Refresh failed: '+e.message);}
   finally{btn.textContent='↻ Refresh NAV';btn.disabled=false;}
 }
-function deleteMF(id){if(!confirm('Remove holding?'))return;INVEST.mf=INVEST.mf.filter(h=>h.id!==id);saveInvest();renderMFTable();updateInvestSummary()}
+function deleteMF(id){flowAsk('Remove holding?',()=>{INVEST.mf=INVEST.mf.filter(h=>h.id!==id);saveInvest();renderMFTable();updateInvestSummary()})}
 function renderMFTable(){
   const body=document.getElementById('mfBody');
   if(!INVEST.mf.length){body.innerHTML=`<tr><td colspan="8" style="text-align:center;color:var(--faint);padding:24px;font-size:12px">No MF holdings yet. Search above to add a fund.</td></tr>`;return}
@@ -5719,7 +5719,7 @@ function addHolding(){
   document.getElementById('holdForm').style.display='none';
   renderHoldingsTable();updateInvestSummary();
 }
-function deleteHolding(id){if(!confirm('Remove?'))return;INVEST.holdings=INVEST.holdings.filter(h=>h.id!==id);saveInvest();renderHoldingsTable();updateInvestSummary()}
+function deleteHolding(id){flowAsk('Remove?',()=>{INVEST.holdings=INVEST.holdings.filter(h=>h.id!==id);saveInvest();renderHoldingsTable();updateInvestSummary()})}
 function updateHoldingCur(id,val){
   const h=INVEST.holdings.find(x=>x.id===id);if(!h)return;
   if(h.type==='FD'&&h.fdRate){
@@ -6013,7 +6013,7 @@ function addFD(){
   toggleForm('fdTrackForm');
   renderFDTable();updateInvestSummary();
 }
-function deleteFD(id){if(!confirm('Remove FD?'))return;INVEST.fds=INVEST.fds.filter(f=>f.id!==id);saveInvest();renderFDTable();updateInvestSummary()}
+function deleteFD(id){flowAsk('Remove FD?',()=>{INVEST.fds=INVEST.fds.filter(f=>f.id!==id);saveInvest();renderFDTable();updateInvestSummary()})}
 function renderFDTable(){
   if(!INVEST.fds)INVEST.fds=[];
   const body=document.getElementById('fdBody');if(!body)return;
@@ -6441,7 +6441,7 @@ function addLoan(){
   renderLoans();
   renderDebtPayoff();
 }
-function deleteLoan(id){if(!confirm('Remove loan?'))return;LOANS=LOANS.filter(l=>l.id!==id);saveLoans();renderDebtPayoff()}
+function deleteLoan(id){flowAsk('Remove loan?',()=>{LOANS=LOANS.filter(l=>l.id!==id);saveLoans();renderDebtPayoff()})}
 function loanOutstanding(l){
   if(!l||l.monthsPaid<=0)return l?l.principal:0;
   const mr=l.rate/100/12;
@@ -6727,7 +6727,7 @@ function settleSplitMember(splitId,memberId){
   const m=sp.members.find(x=>x.id===memberId);if(m)m.settled=true;
   saveSplits();renderSplits();
 }
-function deleteSplit(id){if(!confirm('Delete this split?'))return;SPLITS=SPLITS.filter(s=>s.id!==id);saveSplits();renderSplits()}
+function deleteSplit(id){flowAsk('Delete this split?',()=>{SPLITS=SPLITS.filter(s=>s.id!==id);saveSplits();renderSplits();renderSplits('splitListCircle');showToast('Deleted','Split removed')})}
 function renderSplitsCircle(){renderSplits('splitListCircle');}
 function renderSplits(targetId){
   const el=document.getElementById(targetId||'splitList');if(!el)return;
@@ -6894,7 +6894,7 @@ function applyTemplate(id){
   save();render();
   alert('Template applied.');
 }
-function deleteTemplate(id){if(!confirm('Delete template?'))return;TEMPLATES=TEMPLATES.filter(t=>t.id!==id);saveTemplates();renderTemplates()}
+function deleteTemplate(id){flowAsk('Delete template?',()=>{TEMPLATES=TEMPLATES.filter(t=>t.id!==id);saveTemplates();renderTemplates()})}
 function renderTemplates(){
   const el=document.getElementById('tmplCards');if(!el)return;
   const emp=document.getElementById('tmplEmpty');
@@ -7445,7 +7445,7 @@ function unmarkSubPaid(id){
   s.paidMonths=(s.paidMonths||[]).filter(m=>m!==mk);
   saveSubs();renderSubs();
 }
-function deleteSub(id){if(!confirm('Delete subscription?'))return;SUBS=SUBS.filter(s=>s.id!==id);saveSubs();renderSubs()}
+function deleteSub(id){flowAsk('Delete subscription?',()=>{SUBS=SUBS.filter(s=>s.id!==id);saveSubs();renderSubs()})}
 function updateSubStatus(id,status){const s=SUBS.find(x=>x.id===id);if(s){s.status=status;saveSubs();renderSubs();}}
 function renderSubs(){
   const el=document.getElementById('subList');if(!el)return;
@@ -7538,7 +7538,7 @@ function editInsurance(id){
   const ft=document.getElementById('insFormTitle');if(ft)ft.textContent='Edit Policy';
   const f=document.getElementById('insForm');f.style.display='block';f.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-function deleteInsurance(id){if(!confirm('Delete this policy?'))return;INSURANCE=INSURANCE.filter(p=>p.id!==id);saveInsurance();renderInsurance();}
+function deleteInsurance(id){flowAsk('Delete this policy?',()=>{INSURANCE=INSURANCE.filter(p=>p.id!==id);saveInsurance();renderInsurance();})}
 function renderInsurance(){
   const el=document.getElementById('insList');if(!el)return;
   // Annual premium outlay across all policies
@@ -7643,7 +7643,7 @@ function renderNWChart(){
     </div>`;
   }).join('');
 }
-function deleteNWEntry(key){if(!confirm('Remove this entry?'))return;NW_HISTORY=NW_HISTORY.filter(x=>x.key!==key);saveNWHistory();renderNWChart();}
+function deleteNWEntry(key){flowAsk('Remove this entry?',()=>{NW_HISTORY=NW_HISTORY.filter(x=>x.key!==key);saveNWHistory();renderNWChart();})}
 
 // ══ RETIREMENT CALCULATOR ════════════════════════════════
 function calcRetire(){
@@ -7754,9 +7754,9 @@ function saveNote(){
 }
 function deleteCurrentNote(){
   if(editingNoteId){
-    if(!confirm('Delete this note?'))return;
+    flowAsk('Delete this note?',()=>{
     NOTES=NOTES.filter(x=>x.id!==editingNoteId);
-    saveNotes();closeNoteEditor();renderNotes();
+    saveNotes();closeNoteEditor();renderNotes();});
   }else{closeNoteEditor();}
 }
 function renderNotes(){
@@ -7959,10 +7959,10 @@ function addSIPTxn(){
 }
 function deleteSIPTxn(txnId){
   const h=(INVEST.mf||[]).find(x=>x.id===_sipLedgerId);if(!h||!h.txns)return;
-  if(!confirm('Remove this instalment from the ledger?'))return;
+  flowAsk('Remove this instalment from the ledger?',()=>{
   h.txns=h.txns.filter(t=>t.id!==txnId);
   recomputeMFFromTxns(h);
-  saveInvest();renderSIPLedger();renderMFTable();renderMFSIPSummary();updateInvestSummary();
+  saveInvest();renderSIPLedger();renderMFTable();renderMFSIPSummary();updateInvestSummary();});
 }
 
 
@@ -8940,6 +8940,20 @@ function scheduleSmartNotifications(){
 }
 
 // ── Toast utility ────────────────────────────────────────────
+
+// ── In-app confirm (native confirm() is unreliable in iOS home-screen apps) ──
+function flowAsk(msg,onYes,okLabel){
+  const old=document.getElementById('flowAskBox');if(old)old.remove();
+  const d=document.createElement('div');d.id='flowAskBox';
+  d.innerHTML='<div class="fa-card" role="dialog"><div class="fa-msg"></div><div class="fa-btns"><button class="btn-ghost fa-no" type="button">Cancel</button><button class="fa-yes" type="button"></button></div></div>';
+  d.querySelector('.fa-msg').textContent=msg;
+  const y=d.querySelector('.fa-yes');y.textContent=okLabel||'Delete';
+  const close=()=>d.remove();
+  d.addEventListener('click',e=>{if(e.target===d)close();});
+  d.querySelector('.fa-no').onclick=close;
+  y.onclick=()=>{close();try{onYes();}catch(e){console.error(e);showToast('Something went wrong',String(e.message||e));}};
+  document.body.appendChild(d);
+}
 function showToast(title,body,duration){
   const stack=document.getElementById('toastStack');
   if(!stack)return;
@@ -12339,9 +12353,9 @@ const FLOW_CURRENT_VER='2.9.1';
 .whw-item-foot.ok{color:var(--surplus)}
 .whw-collect-hd{display:flex;justify-content:space-between;align-items:baseline;margin:16px 0 8px}
 .whw-car-count{font-size:11px;color:var(--muted)}
-.whw-carousel{position:relative;display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 9% 6px;margin:0 -14px;overscroll-behavior-x:contain}
+.whw-carousel{position:relative;display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 0 6px;overscroll-behavior-x:contain}
 .whw-carousel::-webkit-scrollbar{display:none}
-.whw-qr-card{flex:0 0 82%;max-width:360px;scroll-snap-align:center;scroll-snap-stop:always;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.whw-qr-card{flex:0 0 100%;max-width:none;box-sizing:border-box;scroll-snap-align:center;scroll-snap-stop:always;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px;display:flex;flex-direction:column;align-items:center;text-align:center}
 .whw-qr-top{display:flex;align-items:center;gap:10px;width:100%;text-align:left}
 .whw-qr-av{width:38px;height:38px;border-radius:50%;background:var(--surface-alt);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
 .whw-qr-who{flex:1;min-width:0}
@@ -12360,7 +12374,9 @@ const FLOW_CURRENT_VER='2.9.1';
 .whw-qr-acts{display:flex;gap:8px;width:100%;margin-top:14px}
 .whw-qr-btn{flex:1;height:42px;border-radius:12px;border:1px solid var(--text);background:var(--text);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer}
 .whw-qr-btn.ghost{background:var(--surface);color:var(--text);border-color:var(--border)}
-.whw-dots{display:flex;justify-content:center;gap:6px;margin:10px 0 14px}
+.whw-dots{display:flex;justify-content:center;align-items:center;gap:6px;margin:10px 0 14px}
+.whw-arrow{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:20px;line-height:1;padding:0;margin:0 8px;cursor:pointer}
+.whw-arrow:disabled{opacity:.3;cursor:default}
 .whw-dot{width:7px;height:7px;padding:0;border-radius:50%;border:none;background:var(--border);cursor:pointer;transition:width .2s}
 .whw-dot.ok{background:var(--surplus);opacity:.55}
 .whw-dot.on{width:20px;border-radius:4px;background:var(--text);opacity:1}
@@ -12392,6 +12408,19 @@ const FLOW_CURRENT_VER='2.9.1';
 .whw-coll-sum strong{font-size:15px}
 .whw-coll-sum .ok{color:var(--surplus)}.whw-coll-sum .due{color:var(--amber)}
 .whw-collect-foot{display:flex;flex-direction:column;gap:8px}
+
+#flowAskBox{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:20px;padding-bottom:max(20px,env(safe-area-inset-bottom))}
+.fa-card{background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:16px;padding:20px;width:100%;max-width:340px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.fa-msg{font-size:14px;line-height:1.5;margin-bottom:16px;white-space:pre-line}
+.fa-btns{display:flex;gap:10px}.fa-btns button{flex:1;padding:11px;font-size:14px;border-radius:10px;cursor:pointer}
+.fa-yes{background:#dc2626;color:#fff;border:none;font-weight:600}
+.whw-hist-del{border:none;background:none;color:var(--faint);font-size:20px;line-height:1;padding:6px 8px;margin-left:4px;cursor:pointer}
+.whw-hist-del:hover{color:#dc2626}
+.whw-grp-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.whw-group-chip .gx{margin-left:4px;color:var(--faint);padding:0 3px;font-size:13px}
+.whw-newgrp{font-size:11px;padding:5px 11px;border:1px dashed var(--muted);border-radius:14px;background:none;color:var(--text);cursor:pointer}
+#whwGrpBox textarea,#whwGrpBox input{width:100%;font-size:16px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface-alt);color:var(--text);margin-bottom:8px;font-family:inherit;box-sizing:border-box}
+#whwGrpBox textarea{min-height:110px;resize:vertical}
 </style>
 
 <div id="whwOverlay">
@@ -12535,11 +12564,12 @@ function whwRenderStep1(){
       <button class="whw-person-del" onclick="_whw.persons.splice(${i},1);whwRender()">×</button>
     </div>`).join('');
 
-  const groupHtml=groups.length?`
-    <div style="margin-bottom:10px">
-      <div class="whw-sec-label">Saved Groups</div>
-      <div>${groups.map((g,gi)=>`<span class="whw-group-chip" onclick="whwLoadGroup(${gi})">👥 ${esc(g.name)} <span style="color:var(--faint)">(${g.members.length})</span></span>`).join('')}</div>
-    </div>`:'';
+  const groupHtml=`
+    <div style="margin-bottom:12px">
+      <div class="whw-sec-label">Groups</div>
+      <div class="whw-grp-bar">${groups.map((g,gi)=>`<span class="whw-group-chip" onclick="whwLoadGroup(${gi})">👥 ${esc(g.name)} <span style="color:var(--faint)">(${g.members.length})</span><span class="gx" onclick="event.stopPropagation();whwEditGroup(${gi})" title="Edit">✎</span><span class="gx" onclick="event.stopPropagation();whwDeleteGroup(${gi})" title="Delete">×</span></span>`).join('')}<button class="whw-newgrp" onclick="whwEditGroup(-1)">+ New group</button></div>
+      ${groups.length?'':'<div style="font-size:10.5px;color:var(--faint);margin-top:6px">Save your regular people once, then add them to any bill in one tap.</div>'}
+    </div>`;
 
   return `
     <div style="margin-bottom:12px">
@@ -12561,7 +12591,7 @@ function whwRenderStep1(){
     <div style="margin-bottom:8px">
       <div class="whw-sec-label" style="display:flex;justify-content:space-between">
         <span>People &nbsp;<span style="color:var(--faint);font-weight:400">${_whw.persons.length}</span></span>
-        ${_whw.persons.length>=2?`<button onclick="whwSaveGroup()" style="font-size:9px;padding:2px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface-alt);color:var(--muted);cursor:pointer">Save as Group</button>`:''}
+        ${_whw.persons.length>=2?`<button onclick="whwEditGroup(-2)" style="font-size:10.5px;padding:3px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface-alt);color:var(--text);cursor:pointer">Save as group</button>`:''}
       </div>
       ${personRows||'<div style="font-size:11px;color:var(--faint);padding:5px 0">Add everyone splitting this bill, including you.</div>'}
       <div class="whw-add-row" style="margin-top:8px">
@@ -12609,13 +12639,40 @@ function whwLoadGroup(gi){
   showToast('Group loaded',g.name+' · '+g.members.length+' people added');
   whwRender();
 }
-function whwSaveGroup(){
-  const name=prompt('Group name (e.g. "Office Gang"):');
-  if(!name||!name.trim())return;
+function whwSaveGroup(){whwEditGroup(-2);}
+function whwEditGroup(gi){
   const groups=_whwGetGroups();
-  groups.push({name:name.trim(),members:_whw.persons.map(p=>({name:p.name,upiId:p.upiId}))});
-  _whwSaveGroups(groups);
-  showToast('Group saved',name.trim()+' · '+_whw.persons.length+' people');
+  const g=gi>=0?groups[gi]:null;
+  let name=g?g.name:'';
+  let lines=g?g.members:(gi===-2?_whw.persons.map(p=>({name:p.name,upiId:p.upiId})):[]);
+  const txt=lines.map(m=>m.name+(m.upiId?', '+m.upiId:'')).join('\n');
+  const old=document.getElementById('flowAskBox');if(old)old.remove();
+  const d=document.createElement('div');d.id='flowAskBox';
+  d.innerHTML='<div class="fa-card" id="whwGrpBox"><div class="fa-msg" style="font-weight:600;margin-bottom:10px"></div><input id="whwGrpName" placeholder="Group name (e.g. Office Gang)" autocomplete="off"><textarea id="whwGrpMembers" placeholder="One person per line\nAsha, asha@upi\nRavi"></textarea><div style="font-size:10.5px;color:var(--faint);margin:-2px 0 12px">Name, then optional UPI ID after a comma.</div><div class="fa-btns"><button class="btn-ghost fa-no" type="button">Cancel</button><button class="btn-primary fa-save" type="button">Save group</button></div></div>';
+  d.querySelector('.fa-msg').textContent=g?'Edit group':'New group';
+  d.querySelector('#whwGrpName').value=name;
+  d.querySelector('#whwGrpMembers').value=txt;
+  d.addEventListener('click',e=>{if(e.target===d)d.remove();});
+  d.querySelector('.fa-no').onclick=()=>d.remove();
+  d.querySelector('.fa-save').onclick=()=>{
+    const nm=d.querySelector('#whwGrpName').value.trim();
+    const members=d.querySelector('#whwGrpMembers').value.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const p=l.split(',');return{name:p[0].trim(),upiId:(p[1]||'').trim()};}).filter(m=>m.name);
+    if(!nm){showToast('Name the group','');return;}
+    if(!members.length){showToast('Add at least one person','');return;}
+    const all=_whwGetGroups();
+    if(g)all[gi]={name:nm,members};else all.push({name:nm,members});
+    _whwSaveGroups(all);d.remove();
+    showToast('Group saved',nm+' · '+members.length+' people');
+    whwRender();
+  };
+  document.body.appendChild(d);
+  setTimeout(()=>{const n=d.querySelector('#whwGrpName');if(n&&!n.value)n.focus();},50);
+}
+function whwDeleteGroup(gi){
+  const g=_whwGetGroups()[gi];if(!g)return;
+  flowAsk('Delete group "'+g.name+'"? Your saved bills are not affected.',()=>{
+    const a=_whwGetGroups();a.splice(gi,1);_whwSaveGroups(a);whwRender();
+  });
 }
 
 // ── STEP 2 ────────────────────────────────────────────────────
@@ -12925,7 +12982,7 @@ function whwCarSync(){
   const dotsEl=document.getElementById('whwDots');if(!dotsEl)return;
   if(_whw._carIdx===idx&&dotsEl.children.length===cards.length&&!whwCarSync._force){return;}
   whwCarSync._force=false;_whw._carIdx=idx;
-  dotsEl.innerHTML=cards.map((c,i)=>`<button class="whw-dot${i===idx?' on':''}${c.classList.contains('settled')?' ok':''}" onclick="whwCarGo(${i})" aria-label="Person ${i+1}"></button>`).join('');
+  dotsEl.innerHTML=`<button class="whw-arrow" onclick="whwCarGo(${Math.max(0,idx-1)})" ${idx===0?'disabled':''} aria-label="Previous">‹</button>`+cards.map((c,i)=>`<button class="whw-dot${i===idx?' on':''}${c.classList.contains('settled')?' ok':''}" onclick="whwCarGo(${i})" aria-label="Person ${i+1}"></button>`).join('')+`<button class="whw-arrow" onclick="whwCarGo(${Math.min(cards.length-1,idx+1)})" ${idx===cards.length-1?'disabled':''} aria-label="Next">›</button>`;
   const cnt=document.getElementById('whwCarCount');
   if(cnt){const done=cards.filter(c=>c.classList.contains('settled')).length;cnt.textContent=done+' of '+cards.length+' received';}
 }
@@ -13092,12 +13149,20 @@ function whwSaveToBillSplit(){
 }
 
 // ── History ───────────────────────────────────────────────────
+function whwDeleteHistory(id){
+  flowAsk('Delete this saved split?',()=>{
+    _whwSaveHistory(_whwGetHistory().filter(h=>h.id!==id));
+    if(_whw&&_whw.id===id){_whw.id='whw_'+Date.now();}
+    showToast('Deleted','Split removed from history');
+    whwShowHistory();
+  });
+}
 function whwShowHistory(){
   const hist=_whwGetHistory();
   const body=document.getElementById('whwBody');
-  if(!hist.length){body.innerHTML='<div class="empty-msg" style="padding:28px 0">No past splits yet.</div>';return;}
+  if(!hist.length){body.innerHTML='<div class="empty-msg" style="padding:28px 0">No past splits yet.</div><button class="btn-ghost" style="width:100%" onclick="whwRender()">← Back</button>';return;}
   body.innerHTML=`
-    <div class="whw-sec-label" style="margin-bottom:10px">Past Splits</div>
+    <div class="whw-sec-label" style="margin-bottom:10px;display:flex;justify-content:space-between"><span>Past Splits</span><button class="btn-ghost btn-sm" style="font-size:10px;padding:2px 9px" onclick="whwRender()">← Back</button></div>
     ${hist.map(h=>{
       const sub=h.items.reduce((s,it)=>s+it.qty*it.price,0);
       const taxAmt=h.taxType==='%'?sub*((h.tax||0)/100):(h.tax||0);
@@ -13107,7 +13172,7 @@ function whwShowHistory(){
       const settledCount=Object.values(h.settled||{}).filter(Boolean).length;
       const totalPeople=h.persons.filter(p=>!p.isPayer).length;
       return `<div class="whw-history-row" onclick="openWhw('${h.id}')">
-        <div>
+        <div style="flex:1;min-width:0">
           <div style="font-size:12px;font-weight:600">${esc(h.title||'Split')}</div>
           <div style="font-size:10px;color:var(--faint)">${h.persons.length} people · ${h.items.length} items · ${h.savedAt?new Date(h.savedAt).toLocaleDateString('en-IN'):''}</div>
         </div>
@@ -13115,6 +13180,7 @@ function whwShowHistory(){
           <div style="font-size:13px;font-weight:700">${fmt(total)}</div>
           <div>${settledCount>=totalPeople?'<span class="whw-settled-badge">All settled</span>':'<span class="whw-unsettled-badge">'+settledCount+'/'+totalPeople+' settled</span>'}</div>
         </div>
+        <button class="whw-hist-del" aria-label="Delete" onclick="event.stopPropagation();whwDeleteHistory('${h.id}')">×</button>
       </div>`;
     }).join('')}`;
 }
@@ -13514,11 +13580,11 @@ function circleSaveSetup(){
   _circleSave(d);renderCircleFinanceC();
 }
 function circleReset(){
-  if(!confirm('Reset your Circle? All entries will be deleted.'))return;
+  flowAsk('Reset your Circle? All entries will be deleted.',()=>{
   localStorage.removeItem('CIRCLE_DATA');
   const mn=document.getElementById('circleMyNameC');const pn=document.getElementById('circlePartnerNameC');
   if(mn)mn.value='';if(pn)pn.value='';
-  renderCircleFinanceC();
+  renderCircleFinanceC();});
 }
 function circleAddEntry(){circleAddEntryC();}
 function circleAddEntryC(){
